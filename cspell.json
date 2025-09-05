@@ -1,0 +1,29 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "fuser",
+    "cmdk",
+    "vaul",
+    "lucide",
+    "shadcn",
+    "vite",
+    "tailwindcss",
+    "clsx",
+    "framer",
+    "radix",
+    "jobcard"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "*.md",
+    "*.markdown",
+    "jobcard.md",
+    "README.md",
+    "FIXES_SUMMARY.md",
+    "PRD.md",
+    "SECURITY.md"
+  ]
+}

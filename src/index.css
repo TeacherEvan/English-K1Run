@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+@import "tw-animate-css";
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    font-family: 'Fredoka', cursive;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  /* Responsive font scaling */
+  html {
+    font-size: calc(16px * var(--font-scale, 1));
+  }
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.3 0.1 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.3 0.1 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.3 0.1 240);
+  --primary: oklch(0.65 0.25 240);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.8 0.18 85);
+  --secondary-foreground: oklch(0.3 0.1 240);
+  --muted: oklch(0.95 0.02 240);
+  --muted-foreground: oklch(0.5 0.05 240);
+  --accent: oklch(0.7 0.2 45);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.7 0.25 15);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0.02 240);
+  --input: oklch(0.9 0.02 240);
+  --ring: oklch(0.65 0.25 240);
+  --success: oklch(0.6 0.15 140);
+  --success-foreground: oklch(1 0 0);
+  --radius: 1rem;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 3);
+  --radius-full: 9999px;
+}
+
+/* Game-specific animations with optimized performance */
+@keyframes bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes celebrate {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.1) rotate(5deg); }
+}
+
+@keyframes turtle-hop {
+  0%, 100% { transform: translateY(0) scale(var(--turtle-scale, 1)); }
+  50% { transform: translateY(-20px) scale(var(--turtle-scale, 1)); }
+}
+
+@keyframes firework-burst {
+  0% { 
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(3) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-fall {
+  0% { 
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.bounce-in {
+  animation: bounce-in 0.3s ease-out;
+}
+
+.celebrate {
+  animation: celebrate 0.6s ease-in-out infinite;
+}
+
+.turtle-hop {
+  animation: turtle-hop 0.4s ease-in-out;
+}
+
+.firework-burst {
+  animation: firework-burst 1.5s ease-out forwards;
+}
+
+.confetti-fall {
+  animation: confetti-fall 3s ease-in forwards;
+}
+
+.game-area {
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.2) 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .falling-object {
+    font-size: calc(1.2em * var(--object-scale, 1));
+  }
+}
+
+@media (min-width: 1920px) {
+  .falling-object {
+    font-size: calc(1.1em * var(--object-scale, 1));
+  }
+}
+
+/* Orientation-specific adjustments */
+@media (orientation: portrait) and (max-width: 768px) {
+  .falling-object {
+    font-size: calc(1.4em * var(--object-scale, 1));
+    animation-duration: calc(var(--fall-speed-scale, 1) * 1.5s);
+  }
+  
+  /* Adjust layout for portrait mode */
+  .game-area {
+    padding-top: calc(6rem * var(--spacing-scale, 1));
+  }
+}
+
+/* Very large screen adjustments */
+@media (min-width: 2560px) {
+  .falling-object {
+    font-size: calc(1.2em * var(--object-scale, 1));
+  }
+}
+
+/* Ultra-wide screen adjustments */
+@media (min-aspect-ratio: 21/9) {
+  .game-area {
+    background: linear-gradient(180deg, 
+      rgba(255, 255, 255, 0.05) 0%, 
+      rgba(255, 255, 255, 0.15) 100%);
+  }
+}
+
+/* Main game background with scraped image */
+.bg-background {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2971&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
