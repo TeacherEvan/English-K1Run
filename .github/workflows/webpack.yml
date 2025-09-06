@@ -1,3 +1,6 @@
+permissions:
+  contents: write
+
 name: NodeJS with Webpack
 
 on:
