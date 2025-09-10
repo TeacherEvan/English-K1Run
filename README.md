@@ -41,6 +41,22 @@ npm install
 npm run dev
 ```
 
+### Docker Deployment (Recommended for Schools)
+
+For easy deployment in educational environments:
+
+```bash
+# Build and run with Docker Compose (Production)
+docker-compose up -d
+
+# For development with hot reloading
+docker-compose --profile dev up kindergarten-race-dev
+
+# Or build manually
+docker build -t kindergarten-race .
+docker run -p 3000:80 kindergarten-race
+```
+
 ### Available Scripts
 - `npm run dev` - Start development server
 - `npm run build` - Build for production (requires TypeScript compilation)

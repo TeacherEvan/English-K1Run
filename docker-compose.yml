@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  kindergarten-race:
+    build: .
+    ports:
+      - "3000:80"
+    container_name: kindergarten-race-game
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+  # Optional: Add a development service
+  kindergarten-race-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    container_name: kindergarten-race-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - app-network
+    profiles:
+      - dev
+
+networks:
+  app-network:
+    driver: bridge

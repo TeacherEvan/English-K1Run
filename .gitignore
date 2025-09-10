@@ -24,6 +24,16 @@ dist-ssr
 *.sln
 *.sw?
 
+# Spellchecker cache and temporary files (keep cspell.json config)
+.cspell-cache
+.spellcheck-*
+.spelling
+.words
+.spellcheck-en
+.spellcheck-cache
+*.cspell-cache
+.vscode-spell-checker*
+
 .env
 **/agent-eval-report*
 packages
