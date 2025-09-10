@@ -5,16 +5,19 @@ An engaging educational racing game where two players compete by identifying fal
 ## 🎮 Game Features
 
 ### Split-Screen Racing Interface
+
 - **Two-Player Competitive Gameplay**: Side-by-side game areas with turtle characters racing to the top
 - **Real-time Competition**: Players advance by correctly identifying falling objects
 - **Responsive Touch Controls**: Optimized for tablets and touch devices
 
 ### Educational Categories
+
 - **Fruits**: Learn to identify different fruits 🍎🍌🍊
 - **Numbers**: Number recognition and counting 🔢
 - **Alphabet**: Letter identification and phonics 📝
 
 ### Dynamic Gameplay
+
 - **Falling Object System**: Objects continuously fall from the top with highlighted targets
 - **Progressive Difficulty**: Game gets more challenging as players advance
 - **Visual Feedback**: Smooth animations and celebratory effects
@@ -23,10 +26,12 @@ An engaging educational racing game where two players compete by identifying fal
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - npm or yarn package manager
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -58,6 +63,7 @@ docker run -p 3000:80 kindergarten-race
 ```
 
 ### Available Scripts
+
 - `npm run dev` - Start development server
 - `npm run build` - Build for production (requires TypeScript compilation)
 - `npm run preview` - Preview production build
@@ -75,6 +81,7 @@ docker run -p 3000:80 kindergarten-race
 ## 🎯 Educational Goals
 
 This game is designed to help kindergarten students develop:
+
 - **Pattern Recognition**: Identifying objects and matching targets
 - **Hand-Eye Coordination**: Precise touch interactions
 - **Competitive Learning**: Healthy competition motivates engagement
@@ -91,6 +98,7 @@ This game is designed to help kindergarten students develop:
 ## 🎨 Customization
 
 The game includes various customizable features:
+
 - Adjustable difficulty levels
 - Different visual themes
 - Performance optimization settings
