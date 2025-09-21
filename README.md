@@ -46,6 +46,64 @@ npm install
 npm run dev
 ```
 
+#### Android ARM64 / Termux Installation
+
+If you're using Termux on Android ARM64 devices and encounter the error:
+```
+Error: Cannot find module @rollup/rollup-android-arm64
+```
+
+Try these solutions in order:
+
+**Solution 1: Use the Android Install Script**
+```bash
+# Use the predefined Android-friendly installation
+npm run install:android
+
+# Or if that fails, use the safe installation
+npm run install:safe
+```
+
+**Solution 2: Clean Install**
+```bash
+# Remove package-lock.json and node_modules
+rm -rf node_modules package-lock.json
+
+# Clear npm cache
+npm cache clean --force
+
+# Reinstall with legacy peer deps handling
+npm install --legacy-peer-deps
+```
+
+**Solution 3: Use npm with optional dependencies**
+```bash
+# If the above fails, install without optional dependencies
+npm install --no-optional
+
+# Or skip platform-specific binaries
+npm install --ignore-platform-reqs
+```
+
+**Solution 4: Alternative Installation**
+```bash
+# Use yarn instead of npm (often handles optional deps better)
+npm install -g yarn
+yarn install
+
+# Or use pnpm
+npm install -g pnpm
+pnpm install
+```
+
+**Solution 5: Manual Workaround**
+If all else fails, you can force install without the problematic optional dependency:
+```bash
+npm install --no-optional --legacy-peer-deps
+```
+
+> 📱 **For detailed Android ARM64/Termux troubleshooting, see [ANDROID_ARM64_GUIDE.md](./ANDROID_ARM64_GUIDE.md)**
+
 ### Docker Deployment (Recommended for Schools)
 
 For easy deployment in educational environments:
