@@ -46,63 +46,157 @@ npm install
 npm run dev
 ```
 
-#### Android ARM64 / Termux Installation
+### 📱 Mobile Development with Termux
 
-If you're using Termux on Android ARM64 devices and encounter the error:
-```
-Error: Cannot find module @rollup/rollup-android-arm64
-```
+#### Complete Termux Setup Guide for Android
 
-Try these solutions in order:
+Termux is a powerful terminal emulator for Android that allows you to run this React game directly on your mobile device. Follow this comprehensive guide to set up your development environment:
 
-**Solution 1: Use the Android Install Script**
+**Step 1: Install Termux**
+
 ```bash
-# Use the predefined Android-friendly installation
+# Download Termux from F-Droid (recommended) or Google Play Store
+# F-Droid version: https://f-droid.org/packages/com.termux/
+```
+
+**Step 2: Update Termux and Install Essential Packages**
+
+```bash
+# Update package lists
+pkg update && pkg upgrade
+
+# Install essential development tools
+pkg install git nodejs-lts python make clang
+
+# Verify Node.js installation
+node --version
+npm --version
+```
+
+**Step 3: Clone and Setup the Project**
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd English-K1Run
+
+# Give Termux storage permissions (if needed)
+termux-setup-storage
+```
+
+**Step 4: Install Dependencies (Android ARM64 Compatible)**
+
+If you encounter the `@rollup/rollup-android-arm64` error, try these solutions in order:
+
+**Quick Fix (Recommended)**
+
+```bash
+# Use the built-in Android install script
 npm run install:android
 
 # Or if that fails, use the safe installation
 npm run install:safe
 ```
 
-**Solution 2: Clean Install**
+**Alternative Methods**
+
 ```bash
-# Remove package-lock.json and node_modules
+# Method 1: Clean install with legacy peer deps
 rm -rf node_modules package-lock.json
-
-# Clear npm cache
 npm cache clean --force
-
-# Reinstall with legacy peer deps handling
 npm install --legacy-peer-deps
-```
 
-**Solution 3: Use npm with optional dependencies**
-```bash
-# If the above fails, install without optional dependencies
+# Method 2: Skip optional dependencies
 npm install --no-optional
 
-# Or skip platform-specific binaries
-npm install --ignore-platform-reqs
-```
-
-**Solution 4: Alternative Installation**
-```bash
-# Use yarn instead of npm (often handles optional deps better)
+# Method 3: Use yarn (often better ARM64 support)
 npm install -g yarn
 yarn install
 
-# Or use pnpm
+# Method 4: Use pnpm
 npm install -g pnpm
 pnpm install
 ```
 
-**Solution 5: Manual Workaround**
-If all else fails, you can force install without the problematic optional dependency:
+**Step 5: Start Development Server**
+
 ```bash
-npm install --no-optional --legacy-peer-deps
+# Start the dev server (accessible on mobile browser)
+npm run dev
+
+# The game will be available at:
+# http://localhost:5173
+```
+
+**Step 6: Access on Mobile Browser**
+
+- Open Chrome/Firefox on your Android device
+- Navigate to `http://localhost:5173`
+- For best experience, add to home screen for full-screen mode
+
+#### Termux Optimization Tips
+
+**Performance Optimization:**
+
+```bash
+# Increase memory limit for Node.js
+export NODE_OPTIONS="--max-old-space-size=2048"
+
+# Use fewer CPU cores if facing memory issues
+export UV_THREADPOOL_SIZE=2
+```
+
+**Storage Management:**
+
+```bash
+# Monitor storage usage
+df -h $PREFIX
+
+# Clean npm cache if needed
+npm cache clean --force
+
+# Clean Termux package cache
+pkg clean
+```
+
+**Network Considerations:**
+
+```bash
+# If experiencing slow downloads, use different npm registry
+npm config set registry https://registry.npmmirror.com/
+
+# Reset to default registry later
+npm config set registry https://registry.npmjs.org/
 ```
 
 > 📱 **For detailed Android ARM64/Termux troubleshooting, see [ANDROID_ARM64_GUIDE.md](./ANDROID_ARM64_GUIDE.md)**
+
+#### Troubleshooting Common Termux Issues
+
+**Issue: Permission Denied**
+
+```bash
+# Fix permission issues
+termux-setup-storage
+chmod +x node_modules/.bin/*
+```
+
+**Issue: Out of Memory**
+
+```bash
+# Reduce build concurrency
+export NODE_OPTIONS="--max-old-space-size=1024"
+npm run build -- --max-old-space-size=1024
+```
+
+**Issue: Port Already in Use**
+
+```bash
+# Kill process using port 5173
+pkill -f "vite"
+# Or use a different port
+npm run dev -- --port 3000
+```
 
 ### Docker Deployment (Recommended for Schools)
 

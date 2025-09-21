@@ -20,10 +20,30 @@ export default defineConfig({
     },
     headers: {
       'Cache-Control': 'no-cache'
+    },
+    watch: {
+      usePolling: true,
+      interval: 100
+    },
+    hmr: {
+      overlay: false
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+    force: true
+  },
+  build: {
+    rollupOptions: {
+      external: [],
+      output: {
+        manualChunks: undefined
+      }
     }
   },
   css: {
     devSourcemap: true
   },
-  assetsInclude: ['**/*.css']
+  assetsInclude: ['**/*.css'],
+  clearScreen: false
 });
