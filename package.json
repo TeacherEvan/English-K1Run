@@ -9,7 +9,9 @@
         "build": "tsc -b --noCheck && vite build",
         "lint": "eslint .",
         "optimize": "vite optimize",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "install:android": "npm install --legacy-peer-deps",
+        "install:safe": "npm install --no-optional --legacy-peer-deps"
     },
     "dependencies": {
         "@heroicons/react": "^2.2.0",
