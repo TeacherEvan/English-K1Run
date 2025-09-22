@@ -2,17 +2,18 @@
   "version": "0.2",
   "language": "en",
   "words": [
-    "fuser",
-    "cmdk",
-    "vaul",
-    "lucide",
-    "shadcn",
-    "vite",
-    "tailwindcss",
     "clsx",
+    "cmdk",
     "framer",
+    "fuser",
+    "jobcard",
+    "lucide",
     "radix",
-    "jobcard"
+    "rollup",
+    "shadcn",
+    "tailwindcss",
+    "vaul",
+    "vite"
   ],
   "ignorePaths": [
     "node_modules/**",

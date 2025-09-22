@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 // import { useKV } from '@github/spark/hooks'
 import { eventTracker } from '../lib/event-tracker'
+import { playSoundEffect } from '../lib/sound-manager'
 
 export interface GameObject {
   id: string
@@ -134,8 +135,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     try {
       // Pre-check for performance bottlenecks - more strict limit
       if (gameObjects.length > 15) {
-        eventTracker.trackWarning('Too many objects on screen, skipping spawn', { 
-          currentCount: gameObjects.length 
+        eventTracker.trackWarning('Too many objects on screen, skipping spawn', {
+          currentCount: gameObjects.length
         })
         return
       }
@@ -143,17 +144,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       // Optimized spawning: fewer objects, less computation
       const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects only
       const newObjects: GameObject[] = []
-      
+
       // Pre-calculate random values to reduce computation in loop
       const baseId = Date.now()
       const categoryItems = currentCategory.items
       const categoryLength = categoryItems.length
-      
+
       for (let i = 0; i < spawnCount; i++) {
         // Use more efficient random selection
         const randomIndex = Math.floor(Math.random() * categoryLength)
         const randomItem = categoryItems[randomIndex]
-        
+
         const newObject: GameObject = {
           id: `${baseId}-${i}`, // Simpler ID generation
           type: randomItem.name,
@@ -165,10 +166,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
         newObjects.push(newObject)
       }
-      
+
       // Single batch update instead of tracking each individually
       setGameObjects(prev => [...prev, ...newObjects])
-      
+
       // Track spawn event once per batch
       eventTracker.trackObjectSpawn(`batch-${spawnCount}`, { count: spawnCount })
     } catch (error) {
@@ -183,16 +184,16 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const updatedObjects: GameObject[] = []
         const screenHeight = window.innerHeight
         const speedMultiplier = 1.2 * fallSpeedMultiplier
-        
+
         for (const obj of prev) {
           const newY = obj.y + obj.speed * speedMultiplier
-          
+
           // Only keep objects that are still visible
           if (newY < screenHeight + 100) {
             updatedObjects.push({ ...obj, y: newY })
           }
         }
-        
+
         return updatedObjects
       })
     } catch (error) {
@@ -202,7 +203,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const handleObjectTap = useCallback((objectId: string, playerSide: 'left' | 'right') => {
     const tapStartTime = performance.now()
-    
+
     try {
       const tappedObject = gameObjects.find(obj => obj.id === objectId)
       if (!tappedObject) {
@@ -210,7 +211,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         return
       }
 
-      const isCorrect = currentCategory.requiresSequence 
+      const isCorrect = currentCategory.requiresSequence
         ? tappedObject.type === gameState.currentTarget
         : tappedObject.emoji === gameState.targetEmoji
 
@@ -218,12 +219,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       eventTracker.trackObjectTap(objectId, isCorrect, playerSide, tapLatency)
 
       const oldState = { ...gameState }
-      
+
       setGameState(prev => {
         const newState = { ...prev }
-        
+
         if (isCorrect) {
-          // Correct tap: move forward
+          // Correct tap: play success sound and move forward
+          playSoundEffect.success()
+
           if (playerSide === 'left') {
             newState.player1Progress = Math.min(prev.player1Progress + 20, 100)
           } else {
@@ -233,9 +236,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Check for winner
           if (newState.player1Progress >= 100) {
             newState.winner = 1
+            playSoundEffect.win()
             eventTracker.trackGameStateChange(oldState, newState, 'player1_wins')
           } else if (newState.player2Progress >= 100) {
             newState.winner = 2
+            playSoundEffect.win()
             eventTracker.trackGameStateChange(oldState, newState, 'player2_wins')
           }
 
@@ -252,7 +257,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           if (currentCategory.requiresSequence) {
             const nextIndex = (currentCategory.sequenceIndex || 0) + 1
             GAME_CATEGORIES[gameState.level].sequenceIndex = nextIndex
-            
+
             if (nextIndex < currentCategory.items.length) {
               const nextTarget = generateRandomTarget()
               newState.currentTarget = nextTarget.name
@@ -261,13 +266,15 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             }
           }
         } else {
-          // Incorrect tap: move backward by the same amount
+          // Incorrect tap: play wrong sound and move backward
+          playSoundEffect.wrong()
+
           if (playerSide === 'left') {
             newState.player1Progress = Math.max(prev.player1Progress - 20, 0)
           } else {
             newState.player2Progress = Math.max(prev.player2Progress - 20, 0)
           }
-          
+
           eventTracker.trackGameStateChange(oldState, newState, 'incorrect_tap_penalty')
         }
 
@@ -285,10 +292,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     try {
       const target = generateRandomTarget()
       const oldState = { ...gameState }
-      
+
       // Reset performance metrics for accurate tracking
       eventTracker.resetPerformanceMetrics()
-      
+
       setGameState(prev => ({
         ...prev,
         gameStarted: true,
@@ -299,7 +306,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         player1Progress: 0,
         player2Progress: 0
       }))
-      
+
       eventTracker.trackGameStateChange(oldState, gameState, 'game_start')
     } catch (error) {
       eventTracker.trackError(error as Error, 'startGame')
@@ -309,7 +316,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const nextLevel = useCallback(() => {
     const newLevel = Math.min(gameState.level + 1, GAME_CATEGORIES.length - 1)
     GAME_CATEGORIES[newLevel].sequenceIndex = 0 // Reset sequence
-    
+
     const target = generateRandomTarget()
     setGameState(prev => ({
       ...prev,
@@ -328,10 +335,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
     const target = generateRandomTarget()
-    
+
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
-    
+
     setGameState({
       player1Progress: 0,
       player2Progress: 0,

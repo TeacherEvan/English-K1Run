@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react'
 import { GameObject } from '../hooks/use-game-logic'
+import { playSoundEffect } from '../lib/sound-manager'
 
 interface FallingObjectProps {
   object: GameObject
@@ -11,6 +12,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
   const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    playSoundEffect.tap() // Play tap sound for immediate feedback
     onTap(object.id, playerSide)
   }
 

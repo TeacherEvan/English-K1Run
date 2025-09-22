@@ -1,1 +1,27 @@
-{}
+{
+    "extend": {
+        "colors": {
+            "background": "hsl(222, 84%, 4.9%)",
+            "foreground": "hsl(210, 40%, 98%)",
+            "card": "hsl(222, 84%, 4.9%)",
+            "card-foreground": "hsl(210, 40%, 98%)",
+            "popover": "hsl(222, 84%, 4.9%)",
+            "popover-foreground": "hsl(210, 40%, 98%)",
+            "primary": "hsl(217, 91%, 60%)",
+            "primary-foreground": "hsl(222, 84%, 4.9%)",
+            "secondary": "hsl(217, 32%, 17%)",
+            "secondary-foreground": "hsl(210, 40%, 98%)",
+            "muted": "hsl(217, 32%, 17%)",
+            "muted-foreground": "hsl(215, 20%, 65%)",
+            "accent": "hsl(217, 32%, 17%)",
+            "accent-foreground": "hsl(210, 40%, 98%)",
+            "destructive": "hsl(0, 84%, 60%)",
+            "destructive-foreground": "hsl(210, 40%, 98%)",
+            "border": "hsl(217, 32%, 17%)",
+            "input": "hsl(217, 32%, 17%)",
+            "ring": "hsl(224, 71%, 4%)",
+            "success": "hsl(142, 76%, 36%)",
+            "success-foreground": "hsl(210, 40%, 98%)"
+        }
+    }
+}

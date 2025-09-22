@@ -71,16 +71,16 @@ class EventTracker {
   private startPerformanceMonitoring() {
     let frameCount = 0
     let lastTime = performance.now()
-    
+
     const measureFrameRate = () => {
       frameCount++
       const currentTime = performance.now()
-      
+
       if (currentTime - lastTime >= 1000) {
         this.performanceMetrics.frameRate = frameCount
         frameCount = 0
         lastTime = currentTime
-        
+
         // Track low frame rate as warning
         if (this.performanceMetrics.frameRate < 30) {
           this.trackEvent({
@@ -91,10 +91,10 @@ class EventTracker {
           })
         }
       }
-      
+
       requestAnimationFrame(measureFrameRate)
     }
-    
+
     requestAnimationFrame(measureFrameRate)
   }
 
@@ -113,7 +113,7 @@ class EventTracker {
     }
 
     this.events.push(event)
-    
+
     // Keep only the most recent events
     if (this.events.length > this.maxEvents) {
       this.events = this.events.slice(-this.maxEvents)
@@ -145,16 +145,16 @@ class EventTracker {
         data: { objectType, position }
       })
     }
-    
+
     this.spawnCount++
-    
+
     // Calculate spawn rate per second and reset counter periodically
     const now = Date.now()
     if (now - this.lastSpawnReset >= 2000) { // Check every 2 seconds instead of 1
       this.performanceMetrics.objectSpawnRate = this.spawnCount / 2
       this.spawnCount = 0
       this.lastSpawnReset = now
-      
+
       // Track high spawn rate as potential performance issue
       if (this.performanceMetrics.objectSpawnRate > 8) {
         this.trackEvent({
@@ -174,7 +174,7 @@ class EventTracker {
       message: correct ? 'Correct tap' : 'Incorrect tap',
       data: { objectId, correct, playerSide, latency }
     })
-    
+
     this.performanceMetrics.touchLatency = latency
   }
 
@@ -223,6 +223,11 @@ class EventTracker {
     }
 
     return filtered.sort((a, b) => b.timestamp - a.timestamp)
+  }
+
+  // Get recent events (for diagnostics)
+  getRecentEvents(limit: number = 10): GameEvent[] {
+    return this.events.slice(-limit).sort((a, b) => b.timestamp - a.timestamp)
   }
 
   getPerformanceMetrics(): PerformanceMetrics {

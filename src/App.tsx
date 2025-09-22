@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
-import { useGameLogic, GAME_CATEGORIES } from './hooks/use-game-logic'
-import { useDisplayAdjustment } from './hooks/use-display-adjustment'
-import { PlayerArea } from './components/PlayerArea'
-import { FallingObject } from './components/FallingObject'
-import { TargetDisplay } from './components/TargetDisplay'
-import { GameMenu } from './components/GameMenu'
-import { EventTrackerDebug } from './components/EventTrackerDebug'
-import { FireworksDisplay } from './components/FireworksDisplay'
 import { DisplayInfo } from './components/DisplayInfo'
+import { ErrorMonitor } from './components/ErrorMonitor'
+import { EventTrackerDebug } from './components/EventTrackerDebug'
+import { FallingObject } from './components/FallingObject'
+import { FireworksDisplay } from './components/FireworksDisplay'
+import { GameMenu } from './components/GameMenu'
 import { PerformanceMonitor } from './components/PerformanceMonitor'
+import { PlayerArea } from './components/PlayerArea'
+import { QuickDebug } from './components/QuickDebug'
+import { TargetDisplay } from './components/TargetDisplay'
+import { useDisplayAdjustment } from './hooks/use-display-adjustment'
+import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
 function App() {
-  const { 
-    displaySettings, 
-    getScaledStyles, 
+  const {
+    displaySettings,
+    getScaledStyles,
     isSmallScreen,
-    isMediumScreen,
-    isLargeScreen 
+    isMediumScreen
   } = useDisplayAdjustment()
 
   const {
@@ -51,15 +52,14 @@ function App() {
   const rightObjects = gameObjects.filter(obj => obj.x > 50)
 
   return (
-    <div 
+    <div
       className={`h-screen bg-background overflow-hidden relative app ${isSmallScreen ? 'app--small' : isMediumScreen ? 'app--medium' : 'app--large'}`}
       style={getScaledStyles()}
     >
       {/* Target Display - Fixed at top center with responsive sizing */}
       {gameState.gameStarted && !gameState.winner && (
-        <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-30 ${
-          isSmallScreen ? 'w-64' : isMediumScreen ? 'w-72' : 'w-80'
-        }`}>
+        <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-30 ${isSmallScreen ? 'w-64' : isMediumScreen ? 'w-72' : 'w-80'
+          }`}>
           <TargetDisplay
             currentTarget={gameState.currentTarget}
             targetEmoji={gameState.targetEmoji}
@@ -155,6 +155,12 @@ function App() {
 
       {/* Performance Monitor */}
       <PerformanceMonitor />
+
+      {/* Error Monitor - For real-time error detection */}
+      <ErrorMonitor />
+
+      {/* Quick Debug - CSS and Audio diagnostics */}
+      <QuickDebug />
     </div>
   )
 }

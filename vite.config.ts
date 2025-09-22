@@ -1,7 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
+import { resolve } from 'path';
 import { defineConfig } from "vite";
-import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -21,29 +21,54 @@ export default defineConfig({
     headers: {
       'Cache-Control': 'no-cache'
     },
+    host: 'localhost',
+    port: 5173,
+    strictPort: false,
     watch: {
       usePolling: true,
       interval: 100
     },
     hmr: {
-      overlay: false
+      overlay: true,
+      port: 5173,
+      host: 'localhost'
     }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
-    force: true
+    include: [
+      'react',
+      'react-dom',
+      '@radix-ui/react-slot',
+      '@radix-ui/react-progress',
+      '@radix-ui/react-card'
+    ],
+    force: false,
+    esbuildOptions: {
+      target: 'es2020'
+    }
   },
   build: {
+    sourcemap: 'inline',
     rollupOptions: {
       external: [],
       output: {
-        manualChunks: undefined
+        manualChunks: undefined,
+        sourcemap: 'inline'
       }
     }
   },
   css: {
-    devSourcemap: true
+    devSourcemap: false
   },
-  assetsInclude: ['**/*.css'],
+  assetsInclude: [
+    '**/*.css',
+    '**/*.woff',
+    '**/*.woff2',
+    '**/*.ttf',
+    '**/*.eot',
+    '**/*.mp3',
+    '**/*.wav',
+    '**/*.ogg'
+  ],
   clearScreen: false
 });

@@ -7,15 +7,35 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependency directories
 node_modules
+.pnp
+.pnp.js
+
+# Build outputs
 dist
 dist-ssr
 *-dist
+build
+out
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea
 .DS_Store
 *.suo
@@ -34,10 +54,59 @@ dist-ssr
 *.cspell-cache
 .vscode-spell-checker*
 
-.env
+# Testing
+coverage
+.nyc_output
+.jest-cache
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# OS generated files
+Thumbs.db
+*.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Package manager files
+package-lock.json.backup
+yarn.lock.backup
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Docker
+.dockerignore.backup
+
+# Development tools
+.vscode-test
 **/agent-eval-report*
 packages
 .file-manifest
 .devcontainer/
-
 .spark-workbench-id
+
+# Hot reload
+.vite
+.next
+.nuxt
+
+# Vite cache and build files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Storybook build outputs
+storybook-static
+
+# Sentry
+.sentryclirc

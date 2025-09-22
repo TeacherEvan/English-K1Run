@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { playSoundEffect } from '../lib/sound-manager'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 
@@ -13,15 +14,15 @@ interface GameMenuProps {
   maxLevel: number
 }
 
-export const GameMenu = memo(({ 
-  onStartGame, 
-  onNextLevel, 
-  onResetGame, 
-  gameStarted, 
-  winner, 
-  level, 
+export const GameMenu = memo(({
+  onStartGame,
+  onNextLevel,
+  onResetGame,
+  gameStarted,
+  winner,
+  level,
   categoryName,
-  maxLevel 
+  maxLevel
 }: GameMenuProps) => {
   if (gameStarted && !winner) return null
 
@@ -32,49 +33,63 @@ export const GameMenu = memo(({
           <>
             <div className="mb-4" style={{ fontSize: `calc(3.75rem * var(--object-scale, 1))` }}>🏁</div>
             <h1 className="font-bold text-primary mb-2"
-                style={{ fontSize: `calc(1.875rem * var(--font-scale, 1))` }}>
+              style={{ fontSize: `calc(1.875rem * var(--font-scale, 1))` }}>
               Kindergarten Race
             </h1>
             <p className="text-muted-foreground mb-6"
-               style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
+              style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
               Ready to race? Tap the correct objects to move your turtle forward!
             </p>
             <div className="mb-6">
               <div className="font-semibold text-accent mb-2"
-                   style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}>
+                style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}>
                 Current Level: {level + 1}
               </div>
               <div className="font-medium text-foreground"
-                   style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
+                style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
                 {categoryName}
               </div>
             </div>
-            <Button 
-              onClick={onStartGame}
-              size="lg"
-              className="font-bold"
-              style={{ 
-                fontSize: `calc(1.25rem * var(--font-scale, 1))`,
-                padding: `calc(1rem * var(--spacing-scale, 1)) calc(2rem * var(--spacing-scale, 1))`
-              }}
-            >
-              🚀 Start Race!
-            </Button>
+            <div className="flex gap-2 mb-4">
+              <Button
+                onClick={onStartGame}
+                size="lg"
+                className="font-bold flex-1"
+                style={{
+                  fontSize: `calc(1.25rem * var(--font-scale, 1))`,
+                  padding: `calc(1rem * var(--spacing-scale, 1)) calc(2rem * var(--spacing-scale, 1))`
+                }}
+              >
+                🚀 Start Race!
+              </Button>
+              <Button
+                onClick={() => playSoundEffect.tap()}
+                size="lg"
+                variant="outline"
+                className="font-bold"
+                style={{
+                  fontSize: `calc(1rem * var(--font-scale, 1))`,
+                  padding: `calc(1rem * var(--spacing-scale, 1))`
+                }}
+              >
+                🔊
+              </Button>
+            </div>
           </>
         ) : winner ? (
           <>
             <div className="mb-4 celebrate" style={{ fontSize: `calc(5rem * var(--object-scale, 1))` }}>🎉</div>
             <h2 className="font-bold text-success mb-2"
-                style={{ fontSize: `calc(1.875rem * var(--font-scale, 1))` }}>
+              style={{ fontSize: `calc(1.875rem * var(--font-scale, 1))` }}>
               Player {winner} Wins!
             </h2>
             <p className="text-muted-foreground mb-6"
-               style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
+              style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
               Great job! What would you like to do next?
             </p>
             <div className="space-y-3">
               {level < maxLevel - 1 && onNextLevel && (
-                <Button 
+                <Button
                   onClick={onNextLevel}
                   size="lg"
                   className="w-full font-bold"
@@ -84,7 +99,7 @@ export const GameMenu = memo(({
                   🎯 Next Level
                 </Button>
               )}
-              <Button 
+              <Button
                 onClick={onResetGame}
                 size="lg"
                 className="w-full font-bold"
