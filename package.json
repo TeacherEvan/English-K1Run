@@ -54,7 +54,7 @@
         "d3": "^7.9.0",
         "date-fns": "^4.1.0",
         "embla-carousel-react": "^8.5.2",
-        "framer-motion": "^12.23.15",
+        "framer-motion": "^12.23.18",
         "input-otp": "^1.4.2",
         "lucide-react": "^0.484.0",
         "marked": "^16.2.1",
