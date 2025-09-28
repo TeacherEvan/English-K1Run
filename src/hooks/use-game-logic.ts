@@ -100,7 +100,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     currentTarget: "",
     targetEmoji: "",
     level: 0,
-    gameStarted: true, // Auto-start the game for better UX
+    gameStarted: false,
     winner: null,
     targetChangeTime: Date.now() + 10000
   })
@@ -345,7 +345,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       currentTarget: target.name,
       targetEmoji: target.emoji,
       level: 0,
-      gameStarted: true, // Keep auto-start behavior
+      gameStarted: false,
       winner: null,
       targetChangeTime: Date.now() + 10000
     })
