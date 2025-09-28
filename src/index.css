@@ -40,6 +40,13 @@
   --success: oklch(0.6 0.15 140);
   --success-foreground: oklch(1 0 0);
   --radius: 1rem;
+
+  /* Initialize scaling variables with defaults */
+  --font-scale: 1;
+  --object-scale: 1;
+  --turtle-scale: 1;
+  --spacing-scale: 1;
+  --fall-speed-scale: 1;
 }
 
 @theme {

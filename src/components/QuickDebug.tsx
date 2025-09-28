@@ -12,19 +12,31 @@ export function QuickDebug() {
     const [cssStatus, setCssStatus] = useState('Unknown')
 
     useEffect(() => {
-        // Check CSS variables
-        const root = document.documentElement
-        const fontScale = getComputedStyle(root).getPropertyValue('--font-scale')
-        const objectScale = getComputedStyle(root).getPropertyValue('--object-scale')
-        const turtleScale = getComputedStyle(root).getPropertyValue('--turtle-scale')
-        const spacingScale = getComputedStyle(root).getPropertyValue('--spacing-scale')
-        const fallSpeedScale = getComputedStyle(root).getPropertyValue('--fall-speed-scale')
+        const checkCSSVariables = () => {
+            const root = document.documentElement
+            const fontScale = getComputedStyle(root).getPropertyValue('--font-scale')
+            const objectScale = getComputedStyle(root).getPropertyValue('--object-scale')
+            const turtleScale = getComputedStyle(root).getPropertyValue('--turtle-scale')
+            const spacingScale = getComputedStyle(root).getPropertyValue('--spacing-scale')
+            const fallSpeedScale = getComputedStyle(root).getPropertyValue('--fall-speed-scale')
 
-        if (fontScale && objectScale && turtleScale) {
-            setCssStatus(`CSS OK - Font: ${fontScale.trim()}, Object: ${objectScale.trim()}`)
-        } else {
-            setCssStatus('CSS Variables Missing!')
+            console.log('CSS Variables Debug:', {
+                fontScale: fontScale.trim(),
+                objectScale: objectScale.trim(),
+                turtleScale: turtleScale.trim(),
+                spacingScale: spacingScale.trim(),
+                fallSpeedScale: fallSpeedScale.trim()
+            })
+
+            if (fontScale && objectScale && turtleScale && fontScale.trim() !== '' && objectScale.trim() !== '') {
+                setCssStatus(`CSS OK - Font: ${fontScale.trim()}, Object: ${objectScale.trim()}`)
+            } else {
+                setCssStatus('CSS Variables Missing!')
+            }
         }
+
+        // Check immediately
+        checkCSSVariables()
 
         // Check audio
         if (soundManager.isInitialized()) {
@@ -32,6 +44,10 @@ export function QuickDebug() {
         } else {
             setAudioStatus('Audio Not Initialized')
         }
+
+        // Set up interval to check CSS variables periodically
+        const interval = setInterval(checkCSSVariables, 1000)
+        return () => clearInterval(interval)
     }, [])
 
     const testAudio = async () => {

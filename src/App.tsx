@@ -21,15 +21,7 @@ function App() {
     isMediumScreen
   } = useDisplayAdjustment()
 
-  // Apply CSS variables to the document root
-  useEffect(() => {
-    const root = document.documentElement
-    root.style.setProperty('--font-scale', displaySettings.fontSize.toString())
-    root.style.setProperty('--object-scale', displaySettings.objectSize.toString())
-    root.style.setProperty('--turtle-scale', displaySettings.turtleSize.toString())
-    root.style.setProperty('--spacing-scale', displaySettings.spacing.toString())
-    root.style.setProperty('--fall-speed-scale', displaySettings.fallSpeed.toString())
-  }, [displaySettings.fontSize, displaySettings.objectSize, displaySettings.turtleSize, displaySettings.spacing, displaySettings.fallSpeed])
+
 
   const {
     gameObjects,
@@ -62,10 +54,7 @@ function App() {
   const rightObjects = gameObjects.filter(obj => obj.x > 50)
 
   return (
-    <div
-      className={`h-screen bg-background overflow-hidden relative app ${isSmallScreen ? 'app--small' : isMediumScreen ? 'app--medium' : 'app--large'}`}
-      style={getScaledStyles()}
-    >
+    <div className="h-screen bg-background overflow-hidden relative app">
       {/* Target Display - Fixed at top center with responsive sizing */}
       {gameState.gameStarted && !gameState.winner && (
         <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-30 ${isSmallScreen ? 'w-64' : isMediumScreen ? 'w-72' : 'w-80'

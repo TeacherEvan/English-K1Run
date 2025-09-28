@@ -112,7 +112,7 @@ export function useDisplayAdjustment() {
           return prev
         }
 
-        return {
+        const newSettings = {
           scale,
           fontSize,
           objectSize,
@@ -124,6 +124,16 @@ export function useDisplayAdjustment() {
           screenHeight: height,
           aspectRatio
         }
+
+        // Immediately set CSS variables when settings change
+        const root = document.documentElement
+        root.style.setProperty('--font-scale', newSettings.fontSize.toString())
+        root.style.setProperty('--object-scale', newSettings.objectSize.toString())
+        root.style.setProperty('--turtle-scale', newSettings.turtleSize.toString())
+        root.style.setProperty('--spacing-scale', newSettings.spacing.toString())
+        root.style.setProperty('--fall-speed-scale', newSettings.fallSpeed.toString())
+
+        return newSettings
       })
     }
 
