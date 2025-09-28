@@ -21,6 +21,16 @@ function App() {
     isMediumScreen
   } = useDisplayAdjustment()
 
+  // Apply CSS variables to the document root
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty('--font-scale', displaySettings.fontSize.toString())
+    root.style.setProperty('--object-scale', displaySettings.objectSize.toString())
+    root.style.setProperty('--turtle-scale', displaySettings.turtleSize.toString())
+    root.style.setProperty('--spacing-scale', displaySettings.spacing.toString())
+    root.style.setProperty('--fall-speed-scale', displaySettings.fallSpeed.toString())
+  }, [displaySettings.fontSize, displaySettings.objectSize, displaySettings.turtleSize, displaySettings.spacing, displaySettings.fallSpeed])
+
   const {
     gameObjects,
     gameState,

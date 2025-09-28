@@ -14,12 +14,14 @@ export function QuickDebug() {
     useEffect(() => {
         // Check CSS variables
         const root = document.documentElement
-        const primaryColor = getComputedStyle(root).getPropertyValue('--primary')
-        const secondaryColor = getComputedStyle(root).getPropertyValue('--secondary')
-        const accentColor = getComputedStyle(root).getPropertyValue('--accent')
+        const fontScale = getComputedStyle(root).getPropertyValue('--font-scale')
+        const objectScale = getComputedStyle(root).getPropertyValue('--object-scale')
+        const turtleScale = getComputedStyle(root).getPropertyValue('--turtle-scale')
+        const spacingScale = getComputedStyle(root).getPropertyValue('--spacing-scale')
+        const fallSpeedScale = getComputedStyle(root).getPropertyValue('--fall-speed-scale')
 
-        if (primaryColor && secondaryColor && accentColor) {
-            setCssStatus(`CSS OK - Primary: ${primaryColor.trim()}`)
+        if (fontScale && objectScale && turtleScale) {
+            setCssStatus(`CSS OK - Font: ${fontScale.trim()}, Object: ${objectScale.trim()}`)
         } else {
             setCssStatus('CSS Variables Missing!')
         }

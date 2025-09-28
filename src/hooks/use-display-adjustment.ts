@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface DisplaySettings {
   scale: number
@@ -37,11 +37,14 @@ export function useDisplayAdjustment() {
       // Base dimensions for scaling calculations (designed for 1920x1080)
       const baseWidth = 1920
       const baseHeight = 1080
-      
+
       // Calculate scale based on smaller dimension to ensure content fits
       const widthScale = width / baseWidth
       const heightScale = height / baseHeight
       const scale = Math.min(widthScale, heightScale)
+
+      // Ensure minimum scale values to prevent text from being too small
+      const minScale = 0.5
 
       // Optimize calculations by using cached values
       let fontSize = scale
