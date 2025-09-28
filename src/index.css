@@ -236,13 +236,17 @@
   }
 }
 
-/* Main game background with scraped image */
 .bg-background {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
-    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2971&q=80');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background:
+    linear-gradient(135deg,
+      hsl(var(--primary) / 0.1) 0%,
+      hsl(var(--secondary) / 0.15) 50%,
+      hsl(var(--accent) / 0.1) 100%),
+    radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+    /* Fallback solid color */
+    hsl(var(--primary) / 0.05);
+  background-size: cover, 120px 120px, 100% 100%;
+  background-position: center, 50% 50%, center;
+  background-repeat: no-repeat, repeat, no-repeat;
   background-attachment: fixed;
 }
