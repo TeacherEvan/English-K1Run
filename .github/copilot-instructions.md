@@ -1,82 +1,35 @@
+docker-compose --profile dev up kindergarten-race-dev
 # Copilot Instructions for Kindergarten Race Game
 
-## Project Overview
-This is a **split-screen educational racing game** built with React 19 + TypeScript + Vite. Two players compete by correctly identifying falling objects to advance their turtle characters. The game is optimized for tablets and touch devices in educational settings.
+## Snapshot
+- React 19 + TypeScript + Vite app in `src/App.tsx` orchestrates the split-screen race, mounting debug overlays and delegating gameplay to custom hooks.
+- Vite config (`vite.config.ts`) exposes `@ → src`, disables FS strict mode, enables polling HMR (important for Termux/Docker), and pre-chunks Radix/animation libs—keep new modules aligned with existing `manualChunks` buckets.
+- Only import `src/main.css` in `main.tsx`; add additional global styles by extending that file so Tailwind’s layer order stays intact.
 
-## Architecture Patterns
+## Core Loop & State
+- `use-game-logic.ts` owns the gameplay: `GAME_CATEGORIES` define level content (sequence mode for “Alphabet Challenge”), `startGame` resets tracker metrics, and `handleObjectTap` is the single authority for scoring, audio, and winner detection.
+- Objects spawn in batches via `spawnObject`; maintain the ≤15 active object expectation or adjust `eventTracker` warnings accordingly.
+- Screen split is implicit: spawn `x <= 50` for player 1 and `> 50` for player 2, then remap to half-width inside `App.tsx`.
 
-### Core Game Loop
-- **Game state management**: `src/hooks/use-game-logic.ts` contains all game logic with `gameObjects[]`, `GameState`, and `GAME_CATEGORIES`
-- **Display adaptation**: `src/hooks/use-display-adjustment.ts` handles responsive scaling across devices
-- **Split-screen design**: Objects spawn on left/right sides (x <= 50 vs x > 50) for dual player areas
+## Rendering & Scaling
+- `use-display-adjustment.ts` sets CSS custom props (`--font-scale`, `--object-scale`, etc.) on `<html>` and provides helpers consumed by `DisplayInfo`, `PlayerArea`, and responsive Tailwind styles; read/update these variables instead of hardcoding pixel sizes.
+- Background rotation and animated gradients live in `App.css`; maintain the `pickRandomBackground` pattern when adding new themes so the 30s rotation keeps working.
 
-### Component Structure
-- **Game components**: All in `src/components/` with clear interfaces (e.g., `PlayerAreaProps`, `FallingObjectProps`)
-- **UI primitives**: Radix UI components in `src/components/ui/` using class-variance-authority patterns
-- **Memory optimization**: Components use `memo()` for performance (see `PlayerArea.tsx`)
+## UI Composition Patterns
+- Game UI lives under `src/components/`; frequently re-rendered pieces (`PlayerArea`, `FallingObject`, `TargetDisplay`, `GameMenu`) are `memo`-wrapped—mirror this when adding equivalents.
+- Shadcn-style primitives in `components/ui/*` use CVA + `cn` util; extend variants instead of inlining class strings when possible.
+- Fireworks, debug toggles, and overlays (`FireworksDisplay`, `PerformanceMonitor`, `EventTrackerDebug`, `QuickDebug`, `ErrorMonitor`) assume they mount once in `<App />`; reuse their hooks rather than duplicating filesystem listeners.
 
-### State & Performance
-- **Event tracking**: `src/lib/event-tracker.ts` monitors errors, performance, and user actions globally
-- **Performance monitoring**: Built-in FPS tracking, memory monitoring, and touch latency measurement
-- **CSS Variables**: Dynamic scaling via CSS custom properties (`--font-scale`, `--spacing-scale`, etc.)
+## Telemetry & Debugging
+- `src/lib/event-tracker.ts` instantiates on import, wiring global error handlers, FPS tracking, and spawn-rate warnings; prefer `eventTracker.track*` helpers over bespoke logging so overlays stay consistent.
+- `ErrorMonitor` monkey-patches `console.error/warn`; keep console usage minimal or wrap noisy logs in `if (import.meta.env.DEV)` guards to avoid flooding the UI.
+- `QuickDebug` expects scaling CSS vars to exist—if you add new vars through `useDisplayAdjustment`, also surface them there for diagnostics.
 
-## Development Workflows
+## Audio & Assets
+- The procedural `sound-manager.ts` lazily (re)initializes Web Audio on interaction; trigger feedback with `playSoundEffect.tap/success/wrong/win` instead of custom audio tags.
+- Legacy `.wav` files live under `/sounds`, but gameplay relies on generated tones today—if you swap back to files, preload them through the same manager to preserve volume + enable toggles.
 
-### Running the Game
-```bash
-# Development (hot reload)
-npm run dev  # Vite dev server on port 5173
-
-# Docker development (recommended for testing)
-docker-compose --profile dev up kindergarten-race-dev
-
-# Production build
-npm run build  # Requires TypeScript compilation with --noCheck flag
-```
-
-### Key Build Considerations
-- **TypeScript**: Uses `tsc -b --noCheck` due to React 19 compatibility
-- **Vite config**: Includes alias `@` → `src/`, disabled FS strict mode, cache control headers
-- **Docker**: Multi-stage builds with nginx for production, dev container with hot reload
-
-## Project-Specific Conventions
-
-### Component Props Pattern
-```typescript
-interface ComponentProps {
-  // Always define explicit interfaces for props
-  playerNumber: 1 | 2  // Use literal types for constrained values
-  progress: number
-  isWinner: boolean
-}
-export const Component = memo(({ prop1, prop2 }: ComponentProps) => {
-  // Use memo() for components that render frequently
-})
-```
-
-### Game Object Management
-- **Categories**: Educational content in `GAME_CATEGORIES` (Fruits, Numbers, Alphabet)
-- **Object spawning**: Random position/speed generation with performance tracking
-- **Target system**: Dynamic target changes with countdown timers and sequence modes
-
-### Responsive Design Philosophy
-- **Base dimensions**: Designed for 1920x1080, scales down proportionally
-- **Touch optimization**: Large touch targets, optimized for tablet use
-- **CSS scaling**: All dimensions use calc() with CSS variables for consistent scaling
-
-### Performance Requirements
-- **60fps target**: Game loop optimized for smooth animations
-- **Memory management**: Object cleanup, event limiting (max 1000 tracked events)
-- **Touch latency**: Monitored and optimized for educational tablet use
-
-## Key Integration Points
-- **Tailwind + Radix**: Custom color system with CSS variables from `theme.json`
-- **Event system**: Global error/performance tracking affects debugging workflow
-- **Docker deployment**: nginx serves static assets, environment-specific configurations
-
-## Common Patterns to Follow
-- Use `useCallback` for event handlers passed to child components
-- Implement proper cleanup in `useEffect` for intervals/timers
-- Follow the existing scaling system when adding new UI elements
-- Add new educational categories by extending `GAME_CATEGORIES`
-- Use the event tracker for debugging and performance monitoring
+## Developer Workflows
+- `npm run dev` (port 5173) drives local work; for constrained devices use `npm run install:android` or `install:safe` before starting the dev server.
+- Production build = `npm run build` (`tsc -b --noCheck` + `vite build`); leave `--noCheck` in place until React 19 typings stabilize.
+- Docker: `docker-compose --profile dev up kindergarten-race-dev` for hot reload, `docker-compose up -d` for nginx-served bundles—watch volume mapping (`/app/node_modules`) if dependencies change.

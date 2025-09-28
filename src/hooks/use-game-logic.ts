@@ -45,8 +45,8 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "🍓", name: "strawberry" },
       { emoji: "🥕", name: "carrot" },
       { emoji: "🥒", name: "cucumber" },
-      { emoji: "�", name: "watermelon" },
-      { emoji: "�", name: "broccoli" }
+      { emoji: "🍉", name: "watermelon" },
+      { emoji: "🥦", name: "broccoli" }
     ]
   },
   {
@@ -120,8 +120,8 @@ export const GAME_CATEGORIES: GameCategory[] = [
     name: "Feelings & Actions",
     items: [
       { emoji: "😄", name: "happy" },
-      { emoji: "�", name: "sad" },
-      { emoji: "�", name: "angry" },
+      { emoji: "😢", name: "sad" },
+      { emoji: "😠", name: "angry" },
       { emoji: "😴", name: "sleepy" },
       { emoji: "🤗", name: "hug" },
       { emoji: "👏", name: "clap" },
