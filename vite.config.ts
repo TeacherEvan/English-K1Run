@@ -123,7 +123,6 @@ export default defineConfig({
     devSourcemap: false
   },
   assetsInclude: [
-    '**/*.css',
     '**/*.woff',
     '**/*.woff2',
     '**/*.ttf',
