@@ -13,10 +13,24 @@ import { TargetDisplay } from './components/TargetDisplay'
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
+const BACKGROUND_CLASSES = [
+  'app-bg-sunrise',
+  'app-bg-deep-ocean',
+  'app-bg-forest-trail',
+  'app-bg-cosmic-night',
+  'app-bg-playful-pop'
+]
+
+const pickRandomBackground = (exclude?: string) => {
+  const pool = BACKGROUND_CLASSES.filter(bg => bg !== exclude)
+  const choices = pool.length > 0 ? pool : BACKGROUND_CLASSES
+  const index = Math.floor(Math.random() * choices.length)
+  return choices[index]
+}
+
 function App() {
   const {
     displaySettings,
-    getScaledStyles,
     isSmallScreen,
     isMediumScreen
   } = useDisplayAdjustment()
@@ -29,13 +43,33 @@ function App() {
     currentCategory,
     handleObjectTap,
     startGame,
-    nextLevel,
     resetGame
   } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [debugVisible, setDebugVisible] = useState(false)
   const [displayInfoVisible, setDisplayInfoVisible] = useState(false)
+  const [selectedLevel, setSelectedLevel] = useState(0)
+  const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBackgroundClass(prev => pickRandomBackground(prev))
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (gameState.gameStarted) return
+    setBackgroundClass(prev => pickRandomBackground(prev))
+  }, [gameState.gameStarted])
+
+  useEffect(() => {
+    if (!gameState.gameStarted) {
+      setSelectedLevel(gameState.level)
+    }
+  }, [gameState.gameStarted, gameState.level])
 
   // Update time remaining for target display
   useEffect(() => {
@@ -54,7 +88,7 @@ function App() {
   const rightObjects = gameObjects.filter(obj => obj.x > 50)
 
   return (
-    <div className="h-screen bg-background overflow-hidden relative app">
+    <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
       {/* Target Display - Fixed at top center with responsive sizing */}
       {gameState.gameStarted && !gameState.winner && (
         <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-30 ${isSmallScreen ? 'w-64' : isMediumScreen ? 'w-72' : 'w-80'
@@ -115,14 +149,13 @@ function App() {
 
       {/* Game Menu Overlay */}
       <GameMenu
-        onStartGame={startGame}
-        onNextLevel={gameState.level < GAME_CATEGORIES.length - 1 ? nextLevel : undefined}
+        onStartGame={() => startGame(selectedLevel)}
         onResetGame={resetGame}
+        onSelectLevel={setSelectedLevel}
+        selectedLevel={selectedLevel}
+        levels={GAME_CATEGORIES.map(category => category.name)}
         gameStarted={gameState.gameStarted}
         winner={gameState.winner}
-        level={gameState.level}
-        categoryName={currentCategory.name}
-        maxLevel={GAME_CATEGORIES.length}
       />
 
       {/* Event Tracker Debug */}

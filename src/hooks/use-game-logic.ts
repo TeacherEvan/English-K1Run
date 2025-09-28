@@ -39,18 +39,18 @@ export const GAME_CATEGORIES: GameCategory[] = [
   {
     name: "Fruits & Vegetables",
     items: [
-      { emoji: "🔴", name: "apple" }, // Using red circle to represent dark red apple, distinct from tomato
+      { emoji: "🍎", name: "apple" },
       { emoji: "🍌", name: "banana" },
       { emoji: "🍇", name: "grapes" },
       { emoji: "🍓", name: "strawberry" },
       { emoji: "🥕", name: "carrot" },
       { emoji: "🥒", name: "cucumber" },
-      { emoji: "🍅", name: "tomato" },
-      { emoji: "🥬", name: "lettuce" }
+      { emoji: "�", name: "watermelon" },
+      { emoji: "�", name: "broccoli" }
     ]
   },
   {
-    name: "Numbers & Shapes",
+    name: "Counting Fun",
     items: [
       { emoji: "1️⃣", name: "one" },
       { emoji: "2️⃣", name: "two" },
@@ -61,30 +61,87 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "7️⃣", name: "seven" },
       { emoji: "8️⃣", name: "eight" },
       { emoji: "9️⃣", name: "nine" },
-      { emoji: "🔟", name: "ten" },
-      { emoji: "11", name: "eleven" },
-      { emoji: "12", name: "twelve" },
-      { emoji: "13", name: "thirteen" },
-      { emoji: "14", name: "fourteen" },
-      { emoji: "15", name: "fifteen" },
-      { emoji: "16", name: "sixteen" },
-      { emoji: "17", name: "seventeen" },
-      { emoji: "18", name: "eighteen" },
-      { emoji: "19", name: "nineteen" },
-      { emoji: "20", name: "twenty" },
-      { emoji: "🔵", name: "circle" },
-      { emoji: "🟦", name: "square" },
-      { emoji: "🔺", name: "triangle" }
+      { emoji: "🔟", name: "ten" }
+    ]
+  },
+  {
+    name: "Shapes & Colors",
+    items: [
+      { emoji: "🔵", name: "blue circle" },
+      { emoji: "🟥", name: "red square" },
+      { emoji: "🔶", name: "orange diamond" },
+      { emoji: "🟩", name: "green square" },
+      { emoji: "🔺", name: "triangle" },
+      { emoji: "⭐", name: "star" },
+      { emoji: "🟣", name: "purple circle" },
+      { emoji: "⚪", name: "white circle" }
+    ]
+  },
+  {
+    name: "Animals & Nature",
+    items: [
+      { emoji: "🐶", name: "dog" },
+      { emoji: "🐱", name: "cat" },
+      { emoji: "🦊", name: "fox" },
+      { emoji: "🐢", name: "turtle" },
+      { emoji: "🦋", name: "butterfly" },
+      { emoji: "🦉", name: "owl" },
+      { emoji: "🌳", name: "tree" },
+      { emoji: "🌸", name: "flower" }
+    ]
+  },
+  {
+    name: "Things That Go",
+    items: [
+      { emoji: "🚗", name: "car" },
+      { emoji: "🚌", name: "bus" },
+      { emoji: "🚒", name: "fire truck" },
+      { emoji: "✈️", name: "airplane" },
+      { emoji: "🚀", name: "rocket" },
+      { emoji: "🚲", name: "bicycle" },
+      { emoji: "🚁", name: "helicopter" },
+      { emoji: "🚤", name: "boat" }
+    ]
+  },
+  {
+    name: "Weather Wonders",
+    items: [
+      { emoji: "☀️", name: "sunny" },
+      { emoji: "⛅", name: "partly cloudy" },
+      { emoji: "🌧️", name: "rainy" },
+      { emoji: "⛈️", name: "stormy" },
+      { emoji: "❄️", name: "snowy" },
+      { emoji: "🌈", name: "rainbow" },
+      { emoji: "🌪️", name: "tornado" },
+      { emoji: "🌬️", name: "windy" }
+    ]
+  },
+  {
+    name: "Feelings & Actions",
+    items: [
+      { emoji: "😄", name: "happy" },
+      { emoji: "�", name: "sad" },
+      { emoji: "�", name: "angry" },
+      { emoji: "😴", name: "sleepy" },
+      { emoji: "🤗", name: "hug" },
+      { emoji: "👏", name: "clap" },
+      { emoji: "🕺", name: "dance" },
+      { emoji: "🤸", name: "flip" }
     ]
   },
   {
     name: "Alphabet Challenge",
     items: [
-      { emoji: "🅰️", name: "A" },
-      { emoji: "🅱️", name: "B" },
-      { emoji: "🔤", name: "C" },
-      { emoji: "🔡", name: "D" },
-      { emoji: "🔠", name: "E" }
+      { emoji: "A", name: "A" },
+      { emoji: "B", name: "B" },
+      { emoji: "C", name: "C" },
+      { emoji: "D", name: "D" },
+      { emoji: "E", name: "E" },
+      { emoji: "F", name: "F" },
+      { emoji: "G", name: "G" },
+      { emoji: "H", name: "H" },
+      { emoji: "I", name: "I" },
+      { emoji: "J", name: "J" }
     ],
     requiresSequence: true,
     sequenceIndex: 0
@@ -105,18 +162,26 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     targetChangeTime: Date.now() + 10000
   })
 
+  const clampLevel = useCallback((levelIndex: number) => {
+    if (Number.isNaN(levelIndex)) return 0
+    return Math.max(0, Math.min(levelIndex, GAME_CATEGORIES.length - 1))
+  }, [])
+
   const currentCategory = GAME_CATEGORIES[gameState.level] || GAME_CATEGORIES[0]
 
-  const generateRandomTarget = useCallback(() => {
-    if (currentCategory.requiresSequence) {
-      const sequenceIndex = currentCategory.sequenceIndex || 0
-      const targetItem = currentCategory.items[sequenceIndex % currentCategory.items.length]
+  const generateRandomTarget = useCallback((levelOverride?: number) => {
+    const levelIndex = clampLevel(levelOverride ?? gameState.level)
+    const category = GAME_CATEGORIES[levelIndex] || GAME_CATEGORIES[0]
+
+    if (category.requiresSequence) {
+      const sequenceIndex = category.sequenceIndex || 0
+      const targetItem = category.items[sequenceIndex % category.items.length]
       return { name: targetItem.name, emoji: targetItem.emoji }
-    } else {
-      const randomItem = currentCategory.items[Math.floor(Math.random() * currentCategory.items.length)]
-      return { name: randomItem.name, emoji: randomItem.emoji }
     }
-  }, [currentCategory])
+
+    const randomItem = category.items[Math.floor(Math.random() * category.items.length)]
+    return { name: randomItem.name, emoji: randomItem.emoji }
+  }, [clampLevel, gameState.level])
 
   // Initialize target on first load when game auto-starts
   useEffect(() => {
@@ -218,8 +283,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       const tapLatency = performance.now() - tapStartTime
       eventTracker.trackObjectTap(objectId, isCorrect, playerSide, tapLatency)
 
-      const oldState = { ...gameState }
-
       setGameState(prev => {
         const newState = { ...prev }
 
@@ -237,11 +300,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           if (newState.player1Progress >= 100) {
             newState.winner = 1
             playSoundEffect.win()
-            eventTracker.trackGameStateChange(oldState, newState, 'player1_wins')
+            eventTracker.trackGameStateChange(prev, newState, 'player1_wins')
           } else if (newState.player2Progress >= 100) {
             newState.winner = 2
             playSoundEffect.win()
-            eventTracker.trackGameStateChange(oldState, newState, 'player2_wins')
+            eventTracker.trackGameStateChange(prev, newState, 'player2_wins')
           }
 
           // Change target immediately on correct tap (for non-sequence modes)
@@ -250,19 +313,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             newState.currentTarget = nextTarget.name
             newState.targetEmoji = nextTarget.emoji
             newState.targetChangeTime = Date.now() + 10000 // Reset timer
-            eventTracker.trackGameStateChange(oldState, newState, 'target_change_on_correct_tap')
+            eventTracker.trackGameStateChange(prev, newState, 'target_change_on_correct_tap')
           }
 
           // Advance sequence for alphabet level
           if (currentCategory.requiresSequence) {
             const nextIndex = (currentCategory.sequenceIndex || 0) + 1
-            GAME_CATEGORIES[gameState.level].sequenceIndex = nextIndex
+            GAME_CATEGORIES[prev.level].sequenceIndex = nextIndex
 
             if (nextIndex < currentCategory.items.length) {
               const nextTarget = generateRandomTarget()
               newState.currentTarget = nextTarget.name
               newState.targetEmoji = nextTarget.emoji
-              eventTracker.trackGameStateChange(oldState, newState, 'sequence_advance')
+              eventTracker.trackGameStateChange(prev, newState, 'sequence_advance')
             }
           }
         } else {
@@ -275,7 +338,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             newState.player2Progress = Math.max(prev.player2Progress - 20, 0)
           }
 
-          eventTracker.trackGameStateChange(oldState, newState, 'incorrect_tap_penalty')
+          eventTracker.trackGameStateChange(prev, newState, 'incorrect_tap_penalty')
         }
 
         return newState
@@ -286,71 +349,61 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
-  }, [gameObjects, gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, setGameState, gameState])
+  }, [gameObjects, gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget])
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((levelIndex?: number) => {
     try {
-      const target = generateRandomTarget()
-      const oldState = { ...gameState }
+      const safeLevel = clampLevel(levelIndex ?? gameState.level)
+
+      if (GAME_CATEGORIES[safeLevel].requiresSequence) {
+        GAME_CATEGORIES[safeLevel].sequenceIndex = 0
+      }
 
       // Reset performance metrics for accurate tracking
       eventTracker.resetPerformanceMetrics()
 
-      setGameState(prev => ({
-        ...prev,
-        gameStarted: true,
-        currentTarget: target.name,
-        targetEmoji: target.emoji,
-        targetChangeTime: Date.now() + 10000,
-        winner: null,
-        player1Progress: 0,
-        player2Progress: 0
-      }))
+      const target = generateRandomTarget(safeLevel)
+      setGameObjects([])
 
-      eventTracker.trackGameStateChange(oldState, gameState, 'game_start')
+      setGameState(prev => {
+        const newState = {
+          ...prev,
+          level: safeLevel,
+          gameStarted: true,
+          currentTarget: target.name,
+          targetEmoji: target.emoji,
+          targetChangeTime: Date.now() + 10000,
+          winner: null,
+          player1Progress: 0,
+          player2Progress: 0
+        }
+
+        eventTracker.trackGameStateChange(prev, newState, 'game_start')
+        return newState
+      })
     } catch (error) {
       eventTracker.trackError(error as Error, 'startGame')
     }
-  }, [generateRandomTarget, setGameState, gameState])
-
-  const nextLevel = useCallback(() => {
-    const newLevel = Math.min(gameState.level + 1, GAME_CATEGORIES.length - 1)
-    GAME_CATEGORIES[newLevel].sequenceIndex = 0 // Reset sequence
-
-    const target = generateRandomTarget()
-    setGameState(prev => ({
-      ...prev,
-      level: newLevel,
-      gameStarted: true,
-      currentTarget: target.name,
-      targetEmoji: target.emoji,
-      targetChangeTime: Date.now() + 10000,
-      winner: null,
-      player1Progress: 0,
-      player2Progress: 0
-    }))
-    setGameObjects([])
-  }, [gameState.level, generateRandomTarget, setGameState])
+  }, [clampLevel, gameState.level, generateRandomTarget])
 
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
-    const target = generateRandomTarget()
 
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
 
+    setGameObjects([])
     setGameState({
       player1Progress: 0,
       player2Progress: 0,
-      currentTarget: target.name,
-      targetEmoji: target.emoji,
+      currentTarget: "",
+      targetEmoji: "",
       level: 0,
       gameStarted: false,
       winner: null,
       targetChangeTime: Date.now() + 10000
     })
-    setGameObjects([])
-  }, [generateRandomTarget, setGameState])
+  }, [])
 
   // Update target every 10 seconds (except for sequence mode)
   useEffect(() => {
@@ -395,7 +448,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     currentCategory,
     handleObjectTap,
     startGame,
-    nextLevel,
     resetGame
   }
 }
