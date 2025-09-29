@@ -76,6 +76,7 @@ class SoundManager {
     private bufferCache: Map<string, AudioBuffer> = new Map()
     private loadingCache: Map<string, Promise<AudioBuffer | null>> = new Map()
     private fallbackEffects: Map<string, AudioBuffer> = new Map()
+    private htmlAudioCache: Map<string, string> = new Map()
     private isEnabled = true
     private volume = 0.6
     private speechAvailable: boolean | null = null
@@ -256,6 +257,60 @@ class SoundManager {
         return null
     }
 
+    private async playWithHtmlAudio(key: string): Promise<boolean> {
+        const url = audioUrlIndex.get(key)
+        if (!url) return false
+
+        if (!this.htmlAudioCache.has(key)) {
+            this.htmlAudioCache.set(key, url)
+        }
+
+        return await new Promise<boolean>((resolve) => {
+            const audio = new Audio(url)
+            audio.preload = 'auto'
+            audio.crossOrigin = 'anonymous'
+            audio.volume = this.volume
+
+            const cleanup = () => {
+                audio.removeEventListener('ended', handleEnded)
+                audio.removeEventListener('error', handleError)
+            }
+
+            const handleEnded = () => {
+                cleanup()
+                resolve(true)
+            }
+
+            const handleError = (event: Event) => {
+                console.warn(`HTMLAudio playback failed for "${key}"`, event)
+                cleanup()
+                resolve(false)
+            }
+
+            audio.addEventListener('ended', handleEnded, { once: true })
+            audio.addEventListener('error', handleError, { once: true })
+
+            audio.play().catch(error => {
+                console.warn(`Unable to start audio element for "${key}":`, error)
+                cleanup()
+                resolve(false)
+            })
+        })
+    }
+
+    private async playVoiceClip(name: string): Promise<boolean> {
+        const candidates = this.resolveCandidates(name)
+
+        for (const candidate of candidates) {
+            const played = await this.playWithHtmlAudio(candidate)
+            if (played) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     private canUseSpeech(): boolean {
         if (this.speechAvailable !== null) {
             return this.speechAvailable
@@ -357,41 +412,40 @@ class SoundManager {
 
         try {
             await this.ensureInitialized()
-            if (!this.audioContext) return
 
             const trimmed = phrase.trim()
             if (!trimmed) return
 
-            const directBuffer = await this.loadBufferForName(trimmed, false)
-            if (directBuffer) {
-                this.startBuffer(directBuffer)
+            if (await this.playVoiceClip(trimmed)) {
                 return
             }
 
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
-                let offset = 0
-                let played = false
+                let allPlayed = true
 
                 for (const part of parts) {
-                    const buffer = await this.loadBufferForName(part, false)
-                    if (buffer) {
-                        this.startBuffer(buffer, offset)
-                        offset += buffer.duration + 0.08
-                        played = true
+                    const partPlayed = await this.playVoiceClip(part)
+                    if (!partPlayed) {
+                        allPlayed = false
+                        break
                     }
                 }
 
-                if (played) return
+                if (allPlayed) {
+                    return
+                }
             }
 
             if (this.speakWithSpeechSynthesis(trimmed)) {
                 return
             }
 
-            const fallback = await this.loadBufferForName('success')
-            if (fallback) {
-                this.startBuffer(fallback)
+            if (this.audioContext) {
+                const fallback = await this.loadBufferForName('success')
+                if (fallback) {
+                    this.startBuffer(fallback)
+                }
             }
         } catch (error) {
             console.warn('Failed to play word audio:', error)

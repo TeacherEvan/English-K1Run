@@ -22,6 +22,8 @@ export interface GameState {
   gameStarted: boolean
   winner: number | null
   targetChangeTime: number
+  player1Streak: number
+  player2Streak: number
 }
 
 export interface GameCategory {
@@ -34,6 +36,32 @@ export interface GameCategory {
 interface UseGameLogicOptions {
   fallSpeedMultiplier?: number
 }
+
+export interface ComboCelebration {
+  id: number
+  player: 1 | 2
+  streak: number
+  title: string
+  description: string
+}
+
+const COMBO_LEVELS: Array<{ streak: number; title: string; description: string }> = [
+  {
+    streak: 3,
+    title: 'Triple Treat!',
+    description: 'Three perfect taps in a row! Keep the magic going!'
+  },
+  {
+    streak: 5,
+    title: 'Fantastic Five!',
+    description: 'Five flawless finds! You are racing ahead!'
+  },
+  {
+    streak: 7,
+    title: 'Lucky Legend!',
+    description: 'Seven sparkling successes! Unstoppable energy!'
+  }
+]
 
 export const GAME_CATEGORIES: GameCategory[] = [
   {
@@ -172,8 +200,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     level: 0,
     gameStarted: false,
     winner: null,
-    targetChangeTime: Date.now() + 10000
+    targetChangeTime: Date.now() + 10000,
+    player1Streak: 0,
+    player2Streak: 0
   })
+  const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
 
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
@@ -234,16 +265,25 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       const categoryItems = currentCategory.items
       const categoryLength = categoryItems.length
 
+      const leftCount = gameObjects.reduce((count, obj) => count + (obj.x <= 50 ? 1 : 0), 0)
+      const rightCount = gameObjects.length - leftCount
+      let nextLane: 'left' | 'right' = leftCount <= rightCount ? 'left' : 'right'
+
       for (let i = 0; i < spawnCount; i++) {
         // Use more efficient random selection
         const randomIndex = Math.floor(Math.random() * categoryLength)
         const randomItem = categoryItems[randomIndex]
 
+        const lane = nextLane
+        nextLane = lane === 'left' ? 'right' : 'left'
+
+        const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
+
         const newObject: GameObject = {
           id: `${baseId}-${i}`, // Simpler ID generation
           type: randomItem.name,
           emoji: randomItem.emoji,
-          x: Math.random() * 80 + 10,
+          x: Math.random() * (maxX - minX) + minX,
           y: -100 - (i * 60), // Increased stagger to prevent overlap
           speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
           size: 60
@@ -259,7 +299,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'spawnObject')
     }
-  }, [currentCategory, gameObjects.length, fallSpeedMultiplier])
+  }, [currentCategory, fallSpeedMultiplier, gameObjects])
 
   const updateObjects = useCallback(() => {
     try {
@@ -269,14 +309,36 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const screenHeight = window.innerHeight
         const speedMultiplier = 1.2 * fallSpeedMultiplier
 
+        const laneBuckets: { left: GameObject[]; right: GameObject[] } = { left: [], right: [] }
+
         for (const obj of prev) {
           const newY = obj.y + obj.speed * speedMultiplier
 
           // Only keep objects that are still visible
           if (newY < screenHeight + 100) {
-            updatedObjects.push({ ...obj, y: newY })
+            const updated = { ...obj, y: newY }
+            const lane = updated.x <= 50 ? 'left' : 'right'
+            laneBuckets[lane].push(updated)
           }
         }
+
+        const minimumGap = 70 // pixels between objects to prevent overlap
+
+        const applySeparation = (objects: GameObject[]) => {
+          const sorted = objects.sort((a, b) => a.y - b.y)
+          let previousY = -Infinity
+
+          for (const obj of sorted) {
+            if (obj.y <= previousY + minimumGap) {
+              obj.y = previousY + minimumGap
+            }
+            previousY = obj.y
+            updatedObjects.push(obj)
+          }
+        }
+
+        applySeparation(laneBuckets.left)
+        applySeparation(laneBuckets.right)
 
         return updatedObjects
       })
@@ -302,6 +364,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       const tapLatency = performance.now() - tapStartTime
       eventTracker.trackObjectTap(objectId, isCorrect, playerSide, tapLatency)
 
+      let triggeredCombo: ComboCelebration | null = null
+
       setGameState(prev => {
         const newState = { ...prev }
 
@@ -309,6 +373,27 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Correct tap: play success sound and move forward
           playSoundEffect.success()
           void playSoundEffect.voice(tappedObject.type)
+
+          let nextStreak = 0
+
+          if (playerSide === 'left') {
+            nextStreak = prev.player1Streak + 1
+            newState.player1Streak = nextStreak
+          } else {
+            nextStreak = prev.player2Streak + 1
+            newState.player2Streak = nextStreak
+          }
+
+          const comboLevel = COMBO_LEVELS.find(level => level.streak === nextStreak)
+          if (comboLevel) {
+            triggeredCombo = {
+              id: Date.now(),
+              player: playerSide === 'left' ? 1 : 2,
+              streak: nextStreak,
+              title: comboLevel.title,
+              description: comboLevel.description
+            }
+          }
 
           if (playerSide === 'left') {
             newState.player1Progress = Math.min(prev.player1Progress + 20, 100)
@@ -353,6 +438,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           playSoundEffect.wrong()
 
           if (playerSide === 'left') {
+            newState.player1Streak = 0
+          } else {
+            newState.player2Streak = 0
+          }
+
+          if (playerSide === 'left') {
             newState.player1Progress = Math.max(prev.player1Progress - 20, 0)
           } else {
             newState.player2Progress = Math.max(prev.player2Progress - 20, 0)
@@ -366,6 +457,16 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       // Remove the tapped object regardless of correct/incorrect
       setGameObjects(prev => prev.filter(obj => obj.id !== objectId))
+
+      if (triggeredCombo) {
+        setComboCelebration(triggeredCombo)
+        eventTracker.trackEvent({
+          type: 'info',
+          category: 'combo',
+          message: `Player ${triggeredCombo.player} combo streak reached ${triggeredCombo.streak}`,
+          data: triggeredCombo
+        })
+      }
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
@@ -395,12 +496,15 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           targetChangeTime: Date.now() + 10000,
           winner: null,
           player1Progress: 0,
-          player2Progress: 0
+          player2Progress: 0,
+          player1Streak: 0,
+          player2Streak: 0
         }
 
         eventTracker.trackGameStateChange(prev, newState, 'game_start')
         return newState
       })
+      setComboCelebration(null)
     } catch (error) {
       eventTracker.trackError(error as Error, 'startGame')
     }
@@ -421,8 +525,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       level: 0,
       gameStarted: false,
       winner: null,
-      targetChangeTime: Date.now() + 10000
+      targetChangeTime: Date.now() + 10000,
+      player1Streak: 0,
+      player2Streak: 0
     })
+    setComboCelebration(null)
   }, [])
 
   // Update target every 10 seconds (except for sequence mode)
@@ -462,12 +569,16 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, updateObjects])
 
+  const clearComboCelebration = useCallback(() => setComboCelebration(null), [])
+
   return {
     gameObjects,
     gameState,
     currentCategory,
     handleObjectTap,
     startGame,
-    resetGame
+    resetGame,
+    comboCelebration,
+    clearComboCelebration
   }
 }

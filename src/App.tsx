@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { ComboCelebration } from './components/ComboCelebration'
 import { DisplayInfo } from './components/DisplayInfo'
 import { ErrorMonitor } from './components/ErrorMonitor'
 import { EventTrackerDebug } from './components/EventTrackerDebug'
@@ -43,7 +44,9 @@ function App() {
     currentCategory,
     handleObjectTap,
     startGame,
-    resetGame
+    resetGame,
+    comboCelebration,
+    clearComboCelebration
   } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
@@ -100,6 +103,10 @@ function App() {
             timeRemaining={currentCategory.requiresSequence ? undefined : timeRemaining}
           />
         </div>
+      )}
+
+      {comboCelebration && (
+        <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
       )}
 
       {/* Split Screen Game Areas */}

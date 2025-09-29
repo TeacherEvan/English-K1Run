@@ -47,8 +47,11 @@ export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: 
       </div>
 
       {/* Turtle Character */}
-      <div className="absolute inset-x-0 pointer-events-none" style={turtleTrackStyle}>
-        <div className="relative h-full">
+      <div className="absolute inset-x-0 pointer-events-none flex justify-center" style={turtleTrackStyle}>
+        <div className="relative h-full flex items-end justify-center" style={{ width: `calc(5rem * var(--spacing-scale, 1))` }}>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl opacity-80">
+            🏁
+          </div>
           <div
             className={`absolute left-1/2 -translate-x-1/2 transition-all duration-500 ${clampedProgress > 95 ? 'turtle-hop' : ''}`}
             style={{
@@ -60,14 +63,6 @@ export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: 
             🐢
           </div>
         </div>
-      </div>
-
-      {/* Finish Line */}
-      <div
-        className="absolute left-0 right-0 h-2 bg-gradient-to-r from-success via-accent to-success opacity-80 shadow-sm"
-        style={{ top: 'calc(6.5rem * var(--spacing-scale, 1))' }}
-      >
-        <div className="h-full bg-white/20 animate-pulse" />
       </div>
 
       {/* Winner Overlay */}
