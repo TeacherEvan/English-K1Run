@@ -30,41 +30,50 @@
   overflow: hidden;
 }
 
-/* Themed backgrounds */
+/* Beautiful Scenery Backgrounds */
 .app-bg-sunrise {
   background:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
-    linear-gradient(135deg, #ff9a9e 0%, #fecf6a 45%, #ffafbd 100%);
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+    url('/mountain-landscape.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .app-bg-deep-ocean {
   background:
-    radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 45%),
-    linear-gradient(145deg, #0f5d91 0%, #0d94b8 45%, #53d8fb 100%);
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+    url('/ocean-view.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .app-bg-forest-trail {
   background:
-    radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 45%),
-    radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 50%),
-    linear-gradient(140deg, #0b8457 0%, #4ecb71 40%, #a3de83 100%);
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+    url('/forest-scene.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .app-bg-cosmic-night {
   background:
-    radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.18) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(173, 216, 230, 0.16) 0%, transparent 55%),
-    linear-gradient(155deg, #1f1147 0%, #371a7d 50%, #4d2ea3 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%;
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+    url('/starry-night.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .app-bg-playful-pop {
   background:
-    radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.25) 0%, transparent 40%),
-    linear-gradient(160deg, #ffacf7 0%, #a1c4fd 40%, #c2ffd8 100%);
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+    url('/meadow-flowers.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .app-bg-animated {
@@ -73,14 +82,22 @@
 
 @keyframes background-pan {
   0% {
-    background-position: 0% 0%, 0% 0%, 0% 0%;
+    background-position: center center, center center;
+  }
+
+  25% {
+    background-position: center top, center top;
   }
 
   50% {
-    background-position: 50% 50%, 50% 50%, 50% 50%;
+    background-position: center right, center right;
+  }
+
+  75% {
+    background-position: center bottom, center bottom;
   }
 
   100% {
-    background-position: 0% 0%, 0% 0%, 0% 0%;
+    background-position: center center, center center;
   }
 }

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { memo } from 'react'
 import { Card } from './ui/card'
 import { Progress } from './ui/progress'
@@ -11,9 +12,16 @@ interface PlayerAreaProps {
 
 export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: PlayerAreaProps) => {
   const isPlayer1 = playerNumber === 1
+  const clampedProgress = Math.max(0, Math.min(progress, 100))
+  const adjustedProgress = 4 + (clampedProgress / 100) * 92
+
+  const turtleTrackStyle: CSSProperties = {
+    top: 'calc(6.5rem * var(--spacing-scale, 1))',
+    bottom: 'calc(3.5rem * var(--spacing-scale, 1))'
+  }
 
   return (
-    <Card className="relative h-full border-4 border-primary border-secondary game-area overflow-hidden">
+    <Card className="relative h-full border-4 border-primary game-area overflow-hidden">
       {/* Player Header */}
       <div className={`absolute top-4 left-4 right-4 z-20 ${isWinner ? 'celebrate' : ''}`}>
         <div className={`${isPlayer1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'} px-4 py-2 rounded-full text-center font-bold shadow-lg`}
@@ -39,20 +47,27 @@ export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: 
       </div>
 
       {/* Turtle Character */}
-      <div
-        className={`absolute left-1/2 transform -translate-x-1/2 transition-all duration-500 ${progress > 95 ? 'turtle-hop' : ''}`}
-        style={{
-          bottom: `${20 + (progress * 0.75)}px`,
-          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-          fontSize: `calc(3.75rem * var(--turtle-scale, 1))` // Responsive turtle size
-        }}
-      >
-        🐢
+      <div className="absolute inset-x-0 pointer-events-none" style={turtleTrackStyle}>
+        <div className="relative h-full">
+          <div
+            className={`absolute left-1/2 -translate-x-1/2 transition-all duration-500 ${clampedProgress > 95 ? 'turtle-hop' : ''}`}
+            style={{
+              bottom: `${adjustedProgress}%`,
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+              fontSize: `calc(3.75rem * var(--turtle-scale, 1))`
+            }}
+          >
+            🐢
+          </div>
+        </div>
       </div>
 
       {/* Finish Line */}
-      <div className="absolute top-24 left-0 right-0 h-2 bg-gradient-to-r from-success via-accent to-success opacity-80 shadow-sm">
-        <div className="h-full bg-white/20 animate-pulse"></div>
+      <div
+        className="absolute left-0 right-0 h-2 bg-gradient-to-r from-success via-accent to-success opacity-80 shadow-sm"
+        style={{ top: 'calc(6.5rem * var(--spacing-scale, 1))' }}
+      >
+        <div className="h-full bg-white/20 animate-pulse" />
       </div>
 
       {/* Winner Overlay */}

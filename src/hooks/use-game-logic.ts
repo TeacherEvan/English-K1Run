@@ -130,6 +130,19 @@ export const GAME_CATEGORIES: GameCategory[] = [
     ]
   },
   {
+    name: "Body Parts",
+    items: [
+      { emoji: "👁️", name: "eye" },
+      { emoji: "👂", name: "ear" },
+      { emoji: "👃", name: "nose" },
+      { emoji: "👄", name: "mouth" },
+      { emoji: "👅", name: "tongue" },
+      { emoji: "🖐️", name: "hand" },
+      { emoji: "🦶", name: "foot" },
+      { emoji: "🦵", name: "leg" }
+    ]
+  },
+  {
     name: "Alphabet Challenge",
     items: [
       { emoji: "A", name: "A" },
@@ -168,6 +181,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [])
 
   const currentCategory = GAME_CATEGORIES[gameState.level] || GAME_CATEGORIES[0]
+
+  useEffect(() => {
+    if (gameState.gameStarted && gameState.currentTarget) {
+      void playSoundEffect.voice(gameState.currentTarget)
+    }
+  }, [gameState.gameStarted, gameState.currentTarget])
 
   const generateRandomTarget = useCallback((levelOverride?: number) => {
     const levelIndex = clampLevel(levelOverride ?? gameState.level)
@@ -289,6 +308,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         if (isCorrect) {
           // Correct tap: play success sound and move forward
           playSoundEffect.success()
+          void playSoundEffect.voice(tappedObject.type)
 
           if (playerSide === 'left') {
             newState.player1Progress = Math.min(prev.player1Progress + 20, 100)

@@ -12,7 +12,7 @@ interface TargetDisplayProps {
 
 export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining }: TargetDisplayProps) => {
   return (
-    <Card className="bg-background/60 backdrop-blur-xl text-foreground p-6 shadow-lg border border-accent/40">
+    <Card className="bg-background/30 backdrop-blur-xl text-foreground p-6 shadow-lg border border-accent/30">
       <div className="text-center">
         <Badge variant="secondary" className="mb-3 font-semibold"
           style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}>
