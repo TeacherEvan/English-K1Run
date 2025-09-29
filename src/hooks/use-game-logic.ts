@@ -364,8 +364,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       const tapLatency = performance.now() - tapStartTime
       eventTracker.trackObjectTap(objectId, isCorrect, playerSide, tapLatency)
 
-      let triggeredCombo: ComboCelebration | null = null
-
       setGameState(prev => {
         const newState = { ...prev }
 
@@ -386,13 +384,20 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
           const comboLevel = COMBO_LEVELS.find(level => level.streak === nextStreak)
           if (comboLevel) {
-            triggeredCombo = {
+            const comboData: ComboCelebration = {
               id: Date.now(),
               player: playerSide === 'left' ? 1 : 2,
               streak: nextStreak,
               title: comboLevel.title,
               description: comboLevel.description
             }
+            setComboCelebration(comboData)
+            eventTracker.trackEvent({
+              type: 'info',
+              category: 'combo',
+              message: `Player ${comboData.player} combo streak reached ${comboData.streak}`,
+              data: comboData
+            })
           }
 
           if (playerSide === 'left') {
@@ -457,16 +462,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       // Remove the tapped object regardless of correct/incorrect
       setGameObjects(prev => prev.filter(obj => obj.id !== objectId))
-
-      if (triggeredCombo) {
-        setComboCelebration(triggeredCombo)
-        eventTracker.trackEvent({
-          type: 'info',
-          category: 'combo',
-          message: `Player ${triggeredCombo.player} combo streak reached ${triggeredCombo.streak}`,
-          data: triggeredCombo
-        })
-      }
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
