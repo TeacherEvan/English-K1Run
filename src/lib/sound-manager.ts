@@ -70,6 +70,12 @@ for (const [path, url] of Object.entries(rawAudioFiles)) {
     }
 }
 
+// Debug: Log registered audio files (helpful for Vercel debugging)
+if (import.meta.env.DEV) {
+    console.log(`[SoundManager] Registered ${audioUrlIndex.size} audio aliases from ${Object.keys(rawAudioFiles).length} files`)
+    console.log('[SoundManager] Sample URLs:', Array.from(audioUrlIndex.entries()).slice(0, 5))
+}
+
 class SoundManager {
     private audioContext: AudioContext | null = null
     private bufferCache: Map<string, AudioBuffer> = new Map()
@@ -79,21 +85,23 @@ class SoundManager {
     private isEnabled = true
     private volume = 0.6
     private speechAvailable: boolean | null = null
-    private contextResumed = false // Track if context is already resumed
+    private initAttempted = false // Track if we've tried to initialize
 
     constructor() {
         void this.initializeAudioContext()
     }
 
     private async initializeAudioContext() {
-        if (this.audioContext) return
+        if (this.audioContext || this.initAttempted) return
+        this.initAttempted = true
 
         try {
             const ContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
             this.audioContext = new ContextClass()
+            console.log('[SoundManager] Audio context created, state:', this.audioContext.state)
             this.prepareFallbackEffects()
         } catch (error) {
-            console.warn('Audio context initialization failed:', error)
+            console.error('[SoundManager] Audio context initialization failed:', error)
             this.isEnabled = false
         }
     }
@@ -218,18 +226,26 @@ class SoundManager {
         if (pending) return pending
 
         const url = audioUrlIndex.get(key)
-        if (!url) return null
+        if (!url) {
+            console.warn(`[SoundManager] No URL found for key: "${key}"`)
+            return null
+        }
 
         const loadPromise = (async () => {
             try {
+                console.log(`[SoundManager] Loading audio: "${key}" from ${url}`)
                 const response = await fetch(url)
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+                }
                 const arrayBuffer = await response.arrayBuffer()
                 const audioBuffer = await this.audioContext!.decodeAudioData(arrayBuffer)
                 this.bufferCache.set(key, audioBuffer)
                 this.loadingCache.delete(key)
+                console.log(`[SoundManager] Successfully loaded: "${key}"`)
                 return audioBuffer
             } catch (error) {
-                console.warn(`Failed to load audio "${key}":`, error)
+                console.error(`[SoundManager] Failed to load audio "${key}" from ${url}:`, error)
                 this.loadingCache.delete(key)
                 return null
             }
@@ -353,13 +369,21 @@ class SoundManager {
     }
 
     private async resumeIfSuspended() {
-        if (this.audioContext && this.audioContext.state === 'suspended' && !this.contextResumed) {
+        if (!this.audioContext) {
+            console.warn('[SoundManager] Cannot resume: no audio context')
+            return
+        }
+
+        if (this.audioContext.state === 'suspended') {
             try {
+                console.log('[SoundManager] Resuming suspended audio context...')
                 await this.audioContext.resume()
-                this.contextResumed = true
+                console.log('[SoundManager] Audio context resumed, state:', this.audioContext.state)
             } catch (error) {
-                console.warn('Failed to resume audio context:', error)
+                console.error('[SoundManager] Failed to resume audio context:', error)
             }
+        } else {
+            console.log('[SoundManager] Audio context state:', this.audioContext.state)
         }
     }
 
@@ -380,9 +404,13 @@ class SoundManager {
     }
 
     async ensureInitialized() {
-        if (!this.isEnabled) return
+        if (!this.isEnabled) {
+            console.warn('[SoundManager] Audio is disabled')
+            return
+        }
 
         if (!this.audioContext) {
+            console.log('[SoundManager] Initializing audio context...')
             await this.initializeAudioContext()
         }
 
@@ -393,18 +421,35 @@ class SoundManager {
         if (!this.isEnabled) return
 
         try {
+            console.log(`[SoundManager] playSound called: "${soundName}"`)
             await this.ensureInitialized()
-            if (!this.audioContext) return
+            if (!this.audioContext) {
+                console.error('[SoundManager] No audio context available')
+                return
+            }
 
             const buffer = await this.loadBufferForName(soundName)
             if (!buffer) {
-                console.warn(`Sound "${soundName}" not available`)
+                console.warn(`[SoundManager] Sound "${soundName}" not available, using fallback`)
                 return
             }
 
             this.startBuffer(buffer)
+            console.log(`[SoundManager] Playing sound: "${soundName}"`)
         } catch (error) {
-            console.warn('Failed to play sound:', error)
+            console.error('[SoundManager] Failed to play sound:', error)
+        }
+    }
+
+    // Add debug method to check audio system status
+    getDebugInfo() {
+        return {
+            isEnabled: this.isEnabled,
+            hasContext: !!this.audioContext,
+            contextState: this.audioContext?.state,
+            registeredAliases: audioUrlIndex.size,
+            cachedBuffers: this.bufferCache.size,
+            sampleAliases: Array.from(audioUrlIndex.entries()).slice(0, 5)
         }
     }
 
@@ -429,7 +474,7 @@ class SoundManager {
                 if (this.speakWithSpeechSynthesis(trimmed)) {
                     return
                 }
-                
+
                 // Third try: play individual words with delays
                 let delay = 0
                 let anyPlayed = false
@@ -441,7 +486,7 @@ class SoundManager {
                         anyPlayed = true
                     }
                 }
-                
+
                 if (anyPlayed) {
                     return
                 }
@@ -486,3 +531,6 @@ export const playSoundEffect = {
     win: () => soundManager.playSound('win'),
     voice: (phrase: string) => soundManager.playWord(phrase)
 }
+
+// Export debug function for troubleshooting
+export const getAudioDebugInfo = () => soundManager.getDebugInfo()
