@@ -43,19 +43,18 @@ for (const [path, url] of Object.entries(rawAudioFiles)) {
     const fileName = fileNameWithExt.replace(/\.wav$/i, '')
     const normalized = normalizeKey(fileName)
 
+    // Register the exact filename (normalized)
     registerAudioAlias(normalized, url)
 
+    // Handle emoji_ prefix: register both with and without prefix, plus space variant
     if (fileName.startsWith('emoji_')) {
-        const trimmed = fileName.slice(6)
-        registerAudioAlias(normalizeKey(trimmed), url)
-        registerAudioAlias(normalizeKey(trimmed.replace(/_/g, ' ')), url)
+        const withoutPrefix = fileName.slice(6) // "emoji_apple" → "apple"
+        registerAudioAlias(normalizeKey(withoutPrefix), url)
+        // Also register space variant: "emoji_ice cream" → "ice cream"
+        registerAudioAlias(normalizeKey(withoutPrefix.replace(/_/g, ' ')), url)
     }
 
-    const strippedEmoji = fileName.replace(/^emoji_/, '')
-    if (strippedEmoji !== fileName) {
-        registerAudioAlias(normalizeKey(strippedEmoji), url)
-    }
-
+    // Number word/digit conversions
     if (DIGIT_TO_WORD[fileName]) {
         registerAudioAlias(normalizeKey(DIGIT_TO_WORD[fileName]), url)
     }
@@ -64,10 +63,10 @@ for (const [path, url] of Object.entries(rawAudioFiles)) {
         registerAudioAlias(normalizeKey(NUMBER_WORD_TO_DIGIT[fileName]), url)
     }
 
-    if (fileName.includes('_')) {
-        for (const part of fileName.split('_')) {
-            registerAudioAlias(normalizeKey(part), url)
-        }
+    // Register underscore-to-space variant for multi-word files
+    // "fire_truck" → "fire truck", but DON'T split into individual words
+    if (fileName.includes('_') && !fileName.startsWith('emoji_')) {
+        registerAudioAlias(normalizeKey(fileName.replace(/_/g, ' ')), url)
     }
 }
 
@@ -80,6 +79,7 @@ class SoundManager {
     private isEnabled = true
     private volume = 0.6
     private speechAvailable: boolean | null = null
+    private contextResumed = false // Track if context is already resumed
 
     constructor() {
         void this.initializeAudioContext()
@@ -353,9 +353,10 @@ class SoundManager {
     }
 
     private async resumeIfSuspended() {
-        if (this.audioContext && this.audioContext.state === 'suspended') {
+        if (this.audioContext && this.audioContext.state === 'suspended' && !this.contextResumed) {
             try {
                 await this.audioContext.resume()
+                this.contextResumed = true
             } catch (error) {
                 console.warn('Failed to resume audio context:', error)
             }
@@ -416,31 +417,42 @@ class SoundManager {
             const trimmed = phrase.trim()
             if (!trimmed) return
 
+            // First try: exact phrase as audio file
             if (await this.playVoiceClip(trimmed)) {
                 return
             }
 
+            // Second try: for multi-word phrases, try speech synthesis FIRST
+            // (Better than trying to play individual words with no delays)
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
-                let allPlayed = true
-
+                if (this.speakWithSpeechSynthesis(trimmed)) {
+                    return
+                }
+                
+                // Third try: play individual words with delays
+                let delay = 0
+                let anyPlayed = false
                 for (const part of parts) {
-                    const partPlayed = await this.playVoiceClip(part)
-                    if (!partPlayed) {
-                        allPlayed = false
-                        break
+                    const buffer = await this.loadBufferForName(part, false)
+                    if (buffer && this.audioContext) {
+                        this.startBuffer(buffer, delay)
+                        delay += buffer.duration + 0.1 // 100ms gap between words
+                        anyPlayed = true
                     }
                 }
-
-                if (allPlayed) {
+                
+                if (anyPlayed) {
+                    return
+                }
+            } else {
+                // Single word: try speech synthesis
+                if (this.speakWithSpeechSynthesis(trimmed)) {
                     return
                 }
             }
 
-            if (this.speakWithSpeechSynthesis(trimmed)) {
-                return
-            }
-
+            // Final fallback: success tone
             if (this.audioContext) {
                 const fallback = await this.loadBufferForName('success')
                 if (fallback) {
