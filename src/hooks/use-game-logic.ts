@@ -322,17 +322,44 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        const minimumGap = 70 // pixels between objects to prevent overlap
+        // Enhanced collision detection: increased gap and size-aware spacing
+        const minimumGap = 100 // Increased from 70px to 100px for better separation
+        const horizontalMinGap = 15 // Minimum horizontal gap in percentage points
 
         const applySeparation = (objects: GameObject[]) => {
+          // Sort by Y position (top to bottom)
           const sorted = objects.sort((a, b) => a.y - b.y)
-          let previousY = -Infinity
 
-          for (const obj of sorted) {
-            if (obj.y <= previousY + minimumGap) {
-              obj.y = previousY + minimumGap
+          for (let i = 0; i < sorted.length; i++) {
+            const obj = sorted[i]
+
+            // Vertical collision prevention with size awareness
+            if (i > 0) {
+              const prevObj = sorted[i - 1]
+              const requiredGap = minimumGap + (obj.size + prevObj.size) / 2
+
+              if (obj.y < prevObj.y + requiredGap) {
+                obj.y = prevObj.y + requiredGap
+              }
             }
-            previousY = obj.y
+
+            // Horizontal collision prevention - push apart if too close
+            for (let j = 0; j < i; j++) {
+              const otherObj = sorted[j]
+              const verticalDistance = Math.abs(obj.y - otherObj.y)
+              const horizontalDistance = Math.abs(obj.x - otherObj.x)
+
+              // Check if objects are close vertically AND horizontally
+              if (verticalDistance < minimumGap && horizontalDistance < horizontalMinGap) {
+                // Push the current object away horizontally
+                if (obj.x < otherObj.x) {
+                  obj.x = Math.max(10, otherObj.x - horizontalMinGap)
+                } else {
+                  obj.x = Math.min(45, otherObj.x + horizontalMinGap) // Keep within lane bounds
+                }
+              }
+            }
+
             updatedObjects.push(obj)
           }
         }
