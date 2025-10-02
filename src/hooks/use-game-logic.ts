@@ -498,6 +498,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     try {
       const safeLevel = clampLevel(levelIndex ?? gameState.level)
 
+      console.log('[GameLogic] Starting game at level:', safeLevel)
+
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0
       }
@@ -506,6 +508,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       eventTracker.resetPerformanceMetrics()
 
       const target = generateRandomTarget(safeLevel)
+      console.log('[GameLogic] Initial target:', target)
       setGameObjects([])
 
       setGameState(prev => {
@@ -523,11 +526,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           player2Streak: 0
         }
 
+        console.log('[GameLogic] Game state updated, gameStarted:', newState.gameStarted)
         eventTracker.trackGameStateChange(prev, newState, 'game_start')
         return newState
       })
       setComboCelebration(null)
     } catch (error) {
+      console.error('[GameLogic] Error starting game:', error)
       eventTracker.trackError(error as Error, 'startGame')
     }
   }, [clampLevel, gameState.level, generateRandomTarget])
@@ -575,8 +580,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   // Spawn objects - Optimized with longer intervals for better performance
   useEffect(() => {
-    if (!gameState.gameStarted || gameState.winner) return
+    if (!gameState.gameStarted || gameState.winner) {
+      console.log('[GameLogic] Spawn effect - not spawning. Started:', gameState.gameStarted, 'Winner:', gameState.winner)
+      return
+    }
 
+    console.log('[GameLogic] Spawn effect - starting object spawning')
     // Increased to 500ms for better performance while maintaining game flow
     const interval = setInterval(spawnObject, 500)
     return () => clearInterval(interval)

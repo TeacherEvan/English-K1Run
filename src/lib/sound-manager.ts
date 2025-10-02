@@ -86,9 +86,31 @@ class SoundManager {
     private volume = 0.6
     private speechAvailable: boolean | null = null
     private initAttempted = false // Track if we've tried to initialize
+    private userInteractionReceived = false
 
     constructor() {
         void this.initializeAudioContext()
+        this.setupUserInteractionListener()
+    }
+
+    private setupUserInteractionListener() {
+        // Set up one-time listeners for user interaction to unlock audio
+        const handleInteraction = async () => {
+            if (this.userInteractionReceived) return
+            this.userInteractionReceived = true
+
+            console.log('[SoundManager] User interaction detected, initializing audio...')
+            await this.ensureInitialized()
+
+            // Remove listeners after first interaction
+            document.removeEventListener('click', handleInteraction)
+            document.removeEventListener('touchstart', handleInteraction)
+            document.removeEventListener('keydown', handleInteraction)
+        }
+
+        document.addEventListener('click', handleInteraction, { once: true })
+        document.addEventListener('touchstart', handleInteraction, { once: true })
+        document.addEventListener('keydown', handleInteraction, { once: true })
     }
 
     private async initializeAudioContext() {

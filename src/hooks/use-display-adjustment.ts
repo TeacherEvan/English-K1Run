@@ -28,6 +28,14 @@ export function useDisplayAdjustment() {
   })
 
   useEffect(() => {
+    // Initialize CSS variables immediately on mount
+    const root = document.documentElement
+    root.style.setProperty('--font-scale', '1')
+    root.style.setProperty('--object-scale', '1')
+    root.style.setProperty('--turtle-scale', '1')
+    root.style.setProperty('--spacing-scale', '1')
+    root.style.setProperty('--fall-speed-scale', '1')
+
     const updateDisplaySettings = () => {
       const width = window.innerWidth
       const height = window.innerHeight
@@ -97,6 +105,14 @@ export function useDisplayAdjustment() {
         fallSpeed *= 0.8 // Further reduced for mobile portrait
       }
 
+      // Set CSS variables IMMEDIATELY before state update
+      const root = document.documentElement
+      root.style.setProperty('--font-scale', fontSize.toString())
+      root.style.setProperty('--object-scale', objectSize.toString())
+      root.style.setProperty('--turtle-scale', turtleSize.toString())
+      root.style.setProperty('--spacing-scale', spacing.toString())
+      root.style.setProperty('--fall-speed-scale', fallSpeed.toString())
+
       setDisplaySettings(prev => {
         // Only update if values actually changed to prevent unnecessary renders
         if (
@@ -112,7 +128,7 @@ export function useDisplayAdjustment() {
           return prev
         }
 
-        const newSettings = {
+        return {
           scale,
           fontSize,
           objectSize,
@@ -124,16 +140,6 @@ export function useDisplayAdjustment() {
           screenHeight: height,
           aspectRatio
         }
-
-        // Immediately set CSS variables when settings change
-        const root = document.documentElement
-        root.style.setProperty('--font-scale', newSettings.fontSize.toString())
-        root.style.setProperty('--object-scale', newSettings.objectSize.toString())
-        root.style.setProperty('--turtle-scale', newSettings.turtleSize.toString())
-        root.style.setProperty('--spacing-scale', newSettings.spacing.toString())
-        root.style.setProperty('--fall-speed-scale', newSettings.fallSpeed.toString())
-
-        return newSettings
       })
     }
 

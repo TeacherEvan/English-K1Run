@@ -30,9 +30,12 @@
   overflow: hidden;
 }
 
-/* Beautiful Scenery Backgrounds */
+/* Beautiful Scenery Backgrounds with Fallback Colors */
 .app-bg-sunrise {
-  background:
+  background-color: #FFE5B4;
+  /* Peach/sunrise fallback */
+  background-image:
+    linear-gradient(135deg, rgba(255, 182, 193, 0.3) 0%, rgba(255, 223, 186, 0.3) 100%),
     linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
     url('/mountain-landscape.jpg');
   background-size: cover;
@@ -41,7 +44,10 @@
 }
 
 .app-bg-deep-ocean {
-  background:
+  background-color: #4A90E2;
+  /* Ocean blue fallback */
+  background-image:
+    linear-gradient(135deg, rgba(74, 144, 226, 0.4) 0%, rgba(106, 196, 234, 0.4) 100%),
     linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
     url('/ocean-view.jpg');
   background-size: cover;
@@ -50,7 +56,10 @@
 }
 
 .app-bg-forest-trail {
-  background:
+  background-color: #90C695;
+  /* Forest green fallback */
+  background-image:
+    linear-gradient(135deg, rgba(144, 198, 149, 0.4) 0%, rgba(106, 168, 79, 0.4) 100%),
     linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
     url('/forest-scene.jpg');
   background-size: cover;
@@ -59,7 +68,10 @@
 }
 
 .app-bg-cosmic-night {
-  background:
+  background-color: #2C3E50;
+  /* Dark night fallback */
+  background-image:
+    linear-gradient(135deg, rgba(44, 62, 80, 0.5) 0%, rgba(52, 73, 94, 0.5) 100%),
     linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
     url('/starry-night.jpg');
   background-size: cover;
@@ -68,7 +80,10 @@
 }
 
 .app-bg-playful-pop {
-  background:
+  background-color: #FFF8DC;
+  /* Cornsilk/meadow fallback */
+  background-image:
+    linear-gradient(135deg, rgba(255, 248, 220, 0.3) 0%, rgba(255, 228, 196, 0.3) 100%),
     linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
     url('/meadow-flowers.jpg');
   background-size: cover;

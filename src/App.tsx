@@ -6,6 +6,7 @@ import { ErrorMonitor } from './components/ErrorMonitor'
 import { EventTrackerDebug } from './components/EventTrackerDebug'
 import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
+import { GameDebug } from './components/GameDebug'
 import { GameMenu } from './components/GameMenu'
 import { PerformanceMonitor } from './components/PerformanceMonitor'
 import { PlayerArea } from './components/PlayerArea'
@@ -200,6 +201,14 @@ function App() {
 
       {/* Quick Debug - CSS and Audio diagnostics */}
       <QuickDebug />
+
+      {/* Game Debug - Visual debugging panel */}
+      <GameDebug
+        gameStarted={gameState.gameStarted}
+        objectCount={gameObjects.length}
+        targetEmoji={gameState.targetEmoji}
+        currentTarget={gameState.currentTarget}
+      />
     </div>
   )
 }
