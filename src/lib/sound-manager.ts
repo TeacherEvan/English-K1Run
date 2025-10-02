@@ -87,10 +87,26 @@ class SoundManager {
     private speechAvailable: boolean | null = null
     private initAttempted = false // Track if we've tried to initialize
     private userInteractionReceived = false
+    private isMobile = false
+    private preferHTMLAudio = false
 
     constructor() {
+        this.detectMobile()
         void this.initializeAudioContext()
         this.setupUserInteractionListener()
+    }
+
+    private detectMobile() {
+        // Detect if we're on a mobile device
+        const ua = navigator.userAgent.toLowerCase()
+        this.isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
+
+        // On mobile, especially Android Chrome, prefer HTMLAudio for better compatibility
+        this.preferHTMLAudio = this.isMobile && /android/i.test(ua)
+
+        if (this.preferHTMLAudio) {
+            console.log('[SoundManager] Mobile Android detected - using HTMLAudio for better compatibility')
+        }
     }
 
     private setupUserInteractionListener() {
@@ -444,6 +460,21 @@ class SoundManager {
 
         try {
             console.log(`[SoundManager] playSound called: "${soundName}"`)
+
+            // On Android, prefer HTMLAudio for better compatibility
+            if (this.preferHTMLAudio) {
+                const candidates = this.resolveCandidates(soundName)
+                for (const candidate of candidates) {
+                    const played = await this.playWithHtmlAudio(candidate)
+                    if (played) {
+                        console.log(`[SoundManager] Played with HTMLAudio: "${soundName}"`)
+                        return
+                    }
+                }
+                console.warn(`[SoundManager] HTMLAudio failed for "${soundName}", falling back to Web Audio`)
+            }
+
+            // Fall back to Web Audio API
             await this.ensureInitialized()
             if (!this.audioContext) {
                 console.error('[SoundManager] No audio context available')

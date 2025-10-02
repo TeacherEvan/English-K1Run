@@ -248,58 +248,61 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const spawnObject = useCallback(() => {
     try {
-      // Pre-check for performance bottlenecks - more strict limit
-      if (gameObjects.length > 15) {
-        eventTracker.trackWarning('Too many objects on screen, skipping spawn', {
-          currentCount: gameObjects.length
-        })
-        return
-      }
-
-      // Optimized spawning: fewer objects, less computation
-      const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects only
-      const newObjects: GameObject[] = []
-
-      // Pre-calculate random values to reduce computation in loop
-      const baseId = Date.now()
-      const categoryItems = currentCategory.items
-      const categoryLength = categoryItems.length
-
-      const leftCount = gameObjects.reduce((count, obj) => count + (obj.x <= 50 ? 1 : 0), 0)
-      const rightCount = gameObjects.length - leftCount
-      let nextLane: 'left' | 'right' = leftCount <= rightCount ? 'left' : 'right'
-
-      for (let i = 0; i < spawnCount; i++) {
-        // Use more efficient random selection
-        const randomIndex = Math.floor(Math.random() * categoryLength)
-        const randomItem = categoryItems[randomIndex]
-
-        const lane = nextLane
-        nextLane = lane === 'left' ? 'right' : 'left'
-
-        const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
-
-        const newObject: GameObject = {
-          id: `${baseId}-${i}`, // Simpler ID generation
-          type: randomItem.name,
-          emoji: randomItem.emoji,
-          x: Math.random() * (maxX - minX) + minX,
-          y: -100 - (i * 60), // Increased stagger to prevent overlap
-          speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
-          size: 60
+      setGameObjects(prev => {
+        // Pre-check for performance bottlenecks - more strict limit
+        if (prev.length > 15) {
+          console.log('[GameLogic] Too many objects, skipping spawn. Count:', prev.length)
+          return prev
         }
-        newObjects.push(newObject)
-      }
 
-      // Single batch update instead of tracking each individually
-      setGameObjects(prev => [...prev, ...newObjects])
+        // Optimized spawning: fewer objects, less computation
+        const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects only
+        const newObjects: GameObject[] = []
 
-      // Track spawn event once per batch
-      eventTracker.trackObjectSpawn(`batch-${spawnCount}`, { count: spawnCount })
+        // Pre-calculate random values to reduce computation in loop
+        const baseId = Date.now()
+        const categoryItems = currentCategory.items
+        const categoryLength = categoryItems.length
+
+        const leftCount = prev.reduce((count, obj) => count + (obj.x <= 50 ? 1 : 0), 0)
+        const rightCount = prev.length - leftCount
+        let nextLane: 'left' | 'right' = leftCount <= rightCount ? 'left' : 'right'
+
+        for (let i = 0; i < spawnCount; i++) {
+          // Use more efficient random selection
+          const randomIndex = Math.floor(Math.random() * categoryLength)
+          const randomItem = categoryItems[randomIndex]
+
+          const lane = nextLane
+          nextLane = lane === 'left' ? 'right' : 'left'
+
+          const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
+
+          const newObject: GameObject = {
+            id: `${baseId}-${i}-${Math.random()}`, // Unique ID
+            type: randomItem.name,
+            emoji: randomItem.emoji,
+            x: Math.random() * (maxX - minX) + minX,
+            y: -100 - (i * 60), // Increased stagger to prevent overlap
+            speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
+            size: 60
+          }
+          newObjects.push(newObject)
+        }
+
+        console.log('[GameLogic] Spawning', newObjects.length, 'objects. Total will be:', prev.length + newObjects.length)
+
+        // Track spawn event once per batch
+        eventTracker.trackObjectSpawn(`batch-${spawnCount}`, { count: spawnCount })
+
+        // Return new array with spawned objects
+        return [...prev, ...newObjects]
+      })
     } catch (error) {
+      console.error('[GameLogic] Error in spawnObject:', error)
       eventTracker.trackError(error as Error, 'spawnObject')
     }
-  }, [currentCategory, fallSpeedMultiplier, gameObjects])
+  }, [currentCategory, fallSpeedMultiplier])
 
   const updateObjects = useCallback(() => {
     try {
@@ -322,9 +325,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // Enhanced collision detection: increased gap and size-aware spacing
-        const minimumGap = 100 // Increased from 70px to 100px for better separation
-        const horizontalMinGap = 15 // Minimum horizontal gap in percentage points
+        // Enhanced collision detection: speed-aware spacing to prevent phasing
+        const baseGap = 120 // Increased base gap for better separation
+        const horizontalMinGap = 18 // Minimum horizontal gap in percentage points
 
         const applySeparation = (objects: GameObject[]) => {
           // Sort by Y position (top to bottom)
@@ -333,13 +336,22 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           for (let i = 0; i < sorted.length; i++) {
             const obj = sorted[i]
 
-            // Vertical collision prevention with size awareness
+            // Vertical collision prevention with SPEED-AWARE spacing
             if (i > 0) {
               const prevObj = sorted[i - 1]
-              const requiredGap = minimumGap + (obj.size + prevObj.size) / 2
+
+              // Calculate dynamic gap based on speed difference
+              const speedDiff = Math.abs(obj.speed - prevObj.speed)
+              const speedFactor = 1 + (speedDiff * 30) // Faster objects need more space
+              const requiredGap = (baseGap * speedFactor) + (obj.size + prevObj.size) / 2
 
               if (obj.y < prevObj.y + requiredGap) {
                 obj.y = prevObj.y + requiredGap
+              }
+
+              // If object is moving faster than one above, slow it down slightly
+              if (obj.speed > prevObj.speed && obj.y < prevObj.y + requiredGap * 1.5) {
+                obj.speed = prevObj.speed * 0.95 // Match speed to prevent overtaking
               }
             }
 
@@ -349,13 +361,16 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               const verticalDistance = Math.abs(obj.y - otherObj.y)
               const horizontalDistance = Math.abs(obj.x - otherObj.x)
 
+              // Dynamic horizontal gap based on vertical distance
+              const dynHorizGap = horizontalMinGap * (1 - (verticalDistance / (baseGap * 2)))
+
               // Check if objects are close vertically AND horizontally
-              if (verticalDistance < minimumGap && horizontalDistance < horizontalMinGap) {
+              if (verticalDistance < baseGap * 1.5 && horizontalDistance < dynHorizGap) {
                 // Push the current object away horizontally
                 if (obj.x < otherObj.x) {
-                  obj.x = Math.max(10, otherObj.x - horizontalMinGap)
+                  obj.x = Math.max(10, otherObj.x - dynHorizGap)
                 } else {
-                  obj.x = Math.min(45, otherObj.x + horizontalMinGap) // Keep within lane bounds
+                  obj.x = Math.min(45, otherObj.x + dynHorizGap) // Keep within lane bounds
                 }
               }
             }
