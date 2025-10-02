@@ -25,12 +25,12 @@ These are completely unused and add significant bloat:
 
 ### Medium Libraries (REMOVE - Medium Priority)
 
-6. **cmdk** - Only used in unused `src/components/ui/command.tsx`
-7. **vaul** - Only used in unused `src/components/ui/drawer.tsx`
-8. **input-otp** - Only used in unused `src/components/ui/input-otp.tsx`
-9. **marked** - Markdown parser, not imported anywhere
-10. **uuid** - UUID generator, not imported anywhere
-11. **requirements** - Unknown purpose, not imported anywhere
+1. **cmdk** - Only used in unused `src/components/ui/command.tsx`
+2. **vaul** - Only used in unused `src/components/ui/drawer.tsx`
+3. **input-otp** - Only used in unused `src/components/ui/input-otp.tsx`
+4. **marked** - Markdown parser, not imported anywhere
+5. **uuid** - UUID generator, not imported anywhere
+6. **requirements** - Unknown purpose, not imported anywhere
 
 ### Unused UI Components
 

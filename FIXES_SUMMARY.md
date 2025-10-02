@@ -139,7 +139,7 @@ Kept:
 
 Expected logs on game start:
 
-```
+```plaintext
 [GameLogic] Starting game at level: 0
 [GameLogic] Initial target: {name: "apple", emoji: "🍎"}
 [GameLogic] Spawn effect - starting object spawning
@@ -148,7 +148,7 @@ Expected logs on game start:
 
 Expected logs on Android:
 
-```
+```plaintext
 [SoundManager] Mobile Android detected - using HTMLAudio for better compatibility
 [SoundManager] Played with HTMLAudio: "tap"
 ```

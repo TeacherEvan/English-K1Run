@@ -51,9 +51,6 @@ export function useDisplayAdjustment() {
       const heightScale = height / baseHeight
       const scale = Math.min(widthScale, heightScale)
 
-      // Ensure minimum scale values to prevent text from being too small
-      const minScale = 0.5
-
       // Optimize calculations by using cached values
       let fontSize = scale
       let objectSize = scale
