@@ -23,6 +23,16 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 **Component Ownership**: `App.tsx` owns top-level state (`debugVisible`, `backgroundClass`, `selectedLevel`) and orchestrates layout. All game logic delegates to `use-game-logic.ts` hook.
 
+## User Interface & UX Features
+
+**Target Display**: Located at top-center during gameplay, shows current target emoji/name and category badge. Styled with 50% scale (`transform: scale(0.5)`) and completely transparent background for minimal visual obstruction. Only the text and emoji remain visible with text-shadow for readability.
+
+**Back to Levels Button**: Fixed at top-left during active gameplay (hidden during winner screen). Clicking calls `resetGame()` to return to level selection menu. Styled with responsive sizing using `--font-scale` and `--spacing-scale` CSS variables.
+
+**Fullscreen Mode**: Auto-triggers on first user interaction (click, touch, or keydown) via `requestFullscreen()` utility with cross-browser support (Chrome, Safari, Firefox, IE/Edge). Uses proper TypeScript typing to avoid vendor prefix issues.
+
+**Background Rotation**: Random background changes every 30s from `BACKGROUND_CLASSES` array (`app-bg-sunrise`, `app-bg-deep-ocean`, etc.). Also changes when returning to menu.
+
 ## Build & Developer Workflows
 
 **Development**: 
