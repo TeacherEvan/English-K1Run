@@ -139,3 +139,72 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 - **Background Images**: External URLs may be blocked; backgrounds defined in `App.css` use local `/public/*.jpg` files
 - **Audio Initialization**: Web Audio requires user interaction; `sound-manager` auto-initializes on first tap
 - **Split-Screen Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values relative to player area
+
+## Troubleshooting Audio Issues (BenQ Classroom Displays)
+
+**Problem**: Audio pronunciations fail to play on BenQ interactive displays despite working on standard browsers.
+
+**Root Causes**:
+1. **Embedded Browser Limitations**: BenQ displays often use custom/embedded browsers with limited Web Audio API support
+2. **Autoplay Policies**: Stricter autoplay restrictions than Chrome/Firefox
+3. **CORS Restrictions**: May block cross-origin audio requests
+4. **File Loading**: `.wav` file fetching can fail silently on embedded browsers
+
+**Audio System Architecture** (in `src/lib/sound-manager.ts`):
+- **Primary**: Web Audio API with `AudioContext` (best quality, pronunciation support)
+- **Fallback 1**: HTMLAudio elements (better mobile/embedded browser compatibility)
+- **Fallback 2**: Web Audio synthesized tones (always works, no pronunciation)
+- **Android Detection**: Auto-switches to HTMLAudio on Android Chrome via `preferHTMLAudio` flag
+
+**Debugging Steps**:
+1. **Check Console Logs**: Look for `[SoundManager]` prefixed messages showing:
+   - Registered audio file count (should be 165+ aliases from 110+ files)
+   - Audio context state (`suspended` → `running` after first tap)
+   - File load success/failures with URLs
+   - Which playback method is active (HTMLAudio vs Web Audio API)
+
+2. **Test User Interaction**: Audio context starts `suspended` and requires user tap to unlock:
+   ```typescript
+   // First tap anywhere triggers:
+   setupUserInteractionListener() → ensureInitialized() → audioContext.resume()
+   ```
+
+3. **Verify File Loading**: Check if `.wav` files load from `/sounds/` via Vite's `import.meta.glob()`:
+   - Files indexed at build time into `audioUrlIndex` Map
+   - Keys are normalized (lowercase, underscores, emoji prefix handling)
+   - Example: `emoji_apple.wav` → keys: `"apple"`, `"emoji_apple"`, `"emoji apple"`
+
+4. **Force HTMLAudio Mode**: If Web Audio API fails, sound-manager auto-detects mobile and uses HTMLAudio:
+   ```typescript
+   preferHTMLAudio = isMobile && /android/i.test(ua)
+   playWithHtmlAudio(key) // Creates new Audio(url) elements
+   ```
+
+**BenQ-Specific Fixes**:
+- **Enable Debug Overlays**: Set `debugVisible` state in `App.tsx` to see `EventTrackerDebug` showing audio events
+- **Check CORS Headers**: `vercel.json` includes proper CORS headers; ensure BenQ browser allows cross-origin requests
+- **Test in Kiosk Mode**: Some BenQ browsers have kiosk mode restrictions—test in standard browser mode first
+- **Verify MIME Types**: Ensure server serves `.wav` as `audio/wav` (configured in `vercel.json`)
+- **Use Speech Synthesis Fallback**: If all audio fails, sound-manager falls back to `speechSynthesis.speak()` for pronunciations
+
+**Audio Pronunciation Pipeline**:
+1. User taps object → `handleObjectTap()` in `use-game-logic.ts`
+2. Calls `playSoundEffect.byName(targetName)` from `sound-manager.ts`
+3. Resolves key candidates (e.g., "apple" → check: "apple", "emoji_apple", "1" if number)
+4. Tries in order: HTMLAudio (if mobile) → Web Audio API → Speech Synthesis → Tone fallback
+5. Logs each attempt to console with `[SoundManager]` prefix
+
+**Common Error Messages**:
+- `"No URL found for key"` → Audio file missing or naming mismatch; check `GAME_CATEGORIES` items match `/sounds/*.wav` filenames
+- `"HTTP 404"` → Build didn't include audio files; verify `dist/assets/` contains `.wav` files
+- `"Audio context suspended"` → No user interaction yet; require tap before playing
+- `"HTMLAudio playback failed"` → Browser autoplay blocked; switch to Web Audio API or require explicit audio enable button
+
+**Manual Testing on BenQ**:
+1. Open browser console (F12 or on-screen keyboard Ctrl+Shift+I)
+2. Click game menu "Test Audio" button if available
+3. Check `getAudioDebugInfo()` output for system state
+4. Monitor `[SoundManager]` logs during gameplay
+5. If silent, check `audioContext.state` and `preferHTMLAudio` flag values
+
+**See Also**: `VERCEL_AUDIO_DEBUG.md` for comprehensive troubleshooting guide with step-by-step debugging instructions.
