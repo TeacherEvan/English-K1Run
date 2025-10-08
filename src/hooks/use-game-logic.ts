@@ -325,55 +325,80 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // Enhanced collision detection: speed-aware spacing to prevent phasing
-        const baseGap = 120 // Increased base gap for better separation
-        const horizontalMinGap = 18 // Minimum horizontal gap in percentage points
+        // ENHANCED COLLISION DETECTION: Comprehensive boundary and overlap prevention
+        const baseGap = 140 // Increased from 120 for better visual separation
+        const horizontalMinGap = 22 // Increased from 18 for clearer horizontal spacing
+        const maxObjectsPerLane = 8 // Prevent overcrowding
 
         const applySeparation = (objects: GameObject[]) => {
-          // Sort by Y position (top to bottom)
+          // Limit objects per lane to prevent overcrowding and collision issues
+          if (objects.length > maxObjectsPerLane) {
+            objects = objects.slice(0, maxObjectsPerLane)
+          }
+
+          // Sort by Y position (top to bottom) for sequential processing
           const sorted = objects.sort((a, b) => a.y - b.y)
 
           for (let i = 0; i < sorted.length; i++) {
             const obj = sorted[i]
+            const objRadius = obj.size / 2
 
-            // Vertical collision prevention with SPEED-AWARE spacing
+            // VERTICAL COLLISION DETECTION: Enforce minimum gap between vertically stacked objects
             if (i > 0) {
               const prevObj = sorted[i - 1]
+              const prevRadius = prevObj.size / 2
 
-              // Calculate dynamic gap based on speed difference
+              // Speed-aware gap calculation - faster objects need more space to prevent overtaking
               const speedDiff = Math.abs(obj.speed - prevObj.speed)
-              const speedFactor = 1 + (speedDiff * 30) // Faster objects need more space
-              const requiredGap = (baseGap * speedFactor) + (obj.size + prevObj.size) / 2
+              const speedFactor = 1 + (speedDiff * 35) // Increased from 30 for stronger effect
 
+              // Calculate required gap based on object sizes and speed differential
+              const requiredGap = (baseGap * speedFactor) + objRadius + prevRadius
+
+              // HARD BOUNDARY: If objects are too close, force separation
               if (obj.y < prevObj.y + requiredGap) {
                 obj.y = prevObj.y + requiredGap
               }
 
-              // If object is moving faster than one above, slow it down slightly
-              if (obj.speed > prevObj.speed && obj.y < prevObj.y + requiredGap * 1.5) {
-                obj.speed = prevObj.speed * 0.95 // Match speed to prevent overtaking
+              // SPEED MATCHING: If faster object catches slower one, match speeds to prevent phasing
+              const catchingDistance = requiredGap * 1.8 // Increased from 1.5 for earlier intervention
+              if (obj.speed > prevObj.speed && obj.y < prevObj.y + catchingDistance) {
+                // Slow down the faster object to maintain separation
+                obj.speed = prevObj.speed * 0.92 // Reduced from 0.95 for stronger slowdown
               }
             }
 
-            // Horizontal collision prevention - push apart if too close
+            // HORIZONTAL COLLISION DETECTION: Check against ALL objects above (not just immediate previous)
             for (let j = 0; j < i; j++) {
               const otherObj = sorted[j]
               const verticalDistance = Math.abs(obj.y - otherObj.y)
               const horizontalDistance = Math.abs(obj.x - otherObj.x)
 
-              // Dynamic horizontal gap based on vertical distance
-              const dynHorizGap = horizontalMinGap * (1 - (verticalDistance / (baseGap * 2)))
+              // Dynamic horizontal gap that decreases with vertical separation
+              const verticalProximity = Math.max(0, 1 - (verticalDistance / (baseGap * 2.5)))
+              const dynHorizGap = horizontalMinGap * verticalProximity
 
-              // Check if objects are close vertically AND horizontally
-              if (verticalDistance < baseGap * 1.5 && horizontalDistance < dynHorizGap) {
-                // Push the current object away horizontally
-                if (obj.x < otherObj.x) {
-                  obj.x = Math.max(10, otherObj.x - dynHorizGap)
-                } else {
-                  obj.x = Math.min(45, otherObj.x + dynHorizGap) // Keep within lane bounds
-                }
+              // BOUNDARY ENFORCEMENT: If objects are overlapping or too close in both axes
+              const isVerticallyClose = verticalDistance < baseGap * 2
+              const isHorizontallyOverlapping = horizontalDistance < dynHorizGap
+
+              if (isVerticallyClose && isHorizontallyOverlapping) {
+                // Calculate push direction based on current positions
+                const pushDirection = obj.x < otherObj.x ? -1 : 1
+                const pushAmount = dynHorizGap - horizontalDistance + 2 // Add 2px buffer
+
+                // Apply horizontal separation with lane boundary enforcement
+                const newX = obj.x + (pushDirection * pushAmount)
+
+                // LANE BOUNDARIES: Keep objects within valid x-coordinate range (10-45 for each half)
+                const minX = 10
+                const maxX = 45
+                obj.x = Math.max(minX, Math.min(maxX, newX))
               }
             }
+
+            // FINAL BOUNDARY CHECK: Ensure object stays within lane bounds after all adjustments
+            obj.x = Math.max(10, Math.min(45, obj.x))
 
             updatedObjects.push(obj)
           }
