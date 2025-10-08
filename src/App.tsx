@@ -30,6 +30,32 @@ const pickRandomBackground = (exclude?: string) => {
   return choices[index]
 }
 
+// Request fullscreen on any user interaction
+const requestFullscreen = () => {
+  const elem = document.documentElement as HTMLElement & {
+    mozRequestFullScreen?: () => Promise<void>;
+    webkitRequestFullscreen?: () => Promise<void>;
+    msRequestFullscreen?: () => Promise<void>;
+  }
+  
+  if (!document.fullscreenElement) {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().catch(err => {
+        console.log('[Fullscreen] Error attempting to enable fullscreen:', err)
+      })
+    } else if (elem.webkitRequestFullscreen) {
+      // Safari
+      elem.webkitRequestFullscreen()
+    } else if (elem.mozRequestFullScreen) {
+      // Firefox
+      elem.mozRequestFullScreen()
+    } else if (elem.msRequestFullscreen) {
+      // IE/Edge
+      elem.msRequestFullscreen()
+    }
+  }
+}
+
 function App() {
   const {
     displaySettings,
@@ -55,6 +81,27 @@ function App() {
   const [displayInfoVisible, setDisplayInfoVisible] = useState(false)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
+
+  // Trigger fullscreen on first user interaction
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      requestFullscreen()
+      // Remove listeners after first interaction
+      document.removeEventListener('click', handleFirstInteraction)
+      document.removeEventListener('touchstart', handleFirstInteraction)
+      document.removeEventListener('keydown', handleFirstInteraction)
+    }
+
+    document.addEventListener('click', handleFirstInteraction)
+    document.addEventListener('touchstart', handleFirstInteraction)
+    document.addEventListener('keydown', handleFirstInteraction)
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction)
+      document.removeEventListener('touchstart', handleFirstInteraction)
+      document.removeEventListener('keydown', handleFirstInteraction)
+    }
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -93,6 +140,22 @@ function App() {
 
   return (
     <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
+      {/* Back to Levels Button - Fixed at top left during gameplay */}
+      {gameState.gameStarted && !gameState.winner && (
+        <div className="absolute top-4 left-4 z-40">
+          <button
+            onClick={resetGame}
+            className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 backdrop-blur-sm border-2 border-primary-foreground/20"
+            style={{
+              fontSize: `calc(0.875rem * var(--font-scale, 1))`,
+              padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`
+            }}
+          >
+            ← Back to Levels
+          </button>
+        </div>
+      )}
+
       {/* Target Display - Fixed at top center with responsive sizing */}
       {gameState.gameStarted && !gameState.winner && (
         <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-30 ${isSmallScreen ? 'w-64' : isMediumScreen ? 'w-72' : 'w-80'
