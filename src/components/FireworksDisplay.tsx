@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface FireworksDisplayProps {
   isVisible: boolean
@@ -24,14 +24,14 @@ interface Particle {
   maxLife: number
 }
 
+const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#a29bfe']
+
 export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
   const [fireworks, setFireworks] = useState<Firework[]>([])
 
-  const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#a29bfe']
-
-  const createFirework = (x: number, y: number): Firework => {
+  const createFirework = useCallback((x: number, y: number): Firework => {
     const particles: Particle[] = []
-    const particleCount = 25
+    const particleCount = 20 // Reduced from 25 for performance
     const color = colors[Math.floor(Math.random() * colors.length)]
 
     for (let i = 0; i < particleCount; i++) {
@@ -57,9 +57,9 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
       color,
       particles
     }
-  }
+  }, [])
 
-  const updateFireworks = () => {
+  const updateFireworks = useCallback(() => {
     setFireworks(prev => 
       prev.map(firework => ({
         ...firework,
@@ -75,7 +75,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
       }))
       .filter(firework => firework.particles.length > 0)
     )
-  }
+  }, [])
 
   useEffect(() => {
     if (!isVisible) {
@@ -83,49 +83,56 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
       return
     }
 
-    // Create initial burst of fireworks
-    const initialFireworks = []
-    for (let i = 0; i < 6; i++) {
+    // Create only 3 initial fireworks bursts (reduced from 6)
+    for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const x = Math.random() * window.innerWidth
         const y = Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.1
         setFireworks(prev => [...prev, createFirework(x, y)])
-      }, i * 200)
+      }, i * 300)
     }
 
-    // Continue creating fireworks periodically
+    // Reduced continuous fireworks (every 1.5s instead of 800ms)
     const interval = setInterval(() => {
       const x = Math.random() * window.innerWidth
       const y = Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.1
-      setFireworks(prev => [...prev, createFirework(x, y)])
-    }, 800)
+      setFireworks(prev => {
+        // Limit max fireworks to prevent memory issues
+        if (prev.length > 3) return prev
+        return [...prev, createFirework(x, y)]
+      })
+    }, 1500)
 
-    // Animation loop
-    const animationInterval = setInterval(updateFireworks, 16)
+    // Animation loop (30fps instead of 60fps for better performance)
+    const animationInterval = setInterval(updateFireworks, 33)
 
     return () => {
       clearInterval(interval)
       clearInterval(animationInterval)
     }
-  }, [isVisible])
+  }, [isVisible, createFirework, updateFireworks])
 
   if (!isVisible || !winner) return null
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {/* Winner announcement */}
+      {/* Winner announcement - simplified */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center animate-bounce-in">
-          <h1 className="text-8xl font-bold text-white drop-shadow-2xl mb-4 animate-pulse">
+        <div className="text-center bounce-in">
+          <h1 className="text-6xl sm:text-7xl md:text-8xl font-bold text-white drop-shadow-2xl mb-4"
+            style={{
+              fontSize: `calc(4rem * var(--font-scale, 1))`,
+              textShadow: '0 4px 8px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.3)'
+            }}>
             🎉 PLAYER {winner} WINS! 🎉
           </h1>
-          <div className="text-6xl animate-celebrate">
+          <div className="text-5xl sm:text-6xl" style={{ fontSize: `calc(3rem * var(--font-scale, 1))` }}>
             🏆
           </div>
         </div>
       </div>
 
-      {/* Fireworks particles */}
+      {/* Fireworks particles - reduced */}
       <svg className="absolute inset-0 w-full h-full">
         {fireworks.map(firework =>
           firework.particles.map(particle => (
@@ -133,35 +140,32 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
               key={particle.id}
               cx={particle.x}
               cy={particle.y}
-              r={Math.max(1, particle.life * 4)}
+              r={Math.max(1, particle.life * 3)}
               fill={particle.color}
-              opacity={particle.life}
-              style={{
-                filter: `drop-shadow(0 0 6px ${particle.color})`
-              }}
+              opacity={particle.life * 0.8}
             />
           ))
         )}
       </svg>
 
-      {/* Confetti effect */}
+      {/* Reduced confetti - only 20 elements instead of 50 */}
       <div className="absolute inset-0">
-        {Array.from({ length: 50 }).map((_, i) => (
+        {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={i}
-            className="absolute animate-bounce"
+            className="absolute"
             style={{
               left: `${Math.random() * 100}%`,
               top: `-10px`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
+              animation: `fall ${3 + Math.random() * 2}s linear ${Math.random() * 2}s infinite`
             }}
           >
             <div
-              className="w-3 h-3 rotate-45"
+              className="w-2 h-2"
               style={{
                 backgroundColor: colors[Math.floor(Math.random() * colors.length)],
-                transform: `rotate(${Math.random() * 360}deg)`
+                transform: `rotate(${Math.random() * 360}deg)`,
+                opacity: 0.7
               }}
             />
           </div>

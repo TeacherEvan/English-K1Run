@@ -37,7 +37,7 @@ const requestFullscreen = () => {
     webkitRequestFullscreen?: () => Promise<void>;
     msRequestFullscreen?: () => Promise<void>;
   }
-  
+
   if (!document.fullscreenElement) {
     if (elem.requestFullscreen) {
       elem.requestFullscreen().catch(err => {
