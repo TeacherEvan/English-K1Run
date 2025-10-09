@@ -57,13 +57,16 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
 
   return (
     <div
-      className="absolute cursor-pointer select-none hover:scale-110 transition-transform duration-150 will-change-transform"
+      className="absolute cursor-pointer select-none transition-all duration-100 will-change-transform hover:scale-125 active:scale-95"
       style={objectStyle}
       onClick={handleClick}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <div className={`drop-shadow-lg hover:drop-shadow-xl transition-all duration-150 ${isNumericText ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1' : ''}`}>
+      <div className={`transition-all duration-150 ${isNumericText ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg' : 'drop-shadow-2xl'}`}
+        style={{
+          filter: isNumericText ? 'none' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))'
+        }}>
         {object.emoji}
       </div>
     </div>

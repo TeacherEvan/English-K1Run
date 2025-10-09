@@ -1,20 +1,22 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import './App.css'
 import { ComboCelebration } from './components/ComboCelebration'
-import { DisplayInfo } from './components/DisplayInfo'
-import { ErrorMonitor } from './components/ErrorMonitor'
-import { EventTrackerDebug } from './components/EventTrackerDebug'
 import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
-import { GameDebug } from './components/GameDebug'
 import { GameMenu } from './components/GameMenu'
-import { PerformanceMonitor } from './components/PerformanceMonitor'
 import { PlayerArea } from './components/PlayerArea'
-import { QuickDebug } from './components/QuickDebug'
 import { TargetDisplay } from './components/TargetDisplay'
-import { TouchHandlerDebug } from './components/TouchHandlerDebug'
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
+
+// Lazy load debug components to reduce initial bundle size
+const DisplayInfo = lazy(() => import('./components/DisplayInfo').then(m => ({ default: m.DisplayInfo })))
+const ErrorMonitor = lazy(() => import('./components/ErrorMonitor').then(m => ({ default: m.ErrorMonitor })))
+const EventTrackerDebug = lazy(() => import('./components/EventTrackerDebug').then(m => ({ default: m.EventTrackerDebug })))
+const GameDebug = lazy(() => import('./components/GameDebug').then(m => ({ default: m.GameDebug })))
+const PerformanceMonitor = lazy(() => import('./components/PerformanceMonitor').then(m => ({ default: m.PerformanceMonitor })))
+const QuickDebug = lazy(() => import('./components/QuickDebug').then(m => ({ default: m.QuickDebug })))
+const TouchHandlerDebug = lazy(() => import('./components/TouchHandlerDebug').then(m => ({ default: m.TouchHandlerDebug })))
 
 const BACKGROUND_CLASSES = [
   'app-bg-sunrise',
@@ -281,10 +283,12 @@ function App() {
       />
 
       {/* Event Tracker Debug */}
-      <EventTrackerDebug
-        isVisible={debugVisible}
-        onToggle={() => setDebugVisible(!debugVisible)}
-      />
+      <Suspense fallback={null}>
+        <EventTrackerDebug
+          isVisible={debugVisible}
+          onToggle={() => setDebugVisible(!debugVisible)}
+        />
+      </Suspense>
 
       {/* Fireworks Display */}
       <FireworksDisplay
@@ -293,39 +297,51 @@ function App() {
       />
 
       {/* Display Adjustment Info */}
-      <DisplayInfo
-        isVisible={displayInfoVisible}
-        screenWidth={displaySettings.screenWidth}
-        screenHeight={displaySettings.screenHeight}
-        aspectRatio={displaySettings.aspectRatio}
-        scale={displaySettings.scale}
-        fontSize={displaySettings.fontSize}
-        objectSize={displaySettings.objectSize}
-        turtleSize={displaySettings.turtleSize}
-        fallSpeed={displaySettings.fallSpeed}
-        isLandscape={displaySettings.isLandscape}
-        onToggle={() => setDisplayInfoVisible(!displayInfoVisible)}
-      />
+      <Suspense fallback={null}>
+        <DisplayInfo
+          isVisible={displayInfoVisible}
+          screenWidth={displaySettings.screenWidth}
+          screenHeight={displaySettings.screenHeight}
+          aspectRatio={displaySettings.aspectRatio}
+          scale={displaySettings.scale}
+          fontSize={displaySettings.fontSize}
+          objectSize={displaySettings.objectSize}
+          turtleSize={displaySettings.turtleSize}
+          fallSpeed={displaySettings.fallSpeed}
+          isLandscape={displaySettings.isLandscape}
+          onToggle={() => setDisplayInfoVisible(!displayInfoVisible)}
+        />
+      </Suspense>
 
       {/* Performance Monitor */}
-      <PerformanceMonitor />
+      <Suspense fallback={null}>
+        <PerformanceMonitor />
+      </Suspense>
 
       {/* Error Monitor - For real-time error detection */}
-      <ErrorMonitor />
+      <Suspense fallback={null}>
+        <ErrorMonitor />
+      </Suspense>
 
       {/* Quick Debug - CSS and Audio diagnostics */}
-      <QuickDebug />
+      <Suspense fallback={null}>
+        <QuickDebug />
+      </Suspense>
 
       {/* Touch Handler Debug - Multi-touch statistics */}
-      <TouchHandlerDebug />
+      <Suspense fallback={null}>
+        <TouchHandlerDebug />
+      </Suspense>
 
       {/* Game Debug - Visual debugging panel */}
-      <GameDebug
-        gameStarted={gameState.gameStarted}
-        objectCount={gameObjects.length}
-        targetEmoji={gameState.targetEmoji}
-        currentTarget={gameState.currentTarget}
-      />
+      <Suspense fallback={null}>
+        <GameDebug
+          gameStarted={gameState.gameStarted}
+          objectCount={gameObjects.length}
+          targetEmoji={gameState.targetEmoji}
+          currentTarget={gameState.currentTarget}
+        />
+      </Suspense>
     </div>
   )
 }

@@ -43,11 +43,14 @@ export const PerformanceMonitor = memo(() => {
         const metrics = eventTracker.getPerformanceMetrics()
         const averageRenderTime = renderTimeCount > 0 ? renderTimeSum / renderTimeCount : 0
         
+        // Chrome-specific memory API (not available in all browsers)
+        const perfWithMemory = performance as Performance & { memory?: { usedJSHeapSize: number } }
+        
         setStats({
           fps,
           objectCount: document.querySelectorAll('.falling-object, [class*="absolute cursor-pointer"]').length,
           spawnRate: metrics.objectSpawnRate,
-          memoryUsage: (performance as any).memory ? Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024) : 0,
+          memoryUsage: perfWithMemory.memory ? Math.round(perfWithMemory.memory.usedJSHeapSize / 1024 / 1024) : 0,
           renderTime: Math.round(averageRenderTime * 100) / 100
         })
         
