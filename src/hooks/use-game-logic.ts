@@ -277,30 +277,30 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           nextLane = lane === 'left' ? 'right' : 'left'
 
           const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
-          
+
           // Calculate spawn position with collision avoidance
           let spawnY = -100 - (i * 150)
           let spawnX = Math.random() * (maxX - minX) + minX
-          
+
           // Check for collision with existing objects in the same lane
-          const existingInLane = prev.filter(obj => 
+          const existingInLane = prev.filter(obj =>
             (lane === 'left' && obj.x <= 50) || (lane === 'right' && obj.x > 50)
           )
-          
+
           // If there are existing objects, ensure new object doesn't spawn too close
           for (const existing of existingInLane) {
             const verticalDist = Math.abs(spawnY - existing.y)
             const horizontalDist = Math.abs(spawnX - existing.x)
-            
+
             // If too close vertically (within 180px), push the new object further up
             if (verticalDist < 180) {
               spawnY = Math.min(spawnY, existing.y - 180)
             }
-            
+
             // If too close horizontally (within 30% of lane width), shift position
             if (verticalDist < 300 && horizontalDist < 12) {
-              spawnX = spawnX < existing.x 
-                ? Math.max(minX, existing.x - 15) 
+              spawnX = spawnX < existing.x
+                ? Math.max(minX, existing.x - 15)
                 : Math.min(maxX, existing.x + 15)
             }
           }
