@@ -12,17 +12,17 @@ interface TargetDisplayProps {
 
 export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining }: TargetDisplayProps) => {
   return (
-    <Card className="bg-transparent text-foreground max-w-[10rem] mx-auto"
+    <Card className="bg-transparent text-foreground max-w-[8rem] mx-auto"
       style={{
-        padding: `calc(0.5rem * var(--spacing-scale, 1))`,
+        padding: `calc(0.25rem * var(--spacing-scale, 1))`,
         // Completely transparent - no background, no border, no shadow
         backgroundColor: 'transparent',
         border: 'none',
         boxShadow: 'none',
         backdropFilter: 'none',
-        // 15% size using transform scale - MUCH smaller!
-        transform: 'scale(0.15)',
-        transformOrigin: 'center',
+        // 25% size using transform scale - smaller and more visible
+        transform: 'scale(0.25)',
+        transformOrigin: 'center top',
         textShadow: '0 1px 2px rgba(0,0,0,0.3), 0 0 8px rgba(255,255,255,0.5)'
       }}>
       <div className="text-center">

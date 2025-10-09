@@ -280,7 +280,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
 
           // Calculate spawn position with collision avoidance
-          let spawnY = -100 - (i * 150)
+          let spawnY = -100 - (i * 200) // Increased spacing between sequential spawns
           let spawnX = Math.random() * (maxX - minX) + minX
 
           // Check for collision with existing objects in the same lane
@@ -293,16 +293,26 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             const verticalDist = Math.abs(spawnY - existing.y)
             const horizontalDist = Math.abs(spawnX - existing.x)
 
-            // If too close vertically (within 180px), push the new object further up
-            if (verticalDist < 180) {
-              spawnY = Math.min(spawnY, existing.y - 180)
+            // If too close vertically (within 250px), push the new object further up
+            if (verticalDist < 250) {
+              spawnY = Math.min(spawnY, existing.y - 250)
             }
 
-            // If too close horizontally (within 30% of lane width), shift position
-            if (verticalDist < 300 && horizontalDist < 12) {
-              spawnX = spawnX < existing.x
-                ? Math.max(minX, existing.x - 15)
-                : Math.min(maxX, existing.x + 15)
+            // If too close horizontally (within 20% of lane width), shift position significantly
+            if (verticalDist < 400 && horizontalDist < 18) {
+              // Try opposite side of lane first
+              const laneCenter = (minX + maxX) / 2
+              if (spawnX < laneCenter) {
+                spawnX = Math.min(maxX - 5, existing.x + 20)
+              } else {
+                spawnX = Math.max(minX + 5, existing.x - 20)
+              }
+              // If still too close, push further
+              if (Math.abs(spawnX - existing.x) < 18) {
+                spawnX = spawnX < existing.x
+                  ? Math.max(minX, existing.x - 20)
+                  : Math.min(maxX, existing.x + 20)
+              }
             }
           }
 
