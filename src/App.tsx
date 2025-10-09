@@ -58,9 +58,7 @@ const requestFullscreen = () => {
 
 function App() {
   const {
-    displaySettings,
-    isSmallScreen,
-    isMediumScreen
+    displaySettings
   } = useDisplayAdjustment()
 
 
@@ -158,8 +156,7 @@ function App() {
 
       {/* Target Display - Fixed at top center with responsive sizing */}
       {gameState.gameStarted && !gameState.winner && (
-        <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-30 ${isSmallScreen ? 'w-64' : isMediumScreen ? 'w-72' : 'w-80'
-          }`}>
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 w-32">
           <TargetDisplay
             currentTarget={gameState.currentTarget}
             targetEmoji={gameState.targetEmoji}
