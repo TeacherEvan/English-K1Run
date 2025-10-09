@@ -348,7 +348,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // Filter and update in single pass for better performance
         const updatedObjects: GameObject[] = []
         const screenHeight = window.innerHeight
-        const speedMultiplier = 1.2 * fallSpeedMultiplier
+        const speedMultiplier = 0.6 * fallSpeedMultiplier // Reduced from 1.2 to 0.6 for slower fall speed
 
         const laneBuckets: { left: GameObject[]; right: GameObject[] } = { left: [], right: [] }
 
@@ -670,8 +670,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
 
     console.log('[GameLogic] Spawn effect - starting object spawning')
-    // Increased to 800ms (from 500ms) for better spacing between object batches
-    const interval = setInterval(spawnObject, 800)
+    // Spawn objects every 2 seconds for slower, more manageable pace
+    const interval = setInterval(spawnObject, 2000)
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 

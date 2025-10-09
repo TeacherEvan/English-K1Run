@@ -16,7 +16,6 @@ const EventTrackerDebug = lazy(() => import('./components/EventTrackerDebug').th
 const GameDebug = lazy(() => import('./components/GameDebug').then(m => ({ default: m.GameDebug })))
 const PerformanceMonitor = lazy(() => import('./components/PerformanceMonitor').then(m => ({ default: m.PerformanceMonitor })))
 const QuickDebug = lazy(() => import('./components/QuickDebug').then(m => ({ default: m.QuickDebug })))
-const TouchHandlerDebug = lazy(() => import('./components/TouchHandlerDebug').then(m => ({ default: m.TouchHandlerDebug })))
 
 const BACKGROUND_CLASSES = [
   'app-bg-sunrise',
@@ -326,11 +325,6 @@ function App() {
       {/* Quick Debug - CSS and Audio diagnostics */}
       <Suspense fallback={null}>
         <QuickDebug />
-      </Suspense>
-
-      {/* Touch Handler Debug - Multi-touch statistics */}
-      <Suspense fallback={null}>
-        <TouchHandlerDebug />
       </Suspense>
 
       {/* Game Debug - Visual debugging panel */}
