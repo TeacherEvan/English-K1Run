@@ -102,7 +102,8 @@ Extend existing variants instead of adding inline Tailwind classes. All 42 UI co
 - `.wav` files in `/sounds/` are indexed by normalized names via `import.meta.glob()`
 - Naming convention: `{name}.wav`, `emoji_{name}.wav` (e.g., `emoji_apple.wav` → keys: `"apple"`, `"emoji_apple"`, `"emoji apple"`)
 - Number words auto-map to digits (`one.wav` → `"1"` key)
-- Fallback to Web Audio tones if file missing
+- **Playback Method**: Web Audio API is always preferred for correct pitch/speed. HTMLAudio fallback has `playbackRate = 1.0` explicitly set to prevent distorted voices (frog/chipmunk sounds)
+- Fallback hierarchy: Web Audio API → HTMLAudio (playbackRate=1.0) → Speech Synthesis → Web Audio tones
 
 ## Vite Configuration
 
@@ -163,10 +164,11 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 4. **File Loading**: `.wav` file fetching can fail silently on embedded browsers
 
 **Audio System Architecture** (in `src/lib/sound-manager.ts`):
-- **Primary**: Web Audio API with `AudioContext` (best quality, pronunciation support)
-- **Fallback 1**: HTMLAudio elements (better mobile/embedded browser compatibility)
-- **Fallback 2**: Web Audio synthesized tones (always works, no pronunciation)
-- **Android Detection**: Auto-switches to HTMLAudio on Android Chrome via `preferHTMLAudio` flag
+- **Primary**: Web Audio API with `AudioContext` (best quality, correct pitch/speed)
+- **Fallback 1**: HTMLAudio elements with `playbackRate = 1.0` (prevents frog/chipmunk voices on mobile)
+- **Fallback 2**: Speech Synthesis API (text-to-speech)
+- **Fallback 3**: Web Audio synthesized tones (always works, no pronunciation)
+- **Mobile Detection**: Disabled HTMLAudio preference to ensure Web Audio API is used for better quality across all devices
 
 **Debugging Steps**:
 1. **Check Console Logs**: Look for `[SoundManager]` prefixed messages showing:
@@ -186,10 +188,10 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
    - Keys are normalized (lowercase, underscores, emoji prefix handling)
    - Example: `emoji_apple.wav` → keys: `"apple"`, `"emoji_apple"`, `"emoji apple"`
 
-4. **Force HTMLAudio Mode**: If Web Audio API fails, sound-manager auto-detects mobile and uses HTMLAudio:
+4. **Force HTMLAudio Mode**: If Web Audio API fails, sound-manager uses HTMLAudio with `playbackRate = 1.0`:
    ```typescript
-   preferHTMLAudio = isMobile && /android/i.test(ua)
-   playWithHtmlAudio(key) // Creates new Audio(url) elements
+   preferHTMLAudio = false // Always use Web Audio API first
+   playWithHtmlAudio(key) // Fallback with playbackRate = 1.0 to prevent pitch distortion
    ```
 
 **BenQ-Specific Fixes**:

@@ -101,11 +101,12 @@ class SoundManager {
         const ua = navigator.userAgent.toLowerCase()
         this.isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
 
-        // On mobile, especially Android Chrome, prefer HTMLAudio for better compatibility
-        this.preferHTMLAudio = this.isMobile && /android/i.test(ua)
+        // ALWAYS use Web Audio API for better quality and correct playback speed
+        // HTMLAudio can cause pitch/speed issues (sounds like frogs/chipmunks)
+        this.preferHTMLAudio = false
 
-        if (this.preferHTMLAudio) {
-            console.log('[SoundManager] Mobile Android detected - using HTMLAudio for better compatibility')
+        if (this.isMobile) {
+            console.log('[SoundManager] Mobile device detected - using Web Audio API for correct playback')
         }
     }
 
@@ -324,6 +325,7 @@ class SoundManager {
             audio.preload = 'auto'
             audio.crossOrigin = 'anonymous'
             audio.volume = this.volume
+            audio.playbackRate = 1.0 // Ensure normal speed (prevents frog/chipmunk voices)
 
             const cleanup = () => {
                 audio.removeEventListener('ended', handleEnded)
