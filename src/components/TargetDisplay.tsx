@@ -12,79 +12,87 @@ interface TargetDisplayProps {
 
 export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining }: TargetDisplayProps) => {
   return (
-    <Card className="bg-transparent text-foreground max-w-[8rem] mx-auto"
+    <Card className="bg-transparent text-foreground mx-auto"
       style={{
-        padding: `calc(0.25rem * var(--spacing-scale, 1))`,
-        // Completely transparent - no background, no border, no shadow
-        backgroundColor: 'transparent',
-        border: 'none',
-        boxShadow: 'none',
-        backdropFilter: 'none',
-        // 25% size using transform scale - smaller and more visible
-        transform: 'scale(0.25)',
-        transformOrigin: 'center top',
-        textShadow: '0 1px 2px rgba(0,0,0,0.3), 0 0 8px rgba(255,255,255,0.5)'
+        padding: `calc(0.5rem * var(--spacing-scale, 1))`,
+        // Subtle background for better visibility without obstruction
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        border: '2px solid rgba(255, 255, 255, 0.95)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.2)',
+        backdropFilter: 'blur(8px)',
+        borderRadius: '12px',
+        maxWidth: 'fit-content',
+        minWidth: '120px'
       }}>
       <div className="text-center">
-        <Badge variant="secondary" className="mb-0.5 font-semibold"
+        <Badge variant="secondary" className="mb-1 font-semibold"
           style={{
-            fontSize: `calc(0.35rem * var(--font-scale, 1))`,
-            padding: `calc(0.125rem * var(--spacing-scale, 1)) calc(0.25rem * var(--spacing-scale, 1))`,
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            backdropFilter: 'blur(4px)'
+            fontSize: `calc(0.7rem * var(--font-scale, 1))`,
+            padding: `calc(0.25rem * var(--spacing-scale, 1)) calc(0.5rem * var(--spacing-scale, 1))`,
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            color: 'rgb(30, 64, 175)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            fontWeight: '600'
           }}>
           {category.name}
         </Badge>
 
-        <div className="text-center mb-0.5">
-          <div className="mb-0.5 bounce-in" key={targetEmoji}
+        <div className="text-center mb-1">
+          <div className="mb-1 bounce-in" key={targetEmoji}
             style={{
-              fontSize: `min(calc(0.875rem * var(--object-scale, 1)), 1rem)`,
+              fontSize: `calc(2.5rem * var(--object-scale, 1))`,
               lineHeight: '1',
-              filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
             }}>
             {targetEmoji}
           </div>
           <div className="font-bold"
             style={{
-              fontSize: `calc(0.4375rem * var(--font-scale, 1))`,
-              textShadow: '0 1px 3px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.6)'
+              fontSize: `calc(1rem * var(--font-scale, 1))`,
+              color: 'rgb(30, 64, 175)',
+              textShadow: '0 1px 2px rgba(255,255,255,0.8)',
+              letterSpacing: '0.02em'
             }}>
             Find: {currentTarget}
           </div>
         </div>
 
         {category.requiresSequence && (
-          <div className="font-medium opacity-90"
+          <div className="font-medium"
             style={{
-              fontSize: `calc(0.325rem * var(--font-scale, 1))`,
-              textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+              fontSize: `calc(0.75rem * var(--font-scale, 1))`,
+              color: 'rgb(220, 38, 38)',
+              fontWeight: '600',
+              marginTop: '0.25rem'
             }}>
-            📝 Alphabetical!
+            📝 In Order!
           </div>
         )}
 
         {timeRemaining !== undefined && timeRemaining > 0 && !category.requiresSequence && (
-          <div style={{ marginTop: `calc(0.25rem * var(--spacing-scale, 1))` }}>
-            <div className="font-medium opacity-90"
+          <div style={{ marginTop: `calc(0.5rem * var(--spacing-scale, 1))` }}>
+            <div className="font-medium"
               style={{
-                fontSize: `calc(0.325rem * var(--font-scale, 1))`,
-                textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                fontSize: `calc(0.75rem * var(--font-scale, 1))`,
+                color: 'rgb(120, 113, 108)',
+                fontWeight: '500'
               }}>
               Next: {Math.ceil(timeRemaining / 1000)}s
             </div>
             <div
-              className="bg-accent-foreground/20 rounded-full overflow-hidden"
+              className="rounded-full overflow-hidden"
               style={{
-                height: `calc(0.125rem * var(--spacing-scale, 1))`,
-                marginTop: `calc(0.125rem * var(--spacing-scale, 1))`
+                height: `calc(0.375rem * var(--spacing-scale, 1))`,
+                marginTop: `calc(0.25rem * var(--spacing-scale, 1))`,
+                backgroundColor: 'rgba(229, 231, 235, 0.8)'
               }}
             >
               <div
-                className="h-full bg-accent-foreground/70 rounded-full transition-all duration-1000"
+                className="h-full rounded-full transition-all duration-1000"
                 style={{
                   width: `${(timeRemaining / 10000) * 100}%`,
-                  boxShadow: '0 0 4px rgba(255,255,255,0.6)'
+                  backgroundColor: 'rgb(34, 197, 94)',
+                  boxShadow: '0 0 8px rgba(34, 197, 94, 0.5)'
                 }}
               />
             </div>

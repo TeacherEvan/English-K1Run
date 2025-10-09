@@ -83,7 +83,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
       return
     }
 
-    // Create only 3 initial fireworks bursts (reduced from 6)
+    // Create only 3 initial fireworks bursts (reduced for performance)
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const x = Math.random() * window.innerWidth
@@ -92,23 +92,35 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
       }, i * 300)
     }
 
-    // Reduced continuous fireworks (every 1.5s instead of 800ms)
-    const interval = setInterval(() => {
-      const x = Math.random() * window.innerWidth
-      const y = Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.1
-      setFireworks(prev => {
-        // Limit max fireworks to prevent memory issues
-        if (prev.length > 3) return prev
-        return [...prev, createFirework(x, y)]
-      })
-    }, 1500)
+    let lastSpawnTime = Date.now()
+    let animationFrameId: number
 
-    // Animation loop (30fps instead of 60fps for better performance)
-    const animationInterval = setInterval(updateFireworks, 33)
+    // Use requestAnimationFrame for smooth 60fps animations
+    const animate = () => {
+      const currentTime = Date.now()
+      
+      // Spawn new firework every 1.5s
+      if (currentTime - lastSpawnTime > 1500) {
+        const x = Math.random() * window.innerWidth
+        const y = Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.1
+        setFireworks(prev => {
+          // Limit max fireworks to prevent memory issues
+          if (prev.length > 3) return prev
+          return [...prev, createFirework(x, y)]
+        })
+        lastSpawnTime = currentTime
+      }
+      
+      // Update fireworks positions
+      updateFireworks()
+      
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animationFrameId = requestAnimationFrame(animate)
 
     return () => {
-      clearInterval(interval)
-      clearInterval(animationInterval)
+      cancelAnimationFrame(animationFrameId)
     }
   }, [isVisible, createFirework, updateFireworks])
 
