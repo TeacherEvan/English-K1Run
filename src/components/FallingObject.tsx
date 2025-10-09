@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 import { GameObject } from '../hooks/use-game-logic'
 import { playSoundEffect } from '../lib/sound-manager'
+import { multiTouchHandler } from '../lib/touch-handler'
 
 interface FallingObjectProps {
   object: GameObject
@@ -9,11 +10,36 @@ interface FallingObjectProps {
 }
 
 export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectProps) => {
-  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    playSoundEffect.tap() // Play tap sound for immediate feedback
-    onTap(object.id, playerSide)
+
+    // Use multi-touch handler for debouncing and validation
+    const shouldProcess = multiTouchHandler.handleMouseClick(object.id)
+    if (shouldProcess) {
+      playSoundEffect.tap() // Play tap sound for immediate feedback
+      onTap(object.id, playerSide)
+    }
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Register touch start with multi-touch handler
+    multiTouchHandler.handleTouchStart(e.nativeEvent, object.id)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Validate and process touch end with multi-touch handler
+    const shouldProcess = multiTouchHandler.handleTouchEnd(e.nativeEvent, object.id)
+    if (shouldProcess) {
+      playSoundEffect.tap() // Play tap sound for immediate feedback
+      onTap(object.id, playerSide)
+    }
   }
 
   // Memoize style calculations to prevent recalculation on every render
@@ -34,7 +60,8 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
       className="absolute cursor-pointer select-none hover:scale-110 transition-transform duration-150 will-change-transform"
       style={objectStyle}
       onClick={handleClick}
-      onTouchStart={handleClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <div className={`drop-shadow-lg hover:drop-shadow-xl transition-all duration-150 ${isNumericText ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1' : ''}`}>
         {object.emoji}

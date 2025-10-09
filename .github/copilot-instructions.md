@@ -33,6 +33,8 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 **Background Rotation**: Random background changes every 30s from `BACKGROUND_CLASSES` array (`app-bg-sunrise`, `app-bg-deep-ocean`, etc.). Also changes when returning to menu.
 
+**Multi-Touch Support**: Advanced touch handling system prevents accidental touches from interfering with gameplay on QBoard displays and mobile devices. `src/lib/touch-handler.ts` validates each touch independently with debouncing (150ms), drag detection (10px movement threshold), and long-press rejection (300ms duration limit). Auto-enables on game start, disables on game end. See `MULTI_TOUCH_IMPLEMENTATION.md` for details.
+
 ## Build & Developer Workflows
 
 **Development**: 
@@ -85,7 +87,7 @@ Extend existing variants instead of adding inline Tailwind classes. All 42 UI co
 
 **Memoization**: Frequently re-rendered components like `PlayerArea`, `FallingObject`, `TargetDisplay`, `GameMenu` wrap with `memo()`. Follow this pattern for new game components that receive props on every frame.
 
-**Debug Overlays**: `FireworksDisplay`, `PerformanceMonitor`, `EventTrackerDebug`, `QuickDebug`, `ErrorMonitor` mount once in `<App />`. They consume global singletons (`eventTracker`, `soundManager`)—don't instantiate new trackers.
+**Debug Overlays**: `FireworksDisplay`, `PerformanceMonitor`, `EventTrackerDebug`, `QuickDebug`, `ErrorMonitor`, `TouchHandlerDebug` mount once in `<App />`. They consume global singletons (`eventTracker`, `soundManager`, `multiTouchHandler`)—don't instantiate new trackers.
 
 **State Updates**: Use functional setState when new state depends on previous (e.g., `setGameObjects(prev => [...prev, newObj])`).
 

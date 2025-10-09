@@ -12,6 +12,7 @@ import { PerformanceMonitor } from './components/PerformanceMonitor'
 import { PlayerArea } from './components/PlayerArea'
 import { QuickDebug } from './components/QuickDebug'
 import { TargetDisplay } from './components/TargetDisplay'
+import { TouchHandlerDebug } from './components/TouchHandlerDebug'
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
@@ -124,13 +125,32 @@ function App() {
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
+    // Method 5: Prevent default touch behaviors that interfere with gameplay
+    const preventDefaultTouch = (e: TouchEvent) => {
+      // Allow natural scrolling on menu, but prevent during gameplay
+      if (gameState.gameStarted && e.cancelable) {
+        e.preventDefault()
+      }
+    }
+
+    // Use passive: false to allow preventDefault
+    document.addEventListener('touchmove', preventDefaultTouch, { passive: false })
+
+    // Prevent pull-to-refresh and other gestures
+    document.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 1 && gameState.gameStarted) {
+        e.preventDefault() // Prevent multi-finger gestures during gameplay
+      }
+    }, { passive: false })
+
     return () => {
       events.forEach(event => {
         document.removeEventListener(event, handleInteraction)
       })
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.removeEventListener('touchmove', preventDefaultTouch)
     }
-  }, [])
+  }, [gameState.gameStarted])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -295,6 +315,9 @@ function App() {
 
       {/* Quick Debug - CSS and Audio diagnostics */}
       <QuickDebug />
+
+      {/* Touch Handler Debug - Multi-touch statistics */}
+      <TouchHandlerDebug />
 
       {/* Game Debug - Visual debugging panel */}
       <GameDebug

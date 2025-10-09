@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 // import { useKV } from '@github/spark/hooks'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
+import { multiTouchHandler } from '../lib/touch-handler'
 
 export interface GameObject {
   id: string
@@ -567,6 +568,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       console.log('[GameLogic] Starting game at level:', safeLevel)
 
+      // Enable multi-touch handler for advanced touch support
+      multiTouchHandler.enable()
+
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0
       }
@@ -606,6 +610,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
+
+    // Disable multi-touch handler when game ends
+    multiTouchHandler.disable()
 
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
