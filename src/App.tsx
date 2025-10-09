@@ -80,24 +80,55 @@ function App() {
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
 
-  // Trigger fullscreen on first user interaction
+  // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
-    const handleFirstInteraction = () => {
-      requestFullscreen()
-      // Remove listeners after first interaction
-      document.removeEventListener('click', handleFirstInteraction)
-      document.removeEventListener('touchstart', handleFirstInteraction)
-      document.removeEventListener('keydown', handleFirstInteraction)
+    let fullscreenTriggered = false
+
+    const triggerFullscreen = () => {
+      if (!fullscreenTriggered) {
+        fullscreenTriggered = true
+        requestFullscreen()
+        console.log('[Fullscreen] Triggered fullscreen mode')
+      }
     }
 
-    document.addEventListener('click', handleFirstInteraction)
-    document.addEventListener('touchstart', handleFirstInteraction)
-    document.addEventListener('keydown', handleFirstInteraction)
+    // Method 1: Immediate attempt on any user interaction
+    const handleInteraction = () => {
+      triggerFullscreen()
+      // Keep listeners active for multiple attempts in case first fails
+    }
+
+    // Method 2: Try immediately on load (may fail, but worth trying)
+    const attemptImmediateFullscreen = () => {
+      setTimeout(() => {
+        if (!document.fullscreenElement) {
+          console.log('[Fullscreen] Attempting immediate fullscreen (may require user action)')
+          requestFullscreen()
+        }
+      }, 100)
+    }
+    attemptImmediateFullscreen()
+
+    // Method 3: Listen for ALL possible user interactions
+    const events = ['click', 'touchstart', 'touchend', 'mousedown', 'keydown', 'keypress']
+    events.forEach(event => {
+      document.addEventListener(event, handleInteraction, { once: true, passive: true })
+    })
+
+    // Method 4: Also try when page becomes visible (user returns to tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !document.fullscreenElement) {
+        console.log('[Fullscreen] Page visible, attempting fullscreen')
+        requestFullscreen()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
-      document.removeEventListener('click', handleFirstInteraction)
-      document.removeEventListener('touchstart', handleFirstInteraction)
-      document.removeEventListener('keydown', handleFirstInteraction)
+      events.forEach(event => {
+        document.removeEventListener(event, handleInteraction)
+      })
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 
@@ -217,7 +248,10 @@ function App() {
 
       {/* Game Menu Overlay */}
       <GameMenu
-        onStartGame={() => startGame(selectedLevel)}
+        onStartGame={() => {
+          requestFullscreen() // Ensure fullscreen when starting game
+          startGame(selectedLevel)
+        }}
         onResetGame={resetGame}
         onSelectLevel={setSelectedLevel}
         selectedLevel={selectedLevel}
