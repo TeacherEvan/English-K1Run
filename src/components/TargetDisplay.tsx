@@ -20,8 +20,8 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         border: 'none',
         boxShadow: 'none',
         backdropFilter: 'none',
-        // 50% smaller using transform scale
-        transform: 'scale(0.5)',
+        // 35% size using transform scale (reduced from 50%)
+        transform: 'scale(0.35)',
         transformOrigin: 'center',
         textShadow: '0 1px 2px rgba(0,0,0,0.3), 0 0 8px rgba(255,255,255,0.5)'
       }}>

@@ -23,11 +23,11 @@ export const ComboCelebration = memo(({ celebration, onDismiss }: ComboCelebrati
             <div className={cn('relative overflow-hidden rounded-2xl border border-white/30 px-5 py-4 shadow-xl backdrop-blur-sm text-white/95 bounce-in', `bg-gradient-to-br ${gradient}`)}>
                 {/* Simplified background effects - removed extra blur elements */}
                 <div className="absolute -top-8 -left-3 h-20 w-20 rounded-full bg-white/15 blur-2xl" />
-                
+
                 {/* Reduced sparkles from 3 to 2 */}
                 <span className="absolute left-4 top-2 h-2.5 w-2.5 rounded-full bg-white/80 animate-ping" />
                 <span className="absolute right-6 bottom-3 h-2 w-2 rounded-full bg-yellow-200/80 animate-ping" style={{ animationDelay: '150ms' }} />
-                
+
                 {/* Single emoji decoration */}
                 <div className="absolute -top-5 right-8 text-3xl drop-shadow-lg" style={{ opacity: 0.9 }}>✨</div>
 

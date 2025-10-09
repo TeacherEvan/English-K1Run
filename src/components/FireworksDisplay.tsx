@@ -37,7 +37,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
     for (let i = 0; i < particleCount; i++) {
       const angle = (Math.PI * 2 * i) / particleCount
       const velocity = Math.random() * 4 + 2
-      
+
       particles.push({
         id: `particle-${i}-${Date.now()}`,
         x,
@@ -60,7 +60,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
   }, [])
 
   const updateFireworks = useCallback(() => {
-    setFireworks(prev => 
+    setFireworks(prev =>
       prev.map(firework => ({
         ...firework,
         particles: firework.particles
@@ -73,7 +73,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
           }))
           .filter(particle => particle.life > 0)
       }))
-      .filter(firework => firework.particles.length > 0)
+        .filter(firework => firework.particles.length > 0)
     )
   }, [])
 

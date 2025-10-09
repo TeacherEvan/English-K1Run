@@ -283,7 +283,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             type: randomItem.name,
             emoji: randomItem.emoji,
             x: Math.random() * (maxX - minX) + minX,
-            y: -100 - (i * 60), // Increased stagger to prevent overlap
+            y: -100 - (i * 150), // Increased stagger from 60 to 150 to spread objects out more
             speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
             size: 60
           }
@@ -626,8 +626,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
 
     console.log('[GameLogic] Spawn effect - starting object spawning')
-    // Increased to 500ms for better performance while maintaining game flow
-    const interval = setInterval(spawnObject, 500)
+    // Increased to 800ms (from 500ms) for better spacing between object batches
+    const interval = setInterval(spawnObject, 800)
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 
