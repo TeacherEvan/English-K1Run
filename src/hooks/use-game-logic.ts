@@ -277,13 +277,40 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           nextLane = lane === 'left' ? 'right' : 'left'
 
           const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
+          
+          // Calculate spawn position with collision avoidance
+          let spawnY = -100 - (i * 150)
+          let spawnX = Math.random() * (maxX - minX) + minX
+          
+          // Check for collision with existing objects in the same lane
+          const existingInLane = prev.filter(obj => 
+            (lane === 'left' && obj.x <= 50) || (lane === 'right' && obj.x > 50)
+          )
+          
+          // If there are existing objects, ensure new object doesn't spawn too close
+          for (const existing of existingInLane) {
+            const verticalDist = Math.abs(spawnY - existing.y)
+            const horizontalDist = Math.abs(spawnX - existing.x)
+            
+            // If too close vertically (within 180px), push the new object further up
+            if (verticalDist < 180) {
+              spawnY = Math.min(spawnY, existing.y - 180)
+            }
+            
+            // If too close horizontally (within 30% of lane width), shift position
+            if (verticalDist < 300 && horizontalDist < 12) {
+              spawnX = spawnX < existing.x 
+                ? Math.max(minX, existing.x - 15) 
+                : Math.min(maxX, existing.x + 15)
+            }
+          }
 
           const newObject: GameObject = {
             id: `${baseId}-${i}-${Math.random()}`, // Unique ID
             type: randomItem.name,
             emoji: randomItem.emoji,
-            x: Math.random() * (maxX - minX) + minX,
-            y: -100 - (i * 150), // Increased stagger from 60 to 150 to spread objects out more
+            x: spawnX,
+            y: spawnY,
             speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
             size: 60
           }
@@ -326,8 +353,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
 
         // ENHANCED COLLISION DETECTION: Comprehensive boundary and overlap prevention
-        const baseGap = 140 // Increased from 120 for better visual separation
-        const horizontalMinGap = 22 // Increased from 18 for clearer horizontal spacing
+        const baseGap = 180 // Increased from 140 for even better visual separation
+        const horizontalMinGap = 30 // Increased from 22 for clearer horizontal spacing
         const maxObjectsPerLane = 8 // Prevent overcrowding
 
         const applySeparation = (objects: GameObject[]) => {
@@ -350,7 +377,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
               // Speed-aware gap calculation - faster objects need more space to prevent overtaking
               const speedDiff = Math.abs(obj.speed - prevObj.speed)
-              const speedFactor = 1 + (speedDiff * 35) // Increased from 30 for stronger effect
+              const speedFactor = 1 + (speedDiff * 50) // Increased from 35 for stronger effect
 
               // Calculate required gap based on object sizes and speed differential
               const requiredGap = (baseGap * speedFactor) + objRadius + prevRadius
@@ -361,10 +388,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               }
 
               // SPEED MATCHING: If faster object catches slower one, match speeds to prevent phasing
-              const catchingDistance = requiredGap * 1.8 // Increased from 1.5 for earlier intervention
+              const catchingDistance = requiredGap * 2.2 // Increased from 1.8 for earlier intervention
               if (obj.speed > prevObj.speed && obj.y < prevObj.y + catchingDistance) {
                 // Slow down the faster object to maintain separation
-                obj.speed = prevObj.speed * 0.92 // Reduced from 0.95 for stronger slowdown
+                obj.speed = prevObj.speed * 0.88 // Reduced from 0.92 for stronger slowdown
               }
             }
 
@@ -379,13 +406,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               const dynHorizGap = horizontalMinGap * verticalProximity
 
               // BOUNDARY ENFORCEMENT: If objects are overlapping or too close in both axes
-              const isVerticallyClose = verticalDistance < baseGap * 2
+              const isVerticallyClose = verticalDistance < baseGap * 2.5 // Increased from 2
               const isHorizontallyOverlapping = horizontalDistance < dynHorizGap
 
               if (isVerticallyClose && isHorizontallyOverlapping) {
                 // Calculate push direction based on current positions
                 const pushDirection = obj.x < otherObj.x ? -1 : 1
-                const pushAmount = dynHorizGap - horizontalDistance + 2 // Add 2px buffer
+                const pushAmount = (dynHorizGap - horizontalDistance + 4) * 1.2 // Increased buffer from 2 to 4, added 1.2x multiplier
 
                 // Apply horizontal separation with lane boundary enforcement
                 const newX = obj.x + (pushDirection * pushAmount)
