@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Split-screen educational racing game where two players compete by tapping falling objects to advance their turtle characters. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
+Split-screen educational racing game where two players compete by tapping falling objects to advance their progress bars. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
 
 **Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority
 **Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)
@@ -25,7 +25,7 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 ## User Interface & UX Features
 
-**Target Display**: Located at top-center during gameplay, shows current target emoji/name and category badge. Styled with 50% scale (`transform: scale(0.5)`) and completely transparent background for minimal visual obstruction. Only the text and emoji remain visible with text-shadow for readability.
+**Target Display**: Located at top-center during gameplay, shows current target emoji/name and category badge. Styled with 25% scale (`transform: scale(0.25)`) and completely transparent background for minimal visual obstruction. Only the text and emoji remain visible with text-shadow for readability.
 
 **Back to Levels Button**: Fixed at top-left during active gameplay (hidden during winner screen). Clicking calls `resetGame()` to return to level selection menu. Styled with responsive sizing using `--font-scale` and `--spacing-scale` CSS variables.
 
@@ -60,7 +60,7 @@ Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react`
 ## Styling & Responsiveness
 
 **CSS Variables for Scaling**: `use-display-adjustment.ts` calculates responsive values and sets CSS custom props on `<html>`:
-- `--font-scale`, `--object-scale`, `--turtle-scale`, `--spacing-scale`, `--fall-speed-scale`
+- `--font-scale`, `--object-scale`, `--spacing-scale`, `--fall-speed-scale`
 - **Always use these vars** in inline styles instead of hardcoded pixel values
 - When adding new vars, expose them in `QuickDebug` for diagnostics
 - Base design: 1920x1080, scales down proportionally via `min(widthScale, heightScale)`
