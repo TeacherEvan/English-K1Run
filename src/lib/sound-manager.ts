@@ -23,6 +23,103 @@ const DIGIT_TO_WORD = Object.fromEntries(
     Object.entries(NUMBER_WORD_TO_DIGIT).map(([word, value]) => [value, word])
 ) as Record<string, string>
 
+// Educational sentence templates for each item
+const SENTENCE_TEMPLATES: Record<string, string> = {
+    // Fruits & Vegetables
+    'apple': 'I eat a red apple',
+    'banana': 'The banana is yellow and sweet',
+    'grapes': 'I love purple grapes',
+    'strawberry': 'The strawberry is red and juicy',
+    'carrot': 'The rabbit eats a crunchy carrot',
+    'cucumber': 'The cucumber is green and fresh',
+    'watermelon': 'The watermelon is big and sweet',
+    'broccoli': 'Eat your green broccoli',
+
+    // Counting
+    'one': 'I see one star',
+    'two': 'I have two hands',
+    'three': 'Three little birds',
+    'four': 'Four wheels on a car',
+    'five': 'Give me five',
+    'six': 'Six legs on a bug',
+    'seven': 'Seven colors in a rainbow',
+    'eight': 'Eight legs on a spider',
+    'nine': 'Nine planets in space',
+    'ten': 'I can count to ten',
+
+    // Shapes & Colors
+    'blue circle': 'The ball is a blue circle',
+    'red square': 'The box is a red square',
+    'orange diamond': 'I see an orange diamond',
+    'green square': 'The tile is a green square',
+    'triangle': 'The triangle has three sides',
+    'star': 'The star shines bright',
+    'purple circle': 'Draw a purple circle',
+    'white circle': 'The moon is a white circle',
+
+    // Animals & Nature
+    'dog': 'The dog wags its tail',
+    'cat': 'The cat jumps on the table',
+    'fox': 'The fox is quick and clever',
+    'turtle': 'The turtle moves slowly',
+    'butterfly': 'The butterfly flies in the garden',
+    'owl': 'The owl hoots at night',
+    'tree': 'The tree grows tall',
+    'flower': 'The flower smells sweet',
+
+    // Things That Go
+    'car': 'The car drives on the road',
+    'bus': 'The yellow bus takes us to school',
+    'fire truck': 'The fire truck has a loud siren',
+    'airplane': 'The airplane flies in the sky',
+    'rocket': 'The rocket goes to space',
+    'bicycle': 'I ride my bicycle to the park',
+    'helicopter': 'The helicopter goes up and down',
+    'boat': 'The boat floats on the water',
+
+    // Weather
+    'sunny': 'It is sunny today',
+    'partly cloudy': 'The sky is partly cloudy',
+    'rainy': 'It is rainy outside',
+    'stormy': 'The weather is stormy',
+    'snowy': 'It is snowy and cold',
+    'rainbow': 'I see a beautiful rainbow',
+    'tornado': 'The tornado spins around',
+    'windy': 'It is very windy today',
+
+    // Feelings & Actions
+    'happy': 'I feel happy and smile',
+    'sad': 'When I am sad I might cry',
+    'angry': 'The angry face is red',
+    'sleepy': 'I am sleepy and yawn',
+    'hug': 'Give me a big hug',
+    'clap': 'Clap your hands together',
+    'dance': 'Let\'s dance to the music',
+    'flip': 'Watch me flip and spin',
+
+    // Body Parts
+    'eye': 'I see with my eye',
+    'ear': 'I hear with my ear',
+    'nose': 'I smell with my nose',
+    'mouth': 'I talk with my mouth',
+    'tongue': 'My tongue tastes food',
+    'hand': 'I wave my hand hello',
+    'foot': 'I walk with my foot',
+    'leg': 'I jump with my leg',
+
+    // Alphabet (singular letters)
+    'a': 'The letter A',
+    'b': 'The letter B',
+    'c': 'The letter C',
+    'd': 'The letter D',
+    'e': 'The letter E',
+    'f': 'The letter F',
+    'g': 'The letter G',
+    'h': 'The letter H',
+    'i': 'The letter I',
+    'j': 'The letter J',
+}
+
 const normalizeKey = (value: string) =>
     value
         .toLowerCase()
@@ -517,7 +614,20 @@ class SoundManager {
             const trimmed = phrase.trim()
             if (!trimmed) return
 
-            // First try: exact phrase as audio file
+            // NEW: Look up sentence template for educational context
+            const normalizedPhrase = trimmed.toLowerCase()
+            const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
+
+            if (sentence) {
+                // We have a sentence template, speak the full sentence
+                console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                if (this.speakWithSpeechSynthesis(sentence)) {
+                    return
+                }
+                // If speech synthesis fails, fall through to try original phrase
+            }
+
+            // Original logic: First try: exact phrase as audio file
             if (await this.playVoiceClip(trimmed)) {
                 return
             }
