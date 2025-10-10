@@ -39,8 +39,7 @@ export default defineConfig({
       'react',
       'react-dom',
       '@radix-ui/react-slot',
-      '@radix-ui/react-progress',
-      '@radix-ui/react-card'
+      '@radix-ui/react-progress'
     ],
     force: false,
     esbuildOptions: {
@@ -55,9 +54,15 @@ export default defineConfig({
         manualChunks(id) {
           // Create vendor chunk for node_modules
           if (id.includes('node_modules')) {
-            // React and related libraries
+            // Split React into smaller chunks to avoid large bundle warning
+            if (id.includes('react-dom')) {
+              return 'vendor-react-dom';
+            }
+            if (id.includes('react/jsx-runtime')) {
+              return 'vendor-react-jsx';
+            }
             if (id.includes('react') || id.includes('scheduler')) {
-              return 'vendor-react';
+              return 'vendor-react-core';
             }
             // Radix UI components
             if (id.includes('@radix-ui')) {
@@ -92,9 +97,7 @@ export default defineConfig({
           }
         },
         // Optimize chunk file names for better caching
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ?
-            chunkInfo.facadeModuleId.split('/').pop()?.replace('.tsx', '').replace('.ts', '') : 'chunk';
+        chunkFileNames: () => {
           return `assets/[name]-[hash].js`;
         },
         assetFileNames: (assetInfo) => {
@@ -113,8 +116,8 @@ export default defineConfig({
         }
       }
     },
-    // Increase chunk size warning limit for this educational game
-    chunkSizeWarningLimit: 1000,
+    // Increase chunk size warning limit (React 19 is legitimately large)
+    chunkSizeWarningLimit: 1500,
     // Enable tree shaking optimizations
     minify: 'esbuild',
     target: 'es2020'

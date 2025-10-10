@@ -11,6 +11,7 @@ import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
 // Lazy load debug components to reduce initial bundle size
 const DisplayInfo = lazy(() => import('./components/DisplayInfo').then(m => ({ default: m.DisplayInfo })))
+const EmojiLifecycleDebug = lazy(() => import('./components/EmojiLifecycleDebug').then(m => ({ default: m.EmojiLifecycleDebug })))
 const ErrorMonitor = lazy(() => import('./components/ErrorMonitor').then(m => ({ default: m.ErrorMonitor })))
 const EventTrackerDebug = lazy(() => import('./components/EventTrackerDebug').then(m => ({ default: m.EventTrackerDebug })))
 const GameDebug = lazy(() => import('./components/GameDebug').then(m => ({ default: m.GameDebug })))
@@ -320,6 +321,11 @@ function App() {
       {/* Error Monitor - For real-time error detection */}
       <Suspense fallback={null}>
         <ErrorMonitor />
+      </Suspense>
+
+      {/* Emoji Lifecycle Debug - Track first few emojis' lifecycles */}
+      <Suspense fallback={null}>
+        <EmojiLifecycleDebug />
       </Suspense>
 
       {/* Quick Debug - CSS and Audio diagnostics */}

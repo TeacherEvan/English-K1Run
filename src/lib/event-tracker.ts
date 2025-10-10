@@ -5,13 +5,25 @@
 export interface GameEvent {
   id: string
   timestamp: number
-  type: 'error' | 'warning' | 'info' | 'performance' | 'user_action'
+  type: 'error' | 'warning' | 'info' | 'performance' | 'user_action' | 'lifecycle'
   category: string
   message: string
   data?: any
   stackTrace?: string
   userAgent?: string
   url?: string
+}
+
+export interface EmojiLifecycleEvent {
+  objectId: string
+  emoji: string
+  name: string
+  phase: 'spawned' | 'rendered' | 'visible' | 'tapped' | 'removed' | 'missed'
+  timestamp: number
+  position?: { x: number; y: number }
+  playerSide?: 'left' | 'right'
+  duration?: number // Time since spawn
+  data?: any
 }
 
 export interface PerformanceMetrics {
@@ -31,6 +43,12 @@ class EventTracker {
   }
   private spawnCount = 0
   private lastSpawnReset = Date.now()
+
+  // Emoji lifecycle tracking
+  private emojiLifecycles: Map<string, EmojiLifecycleEvent[]> = new Map()
+  private maxTrackedEmojis = 10 // Track first 10 emojis
+  private trackedEmojiCount = 0
+  private isLifecycleTrackingEnabled = false
 
   constructor() {
     // Set up global error handlers
@@ -250,6 +268,117 @@ class EventTracker {
   // Clear events
   clearEvents() {
     this.events = []
+  }
+
+  // Emoji lifecycle tracking methods
+  enableLifecycleTracking(enable: boolean = true) {
+    this.isLifecycleTrackingEnabled = enable
+    if (enable) {
+      this.trackedEmojiCount = 0
+      this.emojiLifecycles.clear()
+      console.log('[EmojiTracker] Lifecycle tracking enabled - will track first', this.maxTrackedEmojis, 'emojis')
+    }
+  }
+
+  trackEmojiLifecycle(event: Omit<EmojiLifecycleEvent, 'timestamp' | 'duration'>) {
+    if (!this.isLifecycleTrackingEnabled) return
+
+    const { objectId, emoji, name, phase, position, playerSide, data } = event
+
+    // Get or create lifecycle array for this object
+    if (!this.emojiLifecycles.has(objectId)) {
+      // Stop tracking if we've reached max
+      if (this.trackedEmojiCount >= this.maxTrackedEmojis) {
+        return
+      }
+      this.emojiLifecycles.set(objectId, [])
+      this.trackedEmojiCount++
+    }
+
+    const lifecycleEvents = this.emojiLifecycles.get(objectId)!
+    const firstEvent = lifecycleEvents[0]
+    const duration = firstEvent ? Date.now() - firstEvent.timestamp : 0
+
+    const lifecycleEvent: EmojiLifecycleEvent = {
+      objectId,
+      emoji,
+      name,
+      phase,
+      timestamp: Date.now(),
+      duration,
+      position,
+      playerSide,
+      data
+    }
+
+    lifecycleEvents.push(lifecycleEvent)
+
+    // Also log to general event tracker
+    this.trackEvent({
+      type: 'lifecycle',
+      category: 'emoji_lifecycle',
+      message: `Emoji ${phase}: ${emoji} ${name}`,
+      data: lifecycleEvent
+    })
+
+    console.log(
+      `[EmojiTracker #${this.emojiLifecycles.size}/${this.maxTrackedEmojis}] ${phase.toUpperCase()}: ${emoji} ${name}`,
+      `(${duration}ms)`,
+      position ? `at (${position.x.toFixed(1)}, ${position.y.toFixed(1)})` : '',
+      playerSide ? `[${playerSide}]` : '',
+      data || ''
+    )
+  }
+
+  getEmojiLifecycle(objectId: string): EmojiLifecycleEvent[] | undefined {
+    return this.emojiLifecycles.get(objectId)
+  }
+
+  getAllEmojiLifecycles(): Map<string, EmojiLifecycleEvent[]> {
+    return new Map(this.emojiLifecycles)
+  }
+
+  getLifecycleStats() {
+    const stats = {
+      totalTracked: this.emojiLifecycles.size,
+      maxTracked: this.maxTrackedEmojis,
+      isEnabled: this.isLifecycleTrackingEnabled,
+      emojis: [] as Array<{
+        objectId: string
+        emoji: string
+        name: string
+        spawnTime: number
+        phases: string[]
+        totalDuration: number
+        wasCompleted: boolean
+      }>
+    }
+
+    this.emojiLifecycles.forEach((events, objectId) => {
+      if (events.length === 0) return
+
+      const firstEvent = events[0]
+      const lastEvent = events[events.length - 1]
+      const phases = events.map(e => e.phase)
+
+      stats.emojis.push({
+        objectId,
+        emoji: firstEvent.emoji,
+        name: firstEvent.name,
+        spawnTime: firstEvent.timestamp,
+        phases,
+        totalDuration: lastEvent.timestamp - firstEvent.timestamp,
+        wasCompleted: phases.includes('tapped') || phases.includes('removed')
+      })
+    })
+
+    return stats
+  }
+
+  clearLifecycleTracking() {
+    this.emojiLifecycles.clear()
+    this.trackedEmojiCount = 0
+    console.log('[EmojiTracker] Lifecycle tracking cleared')
   }
 }
 

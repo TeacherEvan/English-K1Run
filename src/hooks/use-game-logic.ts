@@ -325,6 +325,28 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
             size: 60
           }
+
+          // DEBUG: Log spawn details
+          console.log('[SpawnObject] Created:', {
+            id: newObject.id,
+            emoji: newObject.emoji,
+            x: newObject.x,
+            y: newObject.y,
+            speed: newObject.speed,
+            lane
+          })
+
+          // Track emoji lifecycle - spawned phase (MUST happen before adding to array)
+          // Track with ACTUAL spawn position before any collision detection modifications
+          eventTracker.trackEmojiLifecycle({
+            objectId: newObject.id,
+            emoji: newObject.emoji,
+            name: newObject.type,
+            phase: 'spawned',
+            position: { x: spawnX, y: spawnY }, // Use raw spawn coords, not obj reference
+            playerSide: lane
+          })
+
           newObjects.push(newObject)
         }
 
@@ -348,9 +370,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // Filter and update in single pass for better performance
         const updatedObjects: GameObject[] = []
         const screenHeight = window.innerHeight
-        const speedMultiplier = 0.6 * fallSpeedMultiplier // Reduced from 1.2 to 0.6 for slower fall speed
+        // FIX: Don't multiply by fallSpeedMultiplier again - it's already baked into obj.speed at spawn time!
+        // Just use a base speed multiplier for frame-rate compensation
+        const speedMultiplier = 0.6 // Base movement per frame (reduced from 1.2 for slower fall)
 
         const laneBuckets: { left: GameObject[]; right: GameObject[] } = { left: [], right: [] }
+
+        // DEBUG: Log first object's movement
+        if (prev.length > 0 && Math.random() < 0.1) { // 10% sampling
+          console.log('[UpdateObjects] screenHeight:', screenHeight, 'speedMultiplier:', speedMultiplier, 'objectCount:', prev.length)
+          console.log('[UpdateObjects] First object:', { id: prev[0].id, y: prev[0].y, speed: prev[0].speed, emoji: prev[0].emoji })
+        }
 
         for (const obj of prev) {
           const newY = obj.y + obj.speed * speedMultiplier
@@ -360,77 +390,61 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             const updated = { ...obj, y: newY }
             const lane = updated.x <= 50 ? 'left' : 'right'
             laneBuckets[lane].push(updated)
+          } else {
+            // DEBUG: Log when object is removed
+            console.log('[UpdateObjects] Removing object:', {
+              id: obj.id,
+              emoji: obj.emoji,
+              oldY: obj.y,
+              newY,
+              screenHeight,
+              threshold: screenHeight + 100
+            })
+
+            // Track emoji lifecycle - missed (fell off screen)
+            // Log the LAST visible position (approximately screenHeight) instead of current Y
+            // which could be thousands of pixels off-screen
+            const lastVisibleY = Math.min(obj.y, screenHeight + 100)
+            eventTracker.trackEmojiLifecycle({
+              objectId: obj.id,
+              emoji: obj.emoji,
+              name: obj.type,
+              phase: 'missed',
+              position: { x: obj.x, y: lastVisibleY }, // Use clamped position
+              playerSide: obj.x <= 50 ? 'left' : 'right',
+              data: {
+                reason: 'fell_off_screen',
+                actualY: obj.y,
+                calculatedY: newY,
+                screenHeight
+              }
+            })
           }
         }
 
-        // ENHANCED COLLISION DETECTION: Comprehensive boundary and overlap prevention
-        const baseGap = 180 // Increased from 140 for even better visual separation
-        const horizontalMinGap = 30 // Increased from 22 for clearer horizontal spacing
+        // SIMPLE COLLISION AVOIDANCE: Just prevent overlapping circles, don't stop movement
+        const minGap = 80 // Minimum pixels between emoji centers
 
         const applySeparation = (objects: GameObject[]) => {
-          // Sort by Y position (top to bottom) for sequential processing
+          // Sort by Y position (top to bottom)
           const sorted = objects.sort((a, b) => a.y - b.y)
 
           for (let i = 0; i < sorted.length; i++) {
             const obj = sorted[i]
-            const objRadius = obj.size / 2
 
-            // VERTICAL COLLISION DETECTION: Enforce minimum gap between vertically stacked objects
-            if (i > 0) {
-              const prevObj = sorted[i - 1]
-              const prevRadius = prevObj.size / 2
-
-              // Speed-aware gap calculation - faster objects need more space to prevent overtaking
-              const speedDiff = Math.abs(obj.speed - prevObj.speed)
-              const speedFactor = 1 + (speedDiff * 50) // Increased from 35 for stronger effect
-
-              // Calculate required gap based on object sizes and speed differential
-              const requiredGap = (baseGap * speedFactor) + objRadius + prevRadius
-
-              // HARD BOUNDARY: If objects are too close, force separation
-              if (obj.y < prevObj.y + requiredGap) {
-                obj.y = prevObj.y + requiredGap
-              }
-
-              // SPEED MATCHING: If faster object catches slower one, match speeds to prevent phasing
-              const catchingDistance = requiredGap * 2.2 // Increased from 1.8 for earlier intervention
-              if (obj.speed > prevObj.speed && obj.y < prevObj.y + catchingDistance) {
-                // Slow down the faster object to maintain separation
-                obj.speed = prevObj.speed * 0.88 // Reduced from 0.92 for stronger slowdown
-              }
-            }
-
-            // HORIZONTAL COLLISION DETECTION: Check against ALL objects above (not just immediate previous)
+            // Check collision with objects above
             for (let j = 0; j < i; j++) {
-              const otherObj = sorted[j]
-              const verticalDistance = Math.abs(obj.y - otherObj.y)
-              const horizontalDistance = Math.abs(obj.x - otherObj.x)
+              const other = sorted[j]
+              const dx = obj.x - other.x
+              const dy = obj.y - other.y
+              const distance = Math.sqrt(dx * dx + dy * dy)
 
-              // Dynamic horizontal gap that decreases with vertical separation
-              const verticalProximity = Math.max(0, 1 - (verticalDistance / (baseGap * 2.5)))
-              const dynHorizGap = horizontalMinGap * verticalProximity
-
-              // BOUNDARY ENFORCEMENT: If objects are overlapping or too close in both axes
-              const isVerticallyClose = verticalDistance < baseGap * 2.5 // Increased from 2
-              const isHorizontallyOverlapping = horizontalDistance < dynHorizGap
-
-              if (isVerticallyClose && isHorizontallyOverlapping) {
-                // Calculate push direction based on current positions
-                const pushDirection = obj.x < otherObj.x ? -1 : 1
-                const pushAmount = (dynHorizGap - horizontalDistance + 4) * 1.2 // Increased buffer from 2 to 4, added 1.2x multiplier
-
-                // Apply horizontal separation with lane boundary enforcement
-                const newX = obj.x + (pushDirection * pushAmount)
-
-                // LANE BOUNDARIES: Keep objects within valid x-coordinate range (10-45 for each half)
-                const minX = 10
-                const maxX = 45
-                obj.x = Math.max(minX, Math.min(maxX, newX))
+              // If too close, push horizontally (don't mess with Y or speed)
+              if (distance < minGap) {
+                const pushX = dx > 0 ? 0.2 : -0.2 // Gentle push - reduced by 90% from 2 to 0.2
+                obj.x = Math.max(10, Math.min(45, obj.x + pushX))
               }
             }
-
-            // FINAL BOUNDARY CHECK: Ensure object stays within lane bounds after all adjustments
-            obj.x = Math.max(10, Math.min(45, obj.x))
 
             updatedObjects.push(obj)
           }
@@ -444,7 +458,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'updateObjects')
     }
-  }, [fallSpeedMultiplier])
+  }, []) // Removed fallSpeedMultiplier dependency - it's baked into obj.speed at spawn time
 
   const handleObjectTap = useCallback((objectId: string, playerSide: 'left' | 'right') => {
     const tapStartTime = performance.now()
@@ -462,6 +476,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       const tapLatency = performance.now() - tapStartTime
       eventTracker.trackObjectTap(objectId, isCorrect, playerSide, tapLatency)
+
+      // Track emoji lifecycle - tapped phase
+      eventTracker.trackEmojiLifecycle({
+        objectId: tappedObject.id,
+        emoji: tappedObject.emoji,
+        name: tappedObject.type,
+        phase: 'tapped',
+        position: { x: tappedObject.x, y: tappedObject.y },
+        playerSide,
+        data: { isCorrect, tapLatency }
+      })
 
       setGameState(prev => {
         const newState = { ...prev }
@@ -560,7 +585,22 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       })
 
       // Remove the tapped object regardless of correct/incorrect
-      setGameObjects(prev => prev.filter(obj => obj.id !== objectId))
+      setGameObjects(prev => {
+        // Track removal before filtering
+        const removedObj = prev.find(obj => obj.id === objectId)
+        if (removedObj) {
+          eventTracker.trackEmojiLifecycle({
+            objectId: removedObj.id,
+            emoji: removedObj.emoji,
+            name: removedObj.type,
+            phase: 'removed',
+            position: { x: removedObj.x, y: removedObj.y },
+            playerSide,
+            data: { reason: 'tapped', isCorrect }
+          })
+        }
+        return prev.filter(obj => obj.id !== objectId)
+      })
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
