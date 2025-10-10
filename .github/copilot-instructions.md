@@ -4,9 +4,20 @@
 
 Split-screen educational racing game where two players compete by tapping falling objects to advance their progress bars. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
 
-**Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority
-**Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)
-**Deployment**: Vercel (production), Docker with nginx, Termux-compatible for Android dev
+**Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
+**Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)  
+**Deployment**: Vercel (production), Docker with nginx, Termux-compatible for Android dev  
+**Target Devices**: QBoard interactive displays, tablets, mobile browsers
+
+## Critical Architectural Rules
+
+**⚠️ State Management**: `src/hooks/use-game-logic.ts` is the **single source of truth**. Never create parallel game state in components. All game mutations flow through this hook's methods.
+
+**⚠️ Coordinate System**: Split-screen uses percentage-based positioning (`x <= 50` = Player 1, `x > 50` = Player 2). Never use absolute pixel coordinates. `App.tsx` handles viewport remapping.
+
+**⚠️ Touch Handling**: `src/lib/touch-handler.ts` singleton manages all touch events. Don't attach raw `onClick` handlers to game objects—use the multi-touch API to prevent QBoard interference issues.
+
+**⚠️ CSS Variables**: All responsive sizing uses CSS custom properties (`--font-scale`, `--object-scale`, etc.) set by `use-display-adjustment.ts`. Never hardcode pixel values in inline styles.
 
 ## Architecture & Data Flow
 
@@ -23,6 +34,11 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 **Component Ownership**: `App.tsx` owns top-level state (`debugVisible`, `backgroundClass`, `selectedLevel`) and orchestrates layout. All game logic delegates to `use-game-logic.ts` hook.
 
+**Singleton Pattern**: Three global singletons initialized on import (never instantiate):
+- `eventTracker` (`src/lib/event-tracker.ts`) - Error/performance logging, max 1000 events
+- `soundManager` (`src/lib/sound-manager.ts`) - Web Audio API manager, lazy-initialized
+- `multiTouchHandler` (`src/lib/touch-handler.ts`) - Touch validation system for QBoard displays
+
 ## User Interface & UX Features
 
 **Target Display**: Located at top-center during gameplay, shows current target emoji/name and category badge. Styled with 25% scale (`transform: scale(0.25)`) and completely transparent background for minimal visual obstruction. Only the text and emoji remain visible with text-shadow for readability.
@@ -34,6 +50,21 @@ Split-screen educational racing game where two players compete by tapping fallin
 **Background Rotation**: Random background changes every 30s from `BACKGROUND_CLASSES` array (`app-bg-sunrise`, `app-bg-deep-ocean`, etc.). Also changes when returning to menu.
 
 **Multi-Touch Support**: Advanced touch handling system prevents accidental touches from interfering with gameplay on QBoard displays and mobile devices. `src/lib/touch-handler.ts` validates each touch independently with debouncing (150ms), drag detection (10px movement threshold), and long-press rejection (300ms duration limit). Auto-enables on game start, disables on game end. See `MULTI_TOUCH_IMPLEMENTATION.md` for details.
+
+**Touch Integration Pattern**: When adding interactive game objects:
+```tsx
+// ❌ DON'T: Raw onClick handlers cause QBoard interference
+<div onClick={() => handleTap(id)}>
+
+// ✅ DO: Use touch handler validation
+const handleTouchEnd = (e: React.TouchEvent) => {
+  const touch = e.changedTouches[0]
+  if (multiTouchHandler.validateTap(touch.identifier, id)) {
+    handleTap(id)
+  }
+}
+<div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onClick={handleClick}>
+```
 
 ## Build & Developer Workflows
 
@@ -69,7 +100,7 @@ Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react`
 - Import only `src/main.css` in `main.tsx`
 - Custom color system from `theme.json` with CSS variables (`--color-neutral-*`, etc.)
 - Add global styles by extending `main.css` to preserve Tailwind's layer order
-- Use `cn()` utility from `src/lib/utils.ts` to merge Tailwind classes
+- Use `cn()` utility from `src/lib/utils.ts` to merge Tailwind classes safely
 
 **Background Rotation**: `App.css` defines 5 `.app-bg-*` classes using real image overlays (`.app-bg-sunrise`, `.app-bg-deep-ocean`, etc.). `pickRandomBackground()` in `App.tsx` switches every 30s—add new backgrounds by extending both the class list and `BACKGROUND_CLASSES` array.
 
@@ -88,6 +119,12 @@ Extend existing variants instead of adding inline Tailwind classes. All 42 UI co
 **Memoization**: Frequently re-rendered components like `PlayerArea`, `FallingObject`, `TargetDisplay`, `GameMenu` wrap with `memo()`. Follow this pattern for new game components that receive props on every frame.
 
 **Debug Overlays**: `FireworksDisplay`, `PerformanceMonitor`, `EventTrackerDebug`, `QuickDebug`, `ErrorMonitor`, `TouchHandlerDebug` mount once in `<App />`. They consume global singletons (`eventTracker`, `soundManager`, `multiTouchHandler`)—don't instantiate new trackers.
+
+**Lazy Loading**: Debug components are lazy-loaded in `App.tsx` to reduce initial bundle size:
+```tsx
+const PerformanceMonitor = lazy(() => import('./components/PerformanceMonitor').then(m => ({ default: m.PerformanceMonitor })))
+```
+Wrap usage with `<Suspense>`. Apply same pattern for new large/optional components.
 
 **State Updates**: Use functional setState when new state depends on previous (e.g., `setGameObjects(prev => [...prev, newObj])`).
 

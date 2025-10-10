@@ -1,11 +1,16 @@
 /**
  * Multi-Touch Handler Debug Overlay
  * 
+ * ⚠️ DEBUG ONLY - Should NOT be rendered in production
+ * 
  * Displays real-time statistics from the multi-touch handler:
  * - Active touches count
  * - Recent taps tracking
  * - Configuration settings
  * - Touch validation metrics
+ * 
+ * NOTE: This component is intentionally NOT included in App.tsx
+ * to keep it invisible to players. Only enable for debugging.
  */
 
 import { memo, useEffect, useState } from 'react'

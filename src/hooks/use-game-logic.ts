@@ -370,20 +370,21 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
         const applySeparation = (objects: GameObject[]) => {
           // Limit objects per lane to prevent overcrowding and collision issues
-          if (objects.length > maxObjectsPerLane) {
-            objects = objects.slice(0, maxObjectsPerLane)
-          }
-
-          // Sort by Y position (top to bottom) for sequential processing
+          // Sort first, then slice the oldest (furthest down) objects if needed
           const sorted = objects.sort((a, b) => a.y - b.y)
+          
+          // Keep only the newest objects (at the top) if we exceed max
+          const objectsToProcess = sorted.length > maxObjectsPerLane 
+            ? sorted.slice(0, maxObjectsPerLane)
+            : sorted
 
-          for (let i = 0; i < sorted.length; i++) {
-            const obj = sorted[i]
+          for (let i = 0; i < objectsToProcess.length; i++) {
+            const obj = objectsToProcess[i]
             const objRadius = obj.size / 2
 
             // VERTICAL COLLISION DETECTION: Enforce minimum gap between vertically stacked objects
             if (i > 0) {
-              const prevObj = sorted[i - 1]
+              const prevObj = objectsToProcess[i - 1]
               const prevRadius = prevObj.size / 2
 
               // Speed-aware gap calculation - faster objects need more space to prevent overtaking
@@ -408,7 +409,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
             // HORIZONTAL COLLISION DETECTION: Check against ALL objects above (not just immediate previous)
             for (let j = 0; j < i; j++) {
-              const otherObj = sorted[j]
+              const otherObj = objectsToProcess[j]
               const verticalDistance = Math.abs(obj.y - otherObj.y)
               const horizontalDistance = Math.abs(obj.x - otherObj.x)
 

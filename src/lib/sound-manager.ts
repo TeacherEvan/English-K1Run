@@ -482,7 +482,7 @@ class SoundManager {
 
     private speakWithSpeechSynthesis(text: string): boolean {
         console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
-        
+
         if (!this.canUseSpeech()) {
             console.warn('[SoundManager] Cannot use speech - not available')
             return false
@@ -504,11 +504,11 @@ class SoundManager {
             utterance.onstart = () => {
                 console.log(`[SoundManager] Started speaking: "${text}"`)
             }
-            
+
             utterance.onend = () => {
                 console.log(`[SoundManager] Finished speaking: "${text}"`)
             }
-            
+
             utterance.onerror = (event) => {
                 console.error('[SoundManager] Speech synthesis error:', event)
             }
