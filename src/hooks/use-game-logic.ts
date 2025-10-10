@@ -366,25 +366,18 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // ENHANCED COLLISION DETECTION: Comprehensive boundary and overlap prevention
         const baseGap = 180 // Increased from 140 for even better visual separation
         const horizontalMinGap = 30 // Increased from 22 for clearer horizontal spacing
-        const maxObjectsPerLane = 8 // Prevent overcrowding
 
         const applySeparation = (objects: GameObject[]) => {
-          // Limit objects per lane to prevent overcrowding and collision issues
-          // Sort first, then slice the oldest (furthest down) objects if needed
+          // Sort by Y position (top to bottom) for sequential processing
           const sorted = objects.sort((a, b) => a.y - b.y)
-          
-          // Keep only the newest objects (at the top) if we exceed max
-          const objectsToProcess = sorted.length > maxObjectsPerLane 
-            ? sorted.slice(0, maxObjectsPerLane)
-            : sorted
 
-          for (let i = 0; i < objectsToProcess.length; i++) {
-            const obj = objectsToProcess[i]
+          for (let i = 0; i < sorted.length; i++) {
+            const obj = sorted[i]
             const objRadius = obj.size / 2
 
             // VERTICAL COLLISION DETECTION: Enforce minimum gap between vertically stacked objects
             if (i > 0) {
-              const prevObj = objectsToProcess[i - 1]
+              const prevObj = sorted[i - 1]
               const prevRadius = prevObj.size / 2
 
               // Speed-aware gap calculation - faster objects need more space to prevent overtaking
@@ -409,7 +402,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
             // HORIZONTAL COLLISION DETECTION: Check against ALL objects above (not just immediate previous)
             for (let j = 0; j < i; j++) {
-              const otherObj = objectsToProcess[j]
+              const otherObj = sorted[j]
               const verticalDistance = Math.abs(obj.y - otherObj.y)
               const horizontalDistance = Math.abs(obj.x - otherObj.x)
 
