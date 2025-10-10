@@ -471,35 +471,55 @@ class SoundManager {
 
         if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
             this.speechAvailable = false
+            console.warn('[SoundManager] Speech synthesis not available in this environment')
             return false
         }
 
         this.speechAvailable = true
+        console.log('[SoundManager] Speech synthesis is available')
         return true
     }
 
     private speakWithSpeechSynthesis(text: string): boolean {
+        console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
+        
         if (!this.canUseSpeech()) {
+            console.warn('[SoundManager] Cannot use speech - not available')
             return false
         }
 
         try {
             const synth = window.speechSynthesis
             if (!synth) {
+                console.warn('[SoundManager] speechSynthesis object not found')
                 return false
             }
 
             const utterance = new SpeechSynthesisUtterance(text)
-            utterance.rate = 0.95
-            utterance.pitch = 1
+            utterance.rate = 0.85  // Slower for kids to understand better
+            utterance.pitch = 1.1  // Slightly higher pitch for child-friendly voice
             utterance.volume = this.volume
 
-            synth.cancel()
+            // Add event listeners for debugging
+            utterance.onstart = () => {
+                console.log(`[SoundManager] Started speaking: "${text}"`)
+            }
+            
+            utterance.onend = () => {
+                console.log(`[SoundManager] Finished speaking: "${text}"`)
+            }
+            
+            utterance.onerror = (event) => {
+                console.error('[SoundManager] Speech synthesis error:', event)
+            }
+
+            synth.cancel() // Cancel any ongoing speech
             synth.speak(utterance)
 
+            console.log('[SoundManager] Speech synthesis initiated successfully')
             return true
         } catch (error) {
-            console.warn('Speech synthesis failed:', error)
+            console.warn('[SoundManager] Speech synthesis failed:', error)
             this.speechAvailable = false
             return false
         }
@@ -614,33 +634,34 @@ class SoundManager {
             const trimmed = phrase.trim()
             if (!trimmed) return
 
-            // NEW: Look up sentence template for educational context
+            // PRIORITY 1: Look up sentence template for educational context
             const normalizedPhrase = trimmed.toLowerCase()
             const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
 
             if (sentence) {
-                // We have a sentence template, speak the full sentence
+                // We have a sentence template, speak the full sentence FIRST
                 console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
                 if (this.speakWithSpeechSynthesis(sentence)) {
+                    console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
                     return
+                } else {
+                    console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
                 }
-                // If speech synthesis fails, fall through to try original phrase
             }
 
-            // Original logic: First try: exact phrase as audio file
+            // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
             if (await this.playVoiceClip(trimmed)) {
                 return
             }
 
-            // Second try: for multi-word phrases, try speech synthesis FIRST
-            // (Better than trying to play individual words with no delays)
+            // PRIORITY 3: For multi-word phrases, try speech synthesis
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
                 if (this.speakWithSpeechSynthesis(trimmed)) {
                     return
                 }
 
-                // Third try: play individual words with delays
+                // Fourth try: play individual words with delays
                 let delay = 0
                 let anyPlayed = false
                 for (const part of parts) {
