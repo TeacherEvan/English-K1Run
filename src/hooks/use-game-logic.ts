@@ -422,39 +422,60 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // SIMPLE COLLISION AVOIDANCE: Just prevent overlapping circles, don't stop movement
-        const minGap = 80 // Minimum pixels between emoji centers
+        // COLLISION DETECTION: Prevent emojis from overlapping
+        // Process each lane separately to maintain correct player sides
+        const processLane = (objects: GameObject[], lane: 'left' | 'right') => {
+          if (objects.length === 0) return
 
-        const applySeparation = (objects: GameObject[], lane: 'left' | 'right') => {
-          // Define lane boundaries based on which side we're processing
+          // Define strict lane boundaries - objects MUST stay within their lane
           const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
+          const emojiRadius = 30 // Approximate radius of emoji (size 60 / 2)
+          const minSeparation = emojiRadius * 2 + 10 // Minimum distance between centers (diameter + buffer)
 
-          // Sort by Y position (top to bottom)
-          const sorted = objects.sort((a, b) => a.y - b.y)
+          // Sort by Y position (top to bottom) for collision processing
+          const sorted = [...objects].sort((a, b) => a.y - b.y)
 
           for (let i = 0; i < sorted.length; i++) {
-            const obj = sorted[i]
+            const current = sorted[i]
 
-            // Check collision with objects above
-            for (let j = 0; j < i; j++) {
+            // Ensure object stays within lane boundaries
+            current.x = Math.max(minX, Math.min(maxX, current.x))
+
+            // Check collision with all other objects in this lane
+            for (let j = 0; j < sorted.length; j++) {
+              if (i === j) continue // Skip self
+
               const other = sorted[j]
-              const dx = obj.x - other.x
-              const dy = obj.y - other.y
+              const dx = current.x - other.x
+              const dy = current.y - other.y
               const distance = Math.sqrt(dx * dx + dy * dy)
 
-              // If too close, push horizontally (don't mess with Y or speed)
-              if (distance < minGap) {
-                const pushX = dx > 0 ? 0.2 : -0.2 // Gentle push - reduced by 90% from 2 to 0.2
-                obj.x = Math.max(minX, Math.min(maxX, obj.x + pushX)) // Use lane-specific boundaries
+              // If overlapping, push them apart
+              if (distance < minSeparation && distance > 0) {
+                // Calculate push direction (perpendicular to collision)
+                const pushStrength = (minSeparation - distance) / 2
+                const pushAngle = Math.atan2(dy, dx)
+
+                // Push horizontally to avoid affecting fall speed
+                const pushX = Math.cos(pushAngle) * pushStrength
+
+                // Apply push while respecting lane boundaries
+                current.x = Math.max(minX, Math.min(maxX, current.x + pushX))
+
+                // Also push the other object in opposite direction (if it's below)
+                if (other.y > current.y) {
+                  other.x = Math.max(minX, Math.min(maxX, other.x - pushX))
+                }
               }
             }
 
-            updatedObjects.push(obj)
+            updatedObjects.push(current)
           }
         }
 
-        applySeparation(laneBuckets.left, 'left')
-        applySeparation(laneBuckets.right, 'right')
+        // Process each lane independently
+        processLane(laneBuckets.left, 'left')
+        processLane(laneBuckets.right, 'right')
 
         return updatedObjects
       })
