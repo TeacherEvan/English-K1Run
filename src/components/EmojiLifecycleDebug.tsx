@@ -65,11 +65,14 @@ export const EmojiLifecycleDebug = memo(() => {
     }
 
     useEffect(() => {
-        updateLifecycles()
-
         if (autoRefresh) {
+            // Use setTimeout to avoid synchronous setState in effect
+            const timeout = setTimeout(() => updateLifecycles(), 0)
             const interval = setInterval(updateLifecycles, 500)
-            return () => clearInterval(interval)
+            return () => {
+                clearTimeout(timeout)
+                clearInterval(interval)
+            }
         }
     }, [autoRefresh])
 

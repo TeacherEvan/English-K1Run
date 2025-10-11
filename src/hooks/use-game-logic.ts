@@ -193,7 +193,7 @@ export const GAME_CATEGORIES: GameCategory[] = [
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
-  const [gameState, setGameState] = useState<GameState>({
+  const [gameState, setGameState] = useState<GameState>(() => ({
     player1Progress: 0,
     player2Progress: 0,
     currentTarget: "",
@@ -204,7 +204,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     targetChangeTime: Date.now() + 10000,
     player1Streak: 0,
     player2Streak: 0
-  })
+  }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
 
   const clampLevel = useCallback((levelIndex: number) => {

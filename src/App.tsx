@@ -162,16 +162,7 @@ function App() {
     return () => clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    if (gameState.gameStarted) return
-    setBackgroundClass(prev => pickRandomBackground(prev))
-  }, [gameState.gameStarted])
-
-  useEffect(() => {
-    if (!gameState.gameStarted) {
-      setSelectedLevel(gameState.level)
-    }
-  }, [gameState.gameStarted, gameState.level])
+  // Background change handled in resetGame() to avoid cascading renders
 
   // Update time remaining for target display
   useEffect(() => {
@@ -274,10 +265,13 @@ function App() {
           requestFullscreen() // Ensure fullscreen when starting game
           startGame(selectedLevel)
         }}
-        onResetGame={resetGame}
+        onResetGame={() => {
+          resetGame()
+          setBackgroundClass(prev => pickRandomBackground(prev))
+        }}
         onSelectLevel={setSelectedLevel}
         selectedLevel={selectedLevel}
-        levels={GAME_CATEGORIES.map(category => category.name)}
+        levels={GAME_CATEGORIES.map(cat => cat.name)}
         gameStarted={gameState.gameStarted}
         winner={gameState.winner}
       />
