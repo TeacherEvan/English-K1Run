@@ -64,8 +64,6 @@ function App() {
     displaySettings
   } = useDisplayAdjustment()
 
-
-
   const {
     gameObjects,
     gameState,
