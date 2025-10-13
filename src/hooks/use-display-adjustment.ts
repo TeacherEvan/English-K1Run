@@ -59,46 +59,47 @@ export function useDisplayAdjustment() {
       let fallSpeed = 1
 
       // Simplified breakpoint calculations for better performance
+      // Reduced scaling to optimize resource sizes
       if (width < 768) {
-        fontSize = Math.max(scale * 1.2, 0.8)
-        objectSize = Math.max(scale * 1.3, 0.9)
-        turtleSize = Math.max(scale * 1.1, 0.8)
-        spacing = Math.max(scale * 1.2, 0.9)
+        fontSize = Math.max(scale * 1.0, 0.7)
+        objectSize = Math.max(scale * 1.0, 0.7)
+        turtleSize = Math.max(scale * 0.9, 0.65)
+        spacing = Math.max(scale * 1.0, 0.8)
         fallSpeed = 0.7 // Slower for better performance on mobile
       } else if (width < 1200) {
-        fontSize = Math.max(scale * 1.1, 0.9)
-        objectSize = Math.max(scale * 1.1, 0.95)
-        turtleSize = Math.max(scale * 1.05, 0.9)
-        spacing = Math.max(scale * 1.1, 0.95)
+        fontSize = Math.max(scale * 0.95, 0.75)
+        objectSize = Math.max(scale * 0.9, 0.75)
+        turtleSize = Math.max(scale * 0.9, 0.75)
+        spacing = Math.max(scale * 0.95, 0.8)
         fallSpeed = 0.85
       } else if (width < 1920) {
-        fontSize = Math.max(scale, 0.95)
-        objectSize = Math.max(scale, 1)
-        turtleSize = Math.max(scale, 0.95)
-        spacing = Math.max(scale, 1)
+        fontSize = Math.max(scale * 0.85, 0.8)
+        objectSize = Math.max(scale * 0.85, 0.85)
+        turtleSize = Math.max(scale * 0.85, 0.8)
+        spacing = Math.max(scale * 0.9, 0.85)
         fallSpeed = 1
       } else {
-        fontSize = Math.min(scale * 1.1, 1.3)
-        objectSize = Math.min(scale * 1.05, 1.2)
-        turtleSize = Math.min(scale * 1.1, 1.25)
-        spacing = Math.min(scale * 1.05, 1.15)
+        fontSize = Math.min(scale * 0.9, 1.0)
+        objectSize = Math.min(scale * 0.85, 0.95)
+        turtleSize = Math.min(scale * 0.9, 1.0)
+        spacing = Math.min(scale * 0.9, 1.0)
         fallSpeed = 1.1
       }
 
-      // Special adjustments for extreme aspect ratios
+      // Special adjustments for extreme aspect ratios (reduced for optimization)
       if (aspectRatio > 2.5) {
-        spacing *= 1.2
-        objectSize *= 0.9
+        spacing *= 1.1
+        objectSize *= 0.85
       } else if (aspectRatio < 0.6) {
-        fontSize *= 1.1
-        objectSize *= 1.1
+        fontSize *= 1.0
+        objectSize *= 1.0
         spacing *= 0.9
       }
 
-      // Portrait mode adjustments
+      // Portrait mode adjustments (reduced for optimization)
       if (!isLandscape && width < 768) {
-        objectSize *= 1.2
-        turtleSize *= 1.1
+        objectSize *= 1.0
+        turtleSize *= 1.0
         fallSpeed *= 0.8 // Further reduced for mobile portrait
       }
 
