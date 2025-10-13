@@ -62,9 +62,13 @@ const requestFullscreen = () => {
 }
 
 function App() {
+  console.log('[App] Starting to render App component')
+
   const {
     displaySettings
   } = useDisplayAdjustment()
+
+  console.log('[App] Display settings:', displaySettings)
 
   const {
     gameObjects,
@@ -76,6 +80,8 @@ function App() {
     comboCelebration,
     clearComboCelebration
   } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
+
+  console.log('[App] Game logic initialized, gameState:', gameState)
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [debugVisible, setDebugVisible] = useState(false)

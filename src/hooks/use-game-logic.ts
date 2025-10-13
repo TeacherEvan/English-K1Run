@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 // import { useKV } from '@github/spark/hooks'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
@@ -201,9 +201,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
-  const [lastSeenEmojis, setLastSeenEmojis] = useState<{ [key: string]: number }>({})
-  const [emojiQueue, setEmojiQueue] = useState<Array<{ emoji: string; name: string }>>([])
+  // REMOVED: lastSeenEmojis and emojiQueue state - unnecessary complexity that caused spawn issues
   // Background rotation is handled in App.tsx, not here
+
+  // Use ref to access current game state in callbacks without causing re-creation
+  const gameStateRef = useRef(gameState)
+  useEffect(() => {
+    gameStateRef.current = gameState
+    console.log('[GameLogic] gameState updated:', { level: gameState.level, gameStarted: gameState.gameStarted })
+  }, [gameState])
+
+  console.log('[GameLogic] Hook rendering, gameState:', gameState)
 
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
@@ -233,11 +241,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [clampLevel, gameState.level])
   // Target initialization is handled in startGame function
 
+  // OPTIMIZED: Simplified spawn logic - uses ref to access current game state without re-creating
   const spawnObject = useCallback(() => {
     try {
       setGameObjects(prev => {
         // Performance-optimized limit: balance fun with smooth performance
-        if (prev.length > 18) {
+        if (prev.length > 15) {
           console.log('[GameLogic] Too many objects, skipping spawn. Count:', prev.length)
           return prev
         }
@@ -248,35 +257,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
         // Pre-calculate random values to reduce computation in loop
         const baseId = Date.now()
-        const categoryItems = currentCategory.items
-        const categoryLength = categoryItems.length
+
+        // Use ref to get current level without re-creating this callback
+        const currentLevel = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
+        const categoryItems = currentLevel.items
 
         // Full screen width for single player
         const minX = 10
         const maxX = 90
 
-        // Check if we need to ensure certain emojis appear (every 10 seconds)
-        const currentTime = Date.now()
-
         for (let i = 0; i < spawnCount; i++) {
-          let randomItem: { emoji: string; name: string }
-
-          // Priority system: if we have emojis in queue that haven't appeared recently, use them
-          if (emojiQueue.length > 0 && Math.random() < 0.7) { // 70% chance to use queued emoji
-            const queuedItem = emojiQueue[0]
-            randomItem = queuedItem
-            setEmojiQueue(queue => queue.slice(1)) // Remove from queue
-          } else {
-            // Regular random selection
-            const randomIndex = Math.floor(Math.random() * categoryLength)
-            randomItem = categoryItems[randomIndex]
-          }
-
-          // Update last seen time for this emoji
-          setLastSeenEmojis(prev => ({
-            ...prev,
-            [randomItem.emoji]: currentTime
-          }))
+          // SIMPLIFIED: Pure random selection - no queue system
+          const randomIndex = Math.floor(Math.random() * categoryItems.length)
+          const randomItem = categoryItems[randomIndex]
 
           // Calculate spawn position with collision avoidance
           let spawnY = -100 - (i * 80) // Reduced from 200 to 80 - allow tighter spacing
@@ -355,7 +348,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       console.error('[GameLogic] Error in spawnObject:', error)
       eventTracker.trackError(error as Error, 'spawnObject')
     }
-  }, [currentCategory, fallSpeedMultiplier, emojiQueue, setEmojiQueue, setLastSeenEmojis])
+  }, [fallSpeedMultiplier]) // OPTIMIZED: Stable dependencies - gameState accessed via ref
 
   const updateObjects = useCallback(() => {
     try {
@@ -413,14 +406,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // OPTIMIZED COLLISION DETECTION: Better performance with spatial partitioning
+        // OPTIMIZED COLLISION DETECTION: Simple and performant
         if (allObjects.length > 1) {
           // Define full screen boundaries
           const minX = 10
           const maxX = 90
-          const emojiRadius = 10 // Approximate radius of emoji (size 60 / 2)
-          const minSeparation = emojiRadius * 2 + 5 // Minimum distance between centers
-          const maxCheckDistance = 20 // Only check objects within this distance
+          const minSeparation = 25 // Minimum distance between emoji centers (increased for better separation)
 
           // Use a more efficient collision detection approach
           for (let i = 0; i < allObjects.length; i++) {
@@ -435,14 +426,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               const dx = current.x - other.x
               const dy = current.y - other.y
 
-              // Skip distant objects to improve performance
-              if (Math.abs(dy) > maxCheckDistance) continue
+              // Skip distant objects vertically (>50px) to improve performance
+              if (Math.abs(dy) > 50) continue
 
               const distance = Math.sqrt(dx * dx + dy * dy)
 
               // If overlapping, apply gentle separation
               if (distance < minSeparation && distance > 0) {
-                const pushStrength = (minSeparation - distance) * 0.3 // Gentler push for stability
+                const pushStrength = (minSeparation - distance) * 0.2 // Gentle push for stability
                 const normalizedDx = dx / distance
                 const pushX = normalizedDx * pushStrength
 
@@ -666,40 +657,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence, generateRandomTarget, setGameState])
 
-  // Optimized emoji variety management - ensure diverse emoji appearance
-  useEffect(() => {
-    if (!gameState.gameStarted || gameState.winner) return
+  // REMOVED: Emoji variety management effect - unnecessary complexity that caused performance issues
+  // Pure random selection in spawnObject is sufficient for gameplay variety
 
-    const interval = setInterval(() => {
-      const currentTime = Date.now()
-      const categoryItems = currentCategory.items
-
-      // Find emojis that haven't appeared recently (simplified check)
-      const staleEmojis = categoryItems.filter(item => {
-        const lastSeen = lastSeenEmojis[item.emoji] || 0
-        return currentTime - lastSeen > 12000 // Increased to 12 seconds for better performance
-      })
-
-      // Limit queue size to prevent memory bloat
-      if (staleEmojis.length > 0) {
-        setEmojiQueue(prev => {
-          const maxQueueSize = 6 // Limit queue size
-          const filtered = staleEmojis.slice(0, maxQueueSize)
-
-          // Only add new emojis not already in queue
-          const newItems = filtered.filter(emoji =>
-            !prev.some(queued => queued.emoji === emoji.emoji)
-          )
-
-          return [...prev, ...newItems].slice(0, maxQueueSize)
-        })
-      }
-    }, 3000) // Reduced frequency to every 3 seconds
-
-    return () => clearInterval(interval)
-  }, [gameState.gameStarted, gameState.winner, currentCategory.items, lastSeenEmojis])
-
-  // Spawn objects - Increased rate by 40% for more emojis
+  // Spawn objects - Optimized spawn rate
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) {
       console.log('[GameLogic] Spawn effect - not spawning. Started:', gameState.gameStarted, 'Winner:', gameState.winner)
