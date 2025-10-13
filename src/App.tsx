@@ -228,7 +228,7 @@ function App() {
               key={obj.id}
               object={obj}
               onTap={handleObjectTap}
-              playerSide="left"
+              playerSide={obj.lane}
             />
           ))}
         </PlayerArea>

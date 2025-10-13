@@ -4,6 +4,8 @@ import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
 
+type PlayerSide = 'left' | 'right'
+
 export interface GameObject {
   id: string
   type: string
@@ -12,6 +14,7 @@ export interface GameObject {
   y: number
   speed: number
   size: number
+  lane: PlayerSide
 }
 
 export interface GameState {
@@ -42,6 +45,18 @@ export interface ComboCelebration {
   title: string
   description: string
 }
+
+const MAX_ACTIVE_OBJECTS = 15
+const EMOJI_SIZE = 60
+const MIN_VERTICAL_GAP = 120
+const HORIZONTAL_SEPARATION = 6
+const COLLISION_MIN_SEPARATION = 8
+const LANE_BOUNDS: Record<PlayerSide, [number, number]> = {
+  left: [10, 45],
+  right: [55, 90]
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
 const COMBO_LEVELS: Array<{ streak: number; title: string; description: string }> = [
   {
@@ -208,10 +223,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const gameStateRef = useRef(gameState)
   useEffect(() => {
     gameStateRef.current = gameState
-    console.log('[GameLogic] gameState updated:', { level: gameState.level, gameStarted: gameState.gameStarted })
   }, [gameState])
-
-  console.log('[GameLogic] Hook rendering, gameState:', gameState)
 
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
@@ -241,161 +253,131 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [clampLevel, gameState.level])
   // Target initialization is handled in startGame function
 
-  // OPTIMIZED: Simplified spawn logic - uses ref to access current game state without re-creating
+  // Spawn objects while respecting lane separation and the active object cap
   const spawnObject = useCallback(() => {
     try {
       setGameObjects(prev => {
-        // Performance-optimized limit: balance fun with smooth performance
-        if (prev.length > 15) {
-          console.log('[GameLogic] Too many objects, skipping spawn. Count:', prev.length)
+        if (prev.length >= MAX_ACTIVE_OBJECTS) {
           return prev
         }
 
-        // Optimized spawning: 1-2 objects for better performance while still engaging
-        const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects
-        const newObjects: GameObject[] = []
+        const level = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
+        const availableSlots = MAX_ACTIVE_OBJECTS - prev.length
+        const spawnCount = Math.min(availableSlots, Math.floor(Math.random() * 2) + 2)
+        const created: GameObject[] = []
 
-        // Pre-calculate random values to reduce computation in loop
-        const baseId = Date.now()
-
-        // Use ref to get current level without re-creating this callback
-        const currentLevel = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
-        const categoryItems = currentLevel.items
-
-        // Full screen width for single player
-        const minX = 10
-        const maxX = 90
+        if (spawnCount <= 0) {
+          return prev
+        }
 
         for (let i = 0; i < spawnCount; i++) {
-          // SIMPLIFIED: Pure random selection - no queue system
-          const randomIndex = Math.floor(Math.random() * categoryItems.length)
-          const randomItem = categoryItems[randomIndex]
+          const { minX, maxX, lane } = (() => {
+            const chosenLane: PlayerSide = Math.random() < 0.5 ? 'left' : 'right'
+            const [laneMin, laneMax] = LANE_BOUNDS[chosenLane]
+            return { minX: laneMin, maxX: laneMax, lane: chosenLane }
+          })()
 
-          // Calculate spawn position with collision avoidance
-          let spawnY = -100 - (i * 80) // Reduced from 200 to 80 - allow tighter spacing
+          const item = level.items[Math.floor(Math.random() * level.items.length)]
           let spawnX = Math.random() * (maxX - minX) + minX
+          let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
-          // Check for collision with existing objects across full width
-          for (const existing of prev) {
-            const verticalDist = Math.abs(spawnY - existing.y)
-            const horizontalDist = Math.abs(spawnX - existing.x)
+          const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
+          for (const existing of laneObjects) {
+            const verticalGap = Math.abs(existing.y - spawnY)
+            const horizontalGap = Math.abs(existing.x - spawnX)
 
-            // If too close vertically (within 120px), push the new object further up
-            if (verticalDist < 120) {
-              spawnY = Math.min(spawnY, existing.y - 120)
+            if (verticalGap < MIN_VERTICAL_GAP) {
+              spawnY = Math.min(spawnY, existing.y - MIN_VERTICAL_GAP)
             }
 
-            // If too close horizontally (within 15 units), shift position
-            if (verticalDist < 200 && horizontalDist < 15) {
-              // Try opposite side first
-              const screenCenter = (minX + maxX) / 2
-              if (spawnX < screenCenter) {
-                spawnX = Math.min(maxX - 5, existing.x + 15)
-              } else {
-                spawnX = Math.max(minX + 5, existing.x - 15)
-              }
-              // If still too close, push further
-              if (Math.abs(spawnX - existing.x) < 15) {
-                spawnX = spawnX < existing.x
-                  ? Math.max(minX, existing.x - 18)
-                  : Math.min(maxX, existing.x + 18)
-              }
+            if (horizontalGap < HORIZONTAL_SEPARATION && verticalGap < MIN_VERTICAL_GAP * 1.2) {
+              spawnX = clamp(
+                spawnX < existing.x ? existing.x - HORIZONTAL_SEPARATION : existing.x + HORIZONTAL_SEPARATION,
+                minX,
+                maxX
+              )
             }
           }
 
           const newObject: GameObject = {
-            id: `${baseId}-${i}-${Math.random()}`, // Unique ID
-            type: randomItem.name,
-            emoji: randomItem.emoji,
+            id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+            type: item.name,
+            emoji: item.emoji,
             x: spawnX,
             y: spawnY,
-            speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier, // Reduced speed variance
-            size: 60
+            speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier,
+            size: EMOJI_SIZE,
+            lane
           }
 
-          // DEBUG: Log spawn details
-          console.log('[SpawnObject] Created:', {
-            id: newObject.id,
-            emoji: newObject.emoji,
-            x: newObject.x,
-            y: newObject.y,
-            speed: newObject.speed
-          })
-
-          // Track emoji lifecycle - spawned phase (MUST happen before adding to array)
-          // Track with ACTUAL spawn position before any collision detection modifications
           eventTracker.trackEmojiLifecycle({
             objectId: newObject.id,
             emoji: newObject.emoji,
             name: newObject.type,
             phase: 'spawned',
-            position: { x: spawnX, y: spawnY }, // Use raw spawn coords, not obj reference
-            playerSide: 'left' // Single player mode, use left for compatibility
+            position: { x: newObject.x, y: newObject.y },
+            playerSide: newObject.lane
           })
 
-          newObjects.push(newObject)
+          created.push(newObject)
         }
 
-        console.log('[GameLogic] Spawning', newObjects.length, 'objects. Total will be:', prev.length + newObjects.length)
+        if (created.length > 0) {
+          eventTracker.trackObjectSpawn(`batch-${created.length}`, { count: created.length })
+          return [...prev, ...created]
+        }
 
-        // Track spawn event once per batch
-        eventTracker.trackObjectSpawn(`batch-${spawnCount}`, { count: spawnCount })
-
-        // Return new array with spawned objects
-        return [...prev, ...newObjects]
+        return prev
       })
     } catch (error) {
-      console.error('[GameLogic] Error in spawnObject:', error)
       eventTracker.trackError(error as Error, 'spawnObject')
     }
-  }, [fallSpeedMultiplier]) // OPTIMIZED: Stable dependencies - gameState accessed via ref
+  }, [fallSpeedMultiplier])
+
+  const processLane = useCallback((laneObjects: GameObject[], lane: PlayerSide) => {
+    const [minX, maxX] = LANE_BOUNDS[lane]
+
+    for (let i = 0; i < laneObjects.length; i++) {
+      const current = laneObjects[i]
+      current.x = clamp(current.x, minX, maxX)
+
+      for (let j = i + 1; j < laneObjects.length; j++) {
+        const other = laneObjects[j]
+        const verticalGap = Math.abs(current.y - other.y)
+        if (verticalGap > MIN_VERTICAL_GAP) continue
+
+        const horizontalGap = Math.abs(current.x - other.x)
+        if (horizontalGap >= COLLISION_MIN_SEPARATION || horizontalGap === 0) continue
+
+        const overlap = (COLLISION_MIN_SEPARATION - horizontalGap) / 2
+        const direction = current.x < other.x ? -1 : 1
+
+        current.x = clamp(current.x + overlap * direction, minX, maxX)
+        other.x = clamp(other.x - overlap * direction, minX, maxX)
+      }
+    }
+  }, [])
 
   const updateObjects = useCallback(() => {
     try {
       setGameObjects(prev => {
-        // Filter and update in single pass for better performance
-        const screenHeight = window.innerHeight
-        // FIX: Don't multiply by fallSpeedMultiplier again - it's already baked into obj.speed at spawn time!
-        // Just use a base speed multiplier for frame-rate compensation
-        const speedMultiplier = 0.6 // Base movement per frame (reduced from 1.2 for slower fall)
-
-        const allObjects: GameObject[] = []
-
-        // DEBUG: Log first object's movement
-        if (prev.length > 0 && Math.random() < 0.1) { // 10% sampling
-          console.log('[UpdateObjects] screenHeight:', screenHeight, 'speedMultiplier:', speedMultiplier, 'objectCount:', prev.length)
-          console.log('[UpdateObjects] First object:', { id: prev[0].id, y: prev[0].y, speed: prev[0].speed, emoji: prev[0].emoji })
-        }
+        const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+        const speedMultiplier = 0.6
+        const updated: GameObject[] = []
 
         for (const obj of prev) {
           const newY = obj.y + obj.speed * speedMultiplier
 
-          // Only keep objects that are still visible
-          if (newY < screenHeight + 100) {
-            const updated = { ...obj, y: newY }
-            allObjects.push(updated)
+          if (newY < screenHeight + EMOJI_SIZE) {
+            updated.push({ ...obj, y: newY })
           } else {
-            // DEBUG: Log when object is removed
-            console.log('[UpdateObjects] Removing object:', {
-              id: obj.id,
-              emoji: obj.emoji,
-              oldY: obj.y,
-              newY,
-              screenHeight,
-              threshold: screenHeight + 100
-            })
-
-            // Track emoji lifecycle - missed (fell off screen)
-            // Log the LAST visible position (approximately screenHeight) instead of current Y
-            // which could be thousands of pixels off-screen
-            const lastVisibleY = Math.min(obj.y, screenHeight + 100)
             eventTracker.trackEmojiLifecycle({
               objectId: obj.id,
               emoji: obj.emoji,
               name: obj.type,
               phase: 'missed',
-              position: { x: obj.x, y: lastVisibleY }, // Use clamped position
-              playerSide: 'left', // Single player mode
+              position: { x: obj.x, y: Math.min(obj.y, screenHeight + EMOJI_SIZE) },
+              playerSide: obj.lane,
               data: {
                 reason: 'fell_off_screen',
                 actualY: obj.y,
@@ -406,51 +388,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // OPTIMIZED COLLISION DETECTION: Simple and performant
-        if (allObjects.length > 1) {
-          // Define full screen boundaries
-          const minX = 10
-          const maxX = 90
-          const minSeparation = 25 // Minimum distance between emoji centers (increased for better separation)
-
-          // Use a more efficient collision detection approach
-          for (let i = 0; i < allObjects.length; i++) {
-            const current = allObjects[i]
-
-            // Ensure object stays within screen boundaries
-            current.x = Math.max(minX, Math.min(maxX, current.x))
-
-            // Only check nearby objects (performance optimization)
-            for (let j = i + 1; j < allObjects.length; j++) {
-              const other = allObjects[j]
-              const dx = current.x - other.x
-              const dy = current.y - other.y
-
-              // Skip distant objects vertically (>50px) to improve performance
-              if (Math.abs(dy) > 50) continue
-
-              const distance = Math.sqrt(dx * dx + dy * dy)
-
-              // If overlapping, apply gentle separation
-              if (distance < minSeparation && distance > 0) {
-                const pushStrength = (minSeparation - distance) * 0.2 // Gentle push for stability
-                const normalizedDx = dx / distance
-                const pushX = normalizedDx * pushStrength
-
-                // Apply horizontal push only to preserve fall speed
-                current.x = Math.max(minX, Math.min(maxX, current.x + pushX))
-                other.x = Math.max(minX, Math.min(maxX, other.x - pushX))
-              }
-            }
-          }
+        if (updated.length > 1) {
+          processLane(updated.filter(obj => obj.lane === 'left'), 'left')
+          processLane(updated.filter(obj => obj.lane === 'right'), 'right')
         }
 
-        return allObjects
+        return updated
       })
     } catch (error) {
       eventTracker.trackError(error as Error, 'updateObjects')
     }
-  }, []) // Removed fallSpeedMultiplier dependency - it's baked into obj.speed at spawn time
+  }, [processLane])
 
   const handleObjectTap = useCallback((objectId: string, playerSide: 'left' | 'right') => {
     const tapStartTime = performance.now()
@@ -467,7 +415,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         : tappedObject.emoji === gameState.targetEmoji
 
       const tapLatency = performance.now() - tapStartTime
-      eventTracker.trackObjectTap(objectId, isCorrect, playerSide, tapLatency)
+      eventTracker.trackObjectTap(objectId, isCorrect, tappedObject.lane, tapLatency)
 
       // Track emoji lifecycle - tapped phase
       eventTracker.trackEmojiLifecycle({
@@ -476,7 +424,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         name: tappedObject.type,
         phase: 'tapped',
         position: { x: tappedObject.x, y: tappedObject.y },
-        playerSide,
+        playerSide: tappedObject.lane,
         data: { isCorrect, tapLatency }
       })
 
@@ -560,7 +508,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             name: removedObj.type,
             phase: 'removed',
             position: { x: removedObj.x, y: removedObj.y },
-            playerSide,
+            playerSide: tappedObject.lane,
             data: { reason: 'tapped', isCorrect }
           })
         }
@@ -575,8 +523,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     try {
       const safeLevel = clampLevel(levelIndex ?? gameState.level)
 
-      console.log('[GameLogic] Starting game at level:', safeLevel)
-
       // Enable multi-touch handler for advanced touch support
       multiTouchHandler.enable()
 
@@ -588,7 +534,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       eventTracker.resetPerformanceMetrics()
 
       const target = generateRandomTarget(safeLevel)
-      console.log('[GameLogic] Initial target:', target)
       setGameObjects([])
 
       setGameState(prev => {
@@ -603,14 +548,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           progress: 0,
           streak: 0
         }
-
-        console.log('[GameLogic] Game state updated, gameStarted:', newState.gameStarted)
         eventTracker.trackGameStateChange(prev, newState, 'game_start')
         return newState
       })
       setComboCelebration(null)
     } catch (error) {
-      console.error('[GameLogic] Error starting game:', error)
       eventTracker.trackError(error as Error, 'startGame')
     }
   }, [clampLevel, gameState.level, generateRandomTarget])
@@ -663,13 +605,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   // Spawn objects - Optimized spawn rate
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) {
-      console.log('[GameLogic] Spawn effect - not spawning. Started:', gameState.gameStarted, 'Winner:', gameState.winner)
       return
     }
 
-    console.log('[GameLogic] Spawn effect - starting object spawning')
-    // Optimized spawn rate: balanced between engaging gameplay and performance
-    const interval = setInterval(spawnObject, 1600) // 1.6 seconds - 20% faster than original, more sustainable
+    const interval = setInterval(spawnObject, 1400)
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 
