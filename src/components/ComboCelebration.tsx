@@ -13,10 +13,9 @@ export const ComboCelebration = memo(({ celebration, onDismiss }: ComboCelebrati
         return () => window.clearTimeout(timer)
     }, [celebration.id, onDismiss])
 
-    const alignment = celebration.player === 1 ? 'left-4 sm:left-12' : 'right-4 sm:right-12'
-    const gradient = celebration.player === 1
-        ? 'from-primary/80 via-primary/65 to-amber-200/70' // Reduced opacity
-        : 'from-secondary/80 via-secondary/60 to-sky-200/70'
+    // Center alignment for single player
+    const alignment = 'left-1/2 -translate-x-1/2'
+    const gradient = 'from-primary/80 via-primary/65 to-amber-200/70' // Single player gradient
 
     return (
         <div className={cn('absolute top-28 z-40 pointer-events-none', alignment)}>

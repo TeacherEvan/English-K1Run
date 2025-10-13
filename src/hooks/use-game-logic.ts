@@ -15,16 +15,14 @@ export interface GameObject {
 }
 
 export interface GameState {
-  player1Progress: number
-  player2Progress: number
+  progress: number
   currentTarget: string
   targetEmoji: string
   level: number
   gameStarted: boolean
-  winner: number | null
+  winner: boolean
   targetChangeTime: number
-  player1Streak: number
-  player2Streak: number
+  streak: number
 }
 
 export interface GameCategory {
@@ -40,7 +38,6 @@ interface UseGameLogicOptions {
 
 export interface ComboCelebration {
   id: number
-  player: 1 | 2
   streak: number
   title: string
   description: string
@@ -194,16 +191,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
   const [gameState, setGameState] = useState<GameState>(() => ({
-    player1Progress: 0,
-    player2Progress: 0,
+    progress: 0,
     currentTarget: "",
     targetEmoji: "",
     level: 0,
     gameStarted: false,
-    winner: null,
+    winner: false,
     targetChangeTime: Date.now() + 10000,
-    player1Streak: 0,
-    player2Streak: 0
+    streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
 
@@ -265,31 +260,21 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const categoryItems = currentCategory.items
         const categoryLength = categoryItems.length
 
-        const leftCount = prev.reduce((count, obj) => count + (obj.x <= 50 ? 1 : 0), 0)
-        const rightCount = prev.length - leftCount
-        let nextLane: 'left' | 'right' = leftCount <= rightCount ? 'left' : 'right'
+        // Full screen width for single player
+        const minX = 10
+        const maxX = 90
 
         for (let i = 0; i < spawnCount; i++) {
           // Use more efficient random selection
           const randomIndex = Math.floor(Math.random() * categoryLength)
           const randomItem = categoryItems[randomIndex]
 
-          const lane = nextLane
-          nextLane = lane === 'left' ? 'right' : 'left'
-
-          const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
-
           // Calculate spawn position with collision avoidance
           let spawnY = -100 - (i * 80) // Reduced from 200 to 80 - allow tighter spacing
           let spawnX = Math.random() * (maxX - minX) + minX
 
-          // Check for collision with existing objects in the same lane
-          const existingInLane = prev.filter(obj =>
-            (lane === 'left' && obj.x <= 50) || (lane === 'right' && obj.x > 50)
-          )
-
-          // If there are existing objects, ensure new object doesn't spawn too close
-          for (const existing of existingInLane) {
+          // Check for collision with existing objects across full width
+          for (const existing of prev) {
             const verticalDist = Math.abs(spawnY - existing.y)
             const horizontalDist = Math.abs(spawnX - existing.x)
 
@@ -300,9 +285,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
             // If too close horizontally (within 15 units), shift position
             if (verticalDist < 200 && horizontalDist < 15) {
-              // Try opposite side of lane first
-              const laneCenter = (minX + maxX) / 2
-              if (spawnX < laneCenter) {
+              // Try opposite side first
+              const screenCenter = (minX + maxX) / 2
+              if (spawnX < screenCenter) {
                 spawnX = Math.min(maxX - 5, existing.x + 15)
               } else {
                 spawnX = Math.max(minX + 5, existing.x - 15)
@@ -332,8 +317,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             emoji: newObject.emoji,
             x: newObject.x,
             y: newObject.y,
-            speed: newObject.speed,
-            lane
+            speed: newObject.speed
           })
 
           // Track emoji lifecycle - spawned phase (MUST happen before adding to array)
@@ -344,7 +328,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             name: newObject.type,
             phase: 'spawned',
             position: { x: spawnX, y: spawnY }, // Use raw spawn coords, not obj reference
-            playerSide: lane
+            playerSide: 'left' // Single player mode, use left for compatibility
           })
 
           newObjects.push(newObject)
@@ -368,13 +352,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     try {
       setGameObjects(prev => {
         // Filter and update in single pass for better performance
-        const updatedObjects: GameObject[] = []
         const screenHeight = window.innerHeight
         // FIX: Don't multiply by fallSpeedMultiplier again - it's already baked into obj.speed at spawn time!
         // Just use a base speed multiplier for frame-rate compensation
         const speedMultiplier = 0.6 // Base movement per frame (reduced from 1.2 for slower fall)
 
-        const laneBuckets: { left: GameObject[]; right: GameObject[] } = { left: [], right: [] }
+        const allObjects: GameObject[] = []
 
         // DEBUG: Log first object's movement
         if (prev.length > 0 && Math.random() < 0.1) { // 10% sampling
@@ -388,8 +371,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Only keep objects that are still visible
           if (newY < screenHeight + 100) {
             const updated = { ...obj, y: newY }
-            const lane = updated.x <= 50 ? 'left' : 'right'
-            laneBuckets[lane].push(updated)
+            allObjects.push(updated)
           } else {
             // DEBUG: Log when object is removed
             console.log('[UpdateObjects] Removing object:', {
@@ -411,7 +393,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               name: obj.type,
               phase: 'missed',
               position: { x: obj.x, y: lastVisibleY }, // Use clamped position
-              playerSide: obj.x <= 50 ? 'left' : 'right',
+              playerSide: 'left', // Single player mode
               data: {
                 reason: 'fell_off_screen',
                 actualY: obj.y,
@@ -423,25 +405,24 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
 
         // COLLISION DETECTION: Prevent emojis from overlapping
-        // Process each lane separately to maintain correct player sides
-        const processLane = (objects: GameObject[], lane: 'left' | 'right') => {
-          if (objects.length === 0) return
-
-          // Define strict lane boundaries - objects MUST stay within their lane
-          const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
+        // Process full screen width for single player
+        if (allObjects.length > 0) {
+          // Define full screen boundaries
+          const minX = 10
+          const maxX = 90
           const emojiRadius = 30 // Approximate radius of emoji (size 60 / 2)
           const minSeparation = emojiRadius * 2 + 10 // Minimum distance between centers (diameter + buffer)
 
           // Sort by Y position (top to bottom) for collision processing
-          const sorted = [...objects].sort((a, b) => a.y - b.y)
+          const sorted = [...allObjects].sort((a, b) => a.y - b.y)
 
           for (let i = 0; i < sorted.length; i++) {
             const current = sorted[i]
 
-            // Ensure object stays within lane boundaries
+            // Ensure object stays within screen boundaries
             current.x = Math.max(minX, Math.min(maxX, current.x))
 
-            // Check collision with all other objects in this lane
+            // Check collision with all other objects
             for (let j = 0; j < sorted.length; j++) {
               if (i === j) continue // Skip self
 
@@ -459,7 +440,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
                 // Push horizontally to avoid affecting fall speed
                 const pushX = Math.cos(pushAngle) * pushStrength
 
-                // Apply push while respecting lane boundaries
+                // Apply push while respecting screen boundaries
                 current.x = Math.max(minX, Math.min(maxX, current.x + pushX))
 
                 // Also push the other object in opposite direction (if it's below)
@@ -468,16 +449,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
                 }
               }
             }
-
-            updatedObjects.push(current)
           }
         }
 
-        // Process each lane independently
-        processLane(laneBuckets.left, 'left')
-        processLane(laneBuckets.right, 'right')
-
-        return updatedObjects
+        return allObjects
       })
     } catch (error) {
       eventTracker.trackError(error as Error, 'updateObjects')
@@ -520,21 +495,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           playSoundEffect.success()
           void playSoundEffect.voice(tappedObject.type)
 
-          let nextStreak = 0
-
-          if (playerSide === 'left') {
-            nextStreak = prev.player1Streak + 1
-            newState.player1Streak = nextStreak
-          } else {
-            nextStreak = prev.player2Streak + 1
-            newState.player2Streak = nextStreak
-          }
+          const nextStreak = prev.streak + 1
+          newState.streak = nextStreak
 
           const comboLevel = COMBO_LEVELS.find(level => level.streak === nextStreak)
           if (comboLevel) {
             const comboData: ComboCelebration = {
               id: Date.now(),
-              player: playerSide === 'left' ? 1 : 2,
               streak: nextStreak,
               title: comboLevel.title,
               description: comboLevel.description
@@ -543,26 +510,18 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             eventTracker.trackEvent({
               type: 'info',
               category: 'combo',
-              message: `Player ${comboData.player} combo streak reached ${comboData.streak}`,
+              message: `Combo streak reached ${comboData.streak}`,
               data: comboData
             })
           }
 
-          if (playerSide === 'left') {
-            newState.player1Progress = Math.min(prev.player1Progress + 20, 100)
-          } else {
-            newState.player2Progress = Math.min(prev.player2Progress + 20, 100)
-          }
+          newState.progress = Math.min(prev.progress + 20, 100)
 
           // Check for winner
-          if (newState.player1Progress >= 100) {
-            newState.winner = 1
+          if (newState.progress >= 100) {
+            newState.winner = true
             playSoundEffect.win()
-            eventTracker.trackGameStateChange(prev, newState, 'player1_wins')
-          } else if (newState.player2Progress >= 100) {
-            newState.winner = 2
-            playSoundEffect.win()
-            eventTracker.trackGameStateChange(prev, newState, 'player2_wins')
+            eventTracker.trackGameStateChange(prev, newState, 'player_wins')
           }
 
           // Change target immediately on correct tap (for non-sequence modes)
@@ -589,19 +548,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         } else {
           // Incorrect tap: play wrong sound and move backward
           playSoundEffect.wrong()
-
-          if (playerSide === 'left') {
-            newState.player1Streak = 0
-          } else {
-            newState.player2Streak = 0
-          }
-
-          if (playerSide === 'left') {
-            newState.player1Progress = Math.max(prev.player1Progress - 20, 0)
-          } else {
-            newState.player2Progress = Math.max(prev.player2Progress - 20, 0)
-          }
-
+          newState.streak = 0
+          newState.progress = Math.max(prev.progress - 20, 0)
           eventTracker.trackGameStateChange(prev, newState, 'incorrect_tap_penalty')
         }
 
@@ -658,11 +606,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           currentTarget: target.name,
           targetEmoji: target.emoji,
           targetChangeTime: Date.now() + 10000,
-          winner: null,
-          player1Progress: 0,
-          player2Progress: 0,
-          player1Streak: 0,
-          player2Streak: 0
+          winner: false,
+          progress: 0,
+          streak: 0
         }
 
         console.log('[GameLogic] Game state updated, gameStarted:', newState.gameStarted)
@@ -687,16 +633,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     setGameObjects([])
     setGameState({
-      player1Progress: 0,
-      player2Progress: 0,
+      progress: 0,
       currentTarget: "",
       targetEmoji: "",
       level: 0,
       gameStarted: false,
-      winner: null,
+      winner: false,
       targetChangeTime: Date.now() + 10000,
-      player1Streak: 0,
-      player2Streak: 0
+      streak: 0
     })
     setComboCelebration(null)
   }, [])

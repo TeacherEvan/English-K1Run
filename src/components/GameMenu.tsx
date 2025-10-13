@@ -10,7 +10,7 @@ interface GameMenuProps {
   selectedLevel: number
   levels: string[]
   gameStarted: boolean
-  winner: number | null
+  winner: boolean
 }
 
 export const GameMenu = memo(({
@@ -32,15 +32,15 @@ export const GameMenu = memo(({
       <Card className="p-8 max-w-2xl mx-4 text-center bg-card shadow-2xl border-4 border-primary/20">
         <div className="mb-6 flex flex-col items-center gap-3">
           <div style={{ fontSize: `calc(3.75rem * var(--object-scale, 1))` }}>
-            {winner ? '�' : '�🏁'}
+            {winner ? '🏆' : '��🏁'}
           </div>
           <h1 className="font-bold text-primary" style={headingFontSize}>
             Kindergarten Race
           </h1>
           <p className="text-muted-foreground" style={bodyFontSize}>
             {winner
-              ? `Player ${winner} takes the trophy! Pick any level and start a new race.`
-              : 'Pick a level and get ready to tap the correct objects to move your turtle forward!'}
+              ? 'You won! Pick any level and start a new race.'
+              : 'Pick a level and get ready to tap the correct objects to advance!'}
           </p>
         </div>
 

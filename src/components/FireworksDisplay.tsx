@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 interface FireworksDisplayProps {
   isVisible: boolean
-  winner: number | null
+  winner: boolean
 }
 
 interface Firework {
@@ -98,7 +98,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
     // Use requestAnimationFrame for smooth 60fps animations
     const animate = () => {
       const currentTime = Date.now()
-      
+
       // Spawn new firework every 1.5s
       if (currentTime - lastSpawnTime > 1500) {
         const x = Math.random() * window.innerWidth
@@ -110,10 +110,10 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
         })
         lastSpawnTime = currentTime
       }
-      
+
       // Update fireworks positions
       updateFireworks()
-      
+
       animationFrameId = requestAnimationFrame(animate)
     }
 

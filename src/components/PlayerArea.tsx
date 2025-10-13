@@ -9,16 +9,14 @@ interface PlayerAreaProps {
   isWinner: boolean
 }
 
-export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: PlayerAreaProps) => {
-  const isPlayer1 = playerNumber === 1
-
+export const PlayerArea = memo(({ progress, children, isWinner }: PlayerAreaProps) => {
   return (
     <Card className="relative h-full border-0 game-area overflow-hidden">
-      {/* Player Header */}
+      {/* Progress Header */}
       <div className={`absolute top-4 left-4 right-4 z-20 ${isWinner ? 'celebrate' : ''}`}>
-        <div className={`${isPlayer1 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'} px-4 py-2 rounded-full text-center font-bold shadow-lg`}
+        <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-center font-bold shadow-lg"
           style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
-          Player {playerNumber}
+          Progress
         </div>
         <div className="mt-2">
           <Progress
@@ -43,8 +41,8 @@ export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: 
         <div className="absolute inset-0 bg-success/20 flex items-center justify-center z-30">
           <div className="text-center bounce-in">
             <div className="text-8xl mb-4">🏆</div>
-            <div className={`${isPlayer1 ? 'text-primary' : 'text-secondary'} text-3xl font-bold drop-shadow-lg`}>
-              Winner!
+            <div className="text-primary text-3xl font-bold drop-shadow-lg">
+              You Win!
             </div>
           </div>
         </div>

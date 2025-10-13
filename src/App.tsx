@@ -174,10 +174,6 @@ function App() {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])
 
-  // Split objects for each player side
-  const leftObjects = gameObjects.filter(obj => obj.x <= 50)
-  const rightObjects = gameObjects.filter(obj => obj.x > 50)
-
   return (
     <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
       {/* Back to Levels Button - Fixed at top left during gameplay */}
@@ -212,49 +208,22 @@ function App() {
         <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
       )}
 
-      {/* Split Screen Game Areas */}
-      <div className="h-full flex">
-        {/* Player 1 Area (Left) */}
-        <div className="w-1/2 h-full relative">
-          <PlayerArea
-            playerNumber={1}
-            progress={gameState.player1Progress}
-            isWinner={gameState.winner === 1}
-          >
-            {leftObjects.map(obj => (
-              <FallingObject
-                key={obj.id}
-                object={{
-                  ...obj,
-                  x: obj.x * 2 // Adjust x position for left half
-                }}
-                onTap={handleObjectTap}
-                playerSide="left"
-              />
-            ))}
-          </PlayerArea>
-        </div>
-
-        {/* Player 2 Area (Right) */}
-        <div className="w-1/2 h-full relative">
-          <PlayerArea
-            playerNumber={2}
-            progress={gameState.player2Progress}
-            isWinner={gameState.winner === 2}
-          >
-            {rightObjects.map(obj => (
-              <FallingObject
-                key={obj.id}
-                object={{
-                  ...obj,
-                  x: (obj.x - 50) * 2 // Adjust x position for right half
-                }}
-                onTap={handleObjectTap}
-                playerSide="right"
-              />
-            ))}
-          </PlayerArea>
-        </div>
+      {/* Full Screen Game Area */}
+      <div className="h-full">
+        <PlayerArea
+          playerNumber={1}
+          progress={gameState.progress}
+          isWinner={gameState.winner}
+        >
+          {gameObjects.map(obj => (
+            <FallingObject
+              key={obj.id}
+              object={obj}
+              onTap={handleObjectTap}
+              playerSide="left"
+            />
+          ))}
+        </PlayerArea>
       </div>
 
       {/* Game Menu Overlay */}
