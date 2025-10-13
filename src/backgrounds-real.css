@@ -1,0 +1,127 @@
+/* Real Image Backgrounds - Generated automatically */
+
+.app-bg-mountain-sunrise {
+  background-image: url('/backgrounds/mountain-sunrise.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* Subtle overlay for better text readability */
+  position: relative;
+}
+
+.app-bg-mountain-sunrise::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app-bg-ocean-sunset {
+  background-image: url('/backgrounds/ocean-sunset.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-ocean-sunset::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app-bg-forest-path {
+  background-image: url('/backgrounds/forest-path.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-forest-path::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app-bg-lavender-field {
+  background-image: url('/backgrounds/lavender-field.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-lavender-field::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app-bg-aurora-night {
+  background-image: url('/backgrounds/aurora-night.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-aurora-night::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure game content appears above background overlays */
+.app > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Optional: Add subtle animation to backgrounds */
+.app-bg-animated {
+  animation: gentle-zoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes gentle-zoom {
+  0% {
+    transform: scale(1.0);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}

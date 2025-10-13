@@ -21,10 +21,11 @@ const PerformanceMonitor = lazy(() => import('./components/PerformanceMonitor').
 const QuickDebug = lazy(() => import('./components/QuickDebug').then(m => ({ default: m.QuickDebug })))
 
 const BACKGROUND_CLASSES = [
-  'app-bg-sunrise',
-  'app-bg-deep-ocean',
-  'app-bg-forest-trail',
-  'app-bg-cosmic-night'
+  'app-bg-mountain-sunrise',
+  'app-bg-ocean-sunset',
+  'app-bg-forest-path',
+  'app-bg-lavender-field',
+  'app-bg-aurora-night'
 ]
 
 const pickRandomBackground = (exclude?: string) => {
