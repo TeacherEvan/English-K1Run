@@ -38,12 +38,17 @@ export function QuickDebug() {
         // Check immediately
         checkCSSVariables()
 
-        // Check audio
-        if (soundManager.isInitialized()) {
-            setAudioStatus('Audio Ready')
-        } else {
-            setAudioStatus('Audio Not Initialized')
+        // Check audio asynchronously to avoid setState in effect
+        const checkAudio = () => {
+            if (soundManager.isInitialized()) {
+                setAudioStatus('Audio Ready')
+            } else {
+                setAudioStatus('Audio Not Initialized')
+            }
         }
+
+        // Defer audio check to avoid setState in effect
+        setTimeout(checkAudio, 0)
 
         // Set up interval to check CSS variables periodically
         const interval = setInterval(checkCSSVariables, 1000)

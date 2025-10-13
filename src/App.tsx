@@ -1,11 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import './App.css'
+// Core game components (critical path)
 import { ComboCelebration } from './components/ComboCelebration'
 import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
+// Hooks
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
@@ -22,8 +24,7 @@ const BACKGROUND_CLASSES = [
   'app-bg-sunrise',
   'app-bg-deep-ocean',
   'app-bg-forest-trail',
-  'app-bg-cosmic-night',
-  'app-bg-playful-pop'
+  'app-bg-cosmic-night'
 ]
 
 const pickRandomBackground = (exclude?: string) => {
@@ -155,7 +156,7 @@ function App() {
   useEffect(() => {
     const interval = setInterval(() => {
       setBackgroundClass(prev => pickRandomBackground(prev))
-    }, 30000)
+    }, 20000) // Changed from 30000 to 20000 (20 seconds)
 
     return () => clearInterval(interval)
   }, [])

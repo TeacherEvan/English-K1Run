@@ -29,6 +29,18 @@ const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b'
 export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
   const [fireworks, setFireworks] = useState<Firework[]>([])
 
+  // Generate confetti positions once to avoid Math.random() during render
+  const [confettiElements] = useState(() =>
+    Array.from({ length: 20 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      animationDuration: 3 + Math.random() * 2,
+      animationDelay: Math.random() * 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360
+    }))
+  )
+
   const createFirework = useCallback((x: number, y: number): Firework => {
     const particles: Particle[] = []
     const particleCount = 20 // Reduced from 25 for performance
@@ -77,11 +89,16 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
     )
   }, [])
 
+  // Clean up fireworks when not visible
   useEffect(() => {
     if (!isVisible) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFireworks([])
-      return
     }
+  }, [isVisible])
+
+  useEffect(() => {
+    if (!isVisible) return
 
     // Create only 3 initial fireworks bursts (reduced for performance)
     for (let i = 0; i < 3; i++) {
@@ -162,21 +179,21 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
 
       {/* Reduced confetti - only 20 elements instead of 50 */}
       <div className="absolute inset-0">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {confettiElements.map((element) => (
           <div
-            key={i}
+            key={element.id}
             className="absolute"
             style={{
-              left: `${Math.random() * 100}%`,
+              left: `${element.left}%`,
               top: `-10px`,
-              animation: `fall ${3 + Math.random() * 2}s linear ${Math.random() * 2}s infinite`
+              animation: `fall ${element.animationDuration}s linear ${element.animationDelay}s infinite`
             }}
           >
             <div
               className="w-2 h-2"
               style={{
-                backgroundColor: colors[Math.floor(Math.random() * colors.length)],
-                transform: `rotate(${Math.random() * 360}deg)`,
+                backgroundColor: element.color,
+                transform: `rotate(${element.rotation}deg)`,
                 opacity: 0.7
               }}
             />

@@ -38,12 +38,22 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       '@radix-ui/react-slot',
-      '@radix-ui/react-progress'
+      '@radix-ui/react-progress',
+      'class-variance-authority',
+      'clsx',
+      'tailwind-merge'
+    ],
+    exclude: [
+      // Exclude large dependencies that should be chunked separately
+      'lucide-react'
     ],
     force: false,
     esbuildOptions: {
-      target: 'es2020'
+      target: 'es2020',
+      keepNames: false, // Better minification
+      treeShaking: true
     }
   },
   build: {
@@ -117,10 +127,14 @@ export default defineConfig({
       }
     },
     // Increase chunk size warning limit (React 19 is legitimately large)
-    chunkSizeWarningLimit: 1500,
+    chunkSizeWarningLimit: 1200, // Reduced to encourage better chunking
     // Enable tree shaking optimizations
     minify: 'esbuild',
-    target: 'es2020'
+    target: 'es2020',
+    // Additional build optimizations
+    cssCodeSplit: true,
+    emptyOutDir: true,
+    reportCompressedSize: false // Faster builds
   },
   css: {
     devSourcemap: false

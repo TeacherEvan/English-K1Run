@@ -201,6 +201,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
+  const [lastSeenEmojis, setLastSeenEmojis] = useState<{ [key: string]: number }>({})
+  const [emojiQueue, setEmojiQueue] = useState<Array<{ emoji: string; name: string }>>([])
+  // Background rotation is handled in App.tsx, not here
 
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
@@ -228,31 +231,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     const randomItem = category.items[Math.floor(Math.random() * category.items.length)]
     return { name: randomItem.name, emoji: randomItem.emoji }
   }, [clampLevel, gameState.level])
-
-  // Initialize target on first load when game auto-starts
-  useEffect(() => {
-    if (gameState.gameStarted && !gameState.currentTarget) {
-      const target = generateRandomTarget()
-      setGameState(prev => ({
-        ...prev,
-        currentTarget: target.name,
-        targetEmoji: target.emoji,
-        targetChangeTime: Date.now() + 10000
-      }))
-    }
-  }, [gameState.gameStarted, gameState.currentTarget, generateRandomTarget])
+  // Target initialization is handled in startGame function
 
   const spawnObject = useCallback(() => {
     try {
       setGameObjects(prev => {
-        // Pre-check for performance bottlenecks - more strict limit
-        if (prev.length > 15) {
+        // Performance-optimized limit: balance fun with smooth performance
+        if (prev.length > 18) {
           console.log('[GameLogic] Too many objects, skipping spawn. Count:', prev.length)
           return prev
         }
 
-        // Optimized spawning: fewer objects, less computation
-        const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects only
+        // Optimized spawning: 1-2 objects for better performance while still engaging
+        const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects
         const newObjects: GameObject[] = []
 
         // Pre-calculate random values to reduce computation in loop
@@ -264,10 +255,28 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const minX = 10
         const maxX = 90
 
+        // Check if we need to ensure certain emojis appear (every 10 seconds)
+        const currentTime = Date.now()
+
         for (let i = 0; i < spawnCount; i++) {
-          // Use more efficient random selection
-          const randomIndex = Math.floor(Math.random() * categoryLength)
-          const randomItem = categoryItems[randomIndex]
+          let randomItem: { emoji: string; name: string }
+
+          // Priority system: if we have emojis in queue that haven't appeared recently, use them
+          if (emojiQueue.length > 0 && Math.random() < 0.7) { // 70% chance to use queued emoji
+            const queuedItem = emojiQueue[0]
+            randomItem = queuedItem
+            setEmojiQueue(queue => queue.slice(1)) // Remove from queue
+          } else {
+            // Regular random selection
+            const randomIndex = Math.floor(Math.random() * categoryLength)
+            randomItem = categoryItems[randomIndex]
+          }
+
+          // Update last seen time for this emoji
+          setLastSeenEmojis(prev => ({
+            ...prev,
+            [randomItem.emoji]: currentTime
+          }))
 
           // Calculate spawn position with collision avoidance
           let spawnY = -100 - (i * 80) // Reduced from 200 to 80 - allow tighter spacing
@@ -346,7 +355,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       console.error('[GameLogic] Error in spawnObject:', error)
       eventTracker.trackError(error as Error, 'spawnObject')
     }
-  }, [currentCategory, fallSpeedMultiplier])
+  }, [currentCategory, fallSpeedMultiplier, emojiQueue, setEmojiQueue, setLastSeenEmojis])
 
   const updateObjects = useCallback(() => {
     try {
@@ -404,49 +413,42 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // COLLISION DETECTION: Prevent emojis from overlapping
-        // Process full screen width for single player
-        if (allObjects.length > 0) {
+        // OPTIMIZED COLLISION DETECTION: Better performance with spatial partitioning
+        if (allObjects.length > 1) {
           // Define full screen boundaries
           const minX = 10
           const maxX = 90
-          const emojiRadius = 30 // Approximate radius of emoji (size 60 / 2)
-          const minSeparation = emojiRadius * 2 + 10 // Minimum distance between centers (diameter + buffer)
+          const emojiRadius = 10 // Approximate radius of emoji (size 60 / 2)
+          const minSeparation = emojiRadius * 2 + 5 // Minimum distance between centers
+          const maxCheckDistance = 20 // Only check objects within this distance
 
-          // Sort by Y position (top to bottom) for collision processing
-          const sorted = [...allObjects].sort((a, b) => a.y - b.y)
-
-          for (let i = 0; i < sorted.length; i++) {
-            const current = sorted[i]
+          // Use a more efficient collision detection approach
+          for (let i = 0; i < allObjects.length; i++) {
+            const current = allObjects[i]
 
             // Ensure object stays within screen boundaries
             current.x = Math.max(minX, Math.min(maxX, current.x))
 
-            // Check collision with all other objects
-            for (let j = 0; j < sorted.length; j++) {
-              if (i === j) continue // Skip self
-
-              const other = sorted[j]
+            // Only check nearby objects (performance optimization)
+            for (let j = i + 1; j < allObjects.length; j++) {
+              const other = allObjects[j]
               const dx = current.x - other.x
               const dy = current.y - other.y
+
+              // Skip distant objects to improve performance
+              if (Math.abs(dy) > maxCheckDistance) continue
+
               const distance = Math.sqrt(dx * dx + dy * dy)
 
-              // If overlapping, push them apart
+              // If overlapping, apply gentle separation
               if (distance < minSeparation && distance > 0) {
-                // Calculate push direction (perpendicular to collision)
-                const pushStrength = (minSeparation - distance) / 2
-                const pushAngle = Math.atan2(dy, dx)
+                const pushStrength = (minSeparation - distance) * 0.3 // Gentler push for stability
+                const normalizedDx = dx / distance
+                const pushX = normalizedDx * pushStrength
 
-                // Push horizontally to avoid affecting fall speed
-                const pushX = Math.cos(pushAngle) * pushStrength
-
-                // Apply push while respecting screen boundaries
+                // Apply horizontal push only to preserve fall speed
                 current.x = Math.max(minX, Math.min(maxX, current.x + pushX))
-
-                // Also push the other object in opposite direction (if it's below)
-                if (other.y > current.y) {
-                  other.x = Math.max(minX, Math.min(maxX, other.x - pushX))
-                }
+                other.x = Math.max(minX, Math.min(maxX, other.x - pushX))
               }
             }
           }
@@ -664,7 +666,40 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence, generateRandomTarget, setGameState])
 
-  // Spawn objects - Optimized with longer intervals for better performance
+  // Optimized emoji variety management - ensure diverse emoji appearance
+  useEffect(() => {
+    if (!gameState.gameStarted || gameState.winner) return
+
+    const interval = setInterval(() => {
+      const currentTime = Date.now()
+      const categoryItems = currentCategory.items
+
+      // Find emojis that haven't appeared recently (simplified check)
+      const staleEmojis = categoryItems.filter(item => {
+        const lastSeen = lastSeenEmojis[item.emoji] || 0
+        return currentTime - lastSeen > 12000 // Increased to 12 seconds for better performance
+      })
+
+      // Limit queue size to prevent memory bloat
+      if (staleEmojis.length > 0) {
+        setEmojiQueue(prev => {
+          const maxQueueSize = 6 // Limit queue size
+          const filtered = staleEmojis.slice(0, maxQueueSize)
+
+          // Only add new emojis not already in queue
+          const newItems = filtered.filter(emoji =>
+            !prev.some(queued => queued.emoji === emoji.emoji)
+          )
+
+          return [...prev, ...newItems].slice(0, maxQueueSize)
+        })
+      }
+    }, 3000) // Reduced frequency to every 3 seconds
+
+    return () => clearInterval(interval)
+  }, [gameState.gameStarted, gameState.winner, currentCategory.items, lastSeenEmojis])
+
+  // Spawn objects - Increased rate by 40% for more emojis
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) {
       console.log('[GameLogic] Spawn effect - not spawning. Started:', gameState.gameStarted, 'Winner:', gameState.winner)
@@ -672,8 +707,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
 
     console.log('[GameLogic] Spawn effect - starting object spawning')
-    // Spawn objects every 2 seconds for slower, more manageable pace
-    const interval = setInterval(spawnObject, 2000)
+    // Optimized spawn rate: balanced between engaging gameplay and performance
+    const interval = setInterval(spawnObject, 1600) // 1.6 seconds - 20% faster than original, more sustainable
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 

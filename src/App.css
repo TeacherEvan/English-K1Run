@@ -30,74 +30,166 @@
   overflow: hidden;
 }
 
-/* Beautiful Scenery Backgrounds with Fallback Colors */
+/* Beautiful & Inspiring Scenery Backgrounds */
 .app-bg-sunrise {
   background-color: #FFE5B4;
-  /* Peach/sunrise fallback */
+  /* Warm golden sunrise fallback */
   background-image:
-    linear-gradient(135deg, rgba(255, 182, 193, 0.3) 0%, rgba(255, 223, 186, 0.3) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-    url('/mountain-landscape.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+    linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 138, 101, 0.3) 50%, rgba(255, 87, 34, 0.2) 100%),
+    radial-gradient(ellipse at top, rgba(255, 255, 255, 0.3) 0%, transparent 70%),
+    linear-gradient(45deg, #ff9a56 0%, #ff6b35 25%, #f7931e 50%, #ffc107 75%, #fff3e0 100%);
+  background-size: 400% 400%, 100% 100%, 300% 300%;
+  background-position: 0% 50%, center, 0% 50%;
+  animation: sunrise-flow 25s ease-in-out infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .app-bg-deep-ocean {
-  background-color: #4A90E2;
-  /* Ocean blue fallback */
+  background-color: #006994;
+  /* Deep ocean blue fallback */
   background-image:
-    linear-gradient(135deg, rgba(74, 144, 226, 0.4) 0%, rgba(106, 196, 234, 0.4) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-    url('/ocean-view.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+    linear-gradient(135deg, rgba(0, 119, 190, 0.4) 0%, rgba(0, 150, 199, 0.3) 50%, rgba(72, 202, 228, 0.2) 100%),
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 60%),
+    linear-gradient(180deg, #001f3f 0%, #0074D9 30%, #39CCCC 60%, #7FDBFF 100%);
+  background-size: 350% 350%, 100% 100%, 250% 250%;
+  background-position: 0% 50%, center, 0% 50%;
+  animation: ocean-waves 30s ease-in-out infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .app-bg-forest-trail {
-  background-color: #90C695;
-  /* Forest green fallback */
+  background-color: #2E7D32;
+  /* Lush forest green fallback */
   background-image:
-    linear-gradient(135deg, rgba(144, 198, 149, 0.4) 0%, rgba(106, 168, 79, 0.4) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-    url('/forest-scene.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+    linear-gradient(135deg, rgba(76, 175, 80, 0.3) 0%, rgba(139, 195, 74, 0.2) 50%, rgba(205, 220, 57, 0.3) 100%),
+    radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    linear-gradient(45deg, #1B5E20 0%, #388E3C 25%, #689F38 50%, #8BC34A 75%, #CDDC39 100%);
+  background-size: 320% 320%, 100% 100%, 280% 280%;
+  background-position: 0% 50%, center, 0% 50%;
+  animation: forest-breeze 28s ease-in-out infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .app-bg-cosmic-night {
-  background-color: #2C3E50;
-  /* Dark night fallback */
+  background-color: #0D1B2A;
+  /* Deep cosmic night fallback */
   background-image:
-    linear-gradient(135deg, rgba(44, 62, 80, 0.5) 0%, rgba(52, 73, 94, 0.5) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-    url('/starry-night.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-.app-bg-playful-pop {
-  background-color: #FFF8DC;
-  /* Cornsilk/meadow fallback */
-  background-image:
-    linear-gradient(135deg, rgba(255, 248, 220, 0.3) 0%, rgba(255, 228, 196, 0.3) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-    url('/meadow-flowers.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+    linear-gradient(135deg, rgba(13, 27, 42, 0.8) 0%, rgba(27, 38, 59, 0.6) 50%, rgba(65, 90, 119, 0.4) 100%),
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
+    linear-gradient(180deg, #0d1b2a 0%, #1b263b 20%, #415a77 40%, #778da9 60%, #e0e1dd 100%);
+  background-size: 400% 400%, 100% 100%, 300% 300%;
+  background-position: 0% 50%, center, 0% 50%;
+  animation: cosmic-drift 35s ease-in-out infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .app-bg-animated {
   animation: background-pan 20s linear infinite;
+}
+
+/* Optimized Background Animations - GPU Accelerated */
+@keyframes sunrise-flow {
+
+  0%,
+  100% {
+    background-position: 0% 50%, center, 0% 50%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.95;
+  }
+
+  25% {
+    background-position: 25% 75%, center, 25% 25%;
+    transform: scale(1.05) translateZ(0);
+    opacity: 1;
+  }
+
+  50% {
+    background-position: 50% 100%, center, 50% 75%;
+    transform: scale(1.03) translateZ(0);
+    opacity: 0.98;
+  }
+
+  75% {
+    background-position: 75% 25%, center, 75% 25%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.96;
+  }
+}
+
+@keyframes ocean-waves {
+
+  0%,
+  100% {
+    background-position: 0% 50%, center, 0% 50%;
+    transform: scale(1.01) translateZ(0);
+    opacity: 0.92;
+  }
+
+  33% {
+    background-position: 33% 66%, center, 33% 33%;
+    transform: scale(1.04) translateZ(0);
+    opacity: 1;
+  }
+
+  66% {
+    background-position: 66% 33%, center, 66% 66%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.96;
+  }
+}
+
+@keyframes forest-breeze {
+
+  0%,
+  100% {
+    background-position: 0% 50%, center, 0% 50%;
+    transform: scale(1.01) translateZ(0);
+    opacity: 0.94;
+  }
+
+  30% {
+    background-position: 30% 70%, center, 30% 30%;
+    transform: scale(1.03) translateZ(0);
+    opacity: 1;
+  }
+
+  70% {
+    background-position: 70% 30%, center, 70% 70%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.97;
+  }
+}
+
+@keyframes cosmic-drift {
+
+  0%,
+  100% {
+    background-position: 0% 50%, center, 0% 50%;
+    transform: scale(1.0) translateZ(0);
+    opacity: 0.88;
+  }
+
+  25% {
+    background-position: 25% 25%, center, 25% 75%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.95;
+  }
+
+  50% {
+    background-position: 50% 75%, center, 50% 25%;
+    transform: scale(1.01) translateZ(0);
+    opacity: 0.92;
+  }
+
+  75% {
+    background-position: 75% 50%, center, 75% 50%;
+    transform: scale(1.0) translateZ(0);
+    opacity: 0.9;
+  }
 }
 
 @keyframes background-pan {
