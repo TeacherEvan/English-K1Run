@@ -683,13 +683,7 @@ class SoundManager {
                 }
             }
 
-            // Final fallback: success tone
-            if (this.audioContext) {
-                const fallback = await this.loadBufferForName('success')
-                if (fallback) {
-                    this.startBuffer(fallback)
-                }
-            }
+            // No fallback audio - only target pronunciations allowed
         } catch (error) {
             console.warn('Failed to play word audio:', error)
         }
@@ -711,11 +705,8 @@ class SoundManager {
 export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
-    tap: () => soundManager.playSound('tap'),
-    success: () => soundManager.playSound('success'),
-    wrong: () => soundManager.playSound('wrong'),
-    win: () => soundManager.playSound('win'),
     voice: (phrase: string) => soundManager.playWord(phrase)
+    // Other sound effects (tap, success, wrong, win) removed - only target pronunciation allowed
 }
 
 // Export debug function for troubleshooting

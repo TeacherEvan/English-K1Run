@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 // Core game components (critical path)
 import { ComboCelebration } from './components/ComboCelebration'
@@ -11,14 +11,7 @@ import { TargetDisplay } from './components/TargetDisplay'
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
-// Lazy load debug components to reduce initial bundle size
-const DisplayInfo = lazy(() => import('./components/DisplayInfo').then(m => ({ default: m.DisplayInfo })))
-const EmojiLifecycleDebug = lazy(() => import('./components/EmojiLifecycleDebug').then(m => ({ default: m.EmojiLifecycleDebug })))
-const ErrorMonitor = lazy(() => import('./components/ErrorMonitor').then(m => ({ default: m.ErrorMonitor })))
-const EventTrackerDebug = lazy(() => import('./components/EventTrackerDebug').then(m => ({ default: m.EventTrackerDebug })))
-const GameDebug = lazy(() => import('./components/GameDebug').then(m => ({ default: m.GameDebug })))
-const PerformanceMonitor = lazy(() => import('./components/PerformanceMonitor').then(m => ({ default: m.PerformanceMonitor })))
-const QuickDebug = lazy(() => import('./components/QuickDebug').then(m => ({ default: m.QuickDebug })))
+// Debug components removed per requirements - only target pronunciation audio allowed
 
 const BACKGROUND_CLASSES = [
   'app-bg-mountain-sunrise',
@@ -84,8 +77,6 @@ function App() {
   console.log('[App] Game logic initialized, gameState:', gameState)
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
-  const [debugVisible, setDebugVisible] = useState(false)
-  const [displayInfoVisible, setDisplayInfoVisible] = useState(false)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
 
@@ -251,66 +242,11 @@ function App() {
         winner={gameState.winner}
       />
 
-      {/* Event Tracker Debug */}
-      <Suspense fallback={null}>
-        <EventTrackerDebug
-          isVisible={debugVisible}
-          onToggle={() => setDebugVisible(!debugVisible)}
-        />
-      </Suspense>
-
       {/* Fireworks Display */}
       <FireworksDisplay
         isVisible={!!gameState.winner}
         winner={gameState.winner}
       />
-
-      {/* Display Adjustment Info */}
-      <Suspense fallback={null}>
-        <DisplayInfo
-          isVisible={displayInfoVisible}
-          screenWidth={displaySettings.screenWidth}
-          screenHeight={displaySettings.screenHeight}
-          aspectRatio={displaySettings.aspectRatio}
-          scale={displaySettings.scale}
-          fontSize={displaySettings.fontSize}
-          objectSize={displaySettings.objectSize}
-          turtleSize={displaySettings.turtleSize}
-          fallSpeed={displaySettings.fallSpeed}
-          isLandscape={displaySettings.isLandscape}
-          onToggle={() => setDisplayInfoVisible(!displayInfoVisible)}
-        />
-      </Suspense>
-
-      {/* Performance Monitor */}
-      <Suspense fallback={null}>
-        <PerformanceMonitor />
-      </Suspense>
-
-      {/* Error Monitor - For real-time error detection */}
-      <Suspense fallback={null}>
-        <ErrorMonitor />
-      </Suspense>
-
-      {/* Emoji Lifecycle Debug - Track first few emojis' lifecycles */}
-      <Suspense fallback={null}>
-        <EmojiLifecycleDebug />
-      </Suspense>
-
-      {/* Quick Debug - CSS and Audio diagnostics */}
-      <Suspense fallback={null}>
-        <QuickDebug />
-      </Suspense>
-
-      {/* Game Debug - Visual debugging panel */}
-      <Suspense fallback={null}>
-        <GameDebug
-          gameStarted={gameState.gameStarted}
-          objectCount={gameObjects.length}
-          targetEmoji={gameState.targetEmoji}
-          currentTarget={gameState.currentTarget}
-        />
-      </Suspense>
     </div>
   )
 }
