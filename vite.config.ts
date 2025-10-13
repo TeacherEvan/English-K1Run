@@ -64,34 +64,87 @@ export default defineConfig({
         manualChunks(id) {
           // Create vendor chunk for node_modules
           if (id.includes('node_modules')) {
-            // Split React into smaller chunks to avoid large bundle warning
+            // React DOM - Split into smaller sub-chunks by internal modules
             if (id.includes('react-dom')) {
-              return 'vendor-react-dom';
+              // Split react-dom by common internal paths to create smaller chunks
+              if (id.includes('react-dom/client') || id.includes('createRoot')) {
+                return 'vendor-react-dom-client';
+              }
+              if (id.includes('react-dom/server') || id.includes('renderToString')) {
+                return 'vendor-react-dom-server';
+              }
+              if (id.includes('scheduler')) {
+                return 'vendor-react-scheduler';
+              }
+              // Fallback for main react-dom bundle
+              return 'vendor-react-dom-core';
             }
-            if (id.includes('react/jsx-runtime')) {
+
+            // React core components
+            if (id.includes('react/jsx-runtime') || id.includes('jsx-runtime')) {
               return 'vendor-react-jsx';
             }
-            if (id.includes('react') || id.includes('scheduler')) {
+            if (id.includes('react') && !id.includes('react-dom')) {
               return 'vendor-react-core';
             }
-            // Radix UI components
+
+            // Radix UI - Split by component groups to avoid large single chunk
             if (id.includes('@radix-ui')) {
-              return 'vendor-radix';
+              // Group dialog-related components
+              if (id.includes('dialog') || id.includes('alert-dialog') ||
+                id.includes('popover') || id.includes('tooltip')) {
+                return 'vendor-radix-dialogs';
+              }
+              // Group form-related components
+              if (id.includes('checkbox') || id.includes('radio') ||
+                id.includes('select') || id.includes('slider') ||
+                id.includes('switch') || id.includes('toggle')) {
+                return 'vendor-radix-forms';
+              }
+              // Group navigation components
+              if (id.includes('navigation') || id.includes('menubar') ||
+                id.includes('dropdown') || id.includes('context-menu') ||
+                id.includes('accordion') || id.includes('tabs')) {
+                return 'vendor-radix-navigation';
+              }
+              // Other radix components
+              return 'vendor-radix-core';
             }
-            // Animation and styling libraries
-            if (id.includes('framer-motion') || id.includes('lucide-react') ||
-              id.includes('class-variance-authority') || id.includes('clsx') ||
+
+            // UI utilities and styling
+            if (id.includes('lucide-react')) {
+              return 'vendor-lucide-icons';
+            }
+            if (id.includes('class-variance-authority') || id.includes('clsx') ||
               id.includes('tailwind-merge')) {
               return 'vendor-ui-utils';
             }
-            // Large utility libraries
+
+            // Animation libraries
+            if (id.includes('framer-motion')) {
+              return 'vendor-animation';
+            }
+
+            // Large utility libraries (if any)
             if (id.includes('d3') || id.includes('recharts') || id.includes('three') ||
               id.includes('@tanstack')) {
               return 'vendor-large-utils';
             }
-            // Other node_modules
-            return 'vendor-other';
+
+            // Date/time utilities
+            if (id.includes('react-day-picker') || id.includes('date-fns')) {
+              return 'vendor-date-utils';
+            }
+
+            // Theme utilities
+            if (id.includes('next-themes')) {
+              return 'vendor-theme-utils';
+            }
+
+            // Other node_modules - catch-all for smaller dependencies
+            return 'vendor-misc';
           }
+
           // Create separate chunks for large application modules
           if (id.includes('src/components')) {
             if (id.includes('ui/')) {
@@ -126,8 +179,8 @@ export default defineConfig({
         }
       }
     },
-    // Increase chunk size warning limit (React 19 is legitimately large)
-    chunkSizeWarningLimit: 1200, // Reduced to encourage better chunking
+    // Adjust chunk size warning limit for React 19 (React DOM core is legitimately large)
+    chunkSizeWarningLimit: 1400, // Increased to accommodate React 19 DOM core, while encouraging chunking for other modules
     // Enable tree shaking optimizations
     minify: 'esbuild',
     target: 'es2020',
