@@ -206,6 +206,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     player2Streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
+  
+  // Track emoji appearances to ensure variety - all types should appear at least once every 10 seconds
+  const [emojiLastSeen, setEmojiLastSeen] = useState<Map<string, number>>(new Map())
 
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
@@ -250,29 +253,44 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const spawnObject = useCallback(() => {
     try {
       setGameObjects(prev => {
-        // Pre-check for performance bottlenecks - more strict limit
-        if (prev.length > 15) {
+        // Pre-check for performance bottlenecks - increased limit for 40% more emojis
+        if (prev.length > 21) { // Increased from 15 to 21 (40% increase)
           console.log('[GameLogic] Too many objects, skipping spawn. Count:', prev.length)
           return prev
         }
 
-        // Optimized spawning: fewer objects, less computation
-        const spawnCount = Math.floor(Math.random() * 2) + 1 // 1-2 objects only
+        // Increased spawning by 40%: from 1-2 to 2-3 objects
+        const spawnCount = Math.floor(Math.random() * 2) + 2 // 2-3 objects (was 1-2)
         const newObjects: GameObject[] = []
 
         // Pre-calculate random values to reduce computation in loop
         const baseId = Date.now()
         const categoryItems = currentCategory.items
         const categoryLength = categoryItems.length
+        const currentTime = Date.now()
+
+        // Check for emojis that haven't appeared in the last 10 seconds
+        const staleEmojis = categoryItems.filter(item => {
+          const lastSeen = emojiLastSeen.get(item.emoji)
+          return !lastSeen || (currentTime - lastSeen) > 10000
+        })
 
         const leftCount = prev.reduce((count, obj) => count + (obj.x <= 50 ? 1 : 0), 0)
         const rightCount = prev.length - leftCount
         let nextLane: 'left' | 'right' = leftCount <= rightCount ? 'left' : 'right'
 
         for (let i = 0; i < spawnCount; i++) {
-          // Use more efficient random selection
-          const randomIndex = Math.floor(Math.random() * categoryLength)
-          const randomItem = categoryItems[randomIndex]
+          // Prioritize stale emojis (not seen in 10 seconds), otherwise use random selection
+          let randomItem
+          if (staleEmojis.length > 0 && i === 0) {
+            // First spawn prioritizes a stale emoji
+            const randomIndex = Math.floor(Math.random() * staleEmojis.length)
+            randomItem = staleEmojis[randomIndex]
+          } else {
+            // Regular random selection
+            const randomIndex = Math.floor(Math.random() * categoryLength)
+            randomItem = categoryItems[randomIndex]
+          }
 
           const lane = nextLane
           nextLane = lane === 'left' ? 'right' : 'left'
@@ -347,6 +365,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             playerSide: lane
           })
 
+          // Update emoji last seen time
+          setEmojiLastSeen(prevMap => {
+            const newMap = new Map(prevMap)
+            newMap.set(randomItem.emoji, currentTime)
+            return newMap
+          })
+
           newObjects.push(newObject)
         }
 
@@ -362,7 +387,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       console.error('[GameLogic] Error in spawnObject:', error)
       eventTracker.trackError(error as Error, 'spawnObject')
     }
-  }, [currentCategory, fallSpeedMultiplier])
+  }, [currentCategory, fallSpeedMultiplier, emojiLastSeen])
 
   const updateObjects = useCallback(() => {
     try {
@@ -422,7 +447,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
-        // COLLISION DETECTION: Prevent emojis from overlapping
+        // COLLISION DETECTION: Prevent emojis from overlapping (minimal separation)
         // Process each lane separately to maintain correct player sides
         const processLane = (objects: GameObject[], lane: 'left' | 'right') => {
           if (objects.length === 0) return
@@ -430,7 +455,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Define strict lane boundaries - objects MUST stay within their lane
           const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
           const emojiRadius = 30 // Approximate radius of emoji (size 60 / 2)
-          const minSeparation = emojiRadius * 2 + 10 // Minimum distance between centers (diameter + buffer)
+          const minSeparation = emojiRadius * 2 + 2 // Minimal separation - emojis barely don't touch (reduced from +10 to +2)
 
           // Sort by Y position (top to bottom) for collision processing
           const sorted = [...objects].sort((a, b) => a.y - b.y)

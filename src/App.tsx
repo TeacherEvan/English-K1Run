@@ -23,7 +23,11 @@ const BACKGROUND_CLASSES = [
   'app-bg-deep-ocean',
   'app-bg-forest-trail',
   'app-bg-cosmic-night',
-  'app-bg-playful-pop'
+  'app-bg-playful-pop',
+  'app-bg-cherry-blossom',
+  'app-bg-golden-hour',
+  'app-bg-lavender-fields',
+  'app-bg-tropical-paradise'
 ]
 
 const pickRandomBackground = (exclude?: string) => {
@@ -155,7 +159,7 @@ function App() {
   useEffect(() => {
     const interval = setInterval(() => {
       setBackgroundClass(prev => pickRandomBackground(prev))
-    }, 30000)
+    }, 20000) // Changed from 30000 (30s) to 20000 (20s)
 
     return () => clearInterval(interval)
   }, [])
