@@ -7,7 +7,26 @@ Split-screen educational racing game where two players compete by tapping fallin
 **Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
 **Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)  
 **Deployment**: Vercel (production), Docker with nginx, Termux-compatible for Android dev  
-**Target Devices**: QBoard interactive displays, tablets, mobile browsers
+**Target Devices**: QBoard interactive displays, tablets, mobile browsers  
+**Repository**: github.com/TeacherEvan/English-K1Run
+
+## Educational Context & Performance Goals
+
+**Target Audience**: Kindergarten students in classroom settings with QBoard displays and tablets.
+
+**Educational Categories**: 
+- Fruits & Vegetables (pattern recognition)
+- Numbers & Shapes (1-20, including double-digit text numbers like "11", "12")
+- Alphabet Challenge (sequential letter tapping A→B→C)
+
+**Performance Requirements**:
+- **60fps target**: Smooth animations without frame drops
+- **Max 15 concurrent objects**: Prevents spawn-rate bottlenecks
+- **Sub-100ms touch latency**: Responsive controls critical for engagement
+- **Spawn rate**: 2-4 objects every 350ms (monitored by eventTracker with >8/sec warning threshold)
+- **Memory management**: Auto-cleanup of off-screen objects, max 1000 tracked events
+
+**Special Handling**: Double-digit numbers (11-20) render as plain text with blue background styling in `FallingObject.tsx`, not complex emoji combinations.
 
 ## Critical Architectural Rules
 
@@ -124,6 +143,8 @@ Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react`
 - Prod: `docker-compose up -d` (nginx-served static bundles at port 3000)
 - Volume mapping excludes `/app/node_modules` to avoid platform conflicts
 
+**Deployment**: Project uses Vercel for production. Static assets are served with proper CORS and MIME type headers configured in `vercel.json`.
+
 **Bundle Optimization**: Manual chunking in `vite.config.ts` keeps vendor bundles <1MB. Avoid adding large dependencies (d3, three.js, recharts) without updating chunk strategy.
 
 ## Styling & Responsiveness
@@ -156,7 +177,7 @@ Extend existing variants instead of adding inline Tailwind classes. All 42 UI co
 
 **Memoization**: Frequently re-rendered components like `PlayerArea`, `FallingObject`, `TargetDisplay`, `GameMenu` wrap with `memo()`. Follow this pattern for new game components that receive props on every frame.
 
-**Debug Overlays**: `FireworksDisplay`, `PerformanceMonitor`, `EventTrackerDebug`, `QuickDebug`, `ErrorMonitor`, `TouchHandlerDebug` mount once in `<App />`. They consume global singletons (`eventTracker`, `soundManager`, `multiTouchHandler`)—don't instantiate new trackers.
+**Debug Overlays**: `FireworksDisplay`, `PerformanceMonitor`, `EventTrackerDebug`, `QuickDebug`, `ErrorMonitor`, `TouchHandlerDebug`, `EmojiLifecycleDebug` mount once in `<App />`. They consume global singletons (`eventTracker`, `soundManager`, `multiTouchHandler`)—don't instantiate new trackers.
 
 **Lazy Loading**: Debug components are lazy-loaded in `App.tsx` to reduce initial bundle size:
 ```tsx
@@ -250,6 +271,15 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 - Horizontal push only to preserve fall speed
 
 **See Also**: `EMOJI_SIDE_SWITCHING_BUG_FIX.md` for detailed analysis
+
+### Debug Documentation Pattern
+When fixing bugs, comprehensive markdown docs are created in project root:
+- `EMOJI_SIDE_SWITCHING_BUG_FIX.md` - Analysis with before/after JSON evidence
+- `MULTI_TOUCH_IMPLEMENTATION.md`, `MULTI_TOUCH_QUICKSTART.md` - Feature documentation
+- `VERCEL_AUDIO_DEBUG.md` - Platform-specific troubleshooting guides
+- `jobcard.md` - Tracks completed work items and issues addressed
+
+Follow this pattern: create detailed `.md` files for significant fixes with root cause analysis and code snippets.
 
 ## Troubleshooting Audio Issues (BenQ Classroom Displays)
 
