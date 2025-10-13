@@ -460,7 +460,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Check for winner
           if (newState.progress >= 100) {
             newState.winner = true
-            playSoundEffect.win()
+            // Win sound removed - only target pronunciations allowed
             eventTracker.trackGameStateChange(prev, newState, 'player_wins')
           }
 
