@@ -39,6 +39,44 @@ Split-screen educational racing game where two players compete by tapping fallin
 - `soundManager` (`src/lib/sound-manager.ts`) - Web Audio API manager, lazy-initialized
 - `multiTouchHandler` (`src/lib/touch-handler.ts`) - Touch validation system for QBoard displays
 
+## Collision Detection System
+
+**Overview**: Physics-based collision detection prevents emojis from overlapping/phasing through each other while maintaining strict lane boundaries.
+
+**Implementation** (in `use-game-logic.ts` → `updateObjects()` → `processLane()`):
+
+```typescript
+const processLane = (objects: GameObject[], lane: 'left' | 'right') => {
+  // Define strict lane boundaries - objects MUST stay within their lane
+  const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
+  const emojiRadius = 30 // Approximate radius of emoji (size 60 / 2)
+  const minSeparation = emojiRadius * 2 + 10 // 70px minimum distance between centers
+  
+  // For each object, check collision with all others in the same lane
+  // If distance < minSeparation:
+  //   - Calculate push angle using atan2(dy, dx)
+  //   - Apply horizontal push to both objects (bidirectional)
+  //   - Clamp to lane boundaries [minX, maxX]
+  //   - Preserve Y coordinates (don't affect fall speed)
+}
+```
+
+**Key Features**:
+- ✅ **Lane Isolation**: Left `[10, 45]` and right `[55, 90]` processed separately
+- ✅ **Physics-Based Push**: Uses proper distance calculations and push angles
+- ✅ **Bidirectional Forces**: Both colliding objects pushed apart naturally
+- ✅ **Horizontal Only**: Push is horizontal to preserve fall speed
+- ✅ **Strict Boundaries**: Objects clamped to lane bounds, cannot cross to other side
+- ✅ **No Phasing**: Minimum separation of 70px enforced between emoji centers
+
+**Critical Rules**:
+- Never modify Y coordinates during collision resolution (breaks fall speed)
+- Always clamp X to lane-specific `[minX, maxX]` boundaries
+- Process lanes independently to prevent side-switching
+- Use distance-based collision (Pythagorean theorem) not simple overlap checks
+
+**Performance**: O(n²) per lane but limited to ~7-8 objects per side max, so acceptable for 60fps target.
+
 ## User Interface & UX Features
 
 **Target Display**: Located at top-center during gameplay, shows current target emoji/name and category badge. Styled with 25% scale (`transform: scale(0.25)`) and completely transparent background for minimal visual obstruction. Only the text and emoji remain visible with text-shadow for readability.
@@ -189,6 +227,29 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 - **Background Images**: External URLs may be blocked; backgrounds defined in `App.css` use local `/public/*.jpg` files
 - **Audio Initialization**: Web Audio requires user interaction; `sound-manager` auto-initializes on first tap
 - **Split-Screen Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values relative to player area
+- **Browser Cache**: After rebuilding, use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) to clear cached bundles if seeing old game behavior
+
+## Recent Bug Fixes (October 2025)
+
+### Emoji Side-Switching Bug (Fixed)
+**Issue**: Objects spawned on right side (x > 50) were being pushed to left side (x <= 50) during collision detection  
+**Root Cause**: Collision detection used hardcoded left lane boundaries `[10, 45]` for both lanes  
+**Fix**: `processLane()` now accepts lane parameter and uses lane-specific boundaries:
+- Left lane: `[10, 45]`
+- Right lane: `[55, 90]`
+
+**Impact**: Objects now maintain consistent `playerSide` throughout their entire lifecycle (spawn → movement → tap/miss → removal)
+
+### Collision Detection Rewrite (October 2025)
+**Issue**: Emojis phasing through each other despite collision detection  
+**Root Cause**: Weak push forces (0.2px) insufficient to prevent overlaps  
+**Fix**: Complete rewrite with physics-based collision:
+- Calculate actual distance between emoji centers using Pythagorean theorem
+- Use `atan2()` for proper push angles
+- Apply bidirectional forces with proper separation distance (70px minimum)
+- Horizontal push only to preserve fall speed
+
+**See Also**: `EMOJI_SIDE_SWITCHING_BUG_FIX.md` for detailed analysis
 
 ## Troubleshooting Audio Issues (BenQ Classroom Displays)
 
