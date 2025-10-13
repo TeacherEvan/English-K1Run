@@ -486,8 +486,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             }
           }
         } else {
-          // Incorrect tap: play wrong sound and move backward
-          playSoundEffect.wrong()
+          // Incorrect tap: no sound feedback - penalty applied
           newState.streak = 0
           newState.progress = Math.max(prev.progress - 20, 0)
           eventTracker.trackGameStateChange(prev, newState, 'incorrect_tap_penalty')
