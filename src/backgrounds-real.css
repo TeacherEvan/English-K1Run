@@ -19,7 +19,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -1;
+  z-index: -999;
 }
 
 .app-bg-ocean-sunset {
@@ -40,7 +40,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -1;
+  z-index: -999;
 }
 
 .app-bg-forest-path {
@@ -61,7 +61,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -1;
+  z-index: -999;
 }
 
 .app-bg-lavender-field {
@@ -82,7 +82,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -1;
+  z-index: -999;
 }
 
 .app-bg-aurora-night {
@@ -101,15 +101,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -1;
+  z-index: -999;
 }
 
 /* Ensure game content appears above background overlays */
 .app>* {
-  position: relative;
-  z-index: 10;
+  z-index: 100;
 }
 
 /* Optional: Add subtle animation to backgrounds */
