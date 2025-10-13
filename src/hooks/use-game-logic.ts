@@ -432,8 +432,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const newState = { ...prev }
 
         if (isCorrect) {
-          // Correct tap: play success sound and move forward
-          playSoundEffect.success()
+          // Correct tap: play voice pronunciation only (no background success sound)
           void playSoundEffect.voice(tappedObject.type)
 
           const nextStreak = prev.streak + 1
