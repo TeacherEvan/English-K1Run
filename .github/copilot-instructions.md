@@ -138,6 +138,12 @@ npm run build  # Runs: tsc -b --noCheck && vite build
 ```
 Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react` v19.
 
+**Git Workflow Tips for Non-Developers**:
+- **Avoid `git rebase`** - Use simple `git pull` + `git push` workflow
+- **If stuck in VIM editor**: Never manually resolve - abort immediately with `git rebase --abort` or `git merge --abort`
+- **Prefer merge over rebase**: `git pull origin main` (merge) is safer than `git pull --rebase`
+- **If conflicts occur**: Use VS Code's merge conflict UI instead of terminal editors
+
 **Docker**:
 - Dev: `docker-compose --profile dev up kindergarten-race-dev` (hot reload, volume-mounted)
 - Prod: `docker-compose up -d` (nginx-served static bundles at port 3000)
@@ -251,6 +257,28 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 - **Browser Cache**: After rebuilding, use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) to clear cached bundles if seeing old game behavior
 
 ## Recent Bug Fixes (October 2025)
+
+### Overlapping Audio Voices (Fixed - October 14, 2025)
+**Issue**: Two voices playing simultaneously causing distorted "throat cancer" sound:
+1. Background success/wrong/win sound effects
+2. Target pronunciation voice
+Both played at once, creating garbled audio output
+
+**Root Cause**: Previous commits (`5b35570`, `5401d41`) removed background sounds, but changes were accidentally reverted to main
+- Line 436: `playSoundEffect.success()` + `playSoundEffect.voice()` both triggered on correct tap
+- Line 464: `playSoundEffect.win()` played on winner
+- Line 491: `playSoundEffect.wrong()` played on incorrect tap
+- Speech synthesis using unnatural `pitch: 1.1, rate: 0.85` settings
+
+**Fix** (Commit `9173813`):
+1. **Removed all background sound effects**:
+   - Removed `playSoundEffect.success()` call (line 436)
+   - Removed `playSoundEffect.win()` call (line 464)
+   - Removed `playSoundEffect.wrong()` call (line 491)
+2. **Kept ONLY** `playSoundEffect.voice()` for clean target pronunciations
+3. **Improved voice quality**: Changed speech synthesis to `pitch: 1.0, rate: 1.0` for natural sound
+
+**Impact**: Clean audio with single voice announcing targets, no overlapping sounds or distortion
 
 ### Emoji Side-Switching Bug (Fixed)
 **Issue**: Objects spawned on right side (x > 50) were being pushed to left side (x <= 50) during collision detection  
