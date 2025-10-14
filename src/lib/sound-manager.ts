@@ -496,8 +496,8 @@ class SoundManager {
             }
 
             const utterance = new SpeechSynthesisUtterance(text)
-            utterance.rate = 0.85  // Slower for kids to understand better
-            utterance.pitch = 1.1  // Slightly higher pitch for child-friendly voice
+            utterance.rate = 1.0  // Normal speed for clear pronunciation
+            utterance.pitch = 1.0  // Natural pitch for better voice quality
             utterance.volume = this.volume
 
             // Add event listeners for debugging
