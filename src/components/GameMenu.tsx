@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { getAudioDebugInfo, playSoundEffect } from '../lib/sound-manager'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 
@@ -78,22 +77,6 @@ export const GameMenu = memo(({
             }}
           >
             🚀 Start Race
-          </Button>
-          <Button
-            onClick={() => {
-              playSoundEffect.tap()
-              // Log debug info to console for Vercel troubleshooting
-              console.log('[Audio Debug]', getAudioDebugInfo())
-            }}
-            size="lg"
-            variant="outline"
-            className="font-bold sm:w-auto"
-            style={{
-              fontSize: `calc(1rem * var(--font-scale, 1))`,
-              padding: `calc(1rem * var(--spacing-scale, 1))`
-            }}
-          >
-            🔊 Test Audio
           </Button>
         </div>
 

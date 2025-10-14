@@ -1,6 +1,5 @@
 import { memo, useMemo } from 'react'
 import { GameObject } from '../hooks/use-game-logic'
-import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
 
 interface FallingObjectProps {
@@ -17,7 +16,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     // Use multi-touch handler for debouncing and validation
     const shouldProcess = multiTouchHandler.handleMouseClick(object.id)
     if (shouldProcess) {
-      playSoundEffect.tap() // Play tap sound for immediate feedback
+      // Removed tap sound - only target pronunciations allowed
       onTap(object.id, playerSide)
     }
   }
@@ -37,7 +36,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     // Validate and process touch end with multi-touch handler
     const shouldProcess = multiTouchHandler.handleTouchEnd(e.nativeEvent, object.id)
     if (shouldProcess) {
-      playSoundEffect.tap() // Play tap sound for immediate feedback
+      // Removed tap sound - only target pronunciations allowed
       onTap(object.id, playerSide)
     }
   }
