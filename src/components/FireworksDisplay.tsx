@@ -153,7 +153,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
               fontSize: `calc(4rem * var(--font-scale, 1))`,
               textShadow: '0 4px 8px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.3)'
             }}>
-            🎉 PLAYER {winner} WINS! 🎉
+            🎉 YOU WIN! 🎉
           </h1>
           <div className="text-5xl sm:text-6xl" style={{ fontSize: `calc(3rem * var(--font-scale, 1))` }}>
             🏆

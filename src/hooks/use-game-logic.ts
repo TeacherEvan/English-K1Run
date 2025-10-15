@@ -422,17 +422,28 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const processLane = useCallback((laneObjects: GameObject[], lane: PlayerSide) => {
     const [minX, maxX] = LANE_BOUNDS[lane]
+    const laneLength = laneObjects.length
 
-    for (let i = 0; i < laneObjects.length; i++) {
+    // Early exit if no objects to process
+    if (laneLength === 0) return
+
+    for (let i = 0; i < laneLength; i++) {
       const current = laneObjects[i]
       current.x = clamp(current.x, minX, maxX)
 
-      for (let j = i + 1; j < laneObjects.length; j++) {
+      // Early exit if only one object or current is last object
+      if (i === laneLength - 1) break
+
+      for (let j = i + 1; j < laneLength; j++) {
         const other = laneObjects[j]
         const verticalGap = Math.abs(current.y - other.y)
+        
+        // Early exit: objects far apart vertically don't need collision check
         if (verticalGap > MIN_VERTICAL_GAP) continue
 
         const horizontalGap = Math.abs(current.x - other.x)
+        
+        // Early exit: objects far enough apart horizontally or exactly overlapping
         if (horizontalGap >= COLLISION_MIN_SEPARATION || horizontalGap === 0) continue
 
         const overlap = (COLLISION_MIN_SEPARATION - horizontalGap) / 2
@@ -447,6 +458,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const updateObjects = useCallback(() => {
     try {
       setGameObjects(prev => {
+        // Early exit if no objects to update
+        if (prev.length === 0) return prev
+
         const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
         const speedMultiplier = 0.6
         const updated: GameObject[] = []
@@ -474,9 +488,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           }
         }
 
+        // Only process collision detection if we have multiple objects
         if (updated.length > 1) {
-          processLane(updated.filter(obj => obj.lane === 'left'), 'left')
-          processLane(updated.filter(obj => obj.lane === 'right'), 'right')
+          const leftObjects = updated.filter(obj => obj.lane === 'left')
+          const rightObjects = updated.filter(obj => obj.lane === 'right')
+          
+          // Only process lanes that have objects
+          if (leftObjects.length > 1) processLane(leftObjects, 'left')
+          if (rightObjects.length > 1) processLane(rightObjects, 'right')
         }
 
         return updated
@@ -692,23 +711,38 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   // REMOVED: Emoji variety management effect - unnecessary complexity that caused performance issues
   // Pure random selection in spawnObject is sufficient for gameplay variety
 
-  // Spawn objects - Optimized spawn rate
+  // Spawn objects - Optimized spawn rate (reduced from 1400ms to 2000ms for better performance)
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) {
       return
     }
 
-    const interval = setInterval(spawnObject, 1400)
+    const interval = setInterval(spawnObject, 2000)
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 
-  // Update object positions using optimized timer-based approach
+  // Update object positions using requestAnimationFrame for smooth 60fps
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) return
 
-    // Use setInterval instead of requestAnimationFrame for less frequent updates
-    const interval = setInterval(updateObjects, 16) // ~60fps but more controlled
-    return () => clearInterval(interval)
+    let animationFrameId: number
+    let lastUpdateTime = performance.now()
+    const targetFps = 60
+    const frameInterval = 1000 / targetFps
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - lastUpdateTime
+
+      if (elapsed >= frameInterval) {
+        updateObjects()
+        lastUpdateTime = currentTime - (elapsed % frameInterval)
+      }
+
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animationFrameId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationFrameId)
   }, [gameState.gameStarted, gameState.winner, updateObjects])
 
   const clearComboCelebration = useCallback(() => setComboCelebration(null), [])
