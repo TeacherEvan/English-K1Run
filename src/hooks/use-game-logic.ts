@@ -87,7 +87,12 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "🥕", name: "carrot" },
       { emoji: "🥒", name: "cucumber" },
       { emoji: "🍉", name: "watermelon" },
-      { emoji: "🥦", name: "broccoli" }
+      { emoji: "🥦", name: "broccoli" },
+      { emoji: "🍊", name: "orange" },
+      { emoji: "🍋", name: "lemon" },
+      { emoji: "🍑", name: "peach" },
+      { emoji: "🍒", name: "cherry" },
+      { emoji: "🥝", name: "kiwi" }
     ]
   },
   {
@@ -102,20 +107,30 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "7️⃣", name: "seven" },
       { emoji: "8️⃣", name: "eight" },
       { emoji: "9️⃣", name: "nine" },
-      { emoji: "🔟", name: "ten" }
+      { emoji: "🔟", name: "ten" },
+      { emoji: "11", name: "eleven" },
+      { emoji: "12", name: "twelve" },
+      { emoji: "13", name: "thirteen" },
+      { emoji: "14", name: "fourteen" },
+      { emoji: "15", name: "fifteen" }
     ]
   },
   {
     name: "Shapes & Colors",
     items: [
-      { emoji: "🔵", name: "blue circle" },
-      { emoji: "🟥", name: "red square" },
-      { emoji: "🔶", name: "orange diamond" },
-      { emoji: "🟩", name: "green square" },
+      { emoji: "🔵", name: "blue" },
+      { emoji: "🟥", name: "red" },
+      { emoji: "🔶", name: "orange" },
+      { emoji: "🟩", name: "green" },
       { emoji: "🔺", name: "triangle" },
       { emoji: "⭐", name: "star" },
-      { emoji: "🟣", name: "purple circle" },
-      { emoji: "⚪", name: "white circle" }
+      { emoji: "🟣", name: "purple" },
+      { emoji: "⚪", name: "white" },
+      { emoji: "🟡", name: "yellow" },
+      { emoji: "🟤", name: "brown" },
+      { emoji: "⬛", name: "black" },
+      { emoji: "🔷", name: "diamond" },
+      { emoji: "🟠", name: "circle" }
     ]
   },
   {
@@ -128,7 +143,12 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "🦋", name: "butterfly" },
       { emoji: "🦉", name: "owl" },
       { emoji: "🌳", name: "tree" },
-      { emoji: "🌸", name: "flower" }
+      { emoji: "🌸", name: "flower" },
+      { emoji: "🐘", name: "elephant" },
+      { emoji: "🦁", name: "lion" },
+      { emoji: "🐰", name: "rabbit" },
+      { emoji: "🦒", name: "giraffe" },
+      { emoji: "🐧", name: "penguin" }
     ]
   },
   {
@@ -141,20 +161,30 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "🚀", name: "rocket" },
       { emoji: "🚲", name: "bicycle" },
       { emoji: "🚁", name: "helicopter" },
-      { emoji: "🚤", name: "boat" }
+      { emoji: "🚤", name: "boat" },
+      { emoji: "🚂", name: "train" },
+      { emoji: "🚕", name: "taxi" },
+      { emoji: "🚙", name: "van" },
+      { emoji: "🛴", name: "scooter" },
+      { emoji: "🛵", name: "motorcycle" }
     ]
   },
   {
     name: "Weather Wonders",
     items: [
       { emoji: "☀️", name: "sunny" },
-      { emoji: "⛅", name: "partly cloudy" },
+      { emoji: "☁️", name: "cloudy" },
       { emoji: "🌧️", name: "rainy" },
       { emoji: "⛈️", name: "stormy" },
       { emoji: "❄️", name: "snowy" },
       { emoji: "🌈", name: "rainbow" },
       { emoji: "🌪️", name: "tornado" },
-      { emoji: "🌬️", name: "windy" }
+      { emoji: "🌬️", name: "windy" },
+      { emoji: "🌙", name: "moon" },
+      { emoji: "⭐", name: "star" },
+      { emoji: "🌞", name: "sun" },
+      { emoji: "🌫️", name: "foggy" },
+      { emoji: "⚡", name: "lightning" }
     ]
   },
   {
@@ -167,7 +197,12 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "🤗", name: "hug" },
       { emoji: "👏", name: "clap" },
       { emoji: "🕺", name: "dance" },
-      { emoji: "🤸", name: "flip" }
+      { emoji: "🤸", name: "flip" },
+      { emoji: "😊", name: "smile" },
+      { emoji: "😂", name: "laugh" },
+      { emoji: "🤔", name: "think" },
+      { emoji: "🎉", name: "celebrate" },
+      { emoji: "👋", name: "wave" }
     ]
   },
   {
@@ -180,7 +215,12 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "👅", name: "tongue" },
       { emoji: "🖐️", name: "hand" },
       { emoji: "🦶", name: "foot" },
-      { emoji: "🦵", name: "leg" }
+      { emoji: "🦵", name: "leg" },
+      { emoji: "🦷", name: "tooth" },
+      { emoji: "💪", name: "arm" },
+      { emoji: "👂", name: "ear" },
+      { emoji: "🧠", name: "brain" },
+      { emoji: "❤️", name: "heart" }
     ]
   },
   {
@@ -195,7 +235,12 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "G", name: "G" },
       { emoji: "H", name: "H" },
       { emoji: "I", name: "I" },
-      { emoji: "J", name: "J" }
+      { emoji: "J", name: "J" },
+      { emoji: "K", name: "K" },
+      { emoji: "L", name: "L" },
+      { emoji: "M", name: "M" },
+      { emoji: "N", name: "N" },
+      { emoji: "O", name: "O" }
     ],
     requiresSequence: true,
     sequenceIndex: 0
@@ -216,7 +261,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
-  // REMOVED: lastSeenEmojis and emojiQueue state - unnecessary complexity that caused spawn issues
+  
+  // Track last appearance time for each emoji to ensure all appear within 8 seconds
+  const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
+  
   // Background rotation is handled in App.tsx, not here
 
   // Use ref to access current game state in callbacks without causing re-creation
@@ -274,6 +322,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const spawnedInBatch = new Set<string>()
         // Track recently active emojis on screen to reduce duplicates
         const activeEmojis = new Set(prev.map(obj => obj.emoji))
+        
+        // Check which emojis haven't appeared in the last 8 seconds
+        const now = Date.now()
+        const ROTATION_THRESHOLD = 8000 // 8 seconds
+        const staleEmojis = level.items.filter(item => {
+          const lastSeen = lastEmojiAppearance.current.get(item.emoji)
+          return !lastSeen || (now - lastSeen) > ROTATION_THRESHOLD
+        })
 
         for (let i = 0; i < spawnCount; i++) {
           const { minX, maxX, lane } = (() => {
@@ -282,20 +338,32 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             return { minX: laneMin, maxX: laneMax, lane: chosenLane }
           })()
 
-          // Select item with duplicate prevention
-          let item = level.items[Math.floor(Math.random() * level.items.length)]
+          // Prioritize emojis that haven't appeared recently (stale emojis)
+          let item: { emoji: string; name: string }
+          if (staleEmojis.length > 0 && Math.random() < 0.7) {
+            // 70% chance to pick a stale emoji if any exist
+            item = staleEmojis[Math.floor(Math.random() * staleEmojis.length)]
+          } else {
+            // Otherwise pick randomly from all items
+            item = level.items[Math.floor(Math.random() * level.items.length)]
+          }
+          
+          // Try to avoid duplicates in current batch and on screen
           let attempts = 0
           const maxAttempts = level.items.length * 2
-          
-          // Try to find an item not already spawned in this batch or heavily represented on screen
           while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) || 
                  (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
-            item = level.items[Math.floor(Math.random() * level.items.length)]
+            if (staleEmojis.length > 0 && Math.random() < 0.7) {
+              item = staleEmojis[Math.floor(Math.random() * staleEmojis.length)]
+            } else {
+              item = level.items[Math.floor(Math.random() * level.items.length)]
+            }
             attempts++
           }
           
-          // Mark this emoji as spawned in current batch
+          // Mark this emoji as spawned in current batch and update last appearance time
           spawnedInBatch.add(item.emoji)
+          lastEmojiAppearance.current.set(item.emoji, now)
           let spawnX = Math.random() * (maxX - minX) + minX
           let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
@@ -545,6 +613,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0
       }
+      
+      // Reset emoji appearance tracking for new game
+      lastEmojiAppearance.current.clear()
 
       // Reset performance metrics for accurate tracking
       eventTracker.resetPerformanceMetrics()
@@ -578,6 +649,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     // Disable multi-touch handler when game ends
     multiTouchHandler.disable()
+    
+    // Reset emoji appearance tracking
+    lastEmojiAppearance.current.clear()
 
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
