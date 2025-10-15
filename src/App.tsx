@@ -123,15 +123,16 @@ function App() {
       }
     }
 
-    // Use passive: false to allow preventDefault
-    document.addEventListener('touchmove', preventDefaultTouch, { passive: false })
-
     // Prevent pull-to-refresh and other gestures
-    document.addEventListener('touchstart', (e) => {
+    const preventMultiTouch = (e: TouchEvent) => {
       if (e.touches.length > 1 && gameState.gameStarted) {
         e.preventDefault() // Prevent multi-finger gestures during gameplay
       }
-    }, { passive: false })
+    }
+
+    // Use passive: false to allow preventDefault
+    document.addEventListener('touchmove', preventDefaultTouch, { passive: false })
+    document.addEventListener('touchstart', preventMultiTouch, { passive: false })
 
     return () => {
       events.forEach(event => {
@@ -139,6 +140,7 @@ function App() {
       })
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       document.removeEventListener('touchmove', preventDefaultTouch)
+      document.removeEventListener('touchstart', preventMultiTouch)
     }
   }, [gameState.gameStarted])
 
