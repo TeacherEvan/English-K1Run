@@ -58,6 +58,11 @@ const LANE_BOUNDS: Record<PlayerSide, [number, number]> = {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
+// Emoji fairness tracking - ensures all emojis appear at least once every 8 seconds
+// Uses module-level Map to avoid state variables that could break spawn interval stability
+const emojiLastSeenMap = new Map<string, number>() // emoji -> timestamp
+const EMOJI_FAIRNESS_TIMEOUT = 8000 // 8 seconds in milliseconds
+
 const COMBO_LEVELS: Array<{ streak: number; title: string; description: string }> = [
   {
     streak: 3,
@@ -275,6 +280,15 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // Track recently active emojis on screen to reduce duplicates
         const activeEmojis = new Set(prev.map(obj => obj.emoji))
 
+        // Get current time for fairness tracking
+        const now = Date.now()
+
+        // Check for emojis that haven't appeared in 8+ seconds (stale emojis)
+        const staleEmojis = level.items.filter(item => {
+          const lastSeen = emojiLastSeenMap.get(item.emoji)
+          return !lastSeen || (now - lastSeen) >= EMOJI_FAIRNESS_TIMEOUT
+        })
+
         for (let i = 0; i < spawnCount; i++) {
           const { minX, maxX, lane } = (() => {
             const chosenLane: PlayerSide = Math.random() < 0.5 ? 'left' : 'right'
@@ -282,20 +296,31 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             return { minX: laneMin, maxX: laneMax, lane: chosenLane }
           })()
 
-          // Select item with duplicate prevention
-          let item = level.items[Math.floor(Math.random() * level.items.length)]
-          let attempts = 0
-          const maxAttempts = level.items.length * 2
+          // Select item with fairness and duplicate prevention
+          let item: { emoji: string; name: string }
           
-          // Try to find an item not already spawned in this batch or heavily represented on screen
-          while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) || 
-                 (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
+          // Priority 1: Spawn stale emojis (not seen in 8+ seconds) if available and not in current batch
+          const availableStaleEmojis = staleEmojis.filter(e => !spawnedInBatch.has(e.emoji))
+          if (availableStaleEmojis.length > 0) {
+            // Prioritize stale emojis to ensure all emojis appear every 8 seconds
+            item = availableStaleEmojis[Math.floor(Math.random() * availableStaleEmojis.length)]
+          } else {
+            // Priority 2: Standard random selection with duplicate prevention
             item = level.items[Math.floor(Math.random() * level.items.length)]
-            attempts++
+            let attempts = 0
+            const maxAttempts = level.items.length * 2
+            
+            // Try to find an item not already spawned in this batch or heavily represented on screen
+            while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) || 
+                   (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
+              item = level.items[Math.floor(Math.random() * level.items.length)]
+              attempts++
+            }
           }
           
-          // Mark this emoji as spawned in current batch
+          // Mark this emoji as spawned in current batch and update last seen time
           spawnedInBatch.add(item.emoji)
+          emojiLastSeenMap.set(item.emoji, now)
           let spawnX = Math.random() * (maxX - minX) + minX
           let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
@@ -546,6 +571,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0
       }
 
+      // Reset emoji fairness tracking for new level
+      emojiLastSeenMap.clear()
+
       // Reset performance metrics for accurate tracking
       eventTracker.resetPerformanceMetrics()
 
@@ -575,6 +603,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
+
+    // Clear emoji fairness tracking
+    emojiLastSeenMap.clear()
 
     // Disable multi-touch handler when game ends
     multiTouchHandler.disable()
