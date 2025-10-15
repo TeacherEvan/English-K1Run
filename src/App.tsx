@@ -55,13 +55,9 @@ const requestFullscreen = () => {
 }
 
 function App() {
-  console.log('[App] Starting to render App component')
-
   const {
     displaySettings
   } = useDisplayAdjustment()
-
-  console.log('[App] Display settings:', displaySettings)
 
   const {
     gameObjects,
@@ -73,8 +69,6 @@ function App() {
     comboCelebration,
     clearComboCelebration
   } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
-
-  console.log('[App] Game logic initialized, gameState:', gameState)
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
@@ -88,7 +82,6 @@ function App() {
       if (!fullscreenTriggered) {
         fullscreenTriggered = true
         requestFullscreen()
-        console.log('[Fullscreen] Triggered fullscreen mode')
       }
     }
 
@@ -102,7 +95,6 @@ function App() {
     const attemptImmediateFullscreen = () => {
       setTimeout(() => {
         if (!document.fullscreenElement) {
-          console.log('[Fullscreen] Attempting immediate fullscreen (may require user action)')
           requestFullscreen()
         }
       }, 100)
@@ -118,7 +110,6 @@ function App() {
     // Method 4: Also try when page becomes visible (user returns to tab)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !document.fullscreenElement) {
-        console.log('[Fullscreen] Page visible, attempting fullscreen')
         requestFullscreen()
       }
     }
@@ -152,23 +143,28 @@ function App() {
   }, [gameState.gameStarted])
 
   useEffect(() => {
+    // Only rotate background when NOT in active gameplay to save resources
+    if (gameState.gameStarted && !gameState.winner) {
+      return
+    }
+
     const interval = setInterval(() => {
       setBackgroundClass(prev => pickRandomBackground(prev))
-    }, 20000) // Changed from 30000 to 20000 (20 seconds)
+    }, 20000) // 20 seconds
 
     return () => clearInterval(interval)
-  }, [])
+  }, [gameState.gameStarted, gameState.winner])
 
   // Background change handled in resetGame() to avoid cascading renders
 
-  // Update time remaining for target display
+  // Update time remaining for target display (optimized to 1s interval)
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner || currentCategory.requiresSequence) return
 
     const interval = setInterval(() => {
       const remaining = gameState.targetChangeTime - Date.now()
       setTimeRemaining(Math.max(0, remaining))
-    }, 100)
+    }, 1000) // Changed from 100ms to 1000ms for better performance
 
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])

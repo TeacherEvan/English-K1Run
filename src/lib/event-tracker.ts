@@ -35,7 +35,7 @@ export interface PerformanceMetrics {
 
 class EventTracker {
   private events: GameEvent[] = []
-  private maxEvents = 1000
+  private maxEvents = 500 // Reduced from 1000 to 500 for better performance
   private performanceMetrics: PerformanceMetrics = {
     objectSpawnRate: 0,
     frameRate: 0,
@@ -137,8 +137,8 @@ class EventTracker {
       this.events = this.events.slice(-this.maxEvents)
     }
 
-    // Log to console for development
-    if (process.env.NODE_ENV === 'development') {
+    // Only log to console in development mode to reduce overhead
+    if (import.meta.env.DEV) {
       console.log(`[${event.type.toUpperCase()}] ${event.category}: ${event.message}`, event.data)
     }
   }
@@ -276,7 +276,9 @@ class EventTracker {
     if (enable) {
       this.trackedEmojiCount = 0
       this.emojiLifecycles.clear()
-      console.log('[EmojiTracker] Lifecycle tracking enabled - will track first', this.maxTrackedEmojis, 'emojis')
+      if (import.meta.env.DEV) {
+        console.log('[EmojiTracker] Lifecycle tracking enabled - will track first', this.maxTrackedEmojis, 'emojis')
+      }
     }
   }
 
@@ -321,13 +323,16 @@ class EventTracker {
       data: lifecycleEvent
     })
 
-    console.log(
-      `[EmojiTracker #${this.emojiLifecycles.size}/${this.maxTrackedEmojis}] ${phase.toUpperCase()}: ${emoji} ${name}`,
-      `(${duration}ms)`,
-      position ? `at (${position.x.toFixed(1)}, ${position.y.toFixed(1)})` : '',
-      playerSide ? `[${playerSide}]` : '',
-      data || ''
-    )
+    // Only log to console in development mode
+    if (import.meta.env.DEV) {
+      console.log(
+        `[EmojiTracker #${this.emojiLifecycles.size}/${this.maxTrackedEmojis}] ${phase.toUpperCase()}: ${emoji} ${name}`,
+        `(${duration}ms)`,
+        position ? `at (${position.x.toFixed(1)}, ${position.y.toFixed(1)})` : '',
+        playerSide ? `[${playerSide}]` : '',
+        data || ''
+      )
+    }
   }
 
   getEmojiLifecycle(objectId: string): EmojiLifecycleEvent[] | undefined {
@@ -378,7 +383,9 @@ class EventTracker {
   clearLifecycleTracking() {
     this.emojiLifecycles.clear()
     this.trackedEmojiCount = 0
-    console.log('[EmojiTracker] Lifecycle tracking cleared')
+    if (import.meta.env.DEV) {
+      console.log('[EmojiTracker] Lifecycle tracking cleared')
+    }
   }
 }
 
