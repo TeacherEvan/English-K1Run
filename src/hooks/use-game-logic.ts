@@ -270,6 +270,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           return prev
         }
 
+        // Track emojis spawned in this batch to prevent duplicates
+        const spawnedInBatch = new Set<string>()
+        // Track recently active emojis on screen to reduce duplicates
+        const activeEmojis = new Set(prev.map(obj => obj.emoji))
+
         for (let i = 0; i < spawnCount; i++) {
           const { minX, maxX, lane } = (() => {
             const chosenLane: PlayerSide = Math.random() < 0.5 ? 'left' : 'right'
@@ -277,7 +282,20 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             return { minX: laneMin, maxX: laneMax, lane: chosenLane }
           })()
 
-          const item = level.items[Math.floor(Math.random() * level.items.length)]
+          // Select item with duplicate prevention
+          let item = level.items[Math.floor(Math.random() * level.items.length)]
+          let attempts = 0
+          const maxAttempts = level.items.length * 2
+          
+          // Try to find an item not already spawned in this batch or heavily represented on screen
+          while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) || 
+                 (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
+            item = level.items[Math.floor(Math.random() * level.items.length)]
+            attempts++
+          }
+          
+          // Mark this emoji as spawned in current batch
+          spawnedInBatch.add(item.emoji)
           let spawnX = Math.random() * (maxX - minX) + minX
           let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
