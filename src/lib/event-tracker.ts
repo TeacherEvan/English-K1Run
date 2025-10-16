@@ -33,6 +33,27 @@ export interface PerformanceMetrics {
   touchLatency: number
 }
 
+export interface AudioPlaybackEvent {
+  id: string
+  timestamp: number
+  audioKey: string
+  targetName: string
+  method: 'wav' | 'html-audio' | 'speech-synthesis' | 'fallback-tone'
+  success: boolean
+  duration?: number
+  error?: string
+}
+
+export interface EmojiAppearanceStats {
+  emoji: string
+  name: string
+  lastAppearance: number
+  appearanceCount: number
+  timeSinceLastAppearance: number
+  audioPlayed: boolean
+  audioKey?: string
+}
+
 class EventTracker {
   private events: GameEvent[] = []
   private maxEvents = 500 // Reduced from 1000 to 500 for better performance
@@ -49,6 +70,15 @@ class EventTracker {
   private maxTrackedEmojis = 10 // Track first 10 emojis
   private trackedEmojiCount = 0
   private isLifecycleTrackingEnabled = false
+
+  // Audio playback tracking
+  private audioPlaybackEvents: AudioPlaybackEvent[] = []
+  private maxAudioEvents = 100
+
+  // Emoji appearance tracking for rotation monitoring
+  private emojiAppearances: Map<string, EmojiAppearanceStats> = new Map()
+  private currentLevelItems: Array<{ emoji: string; name: string }> = []
+  private rotationThreshold = 10000 // 10 seconds as requested
 
   constructor() {
     // Set up global error handlers
@@ -386,6 +416,163 @@ class EventTracker {
     if (import.meta.env.DEV) {
       console.log('[EmojiTracker] Lifecycle tracking cleared')
     }
+  }
+
+  // Audio playback tracking methods
+  trackAudioPlayback(event: Omit<AudioPlaybackEvent, 'id' | 'timestamp'>) {
+    const audioEvent: AudioPlaybackEvent = {
+      id: `audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: Date.now(),
+      ...event
+    }
+
+    this.audioPlaybackEvents.push(audioEvent)
+
+    // Keep only recent events
+    if (this.audioPlaybackEvents.length > this.maxAudioEvents) {
+      this.audioPlaybackEvents = this.audioPlaybackEvents.slice(-this.maxAudioEvents)
+    }
+
+    // Also track in general event system
+    this.trackEvent({
+      type: event.success ? 'info' : 'warning',
+      category: 'audio_playback',
+      message: `Audio ${event.success ? 'played' : 'failed'}: ${event.audioKey}`,
+      data: audioEvent
+    })
+
+    if (import.meta.env.DEV) {
+      console.log(
+        `[AudioTracker] ${event.success ? '✓' : '✗'} ${event.method}:`,
+        event.audioKey,
+        event.error || ''
+      )
+    }
+  }
+
+  getAudioPlaybackHistory(limit = 20): AudioPlaybackEvent[] {
+    return this.audioPlaybackEvents.slice(-limit).reverse()
+  }
+
+  getAudioPlaybackStats() {
+    const stats = {
+      totalAttempts: this.audioPlaybackEvents.length,
+      successful: this.audioPlaybackEvents.filter(e => e.success).length,
+      failed: this.audioPlaybackEvents.filter(e => !e.success).length,
+      byMethod: {} as Record<string, { success: number; failed: number }>
+    }
+
+    this.audioPlaybackEvents.forEach(event => {
+      if (!stats.byMethod[event.method]) {
+        stats.byMethod[event.method] = { success: 0, failed: 0 }
+      }
+      if (event.success) {
+        stats.byMethod[event.method].success++
+      } else {
+        stats.byMethod[event.method].failed++
+      }
+    })
+
+    return stats
+  }
+
+  // Emoji appearance tracking for rotation monitoring
+  initializeEmojiTracking(levelItems: Array<{ emoji: string; name: string }>) {
+    this.currentLevelItems = levelItems
+    this.emojiAppearances.clear()
+
+    // Initialize tracking for all emojis in the level
+    levelItems.forEach(item => {
+      this.emojiAppearances.set(item.emoji, {
+        emoji: item.emoji,
+        name: item.name,
+        lastAppearance: 0,
+        appearanceCount: 0,
+        timeSinceLastAppearance: 0,
+        audioPlayed: false
+      })
+    })
+
+    if (import.meta.env.DEV) {
+      console.log(`[EmojiRotation] Initialized tracking for ${levelItems.length} emojis`)
+    }
+  }
+
+  trackEmojiAppearance(emoji: string, audioKey?: string) {
+    const stats = this.emojiAppearances.get(emoji)
+    if (!stats) {
+      // Emoji not in current level - shouldn't happen but handle gracefully
+      console.warn(`[EmojiRotation] Tracking appearance of unknown emoji: ${emoji}`)
+      return
+    }
+
+    const now = Date.now()
+    stats.lastAppearance = now
+    stats.appearanceCount++
+    stats.audioPlayed = !!audioKey
+    stats.audioKey = audioKey
+    stats.timeSinceLastAppearance = 0
+
+    // Update time since last appearance for all other emojis
+    this.emojiAppearances.forEach((stat, key) => {
+      if (key !== emoji && stat.lastAppearance > 0) {
+        stat.timeSinceLastAppearance = now - stat.lastAppearance
+      }
+    })
+
+    if (import.meta.env.DEV) {
+      console.log(`[EmojiRotation] ${emoji} appeared (count: ${stats.appearanceCount}, audio: ${audioKey || 'none'})`)
+    }
+  }
+
+  getEmojiRotationStats(): EmojiAppearanceStats[] {
+    const now = Date.now()
+    const stats: EmojiAppearanceStats[] = []
+
+    this.emojiAppearances.forEach(stat => {
+      const timeSince = stat.lastAppearance > 0 
+        ? now - stat.lastAppearance 
+        : now // Never appeared = time since level start
+
+      stats.push({
+        ...stat,
+        timeSinceLastAppearance: timeSince
+      })
+    })
+
+    // Sort by time since last appearance (longest wait first)
+    return stats.sort((a, b) => b.timeSinceLastAppearance - a.timeSinceLastAppearance)
+  }
+
+  getOverdueEmojis(): EmojiAppearanceStats[] {
+    const stats = this.getEmojiRotationStats()
+    return stats.filter(stat => stat.timeSinceLastAppearance > this.rotationThreshold)
+  }
+
+  checkRotationHealth(): { healthy: boolean; overdueCount: number; maxWaitTime: number } {
+    const overdue = this.getOverdueEmojis()
+    const allStats = this.getEmojiRotationStats()
+    const maxWaitTime = allStats.length > 0 ? allStats[0].timeSinceLastAppearance : 0
+
+    const healthy = overdue.length === 0
+
+    if (!healthy && import.meta.env.DEV) {
+      console.warn(
+        `[EmojiRotation] ⚠️ ${overdue.length} emojis overdue (>${this.rotationThreshold}ms):`,
+        overdue.map(e => `${e.emoji} ${e.name} (${(e.timeSinceLastAppearance / 1000).toFixed(1)}s)`)
+      )
+    }
+
+    return { healthy, overdueCount: overdue.length, maxWaitTime }
+  }
+
+  clearAudioTracking() {
+    this.audioPlaybackEvents = []
+  }
+
+  clearEmojiRotationTracking() {
+    this.emojiAppearances.clear()
+    this.currentLevelItems = []
   }
 }
 

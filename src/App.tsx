@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 // Core game components (critical path)
 import { ComboCelebration } from './components/ComboCelebration'
+import { EmojiRotationMonitor } from './components/EmojiRotationMonitor'
 import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
@@ -245,6 +246,9 @@ function App() {
         isVisible={!!gameState.winner}
         winner={gameState.winner}
       />
+
+      {/* Debug: Emoji Rotation Monitor (dev mode only) */}
+      {import.meta.env.DEV && <EmojiRotationMonitor />}
     </div>
   )
 }

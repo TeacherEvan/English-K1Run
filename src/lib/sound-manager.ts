@@ -1,5 +1,7 @@
 // Sound Manager - Enhanced audio system that supports wav assets and speech-like cues
 
+import { eventTracker } from './event-tracker'
+
 const rawAudioFiles = import.meta.glob('../../sounds/*.wav', {
     eager: true,
     import: 'default',
@@ -431,12 +433,26 @@ class SoundManager {
 
             const handleEnded = () => {
                 cleanup()
+                eventTracker.trackAudioPlayback({
+                    audioKey: key,
+                    targetName: key,
+                    method: 'html-audio',
+                    success: true,
+                    duration: audio.duration
+                })
                 resolve(true)
             }
 
             const handleError = (event: Event) => {
                 console.warn(`HTMLAudio playback failed for "${key}"`, event)
                 cleanup()
+                eventTracker.trackAudioPlayback({
+                    audioKey: key,
+                    targetName: key,
+                    method: 'html-audio',
+                    success: false,
+                    error: 'playback_error'
+                })
                 resolve(false)
             }
 
@@ -446,6 +462,13 @@ class SoundManager {
             audio.play().catch(error => {
                 console.warn(`Unable to start audio element for "${key}":`, error)
                 cleanup()
+                eventTracker.trackAudioPlayback({
+                    audioKey: key,
+                    targetName: key,
+                    method: 'html-audio',
+                    success: false,
+                    error: error.message || 'play_error'
+                })
                 resolve(false)
             })
         })
@@ -485,6 +508,13 @@ class SoundManager {
 
         if (!this.canUseSpeech()) {
             console.warn('[SoundManager] Cannot use speech - not available')
+            eventTracker.trackAudioPlayback({
+                audioKey: text,
+                targetName: text,
+                method: 'speech-synthesis',
+                success: false,
+                error: 'not_available'
+            })
             return false
         }
 
@@ -492,6 +522,13 @@ class SoundManager {
             const synth = window.speechSynthesis
             if (!synth) {
                 console.warn('[SoundManager] speechSynthesis object not found')
+                eventTracker.trackAudioPlayback({
+                    audioKey: text,
+                    targetName: text,
+                    method: 'speech-synthesis',
+                    success: false,
+                    error: 'synth_not_found'
+                })
                 return false
             }
 
@@ -503,6 +540,12 @@ class SoundManager {
             // Add event listeners for debugging
             utterance.onstart = () => {
                 console.log(`[SoundManager] Started speaking: "${text}"`)
+                eventTracker.trackAudioPlayback({
+                    audioKey: text,
+                    targetName: text,
+                    method: 'speech-synthesis',
+                    success: true
+                })
             }
 
             utterance.onend = () => {
@@ -511,6 +554,13 @@ class SoundManager {
 
             utterance.onerror = (event) => {
                 console.error('[SoundManager] Speech synthesis error:', event)
+                eventTracker.trackAudioPlayback({
+                    audioKey: text,
+                    targetName: text,
+                    method: 'speech-synthesis',
+                    success: false,
+                    error: event.error || 'unknown_error'
+                })
             }
 
             synth.cancel() // Cancel any ongoing speech
@@ -521,6 +571,13 @@ class SoundManager {
         } catch (error) {
             console.warn('[SoundManager] Speech synthesis failed:', error)
             this.speechAvailable = false
+            eventTracker.trackAudioPlayback({
+                audioKey: text,
+                targetName: text,
+                method: 'speech-synthesis',
+                success: false,
+                error: error instanceof Error ? error.message : 'exception'
+            })
             return false
         }
     }
@@ -634,6 +691,8 @@ class SoundManager {
             const trimmed = phrase.trim()
             if (!trimmed) return
 
+            const startTime = performance.now()
+
             // PRIORITY 1: Look up sentence template for educational context
             const normalizedPhrase = trimmed.toLowerCase()
             const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
@@ -643,6 +702,14 @@ class SoundManager {
                 console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
                 if (this.speakWithSpeechSynthesis(sentence)) {
                     console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: normalizedPhrase,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
                     return
                 } else {
                     console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
@@ -651,6 +718,16 @@ class SoundManager {
 
             // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
             if (await this.playVoiceClip(trimmed)) {
+                const duration = performance.now() - startTime
+                const candidates = this.resolveCandidates(trimmed)
+                const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
+                eventTracker.trackAudioPlayback({
+                    audioKey: successfulKey,
+                    targetName: trimmed,
+                    method: 'wav',
+                    success: true,
+                    duration
+                })
                 return
             }
 
@@ -658,6 +735,14 @@ class SoundManager {
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
                 if (this.speakWithSpeechSynthesis(trimmed)) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
                     return
                 }
 
@@ -674,18 +759,48 @@ class SoundManager {
                 }
 
                 if (anyPlayed) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'wav',
+                        success: true,
+                        duration
+                    })
                     return
                 }
             } else {
                 // Single word: try speech synthesis
                 if (this.speakWithSpeechSynthesis(trimmed)) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
                     return
                 }
             }
 
-            // No fallback audio - only target pronunciations allowed
+            // No audio played successfully
+            eventTracker.trackAudioPlayback({
+                audioKey: trimmed,
+                targetName: trimmed,
+                method: 'fallback-tone',
+                success: false,
+                error: 'no_audio_available'
+            })
         } catch (error) {
             console.warn('Failed to play word audio:', error)
+            eventTracker.trackAudioPlayback({
+                audioKey: phrase,
+                targetName: phrase,
+                method: 'fallback-tone',
+                success: false,
+                error: error instanceof Error ? error.message : 'exception'
+            })
         }
     }
 
