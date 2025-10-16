@@ -77,7 +77,7 @@ const SENTENCE_TEMPLATES: Record<string, string> = {
     // Shapes & Colors
     'blue': 'The sky is blue',
     'red': 'The apple is red',
-    'orange': 'The pumpkin is orange',
+    // 'orange' used from Fruits section above (orange fruit is primary)
     'green': 'The grass is green',
     'yellow': 'The sun is yellow',
     'brown': 'The bear is brown',
@@ -129,7 +129,7 @@ const SENTENCE_TEMPLATES: Record<string, string> = {
     'tornado': 'The tornado spins around',
     'windy': 'It is very windy today',
     'moon': 'The moon shines at night',
-    'star': 'The stars twinkle',
+    // 'star' used from Shapes section above (star shape is primary)
     'sun': 'The sun gives us light',
     'foggy': 'The morning is foggy',
     'lightning': 'The lightning flashes bright',
@@ -486,7 +486,7 @@ class SoundManager {
             audio.preload = 'auto'
             audio.crossOrigin = 'anonymous'
             audio.volume = this.volume
-            audio.playbackRate = 1.0 // Ensure normal speed (prevents frog/chipmunk voices)
+            audio.playbackRate = 0.8 // 20% slower for clearer kindergarten comprehension
 
             const cleanup = () => {
                 audio.removeEventListener('ended', handleEnded)
@@ -595,7 +595,7 @@ class SoundManager {
             }
 
             const utterance = new SpeechSynthesisUtterance(text)
-            utterance.rate = 1.0  // Normal speed for clear pronunciation
+            utterance.rate = 0.8  // 20% slower for clearer kindergarten comprehension
             utterance.pitch = 1.0  // Natural pitch for better voice quality
             utterance.volume = this.volume
 
@@ -670,6 +670,7 @@ class SoundManager {
         const gainNode = this.audioContext.createGain()
 
         source.buffer = buffer
+        source.playbackRate.value = 0.8 // 20% slower for clearer kindergarten comprehension
         gainNode.gain.value = this.volume
 
         source.connect(gainNode)

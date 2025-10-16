@@ -46,11 +46,13 @@ export interface ComboCelebration {
   description: string
 }
 
-const MAX_ACTIVE_OBJECTS = 15
+const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
 const EMOJI_SIZE = 60
 const MIN_VERTICAL_GAP = 120
 const HORIZONTAL_SEPARATION = 6
 const COLLISION_MIN_SEPARATION = 8
+const SPAWN_COUNT = 8 // Always spawn exactly 8 objects
+const TARGET_GUARANTEE_COUNT = 2 // Ensure 2 of the 8 spawned objects are the current target
 const LANE_BOUNDS: Record<PlayerSide, [number, number]> = {
   left: [10, 45],
   right: [55, 90]
@@ -266,6 +268,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
   const ROTATION_THRESHOLD = 10000 // 10 seconds as requested in the issue
 
+  // Target pool system: ensures all targets are requested before any repeats
+  // Shuffled array of remaining targets for current level
+  const targetPool = useRef<Array<{ emoji: string; name: string }>>([])
+
   // Cache stale emojis to avoid recalculating every spawn (performance optimization)
   const staleEmojisCache = useRef<{ emojis: Array<{ emoji: string; name: string }>; timestamp: number }>({
     emojis: [],
@@ -293,6 +299,27 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const currentCategory = GAME_CATEGORIES[gameState.level] || GAME_CATEGORIES[0]
 
+  // Fisher-Yates shuffle algorithm for randomizing target pool
+  const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }, [])
+
+  // Refill target pool with shuffled items from current category
+  const refillTargetPool = useCallback((levelIndex?: number) => {
+    const level = levelIndex !== undefined ? levelIndex : gameState.level
+    const category = GAME_CATEGORIES[level] || GAME_CATEGORIES[0]
+    targetPool.current = shuffleArray(category.items)
+
+    if (import.meta.env.DEV) {
+      console.log(`[TargetPool] Refilled with ${targetPool.current.length} items (shuffled)`)
+    }
+  }, [gameState.level, shuffleArray])
+
   useEffect(() => {
     if (gameState.gameStarted && gameState.currentTarget) {
       void playSoundEffect.voice(gameState.currentTarget)
@@ -303,15 +330,28 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     const levelIndex = clampLevel(levelOverride ?? gameState.level)
     const category = GAME_CATEGORIES[levelIndex] || GAME_CATEGORIES[0]
 
+    // Sequence mode (Alphabet Challenge) - use sequential order
     if (category.requiresSequence) {
       const sequenceIndex = category.sequenceIndex || 0
       const targetItem = category.items[sequenceIndex % category.items.length]
       return { name: targetItem.name, emoji: targetItem.emoji }
     }
 
-    const randomItem = category.items[Math.floor(Math.random() * category.items.length)]
-    return { name: randomItem.name, emoji: randomItem.emoji }
-  }, [clampLevel, gameState.level])
+    // Non-sequence mode - use target pool to ensure no repeats until all targets used
+    // If pool is empty, refill it with shuffled items
+    if (targetPool.current.length === 0) {
+      refillTargetPool(levelIndex)
+    }
+
+    // Pop the next target from the pool
+    const targetItem = targetPool.current.pop()!
+
+    if (import.meta.env.DEV) {
+      console.log(`[TargetPool] Selected "${targetItem.name}", ${targetPool.current.length} remaining`)
+    }
+
+    return { name: targetItem.name, emoji: targetItem.emoji }
+  }, [clampLevel, gameState.level, refillTargetPool])
   // Target initialization is handled in startGame function
 
   // Spawn objects while respecting lane separation and the active object cap
@@ -323,11 +363,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
 
         const level = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
+        const currentTarget = gameStateRef.current.targetEmoji
         const availableSlots = MAX_ACTIVE_OBJECTS - prev.length
-        const spawnCount = Math.min(availableSlots, Math.floor(Math.random() * 2) + 2)
+        const actualSpawnCount = Math.min(availableSlots, SPAWN_COUNT)
         const created: GameObject[] = []
 
-        if (spawnCount <= 0) {
+        if (actualSpawnCount <= 0) {
           return prev
         }
 
@@ -363,7 +404,73 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           return level.items[Math.floor(Math.random() * level.items.length)]
         }
 
-        for (let i = 0; i < spawnCount; i++) {
+        // CRITICAL: First, spawn TARGET_GUARANTEE_COUNT instances of the current target
+        // This ensures the requested emoji is ALWAYS visible on screen
+        const targetItem = level.items.find(item => item.emoji === currentTarget)
+        let targetSpawnCount = 0
+
+        if (targetItem) {
+          for (let i = 0; i < Math.min(TARGET_GUARANTEE_COUNT, actualSpawnCount); i++) {
+            const { minX, maxX, lane } = (() => {
+              const chosenLane: PlayerSide = Math.random() < 0.5 ? 'left' : 'right'
+              const [laneMin, laneMax] = LANE_BOUNDS[chosenLane]
+              return { minX: laneMin, maxX: laneMax, lane: chosenLane }
+            })()
+
+            const item = targetItem
+            spawnedInBatch.add(item.emoji)
+            lastEmojiAppearance.current.set(item.emoji, now)
+            targetSpawnCount++
+
+            // Track emoji appearance in event tracker
+            eventTracker.trackEmojiAppearance(item.emoji, item.name)
+            let spawnX = Math.random() * (maxX - minX) + minX
+            let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
+
+            const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
+            for (const existing of laneObjects) {
+              const verticalGap = Math.abs(existing.y - spawnY)
+              const horizontalGap = Math.abs(existing.x - spawnX)
+
+              if (verticalGap < MIN_VERTICAL_GAP) {
+                spawnY = Math.min(spawnY, existing.y - MIN_VERTICAL_GAP)
+              }
+
+              if (horizontalGap < HORIZONTAL_SEPARATION && verticalGap < MIN_VERTICAL_GAP * 1.2) {
+                spawnX = clamp(
+                  spawnX < existing.x ? existing.x - HORIZONTAL_SEPARATION : existing.x + HORIZONTAL_SEPARATION,
+                  minX,
+                  maxX
+                )
+              }
+            }
+
+            const newObject: GameObject = {
+              id: `target-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+              type: item.name,
+              emoji: item.emoji,
+              x: spawnX,
+              y: spawnY,
+              speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier,
+              size: EMOJI_SIZE,
+              lane
+            }
+
+            eventTracker.trackEmojiLifecycle({
+              objectId: newObject.id,
+              emoji: newObject.emoji,
+              name: newObject.type,
+              phase: 'spawned',
+              position: { x: newObject.x, y: newObject.y },
+              playerSide: newObject.lane
+            })
+
+            created.push(newObject)
+          }
+        }
+
+        // Now spawn the remaining objects (actualSpawnCount - targetSpawnCount)
+        for (let i = targetSpawnCount; i < actualSpawnCount; i++) {
           const { minX, maxX, lane } = (() => {
             const chosenLane: PlayerSide = Math.random() < 0.5 ? 'left' : 'right'
             const [laneMin, laneMax] = LANE_BOUNDS[chosenLane]
@@ -381,6 +488,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             item = selectItem()
             attempts++
           }
+
+          // Mark this emoji as spawned in current batch and update last appearance time
+          spawnedInBatch.add(item.emoji)
+          lastEmojiAppearance.current.set(item.emoji, now)
 
           // Mark this emoji as spawned in current batch and update last appearance time
           spawnedInBatch.add(item.emoji)
@@ -455,11 +566,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       const current = laneObjects[i]
       current.x = clamp(current.x, minX, maxX)
 
+      // Skip collision detection for objects still spawning (y < 0)
+      // This prevents the 8 newly spawned emojis from pushing each other around
+      if (current.y < 0) continue
+
       // Early exit if only one object or current is last object
       if (i === laneLength - 1) break
 
       for (let j = i + 1; j < laneLength; j++) {
         const other = laneObjects[j]
+
+        // Skip collision with objects still spawning (y < 0)
+        if (other.y < 0) continue
+
         const verticalGap = Math.abs(current.y - other.y)
 
         // Early exit: objects far apart vertically don't need collision check
@@ -670,6 +789,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       // Reset emoji appearance tracking for new game
       lastEmojiAppearance.current.clear()
 
+      // Reset target pool for new level (ensures fresh shuffle)
+      targetPool.current = []
+
       // Initialize emoji rotation tracking in event tracker
       const currentCategory = GAME_CATEGORIES[safeLevel]
       eventTracker.initializeEmojiTracking(currentCategory.items)
@@ -710,6 +832,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     // Reset emoji appearance tracking
     lastEmojiAppearance.current.clear()
 
+    // Reset target pool
+    targetPool.current = []
+
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
 
@@ -749,13 +874,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   // REMOVED: Emoji variety management effect - unnecessary complexity that caused performance issues
   // Pure random selection in spawnObject is sufficient for gameplay variety
 
-  // Spawn objects - Optimized spawn rate (reduced from 1400ms to 2000ms for better performance)
+  // Spawn objects - 8 emojis every 1.5 seconds with guaranteed target visibility
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) {
       return
     }
 
-    const interval = setInterval(spawnObject, 2000)
+    const interval = setInterval(spawnObject, 1500) // 1.5 seconds = 1500ms
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 

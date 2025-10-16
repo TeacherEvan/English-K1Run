@@ -24,9 +24,10 @@ const VOICE_SETTINGS = {
 
 // All audio files needed for the game
 const AUDIO_PHRASES = [
-    // Numbers 1-10
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+    // Numbers 1-15 (including double digits)
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
     'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
 
     // Alphabet A-Z
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -34,6 +35,7 @@ const AUDIO_PHRASES = [
 
     // Fruits & Vegetables
     'apple', 'banana', 'grapes', 'strawberry', 'carrot', 'cucumber', 'watermelon', 'broccoli',
+    'orange', 'lemon', 'peach', 'cherry', 'kiwi',
 
     // Shapes
     'circle', 'square', 'diamond', 'triangle', 'star', 'oval', 'rectangle', 'pentagon', 'hexagon',
@@ -50,15 +52,19 @@ const AUDIO_PHRASES = [
 
     // Vehicles (Things That Go)
     'car', 'bus', 'fire truck', 'airplane', 'rocket', 'bicycle', 'helicopter', 'boat',
+    'train', 'taxi', 'van', 'scooter', 'motorcycle',
 
     // Weather
-    'sunny', 'partly cloudy', 'rainy', 'stormy', 'snowy', 'tornado', 'windy',
+    'sunny', 'partly cloudy', 'cloudy', 'rainy', 'stormy', 'snowy', 'tornado', 'windy',
+    'foggy', 'lightning',
 
     // Feelings & Actions
     'happy', 'sad', 'angry', 'sleepy', 'hug', 'clap', 'dance', 'flip',
+    'smile', 'laugh', 'think', 'celebrate', 'wave',
 
     // Body Parts
-    'eye', 'ear', 'nose', 'mouth', 'tongue', 'hand', 'foot', 'leg',
+    'eye', 'ear', 'nose', 'mouth', 'tongue', 'hand', 'foot', 'leg', 'tooth',
+    'arm', 'brain', 'heart',
 
     // Objects with emoji_ prefix for compatibility
     'emoji_apple', 'emoji_banana', 'emoji_grapes', 'emoji_watermelon', 'emoji_orange',
