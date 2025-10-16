@@ -150,6 +150,9 @@ const SENTENCE_TEMPLATES: Record<string, string> = {
     'wave': 'I wave hello to my friends',
 
     // Body Parts
+    // Note: The sentences below intentionally use plural forms ("eyes", "ears", "feet", "legs") for anatomical accuracy,
+    // even though the game items are named in the singular ("eye", "ear", "foot", "leg").
+    // This is because humans typically reference these body parts in pairs.
     'eye': 'I see with my eyes',
     'ear': 'I hear with my ears',
     'nose': 'I smell with my nose',
