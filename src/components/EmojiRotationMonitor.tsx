@@ -22,9 +22,13 @@ export const EmojiRotationMonitor = memo(() => {
   }
 
   useEffect(() => {
-    updateStats()
+    // Initial update after mount
+    const timeout = setTimeout(() => updateStats(), 0)
     const interval = setInterval(updateStats, 1000)
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(timeout)
+      clearInterval(interval)
+    }
   }, [])
 
   if (!isVisible) {
