@@ -262,8 +262,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
   
-  // Track last appearance time for each emoji to ensure all appear within 8 seconds
+  // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
+  const ROTATION_THRESHOLD = 10000 // 10 seconds as requested in the issue
   
   // Background rotation is handled in App.tsx, not here
 
@@ -323,9 +324,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // Track recently active emojis on screen to reduce duplicates
         const activeEmojis = new Set(prev.map(obj => obj.emoji))
         
-        // Check which emojis haven't appeared in the last 8 seconds
+        // Check which emojis haven't appeared in the last 10 seconds
         const now = Date.now()
-        const ROTATION_THRESHOLD = 8000 // 8 seconds
         const staleEmojis = level.items.filter(item => {
           const lastSeen = lastEmojiAppearance.current.get(item.emoji)
           return !lastSeen || (now - lastSeen) > ROTATION_THRESHOLD
@@ -364,6 +364,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Mark this emoji as spawned in current batch and update last appearance time
           spawnedInBatch.add(item.emoji)
           lastEmojiAppearance.current.set(item.emoji, now)
+          
+          // Track emoji appearance in event tracker
+          eventTracker.trackEmojiAppearance(item.emoji, item.name)
           let spawnX = Math.random() * (maxX - minX) + minX
           let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
@@ -635,6 +638,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       
       // Reset emoji appearance tracking for new game
       lastEmojiAppearance.current.clear()
+
+      // Initialize emoji rotation tracking in event tracker
+      const currentCategory = GAME_CATEGORIES[safeLevel]
+      eventTracker.initializeEmojiTracking(currentCategory.items)
 
       // Reset performance metrics for accurate tracking
       eventTracker.resetPerformanceMetrics()
