@@ -266,6 +266,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
   const ROTATION_THRESHOLD = 10000 // 10 seconds as requested in the issue
   
+  // Cache stale emojis to avoid recalculating every spawn (performance optimization)
+  const staleEmojisCache = useRef<{ emojis: Array<{ emoji: string; name: string }>; timestamp: number }>({ 
+    emojis: [], 
+    timestamp: 0 
+  })
+  
   // Background rotation is handled in App.tsx, not here
 
   // Use ref to access current game state in callbacks without causing re-creation
@@ -328,14 +334,34 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // Track emojis spawned in this batch to prevent duplicates
         const spawnedInBatch = new Set<string>()
         // Track recently active emojis on screen to reduce duplicates
-        const activeEmojis = new Set(prev.map(obj => obj.emoji))
+        const activeEmojis = new Set<string>()
+        for (const obj of prev) {
+          activeEmojis.add(obj.emoji)
+        }
         
-        // Check which emojis haven't appeared in the last 10 seconds
+        // Get stale emojis (cached for 5 seconds to avoid recalculating every spawn)
         const now = Date.now()
-        const staleEmojis = level.items.filter(item => {
-          const lastSeen = lastEmojiAppearance.current.get(item.emoji)
-          return !lastSeen || (now - lastSeen) > ROTATION_THRESHOLD
-        })
+        let staleEmojis: Array<{ emoji: string; name: string }>
+        
+        if (now - staleEmojisCache.current.timestamp > 5000) {
+          // Recalculate stale emojis (haven't appeared in 10 seconds)
+          staleEmojis = level.items.filter(item => {
+            const lastSeen = lastEmojiAppearance.current.get(item.emoji)
+            return !lastSeen || (now - lastSeen) > ROTATION_THRESHOLD
+          })
+          staleEmojisCache.current = { emojis: staleEmojis, timestamp: now }
+        } else {
+          // Use cached value
+          staleEmojis = staleEmojisCache.current.emojis
+        }
+        
+        // Helper function to select item (prevents duplicate code)
+        const selectItem = () => {
+          if (staleEmojis.length > 0 && Math.random() < 0.7) {
+            return staleEmojis[Math.floor(Math.random() * staleEmojis.length)]
+          }
+          return level.items[Math.floor(Math.random() * level.items.length)]
+        }
 
         for (let i = 0; i < spawnCount; i++) {
           const { minX, maxX, lane } = (() => {
@@ -344,26 +370,15 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             return { minX: laneMin, maxX: laneMax, lane: chosenLane }
           })()
 
-          // Prioritize emojis that haven't appeared recently (stale emojis)
-          let item: { emoji: string; name: string }
-          if (staleEmojis.length > 0 && Math.random() < 0.7) {
-            // 70% chance to pick a stale emoji if any exist
-            item = staleEmojis[Math.floor(Math.random() * staleEmojis.length)]
-          } else {
-            // Otherwise pick randomly from all items
-            item = level.items[Math.floor(Math.random() * level.items.length)]
-          }
+          // Select item using helper function (prioritizes stale emojis)
+          let item = selectItem()
           
           // Try to avoid duplicates in current batch and on screen
           let attempts = 0
           const maxAttempts = level.items.length * 2
           while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) || 
                  (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
-            if (staleEmojis.length > 0 && Math.random() < 0.7) {
-              item = staleEmojis[Math.floor(Math.random() * staleEmojis.length)]
-            } else {
-              item = level.items[Math.floor(Math.random() * level.items.length)]
-            }
+            item = selectItem()
             attempts++
           }
           
@@ -499,8 +514,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
         // Only process collision detection if we have multiple objects
         if (updated.length > 1) {
-          const leftObjects = updated.filter(obj => obj.lane === 'left')
-          const rightObjects = updated.filter(obj => obj.lane === 'right')
+          // Single-pass separation into lanes (performance optimization)
+          const leftObjects: GameObject[] = []
+          const rightObjects: GameObject[] = []
+          
+          for (const obj of updated) {
+            if (obj.lane === 'left') {
+              leftObjects.push(obj)
+            } else {
+              rightObjects.push(obj)
+            }
+          }
           
           // Only process lanes that have objects
           if (leftObjects.length > 1) processLane(leftObjects, 'left')
