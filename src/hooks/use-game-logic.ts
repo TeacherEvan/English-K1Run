@@ -261,17 +261,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
-  
+
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
   const ROTATION_THRESHOLD = 10000 // 10 seconds as requested in the issue
-  
+
   // Cache stale emojis to avoid recalculating every spawn (performance optimization)
-  const staleEmojisCache = useRef<{ emojis: Array<{ emoji: string; name: string }>; timestamp: number }>({ 
-    emojis: [], 
-    timestamp: 0 
+  const staleEmojisCache = useRef<{ emojis: Array<{ emoji: string; name: string }>; timestamp: number }>({
+    emojis: [],
+    timestamp: 0
   })
-  
+
   // Background rotation is handled in App.tsx, not here
 
   // Use ref to access current game state in callbacks without causing re-creation
@@ -338,11 +338,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         for (const obj of prev) {
           activeEmojis.add(obj.emoji)
         }
-        
+
         // Get stale emojis (cached for 5 seconds to avoid recalculating every spawn)
         const now = Date.now()
         let staleEmojis: Array<{ emoji: string; name: string }>
-        
+
         if (now - staleEmojisCache.current.timestamp > 5000) {
           // Recalculate stale emojis (haven't appeared in 10 seconds)
           staleEmojis = level.items.filter(item => {
@@ -354,7 +354,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Use cached value
           staleEmojis = staleEmojisCache.current.emojis
         }
-        
+
         // Helper function to select item (prevents duplicate code)
         const selectItem = () => {
           if (staleEmojis.length > 0 && Math.random() < 0.7) {
@@ -372,20 +372,20 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
           // Select item using helper function (prioritizes stale emojis)
           let item = selectItem()
-          
+
           // Try to avoid duplicates in current batch and on screen
           let attempts = 0
           const maxAttempts = level.items.length * 2
-          while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) || 
-                 (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
+          while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) ||
+            (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
             item = selectItem()
             attempts++
           }
-          
+
           // Mark this emoji as spawned in current batch and update last appearance time
           spawnedInBatch.add(item.emoji)
           lastEmojiAppearance.current.set(item.emoji, now)
-          
+
           // Track emoji appearance in event tracker
           eventTracker.trackEmojiAppearance(item.emoji, item.name)
           let spawnX = Math.random() * (maxX - minX) + minX
@@ -461,12 +461,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       for (let j = i + 1; j < laneLength; j++) {
         const other = laneObjects[j]
         const verticalGap = Math.abs(current.y - other.y)
-        
+
         // Early exit: objects far apart vertically don't need collision check
         if (verticalGap > MIN_VERTICAL_GAP) continue
 
         const horizontalGap = Math.abs(current.x - other.x)
-        
+
         // Early exit: objects far enough apart horizontally or exactly overlapping
         if (horizontalGap >= COLLISION_MIN_SEPARATION || horizontalGap === 0) continue
 
@@ -517,7 +517,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Single-pass separation into lanes (performance optimization)
           const leftObjects: GameObject[] = []
           const rightObjects: GameObject[] = []
-          
+
           for (const obj of updated) {
             if (obj.lane === 'left') {
               leftObjects.push(obj)
@@ -525,7 +525,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               rightObjects.push(obj)
             }
           }
-          
+
           // Only process lanes that have objects
           if (leftObjects.length > 1) processLane(leftObjects, 'left')
           if (rightObjects.length > 1) processLane(rightObjects, 'right')
@@ -666,7 +666,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0
       }
-      
+
       // Reset emoji appearance tracking for new game
       lastEmojiAppearance.current.clear()
 
@@ -706,7 +706,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     // Disable multi-touch handler when game ends
     multiTouchHandler.disable()
-    
+
     // Reset emoji appearance tracking
     lastEmojiAppearance.current.clear()
 

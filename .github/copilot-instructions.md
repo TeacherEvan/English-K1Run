@@ -20,11 +20,11 @@ Split-screen educational racing game where two players compete by tapping fallin
 - Alphabet Challenge (sequential letter tapping A→B→C)
 
 **Performance Requirements**:
-- **60fps target**: Smooth animations without frame drops
+- **60fps target**: Smooth animations without frame drops using `requestAnimationFrame`
 - **Max 15 concurrent objects**: Prevents spawn-rate bottlenecks
 - **Sub-100ms touch latency**: Responsive controls critical for engagement
-- **Spawn rate**: 2-4 objects every 350ms (monitored by eventTracker with >8/sec warning threshold)
-- **Memory management**: Auto-cleanup of off-screen objects, max 1000 tracked events
+- **Spawn rate**: 2000ms interval (2-4 objects per spawn, monitored by eventTracker with >8/sec warning threshold)
+- **Memory management**: Auto-cleanup of off-screen objects, max 500 tracked events (reduced from 1000 for performance)
 
 **Special Handling**: Double-digit numbers (11-20) render as plain text with blue background styling in `FallingObject.tsx`, not complex emoji combinations.
 
@@ -47,14 +47,15 @@ Split-screen educational racing game where two players compete by tapping fallin
 **Category System**: `GAME_CATEGORIES` array defines levels with `items: { emoji, name }[]`. Special case: "Alphabet Challenge" has `requiresSequence: true` which enforces sequential tapping (ABC...). When adding categories, check if sequence mode applies.
 
 **Object Lifecycle**: 
-1. `spawnObject()` creates up to 15 active objects (tracked by `eventTracker`)
-2. `handleObjectTap()` is the **only** place that scores points, plays audio, advances progress, and detects winners
-3. Objects auto-remove on y > 100 or manual tap; never mutate `gameObjects` outside the hook
+1. `spawnObject()` creates up to 15 active objects at 2000ms intervals (tracked by `eventTracker`)
+2. `updateObjects()` uses `requestAnimationFrame` for smooth 60fps animation (not `setInterval`)
+3. `handleObjectTap()` is the **only** place that scores points, plays audio, advances progress, and detects winners
+4. Objects auto-remove on y > 100 or manual tap; never mutate `gameObjects` outside the hook
 
 **Component Ownership**: `App.tsx` owns top-level state (`debugVisible`, `backgroundClass`, `selectedLevel`) and orchestrates layout. All game logic delegates to `use-game-logic.ts` hook.
 
 **Singleton Pattern**: Three global singletons initialized on import (never instantiate):
-- `eventTracker` (`src/lib/event-tracker.ts`) - Error/performance logging, max 1000 events
+- `eventTracker` (`src/lib/event-tracker.ts`) - Error/performance logging, max 500 events (reduced from 1000)
 - `soundManager` (`src/lib/sound-manager.ts`) - Web Audio API manager, lazy-initialized
 - `multiTouchHandler` (`src/lib/touch-handler.ts`) - Touch validation system for QBoard displays
 
@@ -195,7 +196,7 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 
 ## Telemetry & Audio
 
-**Event Tracking**: `src/lib/event-tracker.ts` is a singleton that auto-registers global error handlers, FPS tracking, and spawn-rate warnings on import. Use `eventTracker.trackEvent()`, `trackError()`, `trackUserAction()` for logging so overlays render consistently. Max 1000 events tracked in memory.
+**Event Tracking**: `src/lib/event-tracker.ts` is a singleton that auto-registers global error handlers, FPS tracking, and spawn-rate warnings on import. Use `eventTracker.trackEvent()`, `trackError()`, `trackUserAction()` for logging so overlays render consistently. Max 500 events tracked in memory (reduced from 1000 for performance).
 
 **Error Handling**: `ErrorMonitor` monkey-patches `console.error/warn` to display in-game. Keep console usage minimal; wrap debug logs in `if (import.meta.env.DEV)` to avoid UI spam.
 
@@ -257,6 +258,18 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 - **Browser Cache**: After rebuilding, use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) to clear cached bundles if seeing old game behavior
 
 ## Recent Bug Fixes (October 2025)
+
+### Performance Optimizations (October 15, 2025)
+**Major Changes**:
+1. **Spawn Rate Reduction**: 1400ms → 2000ms (30% reduction for better frame rates)
+2. **Animation Loop Upgrade**: `setInterval` → `requestAnimationFrame` with frame pacing for smooth 60fps
+3. **Timer Optimization**: Target countdown reduced from 100ms → 1000ms updates (90% fewer re-renders)
+4. **Background Rotation**: Only updates on menu screens, paused during gameplay
+5. **Memory Reduction**: Event tracker maxEvents reduced from 1000 → 500
+6. **Console Logging**: Wrapped all debug logs in `if (import.meta.env.DEV)` guards
+7. **Event Listener Cleanup**: Fixed memory leak with anonymous touchstart handler
+
+**Impact**: Significantly improved 60fps consistency, reduced CPU usage, eliminated memory leaks. See `PERFORMANCE_OPTIMIZATION_OCT2025.md` for detailed analysis.
 
 ### Overlapping Audio Voices (Fixed - October 14, 2025)
 **Issue**: Two voices playing simultaneously causing distorted "throat cancer" sound:
