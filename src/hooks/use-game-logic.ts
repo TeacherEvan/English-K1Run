@@ -274,6 +274,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameStateRef.current = gameState
   }, [gameState])
 
+  // Keep a ref to gameObjects to avoid stale closures inside callbacks (e.g. taps)
+  const gameObjectsRef = useRef<GameObject[]>(gameObjects)
+  useEffect(() => {
+    gameObjectsRef.current = gameObjects
+  }, [gameObjects])
+
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
     return Math.max(0, Math.min(levelIndex, GAME_CATEGORIES.length - 1))
@@ -512,7 +518,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     const tapStartTime = performance.now()
 
     try {
-      const tappedObject = gameObjects.find(obj => obj.id === objectId)
+      // Use ref to avoid stale `gameObjects` value inside this callback
+      const tappedObject = gameObjectsRef.current.find(obj => obj.id === objectId)
       if (!tappedObject) {
         eventTracker.trackWarning('Tapped object not found', { objectId, playerSide })
         return
@@ -623,7 +630,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
-  }, [gameObjects, gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget])
+  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget])
 
   const startGame = useCallback((levelIndex?: number) => {
     try {
