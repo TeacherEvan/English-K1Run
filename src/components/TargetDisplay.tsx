@@ -22,7 +22,8 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         backdropFilter: 'blur(8px)',
         borderRadius: '12px',
         maxWidth: 'fit-content',
-        minWidth: '120px'
+        minWidth: '120px',
+        pointerEvents: 'none' // Prevent clicks from passing through to falling objects below
       }}>
       <div className="text-center">
         <Badge variant="secondary" className="mb-1 font-semibold"
