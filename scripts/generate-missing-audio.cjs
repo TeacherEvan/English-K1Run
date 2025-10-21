@@ -10,9 +10,15 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const ELEVENLABS_API_KEY = 'sk_73a0b8afa66fd988f05a2d1c5e5cb6bdea08b5ec75978926';
-const VOICE_ID = 'zmcVlqmyk3Jpn5AVYcAL';
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || '';
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'zmcVlqmyk3Jpn5AVYcAL';
 const OUTPUT_DIR = path.join(__dirname, '..', 'sounds');
+
+if (!ELEVENLABS_API_KEY) {
+    console.error('❌ Error: ELEVENLABS_API_KEY environment variable is required');
+    console.log('Please set it with: export ELEVENLABS_API_KEY=your_api_key_here');
+    process.exit(1);
+}
 
 // Voice settings optimized for clear child-friendly pronunciation
 const VOICE_SETTINGS = {
