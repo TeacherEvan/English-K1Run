@@ -355,6 +355,96 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   // Target initialization is handled in startGame function
 
   // Spawn objects while respecting lane separation and the active object cap
+  // Spawn 2 target emojis immediately when target changes
+  const spawnImmediateTargets = useCallback(() => {
+    try {
+      setGameObjects(prev => {
+        if (prev.length >= MAX_ACTIVE_OBJECTS - 2) {
+          // Ensure we have room for at least 2 targets
+          return prev
+        }
+
+        const level = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
+        const currentTarget = gameStateRef.current.targetEmoji
+        const targetItem = level.items.find(item => item.emoji === currentTarget)
+
+        if (!targetItem) {
+          return prev
+        }
+
+        const created: GameObject[] = []
+        const now = Date.now()
+
+        // Spawn exactly 2 target emojis - one on each side for fairness
+        for (let i = 0; i < 2; i++) {
+          const lane: PlayerSide = i === 0 ? 'left' : 'right'
+          const [minX, maxX] = LANE_BOUNDS[lane]
+
+          // Update emoji appearance tracking
+          lastEmojiAppearance.current.set(targetItem.emoji, now)
+
+          // Track emoji appearance in event tracker
+          eventTracker.trackEmojiAppearance(targetItem.emoji, targetItem.name)
+
+          let spawnX = Math.random() * (maxX - minX) + minX
+          let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
+
+          const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
+          for (const existing of laneObjects) {
+            const verticalGap = Math.abs(existing.y - spawnY)
+            const horizontalGap = Math.abs(existing.x - spawnX)
+
+            if (verticalGap < MIN_VERTICAL_GAP) {
+              spawnY = Math.min(spawnY, existing.y - MIN_VERTICAL_GAP)
+            }
+
+            if (horizontalGap < HORIZONTAL_SEPARATION && verticalGap < MIN_VERTICAL_GAP * 1.2) {
+              spawnX = clamp(
+                spawnX < existing.x ? existing.x - HORIZONTAL_SEPARATION : existing.x + HORIZONTAL_SEPARATION,
+                minX,
+                maxX
+              )
+            }
+          }
+
+          const newObject: GameObject = {
+            id: `immediate-target-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+            type: targetItem.name,
+            emoji: targetItem.emoji,
+            x: spawnX,
+            y: spawnY,
+            speed: (Math.random() * 0.8 + 0.6) * fallSpeedMultiplier,
+            size: EMOJI_SIZE,
+            lane
+          }
+
+          eventTracker.trackEmojiLifecycle({
+            objectId: newObject.id,
+            emoji: newObject.emoji,
+            name: newObject.type,
+            phase: 'spawned',
+            position: { x: newObject.x, y: newObject.y },
+            playerSide: newObject.lane
+          })
+
+          created.push(newObject)
+        }
+
+        if (created.length > 0) {
+          eventTracker.trackObjectSpawn(`immediate-targets-${created.length}`, { 
+            count: created.length,
+            reason: 'target_change'
+          })
+          return [...prev, ...created]
+        }
+
+        return prev
+      })
+    } catch (error) {
+      eventTracker.trackError(error as Error, 'spawnImmediateTargets')
+    }
+  }, [fallSpeedMultiplier])
+
   const spawnObject = useCallback(() => {
     try {
       setGameObjects(prev => {
@@ -729,6 +819,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             newState.targetEmoji = nextTarget.emoji
             newState.targetChangeTime = Date.now() + 10000 // Reset timer
             eventTracker.trackGameStateChange(prev, newState, 'target_change_on_correct_tap')
+            
+            // Spawn 2 immediate target emojis for the new target
+            setTimeout(() => spawnImmediateTargets(), 0)
           }
 
           // Advance sequence for alphabet level
@@ -741,6 +834,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               newState.currentTarget = nextTarget.name
               newState.targetEmoji = nextTarget.emoji
               eventTracker.trackGameStateChange(prev, newState, 'sequence_advance')
+              
+              // Spawn 2 immediate target emojis for the new sequence target
+              setTimeout(() => spawnImmediateTargets(), 0)
             }
           }
         } else {
@@ -773,7 +869,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
-  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget])
+  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, spawnImmediateTargets])
 
   const startGame = useCallback((levelIndex?: number) => {
     try {
@@ -818,10 +914,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         return newState
       })
       setComboCelebration(null)
+      
+      // Spawn 2 immediate target emojis when game starts
+      setTimeout(() => spawnImmediateTargets(), 100)
     } catch (error) {
       eventTracker.trackError(error as Error, 'startGame')
     }
-  }, [clampLevel, gameState.level, generateRandomTarget])
+  }, [clampLevel, gameState.level, generateRandomTarget, spawnImmediateTargets])
 
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
@@ -865,11 +964,14 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           targetEmoji: target.emoji,
           targetChangeTime: Date.now() + 10000
         }))
+        
+        // Spawn 2 immediate target emojis for the new target
+        setTimeout(() => spawnImmediateTargets(), 0)
       }
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence, generateRandomTarget, setGameState])
+  }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence, generateRandomTarget, setGameState, spawnImmediateTargets])
 
   // REMOVED: Emoji variety management effect - unnecessary complexity that caused performance issues
   // Pure random selection in spawnObject is sufficient for gameplay variety
