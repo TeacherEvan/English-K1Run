@@ -8,7 +8,7 @@ export interface GameEvent {
   type: 'error' | 'warning' | 'info' | 'performance' | 'user_action' | 'lifecycle'
   category: string
   message: string
-  data?: any
+  data?: Record<string, unknown>
   stackTrace?: string
   userAgent?: string
   url?: string
@@ -23,7 +23,7 @@ export interface EmojiLifecycleEvent {
   position?: { x: number; y: number }
   playerSide?: 'left' | 'right'
   duration?: number // Time since spawn
-  data?: any
+  data?: Record<string, unknown>
 }
 
 export interface PerformanceMetrics {
@@ -226,7 +226,7 @@ class EventTracker {
     this.performanceMetrics.touchLatency = latency
   }
 
-  trackGameStateChange(oldState: any, newState: any, action: string) {
+  trackGameStateChange(oldState: Record<string, unknown>, newState: Record<string, unknown>, action: string) {
     this.trackEvent({
       type: 'info',
       category: 'game_state',
@@ -245,7 +245,7 @@ class EventTracker {
     })
   }
 
-  trackWarning(message: string, data?: any) {
+  trackWarning(message: string, data?: Record<string, unknown>) {
     this.trackEvent({
       type: 'warning',
       category: 'game_logic',
@@ -581,5 +581,5 @@ export const eventTracker = new EventTracker()
 
 // Expose to global for debugging
 if (typeof window !== 'undefined') {
-  (window as any).gameEventTracker = eventTracker
+  (window as Window & { gameEventTracker?: EventTracker }).gameEventTracker = eventTracker
 }
