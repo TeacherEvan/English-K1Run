@@ -40,7 +40,9 @@ const requestFullscreen = () => {
   if (!document.fullscreenElement) {
     if (elem.requestFullscreen) {
       elem.requestFullscreen().catch(err => {
-        console.log('[Fullscreen] Error attempting to enable fullscreen:', err)
+        if (import.meta.env.DEV) {
+          console.log('[Fullscreen] Error attempting to enable fullscreen:', err)
+        }
       })
     } else if (elem.webkitRequestFullscreen) {
       // Safari
