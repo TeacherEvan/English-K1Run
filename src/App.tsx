@@ -70,7 +70,8 @@ function App() {
     startGame,
     resetGame,
     comboCelebration,
-    clearComboCelebration
+    clearComboCelebration,
+    changeTargetToVisibleEmoji
   } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
@@ -200,6 +201,7 @@ function App() {
             targetEmoji={gameState.targetEmoji}
             category={currentCategory}
             timeRemaining={currentCategory.requiresSequence ? undefined : timeRemaining}
+            onClick={currentCategory.requiresSequence ? undefined : changeTargetToVisibleEmoji}
           />
         </div>
       )}

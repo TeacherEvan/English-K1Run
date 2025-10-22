@@ -8,11 +8,13 @@ interface TargetDisplayProps {
   targetEmoji: string
   category: GameCategory
   timeRemaining?: number
+  onClick?: () => void
 }
 
-export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining }: TargetDisplayProps) => {
+export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick }: TargetDisplayProps) => {
   return (
-    <Card className="bg-transparent text-foreground mx-auto"
+    <Card className="bg-transparent text-foreground mx-auto cursor-pointer hover:scale-105 transition-transform"
+      onClick={onClick}
       style={{
         padding: `calc(0.5rem * var(--spacing-scale, 1))`,
         // Subtle background for better visibility without obstruction
@@ -23,7 +25,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         borderRadius: '12px',
         maxWidth: 'fit-content',
         minWidth: '120px',
-        pointerEvents: 'none' // Prevent clicks from passing through to falling objects below
+        pointerEvents: onClick ? 'auto' : 'none' // Enable clicks when handler is provided
       }}>
       <div className="text-center">
         <Badge variant="secondary" className="mb-1 font-semibold"

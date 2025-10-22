@@ -1012,6 +1012,64 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   const clearComboCelebration = useCallback(() => setComboCelebration(null), [])
 
+  // Change target to a random emoji from currently visible objects
+  const changeTargetToVisibleEmoji = useCallback(() => {
+    try {
+      // Get unique emojis from currently visible objects
+      const visibleEmojis = new Set<string>()
+      for (const obj of gameObjectsRef.current) {
+        visibleEmojis.add(obj.emoji)
+      }
+
+      // Convert to array and filter out current target
+      const availableEmojis = Array.from(visibleEmojis).filter(
+        emoji => emoji !== gameStateRef.current.targetEmoji
+      )
+
+      // If no other emojis available, do nothing
+      if (availableEmojis.length === 0) {
+        if (import.meta.env.DEV) {
+          console.log('[TargetDisplay] No other visible emojis to switch to')
+        }
+        return
+      }
+
+      // Pick a random emoji from visible ones
+      const randomEmoji = availableEmojis[Math.floor(Math.random() * availableEmojis.length)]
+      
+      // Find the corresponding item in current category
+      const targetItem = currentCategory.items.find(item => item.emoji === randomEmoji)
+      
+      if (!targetItem) {
+        if (import.meta.env.DEV) {
+          console.log('[TargetDisplay] Could not find item for emoji:', randomEmoji)
+        }
+        return
+      }
+
+      // Update game state with new target
+      setGameState(prev => {
+        const newState = {
+          ...prev,
+          currentTarget: targetItem.name,
+          targetEmoji: targetItem.emoji,
+          targetChangeTime: Date.now() + 10000 // Reset timer
+        }
+        eventTracker.trackGameStateChange(prev, newState, 'manual_target_change_via_click')
+        return newState
+      })
+
+      // Spawn 2 immediate target emojis for the new target
+      setTimeout(() => spawnImmediateTargets(), 0)
+
+      if (import.meta.env.DEV) {
+        console.log('[TargetDisplay] Changed target to:', targetItem.name)
+      }
+    } catch (error) {
+      eventTracker.trackError(error as Error, 'changeTargetToVisibleEmoji')
+    }
+  }, [currentCategory, spawnImmediateTargets])
+
   return {
     gameObjects,
     gameState,
@@ -1020,6 +1078,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     startGame,
     resetGame,
     comboCelebration,
-    clearComboCelebration
+    clearComboCelebration,
+    changeTargetToVisibleEmoji
   }
 }
