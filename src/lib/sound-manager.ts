@@ -1,6 +1,7 @@
 // Sound Manager - Enhanced audio system that supports wav assets and speech-like cues
 
 import { eventTracker } from './event-tracker'
+import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 
 const rawAudioFiles = import.meta.glob('../../sounds/*.wav', {
     eager: true,
@@ -24,165 +25,6 @@ const NUMBER_WORD_TO_DIGIT: Record<string, string> = {
 const DIGIT_TO_WORD = Object.fromEntries(
     Object.entries(NUMBER_WORD_TO_DIGIT).map(([word, value]) => [value, word])
 ) as Record<string, string>
-
-// Educational sentence templates for each item
-const SENTENCE_TEMPLATES: Record<string, string> = {
-    // Fruits & Vegetables
-    'apple': 'I eat a red apple',
-    'banana': 'The banana is yellow and sweet',
-    'grapes': 'I love purple grapes',
-    'strawberry': 'The strawberry is red and juicy',
-    'carrot': 'The rabbit eats a crunchy carrot',
-    'cucumber': 'The cucumber is green and fresh',
-    'watermelon': 'The watermelon is big and sweet',
-    'broccoli': 'Eat your green broccoli',
-    'orange': 'The orange is round and juicy',
-    'lemon': 'The lemon is yellow and sour',
-    'peach': 'The peach is soft and sweet',
-    'cherry': 'The cherry is red and small',
-    'kiwi': 'The kiwi is fuzzy and green',
-
-    // Counting
-    'one': 'I see one star',
-    '1': 'I see one star',
-    'two': 'I have two hands',
-    '2': 'I have two hands',
-    'three': 'Three little birds',
-    '3': 'Three little birds',
-    'four': 'Four wheels on a car',
-    '4': 'Four wheels on a car',
-    'five': 'Give me five',
-    '5': 'Give me five',
-    'six': 'Six legs on a bug',
-    '6': 'Six legs on a bug',
-    'seven': 'Seven colors in a rainbow',
-    '7': 'Seven colors in a rainbow',
-    'eight': 'Eight legs on a spider',
-    '8': 'Eight legs on a spider',
-    'nine': 'Nine planets in space',
-    '9': 'Nine planets in space',
-    'ten': 'I can count to ten',
-    '10': 'I can count to ten',
-    'eleven': 'I can count to eleven',
-    '11': 'I can count to eleven',
-    'twelve': 'Twelve months in a year',
-    '12': 'Twelve months in a year',
-    'thirteen': 'Thirteen is a lucky number',
-    '13': 'Thirteen is a lucky number',
-    'fourteen': 'I am learning to count to fourteen',
-    '14': 'I am learning to count to fourteen',
-    'fifteen': 'Fifteen minutes to play',
-    '15': 'Fifteen minutes to play',
-
-    // Shapes & Colors
-    'blue': 'The sky is blue',
-    'red': 'The apple is red',
-    // 'orange' used from Fruits section above (orange fruit is primary)
-    'green': 'The grass is green',
-    'yellow': 'The sun is yellow',
-    'brown': 'The bear is brown',
-    'black': 'The night is black',
-    'purple': 'The grapes are purple',
-    'white': 'The snow is white',
-    'triangle': 'The triangle has three sides',
-    'star': 'The star shines bright',
-    'diamond': 'The diamond sparkles',
-    'circle': 'The ball is a circle',
-
-    // Animals & Nature
-    'dog': 'The dog wags its tail',
-    'cat': 'The cat purrs softly',
-    'fox': 'The fox is quick and clever',
-    'turtle': 'The turtle moves slowly',
-    'butterfly': 'The butterfly flies in the garden',
-    'owl': 'The owl hoots at night',
-    'tree': 'The tree grows tall',
-    'flower': 'The flower smells sweet',
-    'elephant': 'The elephant has a long trunk',
-    'lion': 'The lion roars loudly',
-    'rabbit': 'The rabbit hops around',
-    'giraffe': 'The giraffe has a long neck',
-    'penguin': 'The penguin waddles on ice',
-
-    // Things That Go
-    'car': 'The car drives on the road',
-    'bus': 'The yellow bus takes us to school',
-    'fire truck': 'The fire truck has a loud siren',
-    'airplane': 'The airplane flies in the sky',
-    'rocket': 'The rocket goes to space',
-    'bicycle': 'I ride my bicycle to the park',
-    'helicopter': 'The helicopter goes up and down',
-    'boat': 'The boat floats on the water',
-    'train': 'The train goes on the tracks',
-    'taxi': 'The taxi takes people places',
-    'van': 'The van carries our family',
-    'scooter': 'I ride my scooter fast',
-    'motorcycle': 'The motorcycle goes zoom',
-
-    // Weather Wonders
-    'sunny': 'It is sunny today',
-    'cloudy': 'The sky is cloudy',
-    'rainy': 'It is rainy outside',
-    'stormy': 'The weather is stormy',
-    'snowy': 'It is snowy and cold',
-    'rainbow': 'I see a beautiful rainbow',
-    'tornado': 'The tornado spins around',
-    'windy': 'It is very windy today',
-    'moon': 'The moon shines at night',
-    // 'star' used from Shapes section above (star shape is primary)
-    'sun': 'The sun gives us light',
-    'foggy': 'The morning is foggy',
-    'lightning': 'The lightning flashes bright',
-
-    // Feelings & Actions
-    'happy': 'I feel happy and smile',
-    'sad': 'When I am sad I might cry',
-    'angry': 'Take a breath when you feel angry',
-    'sleepy': 'I am sleepy and yawn',
-    'hug': 'Give me a big hug',
-    'clap': 'Clap your hands together',
-    'dance': 'Let\'s dance to the music',
-    'flip': 'Watch me flip and spin',
-    'smile': 'I smile when I am happy',
-    'laugh': 'I laugh at funny jokes',
-    'think': 'I think before I speak',
-    'celebrate': 'Let\'s celebrate together',
-    'wave': 'I wave hello to my friends',
-
-    // Body Parts
-    // Note: The sentences below intentionally use plural forms ("eyes", "ears", "feet", "legs") for anatomical accuracy,
-    // even though the game items are named in the singular ("eye", "ear", "foot", "leg").
-    // This is because humans typically reference these body parts in pairs.
-    'eye': 'I see with my eyes',
-    'ear': 'I hear with my ears',
-    'nose': 'I smell with my nose',
-    'mouth': 'I talk with my mouth',
-    'tongue': 'My tongue tastes food',
-    'hand': 'I wave my hand hello',
-    'foot': 'I walk with my feet',
-    'leg': 'I jump with my legs',
-    'tooth': 'I brush my teeth',
-    'arm': 'I swing my arms',
-    'brain': 'My brain helps me think',
-    'heart': 'My heart beats in my chest',
-
-    // Alphabet (letters A-O)
-    'a': 'The letter A',
-    'b': 'The letter B',
-    'c': 'The letter C',
-    'd': 'The letter D',
-    'e': 'The letter E',
-    'f': 'The letter F',
-    'g': 'The letter G',
-    'h': 'The letter H',
-    'i': 'The letter I',
-    'j': 'The letter J',
-    'k': 'The letter K',
-    'l': 'The letter L',
-    'm': 'The letter M',
-    'n': 'The letter N',
-    'o': 'The letter O',
-}
 
 const normalizeKey = (value: string) =>
     value
@@ -266,7 +108,7 @@ class SoundManager {
         // HTMLAudio can cause pitch/speed issues (sounds like frogs/chipmunks)
         this.preferHTMLAudio = false
 
-        if (this.isMobile) {
+        if (this.isMobile && import.meta.env.DEV) {
             console.log('[SoundManager] Mobile device detected - using Web Audio API for correct playback')
         }
     }
@@ -277,7 +119,9 @@ class SoundManager {
             if (this.userInteractionReceived) return
             this.userInteractionReceived = true
 
-            console.log('[SoundManager] User interaction detected, initializing audio...')
+            if (import.meta.env.DEV) {
+                console.log('[SoundManager] User interaction detected, initializing audio...')
+            }
             await this.ensureInitialized()
 
             // Remove listeners after first interaction
@@ -298,7 +142,9 @@ class SoundManager {
         try {
             const ContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
             this.audioContext = new ContextClass()
-            console.log('[SoundManager] Audio context created, state:', this.audioContext.state)
+            if (import.meta.env.DEV) {
+                console.log('[SoundManager] Audio context created, state:', this.audioContext.state)
+            }
             this.prepareFallbackEffects()
         } catch (error) {
             console.error('[SoundManager] Audio context initialization failed:', error)
@@ -433,7 +279,9 @@ class SoundManager {
 
         const loadPromise = (async () => {
             try {
-                console.log(`[SoundManager] Loading audio: "${key}" from ${url}`)
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Loading audio: "${key}" from ${url}`)
+                }
                 const response = await fetch(url)
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -442,7 +290,9 @@ class SoundManager {
                 const audioBuffer = await this.audioContext!.decodeAudioData(arrayBuffer)
                 this.bufferCache.set(key, audioBuffer)
                 this.loadingCache.delete(key)
-                console.log(`[SoundManager] Successfully loaded: "${key}"`)
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Successfully loaded: "${key}"`)
+                }
                 return audioBuffer
             } catch (error) {
                 console.error(`[SoundManager] Failed to load audio "${key}" from ${url}:`, error)
@@ -561,12 +411,16 @@ class SoundManager {
         }
 
         this.speechAvailable = true
-        console.log('[SoundManager] Speech synthesis is available')
+        if (import.meta.env.DEV) {
+            console.log('[SoundManager] Speech synthesis is available')
+        }
         return true
     }
 
     private speakWithSpeechSynthesis(text: string): boolean {
-        console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
+        if (import.meta.env.DEV) {
+            console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
+        }
 
         if (!this.canUseSpeech()) {
             console.warn('[SoundManager] Cannot use speech - not available')
@@ -601,7 +455,9 @@ class SoundManager {
 
             // Add event listeners for debugging
             utterance.onstart = () => {
-                console.log(`[SoundManager] Started speaking: "${text}"`)
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Started speaking: "${text}"`)
+                }
                 eventTracker.trackAudioPlayback({
                     audioKey: text,
                     targetName: text,
@@ -611,7 +467,9 @@ class SoundManager {
             }
 
             utterance.onend = () => {
-                console.log(`[SoundManager] Finished speaking: "${text}"`)
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Finished speaking: "${text}"`)
+                }
             }
 
             utterance.onerror = (event) => {
@@ -628,7 +486,9 @@ class SoundManager {
             synth.cancel() // Cancel any ongoing speech
             synth.speak(utterance)
 
-            console.log('[SoundManager] Speech synthesis initiated successfully')
+            if (import.meta.env.DEV) {
+                console.log('[SoundManager] Speech synthesis initiated successfully')
+            }
             return true
         } catch (error) {
             console.warn('[SoundManager] Speech synthesis failed:', error)
@@ -652,13 +512,17 @@ class SoundManager {
 
         if (this.audioContext.state === 'suspended') {
             try {
-                console.log('[SoundManager] Resuming suspended audio context...')
+                if (import.meta.env.DEV) {
+                    console.log('[SoundManager] Resuming suspended audio context...')
+                }
                 await this.audioContext.resume()
-                console.log('[SoundManager] Audio context resumed, state:', this.audioContext.state)
+                if (import.meta.env.DEV) {
+                    console.log('[SoundManager] Audio context resumed, state:', this.audioContext.state)
+                }
             } catch (error) {
                 console.error('[SoundManager] Failed to resume audio context:', error)
             }
-        } else {
+        } else if (import.meta.env.DEV) {
             console.log('[SoundManager] Audio context state:', this.audioContext.state)
         }
     }

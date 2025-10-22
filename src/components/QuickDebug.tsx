@@ -20,13 +20,15 @@ export function QuickDebug() {
             const spacingScale = getComputedStyle(root).getPropertyValue('--spacing-scale')
             const fallSpeedScale = getComputedStyle(root).getPropertyValue('--fall-speed-scale')
 
-            console.log('CSS Variables Debug:', {
-                fontScale: fontScale.trim(),
-                objectScale: objectScale.trim(),
-                turtleScale: turtleScale.trim(),
-                spacingScale: spacingScale.trim(),
-                fallSpeedScale: fallSpeedScale.trim()
-            })
+            if (import.meta.env.DEV) {
+                console.log('CSS Variables Debug:', {
+                    fontScale: fontScale.trim(),
+                    objectScale: objectScale.trim(),
+                    turtleScale: turtleScale.trim(),
+                    spacingScale: spacingScale.trim(),
+                    fallSpeedScale: fallSpeedScale.trim()
+                })
+            }
 
             if (fontScale && objectScale && turtleScale && fontScale.trim() !== '' && objectScale.trim() !== '') {
                 setCssStatus(`CSS OK - Font: ${fontScale.trim()}, Object: ${objectScale.trim()}`)
