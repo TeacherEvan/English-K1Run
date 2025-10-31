@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import './WormLoadingScreen.css'
 
 interface Worm {
   id: number
@@ -57,6 +58,7 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
         if (!container) return worm
 
         const containerWidth = container.clientWidth
+        const containerHeight = container.clientHeight
 
         // Update position
         let newX = worm.x + (worm.vx * speedMultiplier) / 10
@@ -65,20 +67,21 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
         // Bounce off walls with percentage-based positioning
         let newVx = worm.vx
         let newVy = worm.vy
-        const boundsMargin = (WORM_SIZE / containerWidth) * 100
+        const boundsMarginX = (WORM_SIZE / containerWidth) * 100
+        const boundsMarginY = (WORM_SIZE / containerHeight) * 100
 
-        if (newX <= boundsMargin || newX >= 100 - boundsMargin) {
+        if (newX <= boundsMarginX || newX >= 100 - boundsMarginX) {
           newVx = -worm.vx
-          newX = Math.max(boundsMargin, Math.min(100 - boundsMargin, newX))
+          newX = Math.max(boundsMarginX, Math.min(100 - boundsMarginX, newX))
         }
 
-        if (newY <= boundsMargin || newY >= 100 - boundsMargin) {
+        if (newY <= boundsMarginY || newY >= 100 - boundsMarginY) {
           newVy = -worm.vy
-          newY = Math.max(boundsMargin, Math.min(100 - boundsMargin, newY))
+          newY = Math.max(boundsMarginY, Math.min(100 - boundsMarginY, newY))
         }
 
-        // Update wiggle phase for animation
-        const newWigglePhase = worm.wigglePhase + 0.1
+        // Update wiggle phase for animation (normalized to prevent overflow)
+        const newWigglePhase = (worm.wigglePhase + 0.1) % (Math.PI * 2)
 
         // Update angle based on velocity direction
         const newAngle = Math.atan2(newVy, newVx)
@@ -193,20 +196,12 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
             top: `${worm.y}%`,
             fontSize: `${WORM_SIZE}px`,
             transform: `translate(-50%, -50%) rotate(${worm.angle}rad)`,
-            willChange: 'transform',
             zIndex: 10
           }}
           onClick={(e) => handleWormClick(worm.id, e)}
           onTouchEnd={(e) => handleWormClick(worm.id, e)}
         >
-          <div
-            className="worm-wiggle"
-            style={{
-              animation: `wiggle 0.3s ease-in-out infinite`,
-              animationDelay: `${worm.wigglePhase}s`,
-              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))'
-            }}
-          >
+          <div className="worm-wiggle">
             🐛
           </div>
         </div>
@@ -243,23 +238,6 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
       >
         Skip Loading Screen
       </button>
-
-      <style>{`
-        @keyframes wiggle {
-          0%, 100% {
-            transform: translateY(0) scaleX(1);
-          }
-          25% {
-            transform: translateY(-2px) scaleX(1.05);
-          }
-          50% {
-            transform: translateY(0) scaleX(0.95);
-          }
-          75% {
-            transform: translateY(2px) scaleX(1.05);
-          }
-        }
-      `}</style>
     </div>
   )
 })
