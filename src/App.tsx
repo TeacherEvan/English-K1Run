@@ -8,6 +8,7 @@ import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
+import { WormLoadingScreen } from './components/WormLoadingScreen'
 // Hooks
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
@@ -77,6 +78,7 @@ function App() {
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true)
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
@@ -176,7 +178,13 @@ function App() {
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])
 
   return (
-    <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
+    <>
+      {/* Worm Loading Screen - Shows on first visit */}
+      {showLoadingScreen && (
+        <WormLoadingScreen onComplete={() => setShowLoadingScreen(false)} />
+      )}
+
+      <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
       {/* Back to Levels Button - Fixed at top left during gameplay */}
       {gameState.gameStarted && !gameState.winner && (
         <div className="absolute top-4 left-4 z-40">
@@ -254,6 +262,7 @@ function App() {
       {/* Debug: Emoji Rotation Monitor (dev mode only) */}
       {import.meta.env.DEV && <EmojiRotationMonitor />}
     </div>
+    </>
   )
 }
 
