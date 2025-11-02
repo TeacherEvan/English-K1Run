@@ -8,7 +8,7 @@ import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
-import { WormLoadingScreen } from './components/WormLoadingScreen'
+import { Worm } from './components/Worm'
 // Hooks
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
@@ -65,9 +65,11 @@ function App() {
 
   const {
     gameObjects,
+    worms,
     gameState,
     currentCategory,
     handleObjectTap,
+    handleWormTap,
     startGame,
     resetGame,
     comboCelebration,
@@ -78,7 +80,6 @@ function App() {
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
-  const [showLoadingScreen, setShowLoadingScreen] = useState(true)
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
@@ -179,11 +180,6 @@ function App() {
 
   return (
     <>
-      {/* Worm Loading Screen - Shows on first visit */}
-      {showLoadingScreen && (
-        <WormLoadingScreen onComplete={() => setShowLoadingScreen(false)} />
-      )}
-
       <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
       {/* Back to Levels Button - Fixed at top left during gameplay */}
       {gameState.gameStarted && !gameState.winner && (
@@ -231,6 +227,14 @@ function App() {
               object={obj}
               onTap={handleObjectTap}
               playerSide={obj.lane}
+            />
+          ))}
+          {worms.map(worm => (
+            <Worm
+              key={worm.id}
+              worm={worm}
+              onTap={handleWormTap}
+              playerSide={worm.lane}
             />
           ))}
         </PlayerArea>

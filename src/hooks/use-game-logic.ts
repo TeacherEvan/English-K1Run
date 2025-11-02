@@ -46,7 +46,22 @@ export interface ComboCelebration {
   description: string
 }
 
+export interface WormObject {
+  id: string
+  x: number
+  y: number
+  vx: number
+  vy: number
+  alive: boolean
+  angle: number
+  wigglePhase: number
+  lane: PlayerSide
+}
+
 const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
+const WORM_COUNT = 5 // Number of worms to spawn at game start
+const WORM_SIZE = 60
+const WORM_BASE_SPEED = 1.5
 const EMOJI_SIZE = 60
 const MIN_VERTICAL_GAP = 120
 const HORIZONTAL_SEPARATION = 6
@@ -252,6 +267,7 @@ export const GAME_CATEGORIES: GameCategory[] = [
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
+  const [worms, setWorms] = useState<WormObject[]>([])
   const [gameState, setGameState] = useState<GameState>(() => ({
     progress: 0,
     currentTarget: "",
@@ -291,6 +307,29 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   useEffect(() => {
     gameObjectsRef.current = gameObjects
   }, [gameObjects])
+
+  // Animation frame ref for worm movement
+  const wormAnimationFrameRef = useRef<number>()
+  const wormSpeedMultiplier = useRef(1)
+
+  // Helper function to create initial worms
+  const createInitialWorms = useCallback((): WormObject[] => {
+    return Array.from({ length: WORM_COUNT }, (_, i) => {
+      const lane: PlayerSide = i < Math.floor(WORM_COUNT / 2) ? 'left' : 'right'
+      const [minX, maxX] = LANE_BOUNDS[lane]
+      return {
+        id: `worm-${Date.now()}-${i}`,
+        x: Math.random() * (maxX - minX) + minX,
+        y: Math.random() * 300 + 100, // Start in visible area (100-400px)
+        vx: (Math.random() - 0.5) * WORM_BASE_SPEED * 2,
+        vy: (Math.random() - 0.5) * WORM_BASE_SPEED * 2,
+        alive: true,
+        angle: Math.random() * Math.PI * 2,
+        wigglePhase: Math.random() * Math.PI * 2,
+        lane
+      }
+    })
+  }, [])
 
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0
@@ -871,6 +910,37 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
   }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, spawnImmediateTargets])
 
+  const handleWormTap = useCallback((wormId: string, playerSide: 'left' | 'right') => {
+    try {
+      setWorms(prev => {
+        const worm = prev.find(w => w.id === wormId)
+        if (!worm || !worm.alive) return prev
+
+        // Mark worm as dead
+        const updatedWorms = prev.map(w =>
+          w.id === wormId ? { ...w, alive: false } : w
+        )
+
+        // Increase speed for remaining worms
+        const aliveCount = updatedWorms.filter(w => w.alive).length
+        if (aliveCount > 0) {
+          wormSpeedMultiplier.current *= 1.2 // Same speed increase as loading screen
+        }
+
+        eventTracker.trackEvent({
+          type: 'info',
+          category: 'worm',
+          message: `Worm killed, ${aliveCount} remaining`,
+          data: { wormId, playerSide, aliveCount }
+        })
+
+        return updatedWorms
+      })
+    } catch (error) {
+      eventTracker.trackError(error as Error, 'handleWormTap')
+    }
+  }, [])
+
   const startGame = useCallback((levelIndex?: number) => {
     try {
       const safeLevel = clampLevel(levelIndex ?? gameState.level)
@@ -897,6 +967,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       const target = generateRandomTarget(safeLevel)
       setGameObjects([])
+      
+      // Spawn worms at the beginning of the game
+      setWorms(createInitialWorms())
+      wormSpeedMultiplier.current = 1 // Reset worm speed
 
       setGameState(prev => {
         const newState = {
@@ -920,7 +994,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'startGame')
     }
-  }, [clampLevel, gameState.level, generateRandomTarget, spawnImmediateTargets])
+  }, [clampLevel, gameState.level, generateRandomTarget, spawnImmediateTargets, createInitialWorms])
 
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
@@ -938,6 +1012,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     eventTracker.resetPerformanceMetrics()
 
     setGameObjects([])
+    setWorms([]) // Clear worms when game ends
+    wormSpeedMultiplier.current = 1 // Reset worm speed
+    
     setGameState({
       progress: 0,
       currentTarget: "",
@@ -1010,6 +1087,77 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     return () => cancelAnimationFrame(animationFrameId)
   }, [gameState.gameStarted, gameState.winner, updateObjects])
 
+  // Worm movement animation loop using requestAnimationFrame
+  useEffect(() => {
+    if (!gameState.gameStarted || gameState.winner) {
+      // Clean up animation frame when game is not active
+      if (wormAnimationFrameRef.current) {
+        cancelAnimationFrame(wormAnimationFrameRef.current)
+      }
+      return
+    }
+
+    const animate = () => {
+      setWorms(prev => prev.map(worm => {
+        if (!worm.alive) return worm
+
+        // Get viewport dimensions for boundary checking
+        const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
+        const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+
+        // Update position with speed multiplier
+        let newX = worm.x + (worm.vx * wormSpeedMultiplier.current) / 10
+        let newY = worm.y + (worm.vy * wormSpeedMultiplier.current) / 10
+
+        // Bounce off walls with lane-specific boundaries
+        let newVx = worm.vx
+        let newVy = worm.vy
+        const [minX, maxX] = LANE_BOUNDS[worm.lane]
+        
+        // Convert pixel position to percentage for boundary checking
+        const pixelX = (newX / 100) * viewportWidth
+        const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
+        const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
+
+        if (newX <= minX + boundsMarginX || newX >= maxX - boundsMarginX) {
+          newVx = -worm.vx
+          newX = Math.max(minX + boundsMarginX, Math.min(maxX - boundsMarginX, newX))
+        }
+
+        if (newY <= boundsMarginY || newY >= viewportHeight - boundsMarginY) {
+          newVy = -worm.vy
+          newY = Math.max(boundsMarginY, Math.min(viewportHeight - boundsMarginY, newY))
+        }
+
+        // Update wiggle phase for animation
+        const newWigglePhase = (worm.wigglePhase + 0.1) % (Math.PI * 2)
+
+        // Update angle based on velocity direction
+        const newAngle = Math.atan2(newVy, newVx)
+
+        return {
+          ...worm,
+          x: newX,
+          y: newY,
+          vx: newVx,
+          vy: newVy,
+          angle: newAngle,
+          wigglePhase: newWigglePhase
+        }
+      }))
+
+      wormAnimationFrameRef.current = requestAnimationFrame(animate)
+    }
+
+    wormAnimationFrameRef.current = requestAnimationFrame(animate)
+
+    return () => {
+      if (wormAnimationFrameRef.current) {
+        cancelAnimationFrame(wormAnimationFrameRef.current)
+      }
+    }
+  }, [gameState.gameStarted, gameState.winner])
+
   const clearComboCelebration = useCallback(() => setComboCelebration(null), [])
 
   // Change target to a random emoji from currently visible objects
@@ -1072,9 +1220,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   return {
     gameObjects,
+    worms,
     gameState,
     currentCategory,
     handleObjectTap,
+    handleWormTap,
     startGame,
     resetGame,
     comboCelebration,
