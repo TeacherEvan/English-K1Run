@@ -1197,8 +1197,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         let newVy = worm.vy
         const [minX, maxX] = LANE_BOUNDS[worm.lane]
         
-        // Convert pixel position to percentage for boundary checking
-        const pixelX = (newX / 100) * viewportWidth
+        // Calculate boundary margins for collision detection
         const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
         const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
 

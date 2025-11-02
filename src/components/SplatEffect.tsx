@@ -24,9 +24,6 @@ export const SplatEffect = memo(({ splat, currentTime }: SplatEffectProps) => {
     return Math.max(0, 1 - age / SPLAT_DURATION)
   }, [age])
 
-  // Don't render if opacity is 0
-  if (opacity <= 0) return null
-
   const splatStyle = useMemo(() => ({
     left: `${splat.x}%`,
     top: `${splat.y}px`,
@@ -36,6 +33,9 @@ export const SplatEffect = memo(({ splat, currentTime }: SplatEffectProps) => {
     transition: 'opacity 0.5s ease-out',
     zIndex: 14 // Below worms (15) but above game objects (10)
   }), [splat.x, splat.y, opacity])
+
+  // Don't render if opacity is 0
+  if (opacity <= 0) return null
 
   return (
     <div
