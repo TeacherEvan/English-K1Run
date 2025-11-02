@@ -921,10 +921,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           w.id === wormId ? { ...w, alive: false } : w
         )
 
-        // Increase speed for remaining worms
+        // Increase speed for remaining worms (20% increase per kill)
         const aliveCount = updatedWorms.filter(w => w.alive).length
         if (aliveCount > 0) {
-          wormSpeedMultiplier.current *= 1.2 // Same speed increase as loading screen
+          wormSpeedMultiplier.current *= 1.2
         }
 
         eventTracker.trackEvent({
