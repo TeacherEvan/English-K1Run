@@ -7,6 +7,7 @@ import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
 import { PlayerArea } from './components/PlayerArea'
+import { SplatEffect } from './components/SplatEffect'
 import { TargetDisplay } from './components/TargetDisplay'
 import { Worm } from './components/Worm'
 // Hooks
@@ -66,6 +67,9 @@ function App() {
   const {
     gameObjects,
     worms,
+    splats,
+    currentTime,
+    screenShake,
     gameState,
     currentCategory,
     handleObjectTap,
@@ -215,7 +219,7 @@ function App() {
       )}
 
       {/* Full Screen Game Area */}
-      <div className="h-full">
+      <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
         <PlayerArea
           playerNumber={1}
           progress={gameState.progress}
@@ -235,6 +239,13 @@ function App() {
               worm={worm}
               onTap={handleWormTap}
               playerSide={worm.lane}
+            />
+          ))}
+          {splats.map(splat => (
+            <SplatEffect
+              key={splat.id}
+              splat={splat}
+              currentTime={currentTime}
             />
           ))}
         </PlayerArea>

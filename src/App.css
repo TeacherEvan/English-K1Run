@@ -226,3 +226,20 @@
     opacity: 0;
   }
 }
+
+/* Screen shake animation for incorrect taps */
+@keyframes screen-shake {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px) translateY(5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px) translateY(-5px);
+  }
+}
+
+.screen-shake {
+  animation: screen-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
