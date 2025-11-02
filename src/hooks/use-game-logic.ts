@@ -1197,7 +1197,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         let newVy = worm.vy
         const [minX, maxX] = LANE_BOUNDS[worm.lane]
         
-        // Calculate boundary margins for collision detection
+        // Calculate margins to prevent worms from clipping boundaries
         const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
         const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
 
@@ -1245,12 +1245,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     if (!gameState.gameStarted || gameState.winner) return
     
     const SPLAT_DURATION = 8000 // 8 seconds
+    // Update every 500ms for smoother fade while reducing re-renders
     const interval = setInterval(() => {
       const now = Date.now()
       setCurrentTime(now)
       // Remove splats older than 8 seconds
       setSplats(prev => prev.filter(splat => now - splat.createdAt < SPLAT_DURATION))
-    }, 100) // Update every 100ms for smooth fade
+    }, 500) // Reduced from 100ms to 500ms for better performance
     
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner])

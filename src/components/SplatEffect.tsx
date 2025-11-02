@@ -1,12 +1,5 @@
 import { memo, useMemo } from 'react'
-
-export interface SplatObject {
-  id: string
-  x: number
-  y: number
-  createdAt: number
-  lane: 'left' | 'right'
-}
+import type { SplatObject } from '../hooks/use-game-logic'
 
 interface SplatEffectProps {
   splat: SplatObject
@@ -46,10 +39,11 @@ export const SplatEffect = memo(({ splat, currentTime }: SplatEffectProps) => {
     </div>
   )
 }, (prevProps, nextProps) => {
-  // Only re-render if the splat ID changed or if time difference is significant
+  // Return true when props are equal (component should NOT re-render)
+  // Return false when props differ (component should re-render)
   return (
     prevProps.splat.id === nextProps.splat.id &&
-    Math.abs(prevProps.currentTime - nextProps.currentTime) < 100
+    Math.abs(prevProps.currentTime - nextProps.currentTime) < 500
   )
 })
 
