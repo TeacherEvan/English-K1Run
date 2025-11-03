@@ -58,8 +58,19 @@ export interface WormObject {
   lane: PlayerSide
 }
 
+export interface SplatObject {
+  id: string
+  x: number
+  y: number
+  createdAt: number
+  lane: PlayerSide
+}
+
 const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
-const WORM_COUNT = 5 // Number of worms to spawn at game start
+const WORM_INITIAL_COUNT = 5 // Number of worms to spawn at game start
+const WORM_PROGRESSIVE_SPAWN_INTERVAL = 3000 // 3 seconds between initial worm spawns
+const WORM_RECURRING_COUNT = 3 // Number of worms to spawn every 30 seconds
+const WORM_RECURRING_INTERVAL = 30000 // 30 seconds
 const WORM_SIZE = 60
 const WORM_BASE_SPEED = 1.5
 const EMOJI_SIZE = 60
@@ -268,6 +279,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
   const [worms, setWorms] = useState<WormObject[]>([])
+  const [splats, setSplats] = useState<SplatObject[]>([])
+  const [currentTime, setCurrentTime] = useState(() => Date.now())
+  const [screenShake, setScreenShake] = useState(false)
   const [gameState, setGameState] = useState<GameState>(() => ({
     progress: 0,
     currentTarget: "",
@@ -311,14 +325,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   // Animation frame ref for worm movement
   const wormAnimationFrameRef = useRef<number>()
   const wormSpeedMultiplier = useRef(1)
+  
+  // Refs for worm spawning timers
+  const progressiveSpawnTimeoutRefs = useRef<NodeJS.Timeout[]>([])
+  const recurringSpawnIntervalRef = useRef<NodeJS.Timeout>()
 
-  // Helper function to create initial worms
-  const createInitialWorms = useCallback((): WormObject[] => {
-    return Array.from({ length: WORM_COUNT }, (_, i) => {
-      const lane: PlayerSide = i < Math.floor(WORM_COUNT / 2) ? 'left' : 'right'
+  // Helper function to create worms
+  const createWorms = useCallback((count: number, startIndex: number = 0): WormObject[] => {
+    return Array.from({ length: count }, (_, i) => {
+      const actualIndex = startIndex + i
+      const lane: PlayerSide = actualIndex % 2 === 0 ? 'left' : 'right'
       const [minX, maxX] = LANE_BOUNDS[lane]
       return {
-        id: `worm-${Date.now()}-${i}`,
+        id: `worm-${Date.now()}-${actualIndex}`,
         x: Math.random() * (maxX - minX) + minX,
         y: Math.random() * 300 + 100, // Start in visible area (100-400px)
         vx: (Math.random() - 0.5) * WORM_BASE_SPEED * 2,
@@ -883,6 +902,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           newState.streak = 0
           newState.progress = Math.max(prev.progress - 20, 0)
           eventTracker.trackGameStateChange(prev, newState, 'incorrect_tap_penalty')
+          
+          // Trigger screen shake for incorrect tap
+          setScreenShake(true)
+          setTimeout(() => setScreenShake(false), 500) // Reset after animation completes
         }
 
         return newState
@@ -915,6 +938,18 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       setWorms(prev => {
         const worm = prev.find(w => w.id === wormId)
         if (!worm || !worm.alive) return prev
+
+        // Create splat effect at worm position
+        setSplats(prevSplats => [
+          ...prevSplats,
+          {
+            id: `splat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            x: worm.x,
+            y: worm.y,
+            createdAt: Date.now(),
+            lane: worm.lane
+          }
+        ])
 
         // Mark worm as dead
         const updatedWorms = prev.map(w =>
@@ -967,10 +1002,49 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       const target = generateRandomTarget(safeLevel)
       setGameObjects([])
+      setSplats([]) // Clear any existing splats
+      setScreenShake(false) // Reset screen shake
       
-      // Spawn worms at the beginning of the game
-      setWorms(createInitialWorms())
+      // Clear any existing worm spawn timers
+      progressiveSpawnTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
+      progressiveSpawnTimeoutRefs.current = []
+      if (recurringSpawnIntervalRef.current) {
+        clearInterval(recurringSpawnIntervalRef.current)
+      }
+      
+      // Progressive worm spawning: spawn 5 worms progressively, 3 seconds apart
+      setWorms([]) // Start with no worms
       wormSpeedMultiplier.current = 1 // Reset worm speed
+      
+      for (let i = 0; i < WORM_INITIAL_COUNT; i++) {
+        const timeout = setTimeout(() => {
+          setWorms(prev => [...prev, ...createWorms(1, i)])
+          eventTracker.trackEvent({
+            type: 'info',
+            category: 'worm',
+            message: `Progressive spawn: worm ${i + 1}/${WORM_INITIAL_COUNT}`,
+            data: { wormIndex: i }
+          })
+        }, i * WORM_PROGRESSIVE_SPAWN_INTERVAL)
+        progressiveSpawnTimeoutRefs.current.push(timeout)
+      }
+      
+      // Set up recurring worm spawning: 3 worms every 30 seconds
+      recurringSpawnIntervalRef.current = setInterval(() => {
+        setWorms(prev => {
+          const aliveCount = prev.filter(w => w.alive).length
+          const newWorms = createWorms(WORM_RECURRING_COUNT, prev.length)
+          
+          eventTracker.trackEvent({
+            type: 'info',
+            category: 'worm',
+            message: `Recurring spawn: ${WORM_RECURRING_COUNT} worms (${aliveCount} already alive)`,
+            data: { recurringSpawn: true, aliveCount, newCount: WORM_RECURRING_COUNT }
+          })
+          
+          return [...prev, ...newWorms]
+        })
+      }, WORM_RECURRING_INTERVAL)
 
       setGameState(prev => {
         const newState = {
@@ -994,7 +1068,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'startGame')
     }
-  }, [clampLevel, gameState.level, generateRandomTarget, spawnImmediateTargets, createInitialWorms])
+  }, [clampLevel, gameState.level, generateRandomTarget, spawnImmediateTargets, createWorms])
 
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach(cat => { cat.sequenceIndex = 0 })
@@ -1010,9 +1084,18 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
+    
+    // Clear worm spawn timers
+    progressiveSpawnTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
+    progressiveSpawnTimeoutRefs.current = []
+    if (recurringSpawnIntervalRef.current) {
+      clearInterval(recurringSpawnIntervalRef.current)
+    }
 
     setGameObjects([])
     setWorms([]) // Clear worms when game ends
+    setSplats([]) // Clear splats when game ends
+    setScreenShake(false) // Reset screen shake
     wormSpeedMultiplier.current = 1 // Reset worm speed
     
     setGameState({
@@ -1114,8 +1197,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         let newVy = worm.vy
         const [minX, maxX] = LANE_BOUNDS[worm.lane]
         
-        // Convert pixel position to percentage for boundary checking
-        const pixelX = (newX / 100) * viewportWidth
+        // Calculate margins to prevent worms from clipping boundaries
         const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
         const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
 
@@ -1156,6 +1238,22 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         cancelAnimationFrame(wormAnimationFrameRef.current)
       }
     }
+  }, [gameState.gameStarted, gameState.winner])
+  
+  // Splat cleanup and currentTime update
+  useEffect(() => {
+    if (!gameState.gameStarted || gameState.winner) return
+    
+    const SPLAT_DURATION = 8000 // 8 seconds
+    // Update every 500ms for smoother fade while reducing re-renders
+    const interval = setInterval(() => {
+      const now = Date.now()
+      setCurrentTime(now)
+      // Remove splats older than 8 seconds
+      setSplats(prev => prev.filter(splat => now - splat.createdAt < SPLAT_DURATION))
+    }, 500) // Reduced from 100ms to 500ms for better performance
+    
+    return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner])
 
   const clearComboCelebration = useCallback(() => setComboCelebration(null), [])
@@ -1221,6 +1319,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   return {
     gameObjects,
     worms,
+    splats,
+    currentTime,
+    screenShake,
     gameState,
     currentCategory,
     handleObjectTap,

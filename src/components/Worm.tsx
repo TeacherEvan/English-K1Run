@@ -12,8 +12,6 @@ interface WormProps {
 const WORM_SIZE = 60
 
 export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
-  if (!worm.alive) return null
-
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -46,6 +44,8 @@ export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
     transform: `translate(-50%, -50%) rotate(${worm.angle}rad) scale(var(--object-scale, 1))`,
     zIndex: 15 // Above game objects but below UI
   }), [worm.x, worm.y, worm.angle])
+
+  if (!worm.alive) return null
 
   return (
     <div
