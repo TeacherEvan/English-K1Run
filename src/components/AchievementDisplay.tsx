@@ -17,7 +17,7 @@ interface AchievementDisplayProps {
 }
 
 // Positive messages for correct taps
-const CORRECT_MESSAGES = [
+export const CORRECT_MESSAGES = [
   { message: 'Perfect!', emoji: '⭐' },
   { message: 'Great Job!', emoji: '✨' },
   { message: 'Awesome!', emoji: '🌟' },
@@ -31,7 +31,7 @@ const CORRECT_MESSAGES = [
 ]
 
 // Fun messages for worm taps
-const WORM_MESSAGES = [
+export const WORM_MESSAGES = [
   { message: 'Got one!', emoji: '🐛' },
   { message: 'Nice catch!', emoji: '👍' },
   { message: 'Squish!', emoji: '💥' },
@@ -41,16 +41,6 @@ const WORM_MESSAGES = [
   { message: 'Bye bye worm!', emoji: '👋' },
   { message: 'Caught it!', emoji: '🎉' }
 ]
-
-export const getRandomCorrectMessage = () => {
-  const index = Math.floor(Math.random() * CORRECT_MESSAGES.length)
-  return CORRECT_MESSAGES[index]
-}
-
-export const getRandomWormMessage = () => {
-  const index = Math.floor(Math.random() * WORM_MESSAGES.length)
-  return WORM_MESSAGES[index]
-}
 
 export const AchievementDisplay = memo(({ achievement, onDismiss }: AchievementDisplayProps) => {
   useEffect(() => {

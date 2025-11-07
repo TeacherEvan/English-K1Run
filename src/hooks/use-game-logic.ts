@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
+import { CORRECT_MESSAGES, WORM_MESSAGES, type Achievement } from '../components/AchievementDisplay'
 
 type PlayerSide = 'left' | 'right'
 
@@ -64,16 +65,6 @@ export interface SplatObject {
   y: number
   createdAt: number
   lane: PlayerSide
-}
-
-export interface Achievement {
-  id: number
-  type: 'correct' | 'worm'
-  message: string
-  emoji?: string
-  x: number
-  y: number
-  playerSide: PlayerSide
 }
 
 const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
@@ -853,15 +844,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           void playSoundEffect.voice(tappedObject.type)
 
           // Create achievement popup at tap location
-          const achievementMessages = [
-            { message: 'Perfect!', emoji: '⭐' },
-            { message: 'Great Job!', emoji: '✨' },
-            { message: 'Awesome!', emoji: '🌟' },
-            { message: 'Excellent!', emoji: '💫' },
-            { message: 'Super!', emoji: '🎉' },
-            { message: 'Amazing!', emoji: '🎊' }
-          ]
-          const randomMsg = achievementMessages[Math.floor(Math.random() * achievementMessages.length)]
+          const randomMsg = CORRECT_MESSAGES[Math.floor(Math.random() * CORRECT_MESSAGES.length)]
           setAchievements(prevAchievements => [...prevAchievements, {
             id: Date.now(),
             type: 'correct',
@@ -971,15 +954,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         if (!worm || !worm.alive) return prev
 
         // Create achievement popup for worm tap
-        const wormMessages = [
-          { message: 'Got one!', emoji: '🐛' },
-          { message: 'Nice catch!', emoji: '👍' },
-          { message: 'Squish!', emoji: '💥' },
-          { message: 'Gotcha!', emoji: '🎯' },
-          { message: 'Wiggle wiggle!', emoji: '🐛' },
-          { message: 'Worm away!', emoji: '✨' }
-        ]
-        const randomMsg = wormMessages[Math.floor(Math.random() * wormMessages.length)]
+        const randomMsg = WORM_MESSAGES[Math.floor(Math.random() * WORM_MESSAGES.length)]
         setAchievements(prevAchievements => [...prevAchievements, {
           id: Date.now(),
           type: 'worm',
