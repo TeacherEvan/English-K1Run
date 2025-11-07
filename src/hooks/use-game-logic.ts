@@ -66,6 +66,16 @@ export interface SplatObject {
   lane: PlayerSide
 }
 
+export interface Achievement {
+  id: number
+  type: 'correct' | 'worm'
+  message: string
+  emoji?: string
+  x: number
+  y: number
+  playerSide: PlayerSide
+}
+
 const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
 const WORM_INITIAL_COUNT = 5 // Number of worms to spawn at game start
 const WORM_PROGRESSIVE_SPAWN_INTERVAL = 3000 // 3 seconds between initial worm spawns
@@ -293,6 +303,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     streak: 0
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
+  const [achievements, setAchievements] = useState<Achievement[]>([])
 
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
@@ -841,6 +852,26 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Correct tap: play voice pronunciation only (no background success sound)
           void playSoundEffect.voice(tappedObject.type)
 
+          // Create achievement popup at tap location
+          const achievementMessages = [
+            { message: 'Perfect!', emoji: '⭐' },
+            { message: 'Great Job!', emoji: '✨' },
+            { message: 'Awesome!', emoji: '🌟' },
+            { message: 'Excellent!', emoji: '💫' },
+            { message: 'Super!', emoji: '🎉' },
+            { message: 'Amazing!', emoji: '🎊' }
+          ]
+          const randomMsg = achievementMessages[Math.floor(Math.random() * achievementMessages.length)]
+          setAchievements(prevAchievements => [...prevAchievements, {
+            id: Date.now(),
+            type: 'correct',
+            message: randomMsg.message,
+            emoji: randomMsg.emoji,
+            x: tappedObject.x,
+            y: tappedObject.y,
+            playerSide: tappedObject.lane
+          }])
+
           const nextStreak = prev.streak + 1
           newState.streak = nextStreak
 
@@ -938,6 +969,26 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       setWorms(prev => {
         const worm = prev.find(w => w.id === wormId)
         if (!worm || !worm.alive) return prev
+
+        // Create achievement popup for worm tap
+        const wormMessages = [
+          { message: 'Got one!', emoji: '🐛' },
+          { message: 'Nice catch!', emoji: '👍' },
+          { message: 'Squish!', emoji: '💥' },
+          { message: 'Gotcha!', emoji: '🎯' },
+          { message: 'Wiggle wiggle!', emoji: '🐛' },
+          { message: 'Worm away!', emoji: '✨' }
+        ]
+        const randomMsg = wormMessages[Math.floor(Math.random() * wormMessages.length)]
+        setAchievements(prevAchievements => [...prevAchievements, {
+          id: Date.now(),
+          type: 'worm',
+          message: randomMsg.message,
+          emoji: randomMsg.emoji,
+          x: worm.x,
+          y: worm.y,
+          playerSide: worm.lane
+        }])
 
         // Create splat effect at worm position
         setSplats(prevSplats => [
@@ -1330,6 +1381,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     resetGame,
     comboCelebration,
     clearComboCelebration,
-    changeTargetToVisibleEmoji
+    changeTargetToVisibleEmoji,
+    achievements,
+    clearAchievement: (achievementId: number) => {
+      setAchievements(prev => prev.filter(a => a.id !== achievementId))
+    }
   }
 }
