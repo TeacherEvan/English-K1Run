@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { playSoundEffect } from '../lib/sound-manager'
 
 interface FireworksDisplayProps {
   isVisible: boolean
@@ -28,6 +29,7 @@ const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b'
 
 export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
   const [fireworks, setFireworks] = useState<Firework[]>([])
+  const [hasPlayedSticker, setHasPlayedSticker] = useState(false)
 
   // Generate confetti positions once to avoid Math.random() during render
   const [confettiElements] = useState(() =>
@@ -94,8 +96,21 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
     if (!isVisible) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFireworks([])
+      setHasPlayedSticker(false)
     }
   }, [isVisible])
+
+  // Play "GIVE THEM A STICKER!" voice when winner appears
+  useEffect(() => {
+    if (isVisible && winner && !hasPlayedSticker) {
+      // Delay slightly to let fireworks start, then play the sticker voice
+      const timer = setTimeout(() => {
+        void playSoundEffect.sticker()
+        setHasPlayedSticker(true)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isVisible, winner, hasPlayedSticker])
 
   useEffect(() => {
     if (!isVisible) return

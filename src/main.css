@@ -249,6 +249,45 @@
   }
 }
 
+@keyframes coin-cascade {
+  0% {
+    transform: scale(0) translateY(-30px) rotate(0deg);
+    opacity: 0;
+  }
+
+  15% {
+    transform: scale(1.3) translateY(-10px) rotate(180deg);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1) translateY(0) rotate(360deg);
+    opacity: 1;
+  }
+
+  85% {
+    transform: scale(0.9) translateY(5px) rotate(540deg);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(0) translateY(10px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes coin-sparkle {
+  0%, 100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+}
+
 .bounce-in {
   animation: bounce-in 0.3s ease-out;
 }
@@ -267,6 +306,14 @@
 
 .confetti-fall {
   animation: confetti-fall 3s ease-in forwards;
+}
+
+.coin-cascade {
+  animation: coin-cascade 2s ease-out forwards;
+}
+
+.coin-sparkle {
+  animation: coin-sparkle 1.5s ease-out infinite;
 }
 
 .game-area {
