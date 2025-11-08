@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 // Core game components (critical path)
+import { AchievementDisplay } from './components/AchievementDisplay'
 import { ComboCelebration } from './components/ComboCelebration'
 import { EmojiRotationMonitor } from './components/EmojiRotationMonitor'
 import { FallingObject } from './components/FallingObject'
@@ -78,7 +79,9 @@ function App() {
     resetGame,
     comboCelebration,
     clearComboCelebration,
-    changeTargetToVisibleEmoji
+    changeTargetToVisibleEmoji,
+    achievements,
+    clearAchievement
   } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
@@ -217,6 +220,15 @@ function App() {
       {comboCelebration && (
         <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
       )}
+
+      {/* Achievement Displays */}
+      {achievements.map(achievement => (
+        <AchievementDisplay
+          key={achievement.id}
+          achievement={achievement}
+          onDismiss={() => clearAchievement(achievement.id)}
+        />
+      ))}
 
       {/* Full Screen Game Area */}
       <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
