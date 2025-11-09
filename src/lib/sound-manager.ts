@@ -336,7 +336,7 @@ class SoundManager {
                 prevAudio.pause()
                 prevAudio.currentTime = 0
                 this.activeHtmlAudio.delete(key)
-            } catch (error) {
+            } catch {
                 // Ignore errors from stopping already-stopped audio
             }
         }
@@ -554,7 +554,7 @@ class SoundManager {
                 const prevSource = this.activeSources.get(soundKey)!
                 prevSource.stop()
                 this.activeSources.delete(soundKey)
-            } catch (error) {
+            } catch {
                 // Ignore errors from stopping already-stopped sources
             }
         }
