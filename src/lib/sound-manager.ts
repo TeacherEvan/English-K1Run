@@ -742,12 +742,45 @@ class SoundManager {
     isInitialized(): boolean {
         return this.audioContext !== null
     }
+
+    // Public method for custom speech synthesis with options
+    async playSpeech(text: string, options?: { pitch?: number; rate?: number; volume?: number }) {
+        if (!this.isEnabled || !text) return
+
+        try {
+            if (!this.canUseSpeech()) {
+                console.warn('[SoundManager] Speech synthesis not available')
+                return
+            }
+
+            const synth = window.speechSynthesis
+            if (!synth) return
+
+            const utterance = new SpeechSynthesisUtterance(text)
+            utterance.pitch = options?.pitch ?? 1.0
+            utterance.rate = options?.rate ?? 1.0
+            utterance.volume = options?.volume ?? this.volume
+
+            synth.speak(utterance)
+
+            if (import.meta.env.DEV) {
+                console.log(`[SoundManager] Speaking with custom options: "${text}"`, options)
+            }
+        } catch (error) {
+            console.error('[SoundManager] Custom speech synthesis error:', error)
+        }
+    }
 }
 
 export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
-    voice: (phrase: string) => soundManager.playWord(phrase)
+    voice: (phrase: string) => soundManager.playWord(phrase),
+    coin: () => soundManager.playWord('coin'), // Slot machine coin sound for achievements
+    sticker: () => {
+        // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
+        soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
+    }
     // Other sound effects (tap, success, wrong, win) removed - only target pronunciation allowed
 }
 
