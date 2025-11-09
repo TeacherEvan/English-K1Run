@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
-import { CORRECT_MESSAGES, WORM_MESSAGES, type Achievement } from '../components/AchievementDisplay'
+import { CORRECT_MESSAGES, type Achievement } from '../components/AchievementDisplay'
 
 type PlayerSide = 'left' | 'right'
 
@@ -953,13 +953,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const worm = prev.find(w => w.id === wormId)
         if (!worm || !worm.alive) return prev
 
-        // Create achievement popup for worm tap
-        const randomMsg = WORM_MESSAGES[Math.floor(Math.random() * WORM_MESSAGES.length)]
+        // Create coin achievement popup for worm tap (no message, just coin animation)
         setAchievements(prevAchievements => [...prevAchievements, {
           id: Date.now(),
           type: 'worm',
-          message: randomMsg.message,
-          emoji: randomMsg.emoji,
+          message: '', // No message displayed - coin animation will show instead
+          emoji: undefined,
           x: worm.x,
           y: worm.y,
           playerSide: worm.lane
