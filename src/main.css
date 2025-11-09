@@ -309,11 +309,11 @@
 }
 
 .coin-cascade {
-  animation: coin-cascade 2s ease-out forwards;
+  animation: coin-cascade 0.5s ease-out forwards;
 }
 
 .coin-sparkle {
-  animation: coin-sparkle 1.5s ease-out infinite;
+  animation: coin-sparkle 0.5s ease-out forwards;
 }
 
 .game-area {
