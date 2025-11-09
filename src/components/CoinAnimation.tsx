@@ -11,8 +11,8 @@ export interface CoinAnimationProps {
 
 export const CoinAnimation = memo(({ id, x, y, onDismiss }: CoinAnimationProps) => {
   useEffect(() => {
-    // Auto-dismiss after 2 seconds to match coin sound duration
-    const timer = window.setTimeout(onDismiss, 2000)
+    // Auto-dismiss after 500ms to match coin sound duration
+    const timer = window.setTimeout(onDismiss, 500)
     return () => window.clearTimeout(timer)
   }, [id, onDismiss])
 
