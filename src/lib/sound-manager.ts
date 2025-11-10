@@ -325,7 +325,7 @@ class SoundManager {
         return null
     }
 
-    private async playWithHtmlAudio(key: string, playbackRate = 0.8): Promise<boolean> {
+    private async playWithHtmlAudio(key: string, playbackRate = 0.8, maxDuration?: number): Promise<boolean> {
         const url = audioUrlIndex.get(key)
         if (!url) return false
 
@@ -355,10 +355,27 @@ class SoundManager {
             // Track this audio element
             this.activeHtmlAudio.set(key, audio)
 
+            let maxDurationTimer: number | undefined
+
             const cleanup = () => {
                 audio.removeEventListener('ended', handleEnded)
                 audio.removeEventListener('error', handleError)
+                if (maxDurationTimer !== undefined) {
+                    window.clearTimeout(maxDurationTimer)
+                }
                 this.activeHtmlAudio.delete(key)
+            }
+
+            const forceStop = () => {
+                if (audio && !audio.paused) {
+                    audio.pause()
+                    audio.currentTime = 0
+                }
+                cleanup()
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Force-stopped "${key}" after ${maxDuration}ms`)
+                }
+                resolve(true)
             }
 
             const handleEnded = () => {
@@ -389,6 +406,11 @@ class SoundManager {
             audio.addEventListener('ended', handleEnded, { once: true })
             audio.addEventListener('error', handleError, { once: true })
 
+            // Set up max duration timer if specified
+            if (maxDuration !== undefined && maxDuration > 0) {
+                maxDurationTimer = window.setTimeout(forceStop, maxDuration)
+            }
+
             audio.play().catch(error => {
                 console.warn(`Unable to start audio element for "${key}":`, error)
                 cleanup()
@@ -404,11 +426,11 @@ class SoundManager {
         })
     }
 
-    private async playVoiceClip(name: string, playbackRate = 0.8): Promise<boolean> {
+    private async playVoiceClip(name: string, playbackRate = 0.8, maxDuration?: number): Promise<boolean> {
         const candidates = this.resolveCandidates(name)
 
         for (const candidate of candidates) {
-            const played = await this.playWithHtmlAudio(candidate, playbackRate)
+            const played = await this.playWithHtmlAudio(candidate, playbackRate, maxDuration)
             if (played) {
                 return true
             }
@@ -661,6 +683,7 @@ class SoundManager {
             const normalizedPhrase = trimmed.toLowerCase()
             const isCoinSound = normalizedPhrase === 'coin'
             const playbackRate = isCoinSound ? 1.0 : 0.8 // Coin at normal speed, educational content at 0.8x
+            const maxDuration = isCoinSound ? 500 : undefined // Coin sounds limited to 500ms max
 
             // PRIORITY 1: Look up sentence template for educational context
             const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
@@ -685,7 +708,7 @@ class SoundManager {
             }
 
             // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
-            if (await this.playVoiceClip(trimmed, playbackRate)) {
+            if (await this.playVoiceClip(trimmed, playbackRate, maxDuration)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
                 const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
