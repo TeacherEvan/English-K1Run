@@ -85,6 +85,8 @@ class SoundManager {
     private loadingCache: Map<string, Promise<AudioBuffer | null>> = new Map()
     private fallbackEffects: Map<string, AudioBuffer> = new Map()
     private htmlAudioCache: Map<string, string> = new Map()
+    private activeSources: Map<string, AudioBufferSourceNode> = new Map() // Track active audio sources
+    private activeHtmlAudio: Map<string, HTMLAudioElement> = new Map() // Track active HTML audio elements
     private isEnabled = true
     private volume = 0.6
     private speechAvailable: boolean | null = null
@@ -323,9 +325,21 @@ class SoundManager {
         return null
     }
 
-    private async playWithHtmlAudio(key: string): Promise<boolean> {
+    private async playWithHtmlAudio(key: string, playbackRate = 0.8): Promise<boolean> {
         const url = audioUrlIndex.get(key)
         if (!url) return false
+
+        // Stop any previous instance of this sound
+        if (this.activeHtmlAudio.has(key)) {
+            try {
+                const prevAudio = this.activeHtmlAudio.get(key)!
+                prevAudio.pause()
+                prevAudio.currentTime = 0
+                this.activeHtmlAudio.delete(key)
+            } catch {
+                // Ignore errors from stopping already-stopped audio
+            }
+        }
 
         if (!this.htmlAudioCache.has(key)) {
             this.htmlAudioCache.set(key, url)
@@ -336,11 +350,15 @@ class SoundManager {
             audio.preload = 'auto'
             audio.crossOrigin = 'anonymous'
             audio.volume = this.volume
-            audio.playbackRate = 0.8 // 20% slower for clearer kindergarten comprehension
+            audio.playbackRate = playbackRate // Use provided playback rate
+
+            // Track this audio element
+            this.activeHtmlAudio.set(key, audio)
 
             const cleanup = () => {
                 audio.removeEventListener('ended', handleEnded)
                 audio.removeEventListener('error', handleError)
+                this.activeHtmlAudio.delete(key)
             }
 
             const handleEnded = () => {
@@ -386,11 +404,11 @@ class SoundManager {
         })
     }
 
-    private async playVoiceClip(name: string): Promise<boolean> {
+    private async playVoiceClip(name: string, playbackRate = 0.8): Promise<boolean> {
         const candidates = this.resolveCandidates(name)
 
         for (const candidate of candidates) {
-            const played = await this.playWithHtmlAudio(candidate)
+            const played = await this.playWithHtmlAudio(candidate, playbackRate)
             if (played) {
                 return true
             }
@@ -527,14 +545,25 @@ class SoundManager {
         }
     }
 
-    private startBuffer(buffer: AudioBuffer, delaySeconds = 0) {
+    private startBuffer(buffer: AudioBuffer, delaySeconds = 0, soundKey?: string, playbackRate = 0.8) {
         if (!this.audioContext) return
+
+        // Stop any previous instance of this sound
+        if (soundKey && this.activeSources.has(soundKey)) {
+            try {
+                const prevSource = this.activeSources.get(soundKey)!
+                prevSource.stop()
+                this.activeSources.delete(soundKey)
+            } catch {
+                // Ignore errors from stopping already-stopped sources
+            }
+        }
 
         const source = this.audioContext.createBufferSource()
         const gainNode = this.audioContext.createGain()
 
         source.buffer = buffer
-        source.playbackRate.value = 0.8 // 20% slower for clearer kindergarten comprehension
+        source.playbackRate.value = playbackRate // Use provided playback rate
         gainNode.gain.value = this.volume
 
         source.connect(gainNode)
@@ -542,6 +571,14 @@ class SoundManager {
 
         const startTime = this.audioContext.currentTime + Math.max(0, delaySeconds)
         source.start(startTime)
+
+        // Track this source and auto-cleanup when it ends
+        if (soundKey) {
+            this.activeSources.set(soundKey, source)
+            source.onended = () => {
+                this.activeSources.delete(soundKey)
+            }
+        }
     }
 
     async ensureInitialized() {
@@ -558,7 +595,7 @@ class SoundManager {
         await this.resumeIfSuspended()
     }
 
-    async playSound(soundName: string) {
+    async playSound(soundName: string, playbackRate = 1.0) {
         if (!this.isEnabled) return
 
         try {
@@ -568,7 +605,7 @@ class SoundManager {
             if (this.preferHTMLAudio) {
                 const candidates = this.resolveCandidates(soundName)
                 for (const candidate of candidates) {
-                    const played = await this.playWithHtmlAudio(candidate)
+                    const played = await this.playWithHtmlAudio(candidate, playbackRate)
                     if (played) {
                         console.log(`[SoundManager] Played with HTMLAudio: "${soundName}"`)
                         return
@@ -590,7 +627,7 @@ class SoundManager {
                 return
             }
 
-            this.startBuffer(buffer)
+            this.startBuffer(buffer, 0, soundName, playbackRate)
             console.log(`[SoundManager] Playing sound: "${soundName}"`)
         } catch (error) {
             console.error('[SoundManager] Failed to play sound:', error)
@@ -620,8 +657,12 @@ class SoundManager {
 
             const startTime = performance.now()
 
-            // PRIORITY 1: Look up sentence template for educational context
+            // Special handling for coin sound - play at normal speed (1.0x) to match animation timing
             const normalizedPhrase = trimmed.toLowerCase()
+            const isCoinSound = normalizedPhrase === 'coin'
+            const playbackRate = isCoinSound ? 1.0 : 0.8 // Coin at normal speed, educational content at 0.8x
+
+            // PRIORITY 1: Look up sentence template for educational context
             const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
 
             if (sentence) {
@@ -644,7 +685,7 @@ class SoundManager {
             }
 
             // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
-            if (await this.playVoiceClip(trimmed)) {
+            if (await this.playVoiceClip(trimmed, playbackRate)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
                 const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
@@ -679,7 +720,7 @@ class SoundManager {
                 for (const part of parts) {
                     const buffer = await this.loadBufferForName(part, false)
                     if (buffer && this.audioContext) {
-                        this.startBuffer(buffer, delay)
+                        this.startBuffer(buffer, delay, undefined, playbackRate)
                         delay += buffer.duration + 0.1 // 100ms gap between words
                         anyPlayed = true
                     }
