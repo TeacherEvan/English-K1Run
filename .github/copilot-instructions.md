@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Split-screen educational racing game where two players compete by tapping falling objects to advance their progress bars. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
+Split-screen educational racing game where two players compete by tapping falling objects (emojis) to advance their turtle characters. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
 
 **Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
 **Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)  
@@ -10,23 +10,33 @@ Split-screen educational racing game where two players compete by tapping fallin
 **Target Devices**: QBoard interactive displays, tablets, mobile browsers  
 **Repository**: github.com/TeacherEvan/English-K1Run
 
+**Core Gameplay Loop**: Objects fall from top → players tap matching targets → turtle progress bars advance → first to top wins. Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
+
 ## Educational Context & Performance Goals
 
-**Target Audience**: Kindergarten students in classroom settings with QBoard displays and tablets.
+**Target Audience**: Kindergarten students (ages 4-6) in classroom settings with QBoard displays and tablets.
 
-**Educational Categories**: 
-- Fruits & Vegetables (pattern recognition)
-- Numbers & Shapes (1-20, including double-digit text numbers like "11", "12")
-- Alphabet Challenge (sequential letter tapping A→B→C)
+**Educational Categories** (see `GAME_CATEGORIES` in `use-game-logic.ts`): 
+- **Fruits & Vegetables** (13 items): Pattern recognition with apple, banana, grapes, strawberry, carrot, cucumber, watermelon, broccoli, orange, lemon, peach, cherry, kiwi
+- **Counting Fun** (15 items): Numbers 1-15 with emoji (1️⃣-🔟) and text rendering ("11", "12"... for double-digits)
+- **Alphabet Challenge** (`requiresSequence: true`): Sequential letter tapping A→B→C→...→Z
+- **Shapes & Colors** (13 items): Basic shapes (circle, triangle, star, diamond) + color recognition
+- **Animals & Nature** (13 items): Dog, cat, fox, turtle, butterfly, owl, tree, flower, elephant, lion, rabbit, giraffe, penguin
+- **Things That Go** (13 items): Vehicles (car, bus, fire truck, airplane, rocket, bicycle, helicopter, boat, train, taxi, van, scooter, motorcycle)
+- **Weather Wonders** (10 items): Weather concepts (sunny, cloudy, rainy, snowy, rainbow, etc.)
 
 **Performance Requirements**:
-- **60fps target**: Smooth animations without frame drops using `requestAnimationFrame`
-- **Max 15 concurrent objects**: Prevents spawn-rate bottlenecks
-- **Sub-100ms touch latency**: Responsive controls critical for engagement
-- **Spawn rate**: 2000ms interval (2-4 objects per spawn, monitored by eventTracker with >8/sec warning threshold)
-- **Memory management**: Auto-cleanup of off-screen objects, max 500 tracked events (reduced from 1000 for performance)
+- **60fps target**: Smooth animations using `requestAnimationFrame` (not `setInterval`)
+- **Max 30 concurrent objects**: `MAX_ACTIVE_OBJECTS = 30` with 8 spawned every 1.5s
+- **Sub-100ms touch latency**: Critical for engagement on touch devices
+- **Spawn mechanics**: 8 objects per spawn, 2 guaranteed to match current target (`TARGET_GUARANTEE_COUNT`)
+- **Memory management**: Auto-cleanup of off-screen objects (y > 100), max 500 tracked events in `eventTracker`
 
-**Special Handling**: Double-digit numbers (11-20) render as plain text with blue background styling in `FallingObject.tsx`, not complex emoji combinations.
+**Special Handling**: 
+- Double-digit numbers (11-15) render as plain text with blue background in `FallingObject.tsx`, not emoji
+- Worm distractors spawn progressively: 5 initial worms (3s intervals) + 3 worms every 30s during gameplay
+- Sentence templates in `src/lib/constants/sentence-templates.ts` provide contextual learning phrases for each item
+- **Phonics Pronunciation**: When students tap correct objects, they hear phonetic breakdown before the full word (e.g., "Aah! Aah! - Apple!"). This reinforces letter sounds and word formation. See `PHONICS_MAP` in `src/lib/constants/phonics-map.ts` for all mappings.
 
 ## Critical Architectural Rules
 
@@ -40,24 +50,42 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 ## Architecture & Data Flow
 
-**State Ownership**: `src/hooks/use-game-logic.ts` is the single source of truth for all gameplay state—`gameObjects[]`, `GameState`, `GAME_CATEGORIES`, player scoring, and winner detection. Never create parallel game state elsewhere.
+**State Ownership**: `src/hooks/use-game-logic.ts` (1365 lines) is the single source of truth for all gameplay state:
+- `gameObjects[]`: Active falling objects with physics (id, type, emoji, x, y, speed, size, lane)
+- `worms[]`: Distractor objects with wiggle animation (`WormObject` interface)
+- `splats[]`: Splat effects when worms are tapped (`SplatObject` interface)
+- `GameState`: Player progress, current target, level, winner status, streak tracking
+- `GAME_CATEGORIES`: Array of 7 categories with items: `{ emoji, name }[]`
+- Never create parallel game state elsewhere—always use the hook's methods
 
-**Split-Screen Logic**: Objects spawn with `x <= 50` for player 1, `x > 50` for player 2 (percentages). `App.tsx` remaps these to half-width containers in the render pass. Maintain this coordinate system when adding spawn patterns.
+**Split-Screen Coordinate System**: 
+- Percentage-based positioning: `x <= 50` = Player 1 (left), `x > 50` = Player 2 (right)
+- Lane boundaries enforced in collision detection: `LANE_BOUNDS = { left: [10, 45], right: [55, 90] }`
+- `App.tsx` remaps percentages to half-width containers during render pass
+- **Never use absolute pixel coordinates**—maintain percentage system when adding features
 
-**Category System**: `GAME_CATEGORIES` array defines levels with `items: { emoji, name }[]`. Special case: "Alphabet Challenge" has `requiresSequence: true` which enforces sequential tapping (ABC...). When adding categories, check if sequence mode applies.
+**Category System**: 
+- Each category in `GAME_CATEGORIES` has `items: { emoji, name }[]`
+- Special flag: `requiresSequence: true` (Alphabet Challenge) enforces sequential tapping order
+- Adding categories: Update `GAME_CATEGORIES` array + add matching audio files to `/sounds/`
+- Check `sequenceIndex` field when implementing sequence-based gameplay
 
-**Object Lifecycle**: 
-1. `spawnObject()` creates up to 15 active objects at 2000ms intervals (tracked by `eventTracker`)
-2. `updateObjects()` uses `requestAnimationFrame` for smooth 60fps animation (not `setInterval`)
-3. `handleObjectTap()` is the **only** place that scores points, plays audio, advances progress, and detects winners
-4. Objects auto-remove on y > 100 or manual tap; never mutate `gameObjects` outside the hook
+**Object Lifecycle** (controlled by `use-game-logic.ts`):
+1. **Spawn**: `spawnObject()` creates up to `MAX_ACTIVE_OBJECTS` at 1500ms intervals, 8 objects per spawn, 2 guaranteed matches
+2. **Update**: `updateObjects()` uses `requestAnimationFrame` for smooth 60fps physics (not `setInterval`)
+3. **Collision**: `processLane()` handles physics-based collision detection with bidirectional forces
+4. **Tap**: `handleObjectTap()` is the **only** place that scores points, plays audio, advances progress, detects winners
+5. **Cleanup**: Objects auto-remove when y > 100 or on manual tap; never mutate `gameObjects` outside the hook
 
-**Component Ownership**: `App.tsx` owns top-level state (`debugVisible`, `backgroundClass`, `selectedLevel`) and orchestrates layout. All game logic delegates to `use-game-logic.ts` hook.
+**Component Ownership**: 
+- `App.tsx` (297 lines): Top-level orchestrator, owns `debugVisible`, `backgroundClass`, `selectedLevel`, `timeRemaining`
+- All game logic delegates to `useGameLogic()` hook—components are presentational
+- Background rotation every 30s via `BACKGROUND_CLASSES` array (5 backgrounds in `App.css`)
 
-**Singleton Pattern**: Three global singletons initialized on import (never instantiate):
-- `eventTracker` (`src/lib/event-tracker.ts`) - Error/performance logging, max 500 events (reduced from 1000)
-- `soundManager` (`src/lib/sound-manager.ts`) - Web Audio API manager, lazy-initialized
-- `multiTouchHandler` (`src/lib/touch-handler.ts`) - Touch validation system for QBoard displays
+**Singleton Pattern** (initialized on import—never instantiate new):
+- `eventTracker` (`src/lib/event-tracker.ts`): Global error/performance logging, max 500 events
+- `soundManager` (`src/lib/sound-manager.ts`): Web Audio API manager, lazy-initialized on first user interaction
+- `multiTouchHandler` (`src/lib/touch-handler.ts`): Touch validation for QBoard displays (150ms debounce, 10px drag threshold)
 
 ## Collision Detection System
 
@@ -201,12 +229,22 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 **Error Handling**: `ErrorMonitor` monkey-patches `console.error/warn` to display in-game. Keep console usage minimal; wrap debug logs in `if (import.meta.env.DEV)` to avoid UI spam.
 
 **Audio System**: `src/lib/sound-manager.ts` uses Web Audio API, lazy-initialized on first user interaction. 
-- Call `playSoundEffect.tap()`, `.success()`, `.wrong()`, `.win()` for feedback—don't create `<audio>` tags
+- Call `playSoundEffect.voiceWithPhonics()` for correct taps with phonics breakdown (e.g., "Aah! Aah! - Apple!")
+- `playSoundEffect.chaChing()` plays celebratory coin sound for correct selections
 - `.wav` files in `/sounds/` are indexed by normalized names via `import.meta.glob()`
 - Naming convention: `{name}.wav`, `emoji_{name}.wav` (e.g., `emoji_apple.wav` → keys: `"apple"`, `"emoji_apple"`, `"emoji apple"`)
 - Number words auto-map to digits (`one.wav` → `"1"` key)
 - **Playback Method**: Web Audio API is always preferred for correct pitch/speed. HTMLAudio fallback has `playbackRate = 1.0` explicitly set to prevent distorted voices (frog/chipmunk sounds)
 - Fallback hierarchy: Web Audio API → HTMLAudio (playbackRate=1.0) → Speech Synthesis → Web Audio tones
+
+**Phonics System** (`src/lib/constants/phonics-map.ts`):
+- Maps words to phonetic breakdown: `PHONICS_MAP['apple'] = ['Aah', 'Aah', 'Apple']`
+- `playWithPhonics(word, backgroundSound)` plays phonics sequence with optional background sound
+- Background sounds (like 'cha-ching') play at 30% volume while human voice plays at 100%
+- Sequence: phonicSound1 (300ms pause) → phonicSound2 (200ms pause) → fullWord pronunciation
+- **Audio Prioritization**: Human voice always takes priority with full volume; non-voice sounds automatically reduced to 30% when playing simultaneously
+
+**Cha-Ching Sound**: Plays at reduced volume (30%) during correct object taps while phonics voice pronunciation plays at full volume (100%). This creates an engaging reward sound without overwhelming the educational voice content.
 
 ## Vite Configuration
 
@@ -214,13 +252,16 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 
 **Polling Watch**: `server.watch.usePolling: true` essential for Termux/Docker dev environments where native FS events don't propagate
 
-**Manual Chunking**: `build.rollupOptions.output.manualChunks()` separates vendor code into:
-- `vendor-react`, `vendor-radix`, `vendor-ui-utils`, `vendor-large-utils`, `vendor-other`
-- `ui-components`, `game-components`, `game-hooks`, `game-utils`
-
-When adding large dependencies, assign them to the appropriate bucket to prevent chunk bloat. Target: vendor bundles <1MB each.
+**Manual Chunking Strategy** (in `vite.config.ts`): Prevents large vendor bundles by splitting:
+- React ecosystem: `vendor-react-core`, `vendor-react-jsx`, `vendor-react-dom-{client,server,core}`, `vendor-react-scheduler`
+- Radix UI groups: `vendor-radix-dialogs`, `vendor-radix-forms`, `vendor-radix-navigation`, `vendor-radix-other`
+- Other vendors: `vendor-ui-utils` (CVA, clsx, tailwind-merge), `vendor-large-utils` (lucide-react), `vendor-other`
+- App chunks: `ui-components`, `game-components`, `game-hooks`, `game-utils`
+- **Target**: Keep each chunk <1MB; assign new large dependencies to appropriate bucket
 
 **HMR Config**: `server.hmr.overlay: true` shows build errors in-browser. Port 5173, strictPort: false allows fallback.
+
+**Audio Asset Loading**: Uses `import.meta.glob('../../sounds/*.wav', { eager: true, query: '?url' })` to index audio files at build time
 
 ## Project-Specific Conventions
 
@@ -237,7 +278,14 @@ When adding large dependencies, assign them to the appropriate bucket to prevent
 **Add New Game Category**: 
 1. Append to `GAME_CATEGORIES` in `use-game-logic.ts`
 2. Add `.wav` files to `/sounds/` with matching names (use `scripts/generate-audio.cjs` if available)
-3. If sequential gameplay needed, set `requiresSequence: true`
+3. Add phonics mappings to `PHONICS_MAP` in `src/lib/constants/phonics-map.ts` (format: `[phonicSound, phonicSound, fullWord]`)
+4. If sequential gameplay needed, set `requiresSequence: true`
+
+**Add Phonics Mapping**: 
+1. Edit `src/lib/constants/phonics-map.ts`
+2. Add entry: `'word': ['Phonic', 'Phonic', 'Word']` (e.g., `'apple': ['Aah', 'Aah', 'Apple']`)
+3. Use initial sound repeated twice, then full word pronunciation
+4. Test by tapping the object in-game - should hear phonics sequence
 
 **Adjust Difficulty**: Modify `spawnObject()` intervals in `use-game-logic.ts`, `fallSpeedMultiplier` in `use-display-adjustment.ts`, or max concurrent objects (currently 15).
 

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 // import { useKV } from '@github/spark/hooks'
+import { CORRECT_MESSAGES, type Achievement } from '../components/AchievementDisplay'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
-import { CORRECT_MESSAGES, type Achievement } from '../components/AchievementDisplay'
 
 type PlayerSide = 'left' | 'right'
 
@@ -325,12 +325,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [gameObjects])
 
   // Animation frame ref for worm movement
-  const wormAnimationFrameRef = useRef<number>()
+  const wormAnimationFrameRef = useRef<number | undefined>(undefined)
   const wormSpeedMultiplier = useRef(1)
-  
+
   // Refs for worm spawning timers
   const progressiveSpawnTimeoutRefs = useRef<NodeJS.Timeout[]>([])
-  const recurringSpawnIntervalRef = useRef<NodeJS.Timeout>()
+  const recurringSpawnIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Helper function to create worms
   const createWorms = useCallback((count: number, startIndex: number = 0): WormObject[] => {
@@ -491,9 +491,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
 
         if (created.length > 0) {
-          eventTracker.trackObjectSpawn(`immediate-targets-${created.length}`, { 
-            count: created.length,
-            reason: 'target_change'
+          eventTracker.trackObjectSpawn(`immediate-targets-${created.length}`, {
+            count: created.length
           })
           return [...prev, ...created]
         }
@@ -840,8 +839,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const newState = { ...prev }
 
         if (isCorrect) {
-          // Correct tap: play voice pronunciation only (no background success sound)
-          void playSoundEffect.voice(tappedObject.type)
+          // Correct tap: play phonics pronunciation with cha-ching background sound
+          // Example: "Aah! Aah! - Apple!" with cha-ching playing at 30% volume
+          void playSoundEffect.voiceWithPhonics(tappedObject.type, 'cha-ching')
 
           // Create achievement popup at tap location
           const randomMsg = CORRECT_MESSAGES[Math.floor(Math.random() * CORRECT_MESSAGES.length)]
@@ -871,7 +871,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               type: 'info',
               category: 'combo',
               message: `Combo streak reached ${comboData.streak}`,
-              data: comboData
+              data: { ...comboData }
             })
           }
 
@@ -881,7 +881,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           if (newState.progress >= 100) {
             newState.winner = true
             // Win sound removed - only target pronunciations allowed
-            eventTracker.trackGameStateChange(prev, newState, 'player_wins')
+            eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'player_wins')
           }
 
           // Change target immediately on correct tap (for non-sequence modes)
@@ -890,8 +890,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             newState.currentTarget = nextTarget.name
             newState.targetEmoji = nextTarget.emoji
             newState.targetChangeTime = Date.now() + 10000 // Reset timer
-            eventTracker.trackGameStateChange(prev, newState, 'target_change_on_correct_tap')
-            
+            eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'target_change_on_correct_tap')
+
             // Spawn 2 immediate target emojis for the new target
             setTimeout(() => spawnImmediateTargets(), 0)
           }
@@ -905,8 +905,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               const nextTarget = generateRandomTarget()
               newState.currentTarget = nextTarget.name
               newState.targetEmoji = nextTarget.emoji
-              eventTracker.trackGameStateChange(prev, newState, 'sequence_advance')
-              
+              eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'sequence_advance')
+
               // Spawn 2 immediate target emojis for the new sequence target
               setTimeout(() => spawnImmediateTargets(), 0)
             }
@@ -915,8 +915,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Incorrect tap: no sound feedback - penalty applied
           newState.streak = 0
           newState.progress = Math.max(prev.progress - 20, 0)
-          eventTracker.trackGameStateChange(prev, newState, 'incorrect_tap_penalty')
-          
+          eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'incorrect_tap_penalty')
+
           // Trigger screen shake for incorrect tap
           setScreenShake(true)
           setTimeout(() => setScreenShake(false), 500) // Reset after animation completes
@@ -1029,18 +1029,18 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       setGameObjects([])
       setSplats([]) // Clear any existing splats
       setScreenShake(false) // Reset screen shake
-      
+
       // Clear any existing worm spawn timers
       progressiveSpawnTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
       progressiveSpawnTimeoutRefs.current = []
       if (recurringSpawnIntervalRef.current) {
         clearInterval(recurringSpawnIntervalRef.current)
       }
-      
+
       // Progressive worm spawning: spawn 5 worms progressively, 3 seconds apart
       setWorms([]) // Start with no worms
       wormSpeedMultiplier.current = 1 // Reset worm speed
-      
+
       for (let i = 0; i < WORM_INITIAL_COUNT; i++) {
         const timeout = setTimeout(() => {
           setWorms(prev => [...prev, ...createWorms(1, i)])
@@ -1053,20 +1053,20 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }, i * WORM_PROGRESSIVE_SPAWN_INTERVAL)
         progressiveSpawnTimeoutRefs.current.push(timeout)
       }
-      
+
       // Set up recurring worm spawning: 3 worms every 30 seconds
       recurringSpawnIntervalRef.current = setInterval(() => {
         setWorms(prev => {
           const aliveCount = prev.filter(w => w.alive).length
           const newWorms = createWorms(WORM_RECURRING_COUNT, prev.length)
-          
+
           eventTracker.trackEvent({
             type: 'info',
             category: 'worm',
             message: `Recurring spawn: ${WORM_RECURRING_COUNT} worms (${aliveCount} already alive)`,
             data: { recurringSpawn: true, aliveCount, newCount: WORM_RECURRING_COUNT }
           })
-          
+
           return [...prev, ...newWorms]
         })
       }, WORM_RECURRING_INTERVAL)
@@ -1083,11 +1083,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           progress: 0,
           streak: 0
         }
-        eventTracker.trackGameStateChange(prev, newState, 'game_start')
+        eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'game_start')
         return newState
       })
       setComboCelebration(null)
-      
+
       // Spawn 2 immediate target emojis when game starts
       setTimeout(() => spawnImmediateTargets(), 100)
     } catch (error) {
@@ -1109,7 +1109,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     // Reset performance metrics
     eventTracker.resetPerformanceMetrics()
-    
+
     // Clear worm spawn timers
     progressiveSpawnTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
     progressiveSpawnTimeoutRefs.current = []
@@ -1122,7 +1122,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setSplats([]) // Clear splats when game ends
     setScreenShake(false) // Reset screen shake
     wormSpeedMultiplier.current = 1 // Reset worm speed
-    
+
     setGameState({
       progress: 0,
       currentTarget: "",
@@ -1149,7 +1149,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           targetEmoji: target.emoji,
           targetChangeTime: Date.now() + 10000
         }))
-        
+
         // Spawn 2 immediate target emojis for the new target
         setTimeout(() => spawnImmediateTargets(), 0)
       }
@@ -1221,7 +1221,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         let newVx = worm.vx
         let newVy = worm.vy
         const [minX, maxX] = LANE_BOUNDS[worm.lane]
-        
+
         // Calculate margins to prevent worms from clipping boundaries
         const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
         const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
@@ -1264,11 +1264,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       }
     }
   }, [gameState.gameStarted, gameState.winner])
-  
+
   // Splat cleanup and currentTime update
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) return
-    
+
     const SPLAT_DURATION = 8000 // 8 seconds
     // Update every 500ms for smoother fade while reducing re-renders
     const interval = setInterval(() => {
@@ -1277,7 +1277,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       // Remove splats older than 8 seconds
       setSplats(prev => prev.filter(splat => now - splat.createdAt < SPLAT_DURATION))
     }, 500) // Reduced from 100ms to 500ms for better performance
-    
+
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner])
 
@@ -1307,10 +1307,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       // Pick a random emoji from visible ones
       const randomEmoji = availableEmojis[Math.floor(Math.random() * availableEmojis.length)]
-      
+
       // Find the corresponding item in current category
       const targetItem = currentCategory.items.find(item => item.emoji === randomEmoji)
-      
+
       if (!targetItem) {
         if (import.meta.env.DEV) {
           console.log('[TargetDisplay] Could not find item for emoji:', randomEmoji)
@@ -1326,7 +1326,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           targetEmoji: targetItem.emoji,
           targetChangeTime: Date.now() + 10000 // Reset timer
         }
-        eventTracker.trackGameStateChange(prev, newState, 'manual_target_change_via_click')
+        eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'manual_target_change_via_click')
         return newState
       })
 
