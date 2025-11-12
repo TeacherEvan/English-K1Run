@@ -1,8 +1,8 @@
 // Sound Manager - Enhanced audio system that supports wav assets and speech-like cues
 
-import { eventTracker } from './event-tracker'
-import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 import { getPhonics } from './constants/phonics-map'
+import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
+import { eventTracker } from './event-tracker'
 
 const rawAudioFiles = import.meta.glob('../../sounds/*.wav', {
     eager: true,
@@ -845,11 +845,11 @@ class SoundManager {
         if (!this.isEnabled) return
 
         const phonics = getPhonics(word)
-        
+
         if (phonics) {
             // Play phonics sequence: [sound1, sound2, fullWord]
             const [sound1, sound2, fullWord] = phonics
-            
+
             // Play background sound at reduced volume (30%) if provided
             if (backgroundSound) {
                 const originalVolume = this.volume
@@ -861,13 +861,13 @@ class SoundManager {
             // Play phonics with priority (human voice at 100% volume)
             await this.playSpeech(sound1, { pitch: 1.1, rate: 0.9, volume: 1.0 })
             await new Promise(resolve => setTimeout(resolve, 300)) // Pause between phonics
-            
+
             await this.playSpeech(sound2, { pitch: 1.1, rate: 0.9, volume: 1.0 })
             await new Promise(resolve => setTimeout(resolve, 200)) // Pause before full word
-            
+
             // Pronounce full word
             await this.playWord(fullWord)
-            
+
             if (import.meta.env.DEV) {
                 console.log(`[SoundManager] Played with phonics: ${sound1} ${sound2} - ${fullWord}`)
             }
