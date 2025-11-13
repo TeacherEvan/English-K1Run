@@ -524,7 +524,8 @@ class SoundManager {
                 })
             }
 
-            synth.cancel() // Cancel any ongoing speech
+            // Don't cancel ongoing speech - this interrupts phonics sequences and target announcements
+            // The Web Speech API will queue utterances naturally
             synth.speak(utterance)
 
             if (import.meta.env.DEV) {
