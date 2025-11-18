@@ -839,9 +839,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const newState = { ...prev }
 
         if (isCorrect) {
-          // Correct tap: play phonics pronunciation with cha-ching background sound
-          // Example: "Aah! Aah! - Apple!" with cha-ching playing at 30% volume
-          void playSoundEffect.voiceWithPhonics(tappedObject.type, 'cha-ching')
+          // Correct tap: play phonics pronunciation
+          // Example: "Aah! Aah! - Apple!"
+          void playSoundEffect.voiceWithPhonics(tappedObject.type)
 
           // Create achievement popup at tap location
           const randomMsg = CORRECT_MESSAGES[Math.floor(Math.random() * CORRECT_MESSAGES.length)]

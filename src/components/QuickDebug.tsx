@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import { playSoundEffect, soundManager } from '../lib/sound-manager'
+import { soundManager } from '../lib/sound-manager'
 import { Button } from './ui/button'
 
 export function QuickDebug() {
@@ -60,7 +60,8 @@ export function QuickDebug() {
     const testAudio = async () => {
         try {
             await soundManager.ensureInitialized()
-            await playSoundEffect.tap()
+            // Test audio with a simple word pronunciation
+            await soundManager.playWord('test')
             setAudioStatus('Audio Working!')
         } catch (error) {
             setAudioStatus(`Audio Error: ${error}`)
