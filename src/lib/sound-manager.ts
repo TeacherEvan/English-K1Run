@@ -680,12 +680,7 @@ class SoundManager {
             if (!trimmed) return
 
             const startTime = performance.now()
-
-            // Special handling for coin sound - play at normal speed (1.0x) to match animation timing
             const normalizedPhrase = trimmed.toLowerCase()
-            const isCoinSound = normalizedPhrase === 'coin'
-            const playbackRate = isCoinSound ? 1.0 : 0.8 // Coin at normal speed, educational content at 0.8x
-            const maxDuration = isCoinSound ? 500 : undefined // Coin sounds limited to 500ms max
 
             // PRIORITY 1: Look up sentence template for educational context
             const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
@@ -710,7 +705,7 @@ class SoundManager {
             }
 
             // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
-            if (await this.playVoiceClip(trimmed, playbackRate, maxDuration)) {
+            if (await this.playVoiceClip(trimmed, 0.8)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
                 const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
@@ -745,7 +740,7 @@ class SoundManager {
                 for (const part of parts) {
                     const buffer = await this.loadBufferForName(part, false)
                     if (buffer && this.audioContext) {
-                        this.startBuffer(buffer, delay, undefined, playbackRate)
+                        this.startBuffer(buffer, delay, undefined, 0.8)
                         delay += buffer.duration + 0.1 // 100ms gap between words
                         anyPlayed = true
                     }
@@ -890,13 +885,11 @@ export const soundManager = new SoundManager()
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
     voiceWithPhonics: (word: string, backgroundSound?: string) => soundManager.playWithPhonics(word, backgroundSound),
-    chaChing: () => soundManager.playWord('cha-ching'),
-    coin: () => soundManager.playWord('coin'), // Slot machine coin sound for achievements
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
     }
-    // Other sound effects (tap, success, wrong, win) removed - only target pronunciation allowed
+    // Other sound effects (coin, chaChing, tap, success, wrong, win) removed - only target pronunciation allowed
 }
 
 // Export debug function for troubleshooting
