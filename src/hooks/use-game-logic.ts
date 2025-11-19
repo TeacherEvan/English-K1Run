@@ -382,7 +382,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   useEffect(() => {
     if (gameState.gameStarted && gameState.currentTarget) {
-      void playSoundEffect.voice(gameState.currentTarget)
+      // Use targetAnnouncement to cancel previous speech and prevent overlap
+      void playSoundEffect.targetAnnouncement(gameState.currentTarget)
     }
   }, [gameState.gameStarted, gameState.currentTarget])
 

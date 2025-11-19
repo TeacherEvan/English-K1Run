@@ -458,7 +458,7 @@ class SoundManager {
         return true
     }
 
-    private speakWithSpeechSynthesis(text: string): boolean {
+    private speakWithSpeechSynthesis(text: string, cancelPrevious = false): boolean {
         if (import.meta.env.DEV) {
             console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
         }
@@ -487,6 +487,14 @@ class SoundManager {
                     error: 'synth_not_found'
                 })
                 return false
+            }
+
+            // Cancel previous speech if requested (for target announcements to prevent overlap)
+            if (cancelPrevious && synth.speaking) {
+                if (import.meta.env.DEV) {
+                    console.log('[SoundManager] Cancelling previous speech to prevent overlap')
+                }
+                synth.cancel()
             }
 
             const utterance = new SpeechSynthesisUtterance(text)
@@ -524,8 +532,9 @@ class SoundManager {
                 })
             }
 
-            // Don't cancel ongoing speech - this interrupts phonics sequences and target announcements
-            // The Web Speech API will queue utterances naturally
+            // Queue the utterance
+            // Note: cancelPrevious allows us to interrupt previous announcements for new targets
+            // but phonics sequences within playWithPhonics are never interrupted
             synth.speak(utterance)
 
             if (import.meta.env.DEV) {
@@ -670,6 +679,133 @@ class SoundManager {
         }
     }
 
+    /**
+     * Play target announcement with cancellation of previous speech to prevent overlap
+     * This method is specifically for announcing new targets after correct taps
+     */
+    async playTargetAnnouncement(phrase: string) {
+        if (!this.isEnabled || !phrase) return
+
+        try {
+            await this.ensureInitialized()
+
+            const trimmed = phrase.trim()
+            if (!trimmed) return
+
+            const startTime = performance.now()
+            const normalizedPhrase = trimmed.toLowerCase()
+
+            // PRIORITY 1: Look up sentence template for educational context
+            const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
+
+            if (sentence) {
+                // We have a sentence template, speak the full sentence FIRST
+                // Cancel previous speech to prevent overlap with phonics sequences
+                console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}" (cancelling previous)`)
+                if (this.speakWithSpeechSynthesis(sentence, true)) {
+                    console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: normalizedPhrase,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
+                    return
+                } else {
+                    console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
+                }
+            }
+
+            // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
+            if (await this.playVoiceClip(trimmed, 0.8)) {
+                const duration = performance.now() - startTime
+                const candidates = this.resolveCandidates(trimmed)
+                const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
+                eventTracker.trackAudioPlayback({
+                    audioKey: successfulKey,
+                    targetName: trimmed,
+                    method: 'wav',
+                    success: true,
+                    duration
+                })
+                return
+            }
+
+            // PRIORITY 3: For multi-word phrases, try speech synthesis with cancellation
+            const parts = trimmed.split(/[\s-]+/).filter(Boolean)
+            if (parts.length > 1) {
+                if (this.speakWithSpeechSynthesis(trimmed, true)) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
+                    return
+                }
+
+                // Fourth try: play individual words with delays
+                let delay = 0
+                let anyPlayed = false
+                for (const part of parts) {
+                    const buffer = await this.loadBufferForName(part, false)
+                    if (buffer && this.audioContext) {
+                        this.startBuffer(buffer, delay, undefined, 0.8)
+                        delay += buffer.duration + 0.1 // 100ms gap between words
+                        anyPlayed = true
+                    }
+                }
+
+                if (anyPlayed) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'wav',
+                        success: true,
+                        duration
+                    })
+                    return
+                }
+            } else {
+                // Single word: try speech synthesis with cancellation
+                if (this.speakWithSpeechSynthesis(trimmed, true)) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
+                    return
+                }
+            }
+
+            // No audio played successfully
+            eventTracker.trackAudioPlayback({
+                audioKey: trimmed,
+                targetName: trimmed,
+                method: 'fallback-tone',
+                success: false,
+                error: 'no_audio_available'
+            })
+        } catch (error) {
+            console.warn('Failed to play target announcement audio:', error)
+            eventTracker.trackAudioPlayback({
+                audioKey: phrase,
+                targetName: phrase,
+                method: 'fallback-tone',
+                success: false,
+                error: error instanceof Error ? error.message : 'exception'
+            })
+        }
+    }
+
     async playWord(phrase: string) {
         if (!this.isEnabled || !phrase) return
 
@@ -688,7 +824,7 @@ class SoundManager {
             if (sentence) {
                 // We have a sentence template, speak the full sentence FIRST
                 console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
-                if (this.speakWithSpeechSynthesis(sentence)) {
+                if (this.speakWithSpeechSynthesis(sentence, false)) {
                     console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
@@ -722,7 +858,7 @@ class SoundManager {
             // PRIORITY 3: For multi-word phrases, try speech synthesis
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
-                if (this.speakWithSpeechSynthesis(trimmed)) {
+                if (this.speakWithSpeechSynthesis(trimmed, false)) {
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
                         audioKey: trimmed,
@@ -759,7 +895,7 @@ class SoundManager {
                 }
             } else {
                 // Single word: try speech synthesis
-                if (this.speakWithSpeechSynthesis(trimmed)) {
+                if (this.speakWithSpeechSynthesis(trimmed, false)) {
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
                         audioKey: trimmed,
@@ -884,6 +1020,7 @@ export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
+    targetAnnouncement: (phrase: string) => soundManager.playTargetAnnouncement(phrase),
     voiceWithPhonics: (word: string, backgroundSound?: string) => soundManager.playWithPhonics(word, backgroundSound),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
