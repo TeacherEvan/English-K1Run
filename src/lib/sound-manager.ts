@@ -1,6 +1,5 @@
 // Sound Manager - Enhanced audio system that supports wav assets and speech-like cues
 
-import { getPhonics } from './constants/phonics-map'
 import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 import { eventTracker } from './event-tracker'
 
@@ -831,65 +830,17 @@ class SoundManager {
             console.error('[SoundManager] Custom speech synthesis error:', error)
         }
     }
-
-    /**
-     * Play word with phonics breakdown
-     * Example: "apple" → "Aah! Aah! - Apple!"
-     * Prioritizes human voice - background sounds play at reduced volume
-     */
-    async playWithPhonics(word: string, backgroundSound?: string) {
-        if (!this.isEnabled) return
-
-        const phonics = getPhonics(word)
-
-        if (phonics) {
-            // Play phonics sequence: [sound1, sound2, fullWord]
-            const [sound1, sound2, fullWord] = phonics
-
-            // Play background sound at reduced volume (30%) if provided
-            if (backgroundSound) {
-                const originalVolume = this.volume
-                this.volume = 0.3 // Reduce background sound volume
-                await this.playWord(backgroundSound)
-                this.volume = originalVolume
-            }
-
-            // Play phonics with priority (human voice at 100% volume)
-            await this.playSpeech(sound1, { pitch: 1.1, rate: 0.9, volume: 1.0 })
-            await new Promise(resolve => setTimeout(resolve, 300)) // Pause between phonics
-
-            await this.playSpeech(sound2, { pitch: 1.1, rate: 0.9, volume: 1.0 })
-            await new Promise(resolve => setTimeout(resolve, 200)) // Pause before full word
-
-            // Pronounce full word
-            await this.playWord(fullWord)
-
-            if (import.meta.env.DEV) {
-                console.log(`[SoundManager] Played with phonics: ${sound1} ${sound2} - ${fullWord}`)
-            }
-        } else {
-            // Fallback to regular pronunciation if no phonics mapping
-            if (backgroundSound) {
-                const originalVolume = this.volume
-                this.volume = 0.3
-                await this.playWord(backgroundSound)
-                this.volume = originalVolume
-            }
-            await this.playWord(word)
-        }
-    }
 }
 
 export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
-    voiceWithPhonics: (word: string, backgroundSound?: string) => soundManager.playWithPhonics(word, backgroundSound),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
     }
-    // Other sound effects (coin, chaChing, tap, success, wrong, win) removed - only target pronunciation allowed
+    // Other sound effects removed - only target pronunciation and celebration allowed
 }
 
 // Export debug function for troubleshooting

@@ -45,7 +45,7 @@ export const WORM_MESSAGES = [
 export const AchievementDisplay = memo(({ achievement, onDismiss }: AchievementDisplayProps) => {
   useEffect(() => {
     // Auto-dismiss after 500ms to match animation duration
-    // Note: Correct taps already play phonics pronunciation via voiceWithPhonics in use-game-logic
+    // Note: Correct taps already play word pronunciation in use-game-logic
     // Worm taps don't need separate audio (visual feedback is sufficient)
     const timer = window.setTimeout(onDismiss, 500)
     return () => window.clearTimeout(timer)
