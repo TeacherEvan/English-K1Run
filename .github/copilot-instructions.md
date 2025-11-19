@@ -135,6 +135,8 @@ const processLane = (objects: GameObject[], lane: 'left' | 'right') => {
 
 **Background Rotation**: Random background changes every 30s from `BACKGROUND_CLASSES` array (`app-bg-sunrise`, `app-bg-deep-ocean`, etc.). Also changes when returning to menu.
 
+**Visual Feedback**: Screen shake animation triggers on incorrect taps (0.5s duration). Splat effects appear when worms are tapped.
+
 **Multi-Touch Support**: Advanced touch handling system prevents accidental touches from interfering with gameplay on QBoard displays and mobile devices. `src/lib/touch-handler.ts` validates each touch independently with debouncing (150ms), drag detection (10px movement threshold), and long-press rejection (300ms duration limit). Auto-enables on game start, disables on game end. See `MULTI_TOUCH_IMPLEMENTATION.md` for details.
 
 **Touch Integration Pattern**: When adding interactive game objects:
@@ -226,6 +228,11 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 
 **Event Tracking**: `src/lib/event-tracker.ts` is a singleton that auto-registers global error handlers, FPS tracking, and spawn-rate warnings on import. Use `eventTracker.trackEvent()`, `trackError()`, `trackUserAction()` for logging so overlays render consistently. Max 500 events tracked in memory (reduced from 1000 for performance).
 
+**Emoji Rotation Tracking**: `eventTracker` monitors emoji spawn frequency to ensure fair distribution.
+- Tracks last appearance time and count for each emoji
+- Identifies "overdue" emojis (>10s without appearance)
+- `spawnObject` prioritizes stale emojis to maintain variety
+
 **Error Handling**: `ErrorMonitor` monkey-patches `console.error/warn` to display in-game. Keep console usage minimal; wrap debug logs in `if (import.meta.env.DEV)` to avoid UI spam.
 
 **Audio System**: `src/lib/sound-manager.ts` uses Web Audio API, lazy-initialized on first user interaction. 
@@ -305,7 +312,14 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 - **Split-Screen Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values relative to player area
 - **Browser Cache**: After rebuilding, use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) to clear cached bundles if seeing old game behavior
 
-## Recent Bug Fixes (October 2025)
+## Recent Bug Fixes (November 2025)
+
+### Audio Bug Fix (November 2025)
+**Issue**: "Coin" word spoken by speech synthesis instead of sound effect.
+**Fix**: 
+1. Removed redundant `playSoundEffect.coin()` call in `AchievementDisplay.tsx` (handled by `use-game-logic`).
+2. Removed background sound parameter from `voiceWithPhonics` to prevent fallback issues when files are missing.
+**Lesson**: Avoid redundant audio calls in components; let `use-game-logic` handle all gameplay audio. Ensure `.wav` files exist to prevent speech synthesis fallback.
 
 ### Performance Optimizations (October 15, 2025)
 **Major Changes**:

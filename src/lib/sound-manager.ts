@@ -326,7 +326,7 @@ class SoundManager {
         return null
     }
 
-    private async playWithHtmlAudio(key: string, playbackRate = 0.8, maxDuration?: number): Promise<boolean> {
+    private async playWithHtmlAudio(key: string, playbackRate = 0.8, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
         const url = audioUrlIndex.get(key)
         if (!url) return false
 
@@ -350,7 +350,7 @@ class SoundManager {
             const audio = new Audio(url)
             audio.preload = 'auto'
             audio.crossOrigin = 'anonymous'
-            audio.volume = this.volume
+            audio.volume = volumeOverride ?? this.volume
             audio.playbackRate = playbackRate // Use provided playback rate
 
             // Track this audio element
@@ -427,11 +427,11 @@ class SoundManager {
         })
     }
 
-    private async playVoiceClip(name: string, playbackRate = 0.8, maxDuration?: number): Promise<boolean> {
+    private async playVoiceClip(name: string, playbackRate = 0.8, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
         const candidates = this.resolveCandidates(name)
 
         for (const candidate of candidates) {
-            const played = await this.playWithHtmlAudio(candidate, playbackRate, maxDuration)
+            const played = await this.playWithHtmlAudio(candidate, playbackRate, maxDuration, volumeOverride)
             if (played) {
                 return true
             }
@@ -458,7 +458,7 @@ class SoundManager {
         return true
     }
 
-    private speakWithSpeechSynthesis(text: string): boolean {
+    private speakWithSpeechSynthesis(text: string, volumeOverride?: number): boolean {
         if (import.meta.env.DEV) {
             console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
         }
@@ -492,7 +492,7 @@ class SoundManager {
             const utterance = new SpeechSynthesisUtterance(text)
             utterance.rate = 0.8  // 20% slower for clearer kindergarten comprehension
             utterance.pitch = 1.0  // Natural pitch for better voice quality
-            utterance.volume = this.volume
+            utterance.volume = volumeOverride ?? this.volume
 
             // Add event listeners for debugging
             utterance.onstart = () => {
@@ -569,7 +569,7 @@ class SoundManager {
         }
     }
 
-    private startBuffer(buffer: AudioBuffer, delaySeconds = 0, soundKey?: string, playbackRate = 0.8) {
+    private startBuffer(buffer: AudioBuffer, delaySeconds = 0, soundKey?: string, playbackRate = 0.8, volumeOverride?: number) {
         if (!this.audioContext) return
 
         // Stop any previous instance of this sound
@@ -588,7 +588,7 @@ class SoundManager {
 
         source.buffer = buffer
         source.playbackRate.value = playbackRate // Use provided playback rate
-        gainNode.gain.value = this.volume
+        gainNode.gain.value = volumeOverride ?? this.volume
 
         source.connect(gainNode)
         gainNode.connect(this.audioContext.destination)
@@ -670,7 +670,7 @@ class SoundManager {
         }
     }
 
-    async playWord(phrase: string) {
+    async playWord(phrase: string, volumeOverride?: number) {
         if (!this.isEnabled || !phrase) return
 
         try {
@@ -688,7 +688,7 @@ class SoundManager {
             if (sentence) {
                 // We have a sentence template, speak the full sentence FIRST
                 console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
-                if (this.speakWithSpeechSynthesis(sentence)) {
+                if (this.speakWithSpeechSynthesis(sentence, volumeOverride)) {
                     console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
@@ -705,7 +705,7 @@ class SoundManager {
             }
 
             // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
-            if (await this.playVoiceClip(trimmed, 0.8)) {
+            if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
                 const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
@@ -722,7 +722,7 @@ class SoundManager {
             // PRIORITY 3: For multi-word phrases, try speech synthesis
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
-                if (this.speakWithSpeechSynthesis(trimmed)) {
+                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
                         audioKey: trimmed,
@@ -740,7 +740,7 @@ class SoundManager {
                 for (const part of parts) {
                     const buffer = await this.loadBufferForName(part, false)
                     if (buffer && this.audioContext) {
-                        this.startBuffer(buffer, delay, undefined, 0.8)
+                        this.startBuffer(buffer, delay, undefined, 0.8, volumeOverride)
                         delay += buffer.duration + 0.1 // 100ms gap between words
                         anyPlayed = true
                     }
@@ -759,7 +759,7 @@ class SoundManager {
                 }
             } else {
                 // Single word: try speech synthesis
-                if (this.speakWithSpeechSynthesis(trimmed)) {
+                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
                         audioKey: trimmed,
@@ -847,11 +847,11 @@ class SoundManager {
             const [sound1, sound2, fullWord] = phonics
 
             // Play background sound at reduced volume (30%) if provided
+            // IMPORTANT: Do NOT await this, so it plays concurrently with phonics
             if (backgroundSound) {
-                const originalVolume = this.volume
-                this.volume = 0.3 // Reduce background sound volume
-                await this.playWord(backgroundSound)
-                this.volume = originalVolume
+                this.playWord(backgroundSound, 0.3).catch(e => {
+                    console.warn('[SoundManager] Background sound failed:', e)
+                })
             }
 
             // Play phonics with priority (human voice at 100% volume)
@@ -870,10 +870,9 @@ class SoundManager {
         } else {
             // Fallback to regular pronunciation if no phonics mapping
             if (backgroundSound) {
-                const originalVolume = this.volume
-                this.volume = 0.3
-                await this.playWord(backgroundSound)
-                this.volume = originalVolume
+                this.playWord(backgroundSound, 0.3).catch(e => {
+                    console.warn('[SoundManager] Background sound failed:', e)
+                })
             }
             await this.playWord(word)
         }
