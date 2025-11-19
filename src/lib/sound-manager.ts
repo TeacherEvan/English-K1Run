@@ -831,7 +831,6 @@ class SoundManager {
             console.error('[SoundManager] Custom speech synthesis error:', error)
         }
     }
-
     /**
      * Play word with phonics breakdown
      * Example: "apple" → "Aah! Aah! - Apple!"
@@ -888,7 +887,7 @@ export const playSoundEffect = {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
     }
-    // Other sound effects (coin, chaChing, tap, success, wrong, win) removed - only target pronunciation allowed
+    // Other sound effects removed - only target pronunciation and celebration allowed
 }
 
 // Export debug function for troubleshooting
