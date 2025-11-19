@@ -578,6 +578,39 @@ class SoundManager {
         }
     }
 
+    /**
+     * Cancel all active audio (HTML Audio elements and Web Audio buffers)
+     * Used when announcing new targets to prevent overlap
+     */
+    private cancelAllActiveAudio() {
+        // Stop all HTML audio elements
+        for (const [key, audio] of this.activeHtmlAudio.entries()) {
+            try {
+                audio.pause()
+                audio.currentTime = 0
+                this.activeHtmlAudio.delete(key)
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Cancelled HTML audio: "${key}"`)
+                }
+            } catch {
+                // Ignore errors from already-stopped audio
+            }
+        }
+
+        // Stop all Web Audio buffer sources
+        for (const [key, source] of this.activeSources.entries()) {
+            try {
+                source.stop()
+                this.activeSources.delete(key)
+                if (import.meta.env.DEV) {
+                    console.log(`[SoundManager] Cancelled Web Audio source: "${key}"`)
+                }
+            } catch {
+                // Ignore errors from already-stopped sources
+            }
+        }
+    }
+
     private startBuffer(buffer: AudioBuffer, delaySeconds = 0, soundKey?: string, playbackRate = 0.8) {
         if (!this.audioContext) return
 
@@ -691,6 +724,9 @@ class SoundManager {
 
             const trimmed = phrase.trim()
             if (!trimmed) return
+
+            // Cancel all active audio (HTML Audio and Web Audio buffers) before starting new announcement
+            this.cancelAllActiveAudio()
 
             const startTime = performance.now()
             const normalizedPhrase = trimmed.toLowerCase()
