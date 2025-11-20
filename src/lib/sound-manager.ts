@@ -1,14 +1,24 @@
-// Sound Manager - Enhanced audio system that supports wav assets and speech-like cues
+// Sound Manager - Enhanced audio system that supports wav and mp3 assets and speech-like cues
 
 import { getPhonics } from './constants/phonics-map'
 import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 import { eventTracker } from './event-tracker'
 
-const rawAudioFiles = import.meta.glob('../../sounds/*.wav', {
+// Import both .wav and .mp3 audio files
+const rawWavFiles = import.meta.glob('../../sounds/*.wav', {
     eager: true,
     import: 'default',
     query: '?url'
 }) as Record<string, string>
+
+const rawMp3Files = import.meta.glob('../../sounds/*.mp3', {
+    eager: true,
+    import: 'default',
+    query: '?url'
+}) as Record<string, string>
+
+// Combine both formats into a single object
+const rawAudioFiles = { ...rawWavFiles, ...rawMp3Files }
 
 const NUMBER_WORD_TO_DIGIT: Record<string, string> = {
     one: '1',
@@ -44,7 +54,8 @@ const registerAudioAlias = (key: string, url: string) => {
 
 for (const [path, url] of Object.entries(rawAudioFiles)) {
     const fileNameWithExt = path.split('/').pop() ?? ''
-    const fileName = fileNameWithExt.replace(/\.wav$/i, '')
+    // Remove both .wav and .mp3 extensions
+    const fileName = fileNameWithExt.replace(/\.(wav|mp3)$/i, '')
     const normalized = normalizeKey(fileName)
 
     // Register the exact filename (normalized)
