@@ -1,4 +1,4 @@
-// Sound Manager - Enhanced audio system that supports wav assets and speech-like cues
+// Sound Manager - Enhanced audio system that supports wav and mp3 assets and speech-like cues
 
 import { getPhonics } from './constants/phonics-map'
 import { SENTENCE_TEMPLATES } from './constants/sentence-templates'

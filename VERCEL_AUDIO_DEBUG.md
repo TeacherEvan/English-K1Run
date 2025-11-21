@@ -21,11 +21,20 @@ All audio operations now log to console with `[SoundManager]` prefix:
 
 Created `vercel.json` with:
 
-- Proper MIME types for `.wav` files
+- Proper MIME types for `.wav` and `.mp3` files
 - CORS headers for cross-origin audio
 - Cache control for static assets
 
-### 4. **Added Debug Info API**
+### 4. **Audio Format Audit (November 2025)**
+
+Fixed file format mismatches:
+
+- Renamed 216 MP3 files from `.wav` to `.mp3` extension
+- Updated sound manager to import both formats
+- Added proper MIME type handling (`audio/mpeg` for MP3)
+- See `AUDIO_FORMAT_AUDIT.md` for full details
+
+### 5. **Added Debug Info API**
 
 New `getAudioDebugInfo()` function shows:
 
