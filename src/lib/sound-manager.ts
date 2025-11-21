@@ -4,7 +4,7 @@ import { getPhonics } from './constants/phonics-map'
 import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 import { eventTracker } from './event-tracker'
 
-const rawAudioFiles = import.meta.glob('../../sounds/*.wav', {
+const rawAudioFiles = import.meta.glob('../../sounds/*.{wav,mp3}', {
     eager: true,
     import: 'default',
     query: '?url'
@@ -44,7 +44,7 @@ const registerAudioAlias = (key: string, url: string) => {
 
 for (const [path, url] of Object.entries(rawAudioFiles)) {
     const fileNameWithExt = path.split('/').pop() ?? ''
-    const fileName = fileNameWithExt.replace(/\.wav$/i, '')
+    const fileName = fileNameWithExt.replace(/\.(wav|mp3)$/i, '')
     const normalized = normalizeKey(fileName)
 
     // Register the exact filename (normalized)

@@ -57,7 +57,7 @@ export default defineConfig({
     }
   },
   build: {
-    sourcemap: 'inline',
+    sourcemap: false,
     rollupOptions: {
       external: [],
       output: {
