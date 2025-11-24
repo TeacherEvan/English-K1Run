@@ -1,6 +1,5 @@
 // Sound Manager - Enhanced audio system that supports wav and mp3 assets and speech-like cues
 
-import { getPhonics } from './constants/phonics-map'
 import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 import { eventTracker } from './event-tracker'
 
@@ -831,58 +830,12 @@ class SoundManager {
             console.error('[SoundManager] Custom speech synthesis error:', error)
         }
     }
-    /**
-     * Play word with phonics breakdown
-     * Example: "apple" → "Aah! Aah! - Apple!"
-     * Prioritizes human voice - background sounds play at reduced volume
-     */
-    async playWithPhonics(word: string, backgroundSound?: string) {
-        if (!this.isEnabled) return
-
-        const phonics = getPhonics(word)
-
-        if (phonics) {
-            // Play phonics sequence: [sound1, sound2, fullWord]
-            const [sound1, sound2, fullWord] = phonics
-
-            // Play background sound at reduced volume (30%) if provided
-            // IMPORTANT: Do NOT await this, so it plays concurrently with phonics
-            if (backgroundSound) {
-                this.playWord(backgroundSound, 0.3).catch(e => {
-                    console.warn('[SoundManager] Background sound failed:', e)
-                })
-            }
-
-            // Play phonics with priority (human voice at 100% volume)
-            await this.playSpeech(sound1, { pitch: 1.1, rate: 0.9, volume: 1.0 })
-            await new Promise(resolve => setTimeout(resolve, 300)) // Pause between phonics
-
-            await this.playSpeech(sound2, { pitch: 1.1, rate: 0.9, volume: 1.0 })
-            await new Promise(resolve => setTimeout(resolve, 200)) // Pause before full word
-
-            // Pronounce full word
-            await this.playWord(fullWord)
-
-            if (import.meta.env.DEV) {
-                console.log(`[SoundManager] Played with phonics: ${sound1} ${sound2} - ${fullWord}`)
-            }
-        } else {
-            // Fallback to regular pronunciation if no phonics mapping
-            if (backgroundSound) {
-                this.playWord(backgroundSound, 0.3).catch(e => {
-                    console.warn('[SoundManager] Background sound failed:', e)
-                })
-            }
-            await this.playWord(word)
-        }
-    }
 }
 
 export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
-    voiceWithPhonics: (word: string, backgroundSound?: string) => soundManager.playWithPhonics(word, backgroundSound),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
