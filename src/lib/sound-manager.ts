@@ -669,7 +669,14 @@ class SoundManager {
         }
     }
 
-    async playWord(phrase: string, volumeOverride?: number) {
+    /**
+     * Internal method to play word audio with optional sentence template
+     * @param phrase - The word/phrase to play
+     * @param volumeOverride - Optional volume override
+     * @param useSentenceTemplate - Whether to check SENTENCE_TEMPLATES (true for new target, false for tap feedback)
+     * @returns Promise that resolves when audio playback is complete or fails
+     */
+    private async playWordInternal(phrase: string, volumeOverride?: number, useSentenceTemplate = true) {
         if (!this.isEnabled || !phrase) return
 
         try {
@@ -681,29 +688,31 @@ class SoundManager {
             const startTime = performance.now()
             const normalizedPhrase = trimmed.toLowerCase()
 
-            // PRIORITY 1: Look up sentence template for educational context
-            const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
+            // PRIORITY 1 (optional): Look up sentence template for educational context
+            if (useSentenceTemplate) {
+                const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
 
-            if (sentence) {
-                // We have a sentence template, speak the full sentence FIRST
-                console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
-                if (this.speakWithSpeechSynthesis(sentence, volumeOverride)) {
-                    console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
-                    const duration = performance.now() - startTime
-                    eventTracker.trackAudioPlayback({
-                        audioKey: normalizedPhrase,
-                        targetName: trimmed,
-                        method: 'speech-synthesis',
-                        success: true,
-                        duration
-                    })
-                    return
-                } else {
-                    console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
+                if (sentence) {
+                    // We have a sentence template, speak the full sentence FIRST
+                    console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                    if (this.speakWithSpeechSynthesis(sentence, volumeOverride)) {
+                        console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                        const duration = performance.now() - startTime
+                        eventTracker.trackAudioPlayback({
+                            audioKey: normalizedPhrase,
+                            targetName: trimmed,
+                            method: 'speech-synthesis',
+                            success: true,
+                            duration
+                        })
+                        return
+                    } else {
+                        console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
+                    }
                 }
             }
 
-            // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
+            // PRIORITY 2: Try exact phrase as audio file
             if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
@@ -780,7 +789,8 @@ class SoundManager {
                 error: 'no_audio_available'
             })
         } catch (error) {
-            console.warn('Failed to play word audio:', error)
+            const errorMsg = useSentenceTemplate ? 'Failed to play word audio' : 'Failed to play word-only audio'
+            console.warn(`${errorMsg}:`, error)
             eventTracker.trackAudioPlayback({
                 audioKey: phrase,
                 targetName: phrase,
@@ -791,105 +801,14 @@ class SoundManager {
         }
     }
 
+    async playWord(phrase: string, volumeOverride?: number) {
+        return this.playWordInternal(phrase, volumeOverride, true)
+    }
+
     async playWordOnly(phrase: string, volumeOverride?: number) {
         // This method plays ONLY the word without sentence template
         // Used for successful tap feedback to avoid repetition
-        if (!this.isEnabled || !phrase) return
-
-        try {
-            await this.ensureInitialized()
-
-            const trimmed = phrase.trim()
-            if (!trimmed) return
-
-            const startTime = performance.now()
-
-            // PRIORITY 1: Try exact phrase as audio file
-            if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
-                const duration = performance.now() - startTime
-                const candidates = this.resolveCandidates(trimmed)
-                const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
-                eventTracker.trackAudioPlayback({
-                    audioKey: successfulKey,
-                    targetName: trimmed,
-                    method: 'wav',
-                    success: true,
-                    duration
-                })
-                return
-            }
-
-            // PRIORITY 2: For multi-word phrases, try speech synthesis
-            const parts = trimmed.split(/[\s-]+/).filter(Boolean)
-            if (parts.length > 1) {
-                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
-                    const duration = performance.now() - startTime
-                    eventTracker.trackAudioPlayback({
-                        audioKey: trimmed,
-                        targetName: trimmed,
-                        method: 'speech-synthesis',
-                        success: true,
-                        duration
-                    })
-                    return
-                }
-
-                // Third try: play individual words with delays
-                let delay = 0
-                let anyPlayed = false
-                for (const part of parts) {
-                    const buffer = await this.loadBufferForName(part, false)
-                    if (buffer && this.audioContext) {
-                        this.startBuffer(buffer, delay, undefined, 0.8, volumeOverride)
-                        delay += buffer.duration + 0.1 // 100ms gap between words
-                        anyPlayed = true
-                    }
-                }
-
-                if (anyPlayed) {
-                    const duration = performance.now() - startTime
-                    eventTracker.trackAudioPlayback({
-                        audioKey: trimmed,
-                        targetName: trimmed,
-                        method: 'wav',
-                        success: true,
-                        duration
-                    })
-                    return
-                }
-            } else {
-                // Single word: try speech synthesis
-                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
-                    const duration = performance.now() - startTime
-                    eventTracker.trackAudioPlayback({
-                        audioKey: trimmed,
-                        targetName: trimmed,
-                        method: 'speech-synthesis',
-                        success: true,
-                        duration
-                    })
-                    return
-                }
-            }
-
-            // No audio played successfully
-            eventTracker.trackAudioPlayback({
-                audioKey: trimmed,
-                targetName: trimmed,
-                method: 'fallback-tone',
-                success: false,
-                error: 'no_audio_available'
-            })
-        } catch (error) {
-            console.warn('Failed to play word-only audio:', error)
-            eventTracker.trackAudioPlayback({
-                audioKey: phrase,
-                targetName: phrase,
-                method: 'fallback-tone',
-                success: false,
-                error: error instanceof Error ? error.message : 'exception'
-            })
-        }
+        return this.playWordInternal(phrase, volumeOverride, false)
     }
 
     setVolume(volume: number) {
