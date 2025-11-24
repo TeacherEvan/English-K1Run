@@ -712,7 +712,7 @@ class SoundManager {
                 }
             }
 
-            // PRIORITY 2: Try exact phrase as audio file
+            // Try exact phrase as audio file (PRIORITY 2 when using sentence template, PRIORITY 1 when not)
             if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
@@ -727,7 +727,7 @@ class SoundManager {
                 return
             }
 
-            // PRIORITY 3: For multi-word phrases, try speech synthesis
+            // For multi-word phrases, try speech synthesis (PRIORITY 3 when using sentence template, PRIORITY 2 when not)
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
                 if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
