@@ -669,7 +669,14 @@ class SoundManager {
         }
     }
 
-    async playWord(phrase: string, volumeOverride?: number) {
+    /**
+     * Internal method to play word audio with optional sentence template
+     * @param phrase - The word/phrase to play
+     * @param volumeOverride - Optional volume override
+     * @param useSentenceTemplate - Whether to check SENTENCE_TEMPLATES (true for new target, false for tap feedback)
+     * @returns Promise that resolves when audio playback is complete or fails
+     */
+    private async playWordInternal(phrase: string, volumeOverride?: number, useSentenceTemplate = true) {
         if (!this.isEnabled || !phrase) return
 
         try {
@@ -681,29 +688,31 @@ class SoundManager {
             const startTime = performance.now()
             const normalizedPhrase = trimmed.toLowerCase()
 
-            // PRIORITY 1: Look up sentence template for educational context
-            const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
+            // PRIORITY 1 (optional): Look up sentence template for educational context
+            if (useSentenceTemplate) {
+                const sentence = SENTENCE_TEMPLATES[normalizedPhrase]
 
-            if (sentence) {
-                // We have a sentence template, speak the full sentence FIRST
-                console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
-                if (this.speakWithSpeechSynthesis(sentence, volumeOverride)) {
-                    console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
-                    const duration = performance.now() - startTime
-                    eventTracker.trackAudioPlayback({
-                        audioKey: normalizedPhrase,
-                        targetName: trimmed,
-                        method: 'speech-synthesis',
-                        success: true,
-                        duration
-                    })
-                    return
-                } else {
-                    console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
+                if (sentence) {
+                    // We have a sentence template, speak the full sentence FIRST
+                    console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                    if (this.speakWithSpeechSynthesis(sentence, volumeOverride)) {
+                        console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                        const duration = performance.now() - startTime
+                        eventTracker.trackAudioPlayback({
+                            audioKey: normalizedPhrase,
+                            targetName: trimmed,
+                            method: 'speech-synthesis',
+                            success: true,
+                            duration
+                        })
+                        return
+                    } else {
+                        console.warn(`[SoundManager] Speech synthesis failed for sentence, falling back`)
+                    }
                 }
             }
 
-            // PRIORITY 2: Try exact phrase as audio file (only if no sentence template exists)
+            // Try exact phrase as audio file (PRIORITY 2 when using sentence template, PRIORITY 1 when not)
             if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
@@ -718,7 +727,7 @@ class SoundManager {
                 return
             }
 
-            // PRIORITY 3: For multi-word phrases, try speech synthesis
+            // For multi-word phrases, try speech synthesis (PRIORITY 3 when using sentence template, PRIORITY 2 when not)
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
                 if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
@@ -780,7 +789,8 @@ class SoundManager {
                 error: 'no_audio_available'
             })
         } catch (error) {
-            console.warn('Failed to play word audio:', error)
+            const errorMsg = useSentenceTemplate ? 'Failed to play word audio' : 'Failed to play word-only audio'
+            console.warn(`${errorMsg}:`, error)
             eventTracker.trackAudioPlayback({
                 audioKey: phrase,
                 targetName: phrase,
@@ -789,6 +799,16 @@ class SoundManager {
                 error: error instanceof Error ? error.message : 'exception'
             })
         }
+    }
+
+    async playWord(phrase: string, volumeOverride?: number) {
+        return this.playWordInternal(phrase, volumeOverride, true)
+    }
+
+    async playWordOnly(phrase: string, volumeOverride?: number) {
+        // This method plays ONLY the word without sentence template
+        // Used for successful tap feedback to avoid repetition
+        return this.playWordInternal(phrase, volumeOverride, false)
     }
 
     setVolume(volume: number) {
@@ -836,6 +856,7 @@ export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
+    voiceWordOnly: (phrase: string) => soundManager.playWordOnly(phrase),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
