@@ -791,6 +791,107 @@ class SoundManager {
         }
     }
 
+    async playWordOnly(phrase: string, volumeOverride?: number) {
+        // This method plays ONLY the word without sentence template
+        // Used for successful tap feedback to avoid repetition
+        if (!this.isEnabled || !phrase) return
+
+        try {
+            await this.ensureInitialized()
+
+            const trimmed = phrase.trim()
+            if (!trimmed) return
+
+            const startTime = performance.now()
+
+            // PRIORITY 1: Try exact phrase as audio file
+            if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
+                const duration = performance.now() - startTime
+                const candidates = this.resolveCandidates(trimmed)
+                const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
+                eventTracker.trackAudioPlayback({
+                    audioKey: successfulKey,
+                    targetName: trimmed,
+                    method: 'wav',
+                    success: true,
+                    duration
+                })
+                return
+            }
+
+            // PRIORITY 2: For multi-word phrases, try speech synthesis
+            const parts = trimmed.split(/[\s-]+/).filter(Boolean)
+            if (parts.length > 1) {
+                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
+                    return
+                }
+
+                // Third try: play individual words with delays
+                let delay = 0
+                let anyPlayed = false
+                for (const part of parts) {
+                    const buffer = await this.loadBufferForName(part, false)
+                    if (buffer && this.audioContext) {
+                        this.startBuffer(buffer, delay, undefined, 0.8, volumeOverride)
+                        delay += buffer.duration + 0.1 // 100ms gap between words
+                        anyPlayed = true
+                    }
+                }
+
+                if (anyPlayed) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'wav',
+                        success: true,
+                        duration
+                    })
+                    return
+                }
+            } else {
+                // Single word: try speech synthesis
+                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
+                    const duration = performance.now() - startTime
+                    eventTracker.trackAudioPlayback({
+                        audioKey: trimmed,
+                        targetName: trimmed,
+                        method: 'speech-synthesis',
+                        success: true,
+                        duration
+                    })
+                    return
+                }
+            }
+
+            // No audio played successfully
+            eventTracker.trackAudioPlayback({
+                audioKey: trimmed,
+                targetName: trimmed,
+                method: 'fallback-tone',
+                success: false,
+                error: 'no_audio_available'
+            })
+        } catch (error) {
+            console.warn('Failed to play word-only audio:', error)
+            eventTracker.trackAudioPlayback({
+                audioKey: phrase,
+                targetName: phrase,
+                method: 'fallback-tone',
+                success: false,
+                error: error instanceof Error ? error.message : 'exception'
+            })
+        }
+    }
+
     setVolume(volume: number) {
         this.volume = Math.max(0, Math.min(1, volume))
     }
@@ -836,6 +937,7 @@ export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
+    voiceWordOnly: (phrase: string) => soundManager.playWordOnly(phrase),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
