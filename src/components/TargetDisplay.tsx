@@ -13,7 +13,7 @@ interface TargetDisplayProps {
 
 export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick }: TargetDisplayProps) => {
   return (
-    <Card className="bg-transparent text-foreground mx-auto cursor-pointer hover:scale-105 transition-transform"
+    <Card data-testid="target-display" className="bg-transparent text-foreground mx-auto cursor-pointer hover:scale-105 transition-transform"
       onClick={onClick}
       style={{
         padding: `calc(0.5rem * var(--spacing-scale, 1))`,
@@ -41,7 +41,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         </Badge>
 
         <div className="text-center mb-1">
-          <div className="mb-1 bounce-in" key={targetEmoji}
+          <div data-testid="target-emoji" className="mb-1 bounce-in" key={targetEmoji}
             style={{
               fontSize: `calc(2.5rem * var(--object-scale, 1))`,
               lineHeight: '1',
@@ -49,7 +49,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
             }}>
             {targetEmoji}
           </div>
-          <div className="font-bold"
+          <div data-testid="target-name" className="font-bold"
             style={{
               fontSize: `calc(1rem * var(--font-scale, 1))`,
               color: 'rgb(30, 64, 175)',

@@ -7,11 +7,19 @@
         "dev": "vite",
         "kill": "fuser -k 5000/tcp",
         "build": "tsc -b --noCheck && vite build",
+        "check-types": "tsc --noEmit",
         "lint": "eslint .",
+        "verify": "npm run lint && npm run check-types && npm run build",
         "optimize": "vite optimize",
         "preview": "vite preview",
         "install:android": "npm install --legacy-peer-deps",
-        "install:safe": "npm install --no-optional --legacy-peer-deps"
+        "install:safe": "npm install --no-optional --legacy-peer-deps",
+        "test": "npm run test:e2e",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
+        "test:e2e:headed": "playwright test --headed",
+        "test:e2e:debug": "playwright test --debug",
+        "test:e2e:report": "playwright show-report"
     },
     "dependencies": {
         "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -36,6 +44,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.39.1",
+        "@playwright/test": "^1.56.1",
         "@tailwindcss/postcss": "^4.1.16",
         "@types/node": "^24.10.0",
         "@types/react": "^19.2.0",

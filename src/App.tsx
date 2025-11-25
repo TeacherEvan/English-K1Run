@@ -188,107 +188,108 @@ function App() {
   return (
     <>
       <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
-      {/* Back to Levels Button - Fixed at top left during gameplay */}
-      {gameState.gameStarted && !gameState.winner && (
-        <div className="absolute top-4 left-4 z-40">
-          <button
-            onClick={resetGame}
-            className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 backdrop-blur-sm border-2 border-primary-foreground/20"
-            style={{
-              fontSize: `calc(0.875rem * var(--font-scale, 1))`,
-              padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`
-            }}
-          >
-            ← Back to Levels
-          </button>
-        </div>
-      )}
+        {/* Back to Levels Button - Fixed at top left during gameplay */}
+        {gameState.gameStarted && !gameState.winner && (
+          <div className="absolute top-4 left-4 z-40">
+            <button
+              data-testid="back-button"
+              onClick={resetGame}
+              className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 backdrop-blur-sm border-2 border-primary-foreground/20"
+              style={{
+                fontSize: `calc(0.875rem * var(--font-scale, 1))`,
+                padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`
+              }}
+            >
+              ← Back to Levels
+            </button>
+          </div>
+        )}
 
-      {/* Target Display - Fixed at top center with responsive sizing */}
-      {gameState.gameStarted && !gameState.winner && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 w-32">
-          <TargetDisplay
-            currentTarget={gameState.currentTarget}
-            targetEmoji={gameState.targetEmoji}
-            category={currentCategory}
-            timeRemaining={currentCategory.requiresSequence ? undefined : timeRemaining}
-            onClick={currentCategory.requiresSequence ? undefined : changeTargetToVisibleEmoji}
+        {/* Target Display - Fixed at top center with responsive sizing */}
+        {gameState.gameStarted && !gameState.winner && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 w-32">
+            <TargetDisplay
+              currentTarget={gameState.currentTarget}
+              targetEmoji={gameState.targetEmoji}
+              category={currentCategory}
+              timeRemaining={currentCategory.requiresSequence ? undefined : timeRemaining}
+              onClick={currentCategory.requiresSequence ? undefined : changeTargetToVisibleEmoji}
+            />
+          </div>
+        )}
+
+        {comboCelebration && (
+          <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
+        )}
+
+        {/* Achievement Displays */}
+        {achievements.map(achievement => (
+          <AchievementDisplay
+            key={achievement.id}
+            achievement={achievement}
+            onDismiss={() => clearAchievement(achievement.id)}
           />
+        ))}
+
+        {/* Full Screen Game Area */}
+        <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
+          <PlayerArea
+            playerNumber={1}
+            progress={gameState.progress}
+            isWinner={gameState.winner}
+          >
+            {gameObjects.map(obj => (
+              <FallingObject
+                key={obj.id}
+                object={obj}
+                onTap={handleObjectTap}
+                playerSide={obj.lane}
+              />
+            ))}
+            {worms.map(worm => (
+              <Worm
+                key={worm.id}
+                worm={worm}
+                onTap={handleWormTap}
+                playerSide={worm.lane}
+              />
+            ))}
+            {splats.map(splat => (
+              <SplatEffect
+                key={splat.id}
+                splat={splat}
+                currentTime={currentTime}
+              />
+            ))}
+          </PlayerArea>
         </div>
-      )}
 
-      {comboCelebration && (
-        <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
-      )}
-
-      {/* Achievement Displays */}
-      {achievements.map(achievement => (
-        <AchievementDisplay
-          key={achievement.id}
-          achievement={achievement}
-          onDismiss={() => clearAchievement(achievement.id)}
+        {/* Game Menu Overlay */}
+        <GameMenu
+          onStartGame={() => {
+            requestFullscreen() // Ensure fullscreen when starting game
+            startGame(selectedLevel)
+          }}
+          onResetGame={() => {
+            resetGame()
+            setBackgroundClass(prev => pickRandomBackground(prev))
+          }}
+          onSelectLevel={setSelectedLevel}
+          selectedLevel={selectedLevel}
+          levels={GAME_CATEGORIES.map(cat => cat.name)}
+          gameStarted={gameState.gameStarted}
+          winner={gameState.winner}
         />
-      ))}
 
-      {/* Full Screen Game Area */}
-      <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
-        <PlayerArea
-          playerNumber={1}
-          progress={gameState.progress}
-          isWinner={gameState.winner}
-        >
-          {gameObjects.map(obj => (
-            <FallingObject
-              key={obj.id}
-              object={obj}
-              onTap={handleObjectTap}
-              playerSide={obj.lane}
-            />
-          ))}
-          {worms.map(worm => (
-            <Worm
-              key={worm.id}
-              worm={worm}
-              onTap={handleWormTap}
-              playerSide={worm.lane}
-            />
-          ))}
-          {splats.map(splat => (
-            <SplatEffect
-              key={splat.id}
-              splat={splat}
-              currentTime={currentTime}
-            />
-          ))}
-        </PlayerArea>
+        {/* Fireworks Display */}
+        <FireworksDisplay
+          isVisible={!!gameState.winner}
+          winner={gameState.winner}
+        />
+
+        {/* Debug: Emoji Rotation Monitor (dev mode only) */}
+        {import.meta.env.DEV && <EmojiRotationMonitor />}
       </div>
-
-      {/* Game Menu Overlay */}
-      <GameMenu
-        onStartGame={() => {
-          requestFullscreen() // Ensure fullscreen when starting game
-          startGame(selectedLevel)
-        }}
-        onResetGame={() => {
-          resetGame()
-          setBackgroundClass(prev => pickRandomBackground(prev))
-        }}
-        onSelectLevel={setSelectedLevel}
-        selectedLevel={selectedLevel}
-        levels={GAME_CATEGORIES.map(cat => cat.name)}
-        gameStarted={gameState.gameStarted}
-        winner={gameState.winner}
-      />
-
-      {/* Fireworks Display */}
-      <FireworksDisplay
-        isVisible={!!gameState.winner}
-        winner={gameState.winner}
-      />
-
-      {/* Debug: Emoji Rotation Monitor (dev mode only) */}
-      {import.meta.env.DEV && <EmojiRotationMonitor />}
-    </div>
     </>
   )
 }

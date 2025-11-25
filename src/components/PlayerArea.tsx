@@ -9,9 +9,9 @@ interface PlayerAreaProps {
   isWinner: boolean
 }
 
-export const PlayerArea = memo(({ progress, children, isWinner }: PlayerAreaProps) => {
+export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: PlayerAreaProps) => {
   return (
-    <Card className="relative h-full border-0 game-area overflow-hidden">
+    <Card data-testid={`player-area-${playerNumber}`} className="relative h-full border-0 game-area overflow-hidden">
       {/* Progress Header */}
       <div className={`absolute top-4 left-4 right-4 z-20 ${isWinner ? 'celebrate' : ''}`}>
         <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-center font-bold shadow-lg"
@@ -20,9 +20,10 @@ export const PlayerArea = memo(({ progress, children, isWinner }: PlayerAreaProp
         </div>
         <div className="mt-2">
           <Progress
+            data-testid="progress-bar"
             value={progress}
             className="h-3 bg-white/50"
-            style={{ height: `calc(0.75rem * var(--spacing-scale, 1))` }}
+            style={{ height: `calc(0.75rem * var(--spacing-scale, 1))`, width: `${progress}%` }}
           />
           <div className="text-center font-semibold mt-1 text-foreground/80"
             style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}>
@@ -32,7 +33,7 @@ export const PlayerArea = memo(({ progress, children, isWinner }: PlayerAreaProp
       </div>
 
       {/* Game Area */}
-      <div className="absolute inset-0 pt-24">
+      <div data-testid="game-area" className="absolute inset-0 pt-24">
         {children}
       </div>
 

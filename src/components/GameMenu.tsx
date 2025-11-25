@@ -27,13 +27,13 @@ export const GameMenu = memo(({
   const bodyFontSize = { fontSize: `calc(1.125rem * var(--font-scale, 1))` }
 
   return (
-    <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50">
+    <div data-testid="game-menu" className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50">
       <Card className="p-8 max-w-2xl mx-4 text-center bg-card shadow-2xl border-4 border-primary/20">
         <div className="mb-6 flex flex-col items-center gap-3">
           <div style={{ fontSize: `calc(3.75rem * var(--object-scale, 1))` }}>
-            {winner ? '🏆' : '��🏁'}
+            {winner ? '🏆' : '🐢🏁'}
           </div>
-          <h1 className="font-bold text-primary" style={headingFontSize}>
+          <h1 data-testid="game-title" className="font-bold text-primary" style={headingFontSize}>
             Kindergarten Race
           </h1>
           <p className="text-muted-foreground" style={bodyFontSize}>
@@ -51,6 +51,9 @@ export const GameMenu = memo(({
                 <Button
                   key={`${index}-${name}`}
                   type="button"
+                  data-testid="level-button"
+                  data-selected={isSelected}
+                  data-level={index}
                   variant={isSelected ? 'default' : 'outline'}
                   onClick={() => onSelectLevel(index)}
                   className="justify-between text-left"
@@ -68,6 +71,7 @@ export const GameMenu = memo(({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button
+            data-testid="start-button"
             onClick={onStartGame}
             size="lg"
             className="font-bold flex-1"
@@ -81,6 +85,7 @@ export const GameMenu = memo(({
         </div>
 
         <Button
+          data-testid="reset-button"
           onClick={onResetGame}
           variant="ghost"
           className="mt-6 text-sm text-muted-foreground"

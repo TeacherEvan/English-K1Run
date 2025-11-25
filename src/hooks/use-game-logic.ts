@@ -298,6 +298,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
+  const lastTargetSpawnTime = useRef(Date.now())
   const ROTATION_THRESHOLD = 10000 // 10 seconds as requested in the issue
 
   // Target pool system: ensures all targets are requested before any repeats
@@ -507,14 +508,24 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const spawnObject = useCallback(() => {
     try {
       setGameObjects(prev => {
-        if (prev.length >= MAX_ACTIVE_OBJECTS) {
+        const now = Date.now()
+        const timeSinceLastTarget = now - lastTargetSpawnTime.current
+        const forceTargetSpawn = timeSinceLastTarget > 8000
+
+        if (prev.length >= MAX_ACTIVE_OBJECTS && !forceTargetSpawn) {
           return prev
         }
 
         const level = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
         const currentTarget = gameStateRef.current.targetEmoji
         const availableSlots = MAX_ACTIVE_OBJECTS - prev.length
-        const actualSpawnCount = Math.min(availableSlots, SPAWN_COUNT)
+
+        // If forcing target spawn, ensure we have at least 1 slot
+        let actualSpawnCount = Math.min(availableSlots, SPAWN_COUNT)
+        if (forceTargetSpawn && actualSpawnCount <= 0) {
+          actualSpawnCount = 1
+        }
+
         const created: GameObject[] = []
 
         if (actualSpawnCount <= 0) {
@@ -530,7 +541,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
 
         // Get stale emojis (cached for 5 seconds to avoid recalculating every spawn)
-        const now = Date.now()
+        // now is already defined at the top of the function
         let staleEmojis: Array<{ emoji: string; name: string }>
 
         if (now - staleEmojisCache.current.timestamp > 5000) {
@@ -559,7 +570,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         let targetSpawnCount = 0
 
         if (targetItem) {
-          for (let i = 0; i < Math.min(TARGET_GUARANTEE_COUNT, actualSpawnCount); i++) {
+          // If forcing target spawn, ensure we spawn at least 1 target
+          const targetCountToSpawn = forceTargetSpawn
+            ? Math.max(1, Math.min(TARGET_GUARANTEE_COUNT, actualSpawnCount))
+            : Math.min(TARGET_GUARANTEE_COUNT, actualSpawnCount)
+
+          for (let i = 0; i < targetCountToSpawn; i++) {
             const { minX, maxX, lane } = (() => {
               const chosenLane: PlayerSide = Math.random() < 0.5 ? 'left' : 'right'
               const [laneMin, laneMax] = LANE_BOUNDS[chosenLane]
@@ -569,6 +585,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             const item = targetItem
             spawnedInBatch.add(item.emoji)
             lastEmojiAppearance.current.set(item.emoji, now)
+            lastTargetSpawnTime.current = now // Update timestamp
             targetSpawnCount++
 
             // Track emoji appearance in event tracker
@@ -1204,7 +1221,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       return
     }
 
-    const animate = () => {
+    let lastTime = performance.now()
+
+    const animate = (time: number) => {
+      const dt = Math.min((time - lastTime) / 16.67, 2) // Normalize to ~60fps, cap at 2x speed to prevent jumps
+      lastTime = time
+
       setWorms(prev => prev.map(worm => {
         if (!worm.alive) return worm
 
@@ -1212,9 +1234,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
         const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
 
-        // Update position with speed multiplier
-        let newX = worm.x + (worm.vx * wormSpeedMultiplier.current) / 10
-        let newY = worm.y + (worm.vy * wormSpeedMultiplier.current) / 10
+        // Update position with speed multiplier and delta time
+        let newX = worm.x + (worm.vx * wormSpeedMultiplier.current * dt) / 10
+        let newY = worm.y + (worm.vy * wormSpeedMultiplier.current * dt) / 10
 
         // Bounce off walls with lane-specific boundaries
         let newVx = worm.vx
@@ -1236,7 +1258,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }
 
         // Update wiggle phase for animation
-        const newWigglePhase = (worm.wigglePhase + 0.1) % (Math.PI * 2)
+        const newWigglePhase = (worm.wigglePhase + 0.1 * dt) % (Math.PI * 2)
 
         // Update angle based on velocity direction
         const newAngle = Math.atan2(newVy, newVx)

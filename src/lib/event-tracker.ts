@@ -5,7 +5,7 @@
 export interface GameEvent {
   id: string
   timestamp: number
-  type: 'error' | 'warning' | 'info' | 'performance' | 'user_action' | 'lifecycle'
+  type: 'error' | 'warning' | 'info' | 'performance' | 'user_action' | 'lifecycle' | 'test'
   category: string
   message: string
   data?: Record<string, unknown>
@@ -170,6 +170,18 @@ class EventTracker {
     if (import.meta.env.DEV) {
       console.log(`[${event.type.toUpperCase()}] ${event.category}: ${event.message}`, event.data)
     }
+  }
+
+  /**
+   * Track a test-specific event for E2E testing verification
+   */
+  trackTestEvent(name: string, data?: Record<string, unknown>) {
+    this.trackEvent({
+      type: 'test',
+      category: 'e2e',
+      message: name,
+      data
+    })
   }
 
   // Game-specific tracking methods with optimized performance

@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react'
 import { WormObject } from '../hooks/use-game-logic'
 import { multiTouchHandler } from '../lib/touch-handler'
-import './WormLoadingScreen.css' // Reuse existing wiggle animation
+import './WormLoadingScreen.css'; // Reuse existing wiggle animation
 
 interface WormProps {
   worm: WormObject
@@ -49,6 +49,8 @@ export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
 
   return (
     <div
+      data-testid="worm"
+      data-worm-id={worm.id}
       className="absolute cursor-pointer select-none transition-opacity duration-200 hover:scale-110"
       style={wormStyle}
       onClick={handleClick}

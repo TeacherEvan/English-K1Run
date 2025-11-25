@@ -159,7 +159,7 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
   if (!isVisible || !winner) return null
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <div data-testid="fireworks" className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
       {/* Winner announcement - simplified */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center bounce-in">

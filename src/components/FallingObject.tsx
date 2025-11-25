@@ -55,6 +55,9 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
 
   return (
     <div
+      data-testid="falling-object"
+      data-emoji={object.emoji}
+      data-object-id={object.id}
       className="absolute cursor-pointer select-none transition-all duration-100 will-change-transform hover:scale-125 active:scale-95"
       style={objectStyle}
       onClick={handleClick}
