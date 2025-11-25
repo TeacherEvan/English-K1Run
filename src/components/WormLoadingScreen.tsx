@@ -45,7 +45,7 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
   const [speedMultiplier, setSpeedMultiplier] = useState(1)
   const [currentTime, setCurrentTime] = useState(() => Date.now())
   const containerRef = useRef<HTMLDivElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
   const splatIdCounter = useRef(0)
 
   // Animation loop for worm movement

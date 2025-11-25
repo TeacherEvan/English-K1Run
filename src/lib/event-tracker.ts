@@ -77,7 +77,6 @@ class EventTracker {
 
   // Emoji appearance tracking for rotation monitoring
   private emojiAppearances: Map<string, EmojiAppearanceStats> = new Map()
-  private currentLevelItems: Array<{ emoji: string; name: string }> = []
   private rotationThreshold = 10000 // 10 seconds as requested
 
   constructor() {
@@ -350,7 +349,7 @@ class EventTracker {
       type: 'lifecycle',
       category: 'emoji_lifecycle',
       message: `Emoji ${phase}: ${emoji} ${name}`,
-      data: lifecycleEvent
+      data: lifecycleEvent as unknown as Record<string, unknown>
     })
 
     // Only log to console in development mode
@@ -438,7 +437,7 @@ class EventTracker {
       type: event.success ? 'info' : 'warning',
       category: 'audio_playback',
       message: `Audio ${event.success ? 'played' : 'failed'}: ${event.audioKey}`,
-      data: audioEvent
+      data: audioEvent as unknown as Record<string, unknown>
     })
 
     if (import.meta.env.DEV) {
@@ -478,7 +477,6 @@ class EventTracker {
 
   // Emoji appearance tracking for rotation monitoring
   initializeEmojiTracking(levelItems: Array<{ emoji: string; name: string }>) {
-    this.currentLevelItems = levelItems
     this.emojiAppearances.clear()
 
     // Initialize tracking for all emojis in the level
@@ -530,8 +528,8 @@ class EventTracker {
     const stats: EmojiAppearanceStats[] = []
 
     this.emojiAppearances.forEach(stat => {
-      const timeSince = stat.lastAppearance > 0 
-        ? now - stat.lastAppearance 
+      const timeSince = stat.lastAppearance > 0
+        ? now - stat.lastAppearance
         : now // Never appeared = time since level start
 
       stats.push({
@@ -572,7 +570,6 @@ class EventTracker {
 
   clearEmojiRotationTracking() {
     this.emojiAppearances.clear()
-    this.currentLevelItems = []
   }
 }
 
