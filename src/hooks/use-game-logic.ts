@@ -510,15 +510,31 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       setGameObjects(prev => {
         const now = Date.now()
         const timeSinceLastTarget = now - lastTargetSpawnTime.current
-        const forceTargetSpawn = timeSinceLastTarget > 8000
-
-        if (prev.length >= MAX_ACTIVE_OBJECTS && !forceTargetSpawn) {
-          return prev
-        }
+        // Force target spawn if it's been more than 6 seconds (safety margin under 8s requirement)
+        const forceTargetSpawn = timeSinceLastTarget > 6000
 
         const level = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
         const currentTarget = gameStateRef.current.targetEmoji
-        const availableSlots = MAX_ACTIVE_OBJECTS - prev.length
+
+        // If screen is full but we need targets, remove oldest non-target objects to make room
+        let workingList = [...prev]
+        if (workingList.length >= MAX_ACTIVE_OBJECTS) {
+          // Always make room for at least TARGET_GUARANTEE_COUNT targets
+          // Remove oldest non-target objects (highest Y value = closest to bottom = oldest)
+          const nonTargets = workingList
+            .filter(obj => obj.emoji !== currentTarget)
+            .sort((a, b) => b.y - a.y) // Sort by Y descending (oldest/lowest first)
+
+          const toRemove = Math.min(nonTargets.length, TARGET_GUARANTEE_COUNT + 2)
+          const removeIds = new Set(nonTargets.slice(0, toRemove).map(obj => obj.id))
+          workingList = workingList.filter(obj => !removeIds.has(obj.id))
+
+          if (import.meta.env.DEV && toRemove > 0) {
+            console.log(`[SpawnObject] Removed ${toRemove} old non-targets to make room for targets`)
+          }
+        }
+
+        const availableSlots = MAX_ACTIVE_OBJECTS - workingList.length
 
         // If forcing target spawn, ensure we have at least 1 slot
         let actualSpawnCount = Math.min(availableSlots, SPAWN_COUNT)
@@ -536,7 +552,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const spawnedInBatch = new Set<string>()
         // Track recently active emojis on screen to reduce duplicates
         const activeEmojis = new Set<string>()
-        for (const obj of prev) {
+        for (const obj of workingList) {
           activeEmojis.add(obj.emoji)
         }
 
@@ -593,7 +609,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             let spawnX = Math.random() * (maxX - minX) + minX
             let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
-            const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
+            const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
             for (const existing of laneObjects) {
               const verticalGap = Math.abs(existing.y - spawnY)
               const horizontalGap = Math.abs(existing.x - spawnX)
@@ -668,7 +684,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           let spawnX = Math.random() * (maxX - minX) + minX
           let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
 
-          const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
+          const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
           for (const existing of laneObjects) {
             const verticalGap = Math.abs(existing.y - spawnY)
             const horizontalGap = Math.abs(existing.x - spawnX)
@@ -711,10 +727,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
         if (created.length > 0) {
           eventTracker.trackObjectSpawn(`batch-${created.length}`, { count: created.length })
-          return [...prev, ...created]
+          return [...workingList, ...created]
         }
 
-        return prev
+        return workingList
       })
     } catch (error) {
       eventTracker.trackError(error as Error, 'spawnObject')
@@ -1152,27 +1168,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setComboCelebration(null)
   }, [])
 
-  // Update target every 10 seconds (except for sequence mode)
-  useEffect(() => {
-    if (!gameState.gameStarted || gameState.winner || currentCategory.requiresSequence) return
-
-    const interval = setInterval(() => {
-      if (Date.now() >= gameState.targetChangeTime) {
-        const target = generateRandomTarget()
-        setGameState(prev => ({
-          ...prev,
-          currentTarget: target.name,
-          targetEmoji: target.emoji,
-          targetChangeTime: Date.now() + 10000
-        }))
-
-        // Spawn 2 immediate target emojis for the new target
-        setTimeout(() => spawnImmediateTargets(), 0)
-      }
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence, generateRandomTarget, setGameState, spawnImmediateTargets])
+  // REMOVED: Auto-target-change timer - target now only changes when player taps correct object
+  // This ensures kindergarteners have enough time to find and tap the correct target
 
   // REMOVED: Emoji variety management effect - unnecessary complexity that caused performance issues
   // Pure random selection in spawnObject is sufficient for gameplay variety

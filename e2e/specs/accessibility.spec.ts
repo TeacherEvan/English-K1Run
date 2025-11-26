@@ -6,8 +6,8 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Accessibility', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/')
-        await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible' })
+        await page.goto('/', { waitUntil: 'networkidle' })
+        await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible', timeout: 10000 })
     })
 
     test('menu page should not have critical accessibility violations', async ({ page }) => {
@@ -96,8 +96,8 @@ test.describe('Accessibility', () => {
 
 test.describe('Keyboard Navigation', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/')
-        await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible' })
+        await page.goto('/', { waitUntil: 'networkidle' })
+        await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible', timeout: 10000 })
     })
 
     test('should be able to tab through menu buttons', async ({ page }) => {

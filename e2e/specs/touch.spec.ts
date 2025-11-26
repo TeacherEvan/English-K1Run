@@ -65,8 +65,6 @@ test.describe('Touch Interactions - Tablet', () => {
 })
 
 test.describe('Multi-touch Handling', () => {
-    test.use({ ...devices['iPad Pro 11'], hasTouch: true })
-
     test('should handle rapid sequential taps', async ({ page }) => {
         await page.goto('/')
         await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible' })
