@@ -19,7 +19,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -999;
+  z-index: 1;
 }
 
 .app-bg-ocean-sunset {
@@ -40,7 +40,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -999;
+  z-index: 1;
 }
 
 .app-bg-forest-path {
@@ -61,7 +61,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -999;
+  z-index: 1;
 }
 
 .app-bg-lavender-field {
@@ -82,7 +82,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -999;
+  z-index: 1;
 }
 
 .app-bg-aurora-night {
@@ -101,14 +101,127 @@
   left: 0;
   right: 0;
   bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* NEW BACKGROUNDS - Added Nov 2025 */
+
+/* Galaxy/Space - Colorful nebula for cosmic wonder */
+.app-bg-nebula-galaxy {
+  background-image: url('/backgrounds/nebula-galaxy.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-nebula-galaxy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: -999;
+  z-index: 1;
+}
+
+/* Nature - Lush tropical waterfall */
+.app-bg-tropical-waterfall {
+  background-image: url('/backgrounds/tropical-waterfall.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-tropical-waterfall::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Architecture - Colorful Burano Italy buildings */
+.app-bg-colorful-buildings {
+  background-image: url('/backgrounds/colorful-buildings.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-colorful-buildings::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Nature - Pink cherry blossom trees */
+.app-bg-cherry-blossom {
+  background-image: url('/backgrounds/cherry-blossom.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-cherry-blossom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Art - Colorful abstract art gallery */
+.app-bg-starry-art {
+  background-image: url('/backgrounds/starry-art.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.app-bg-starry-art::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Ensure game content appears above background overlays */
 .app>* {
-  z-index: 100;
+  position: relative;
+  z-index: 2;
 }
 
 /* Optional: Add subtle animation to backgrounds */

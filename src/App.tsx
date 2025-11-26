@@ -18,11 +18,18 @@ import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 // Debug components removed per requirements - only target pronunciation audio allowed
 
 const BACKGROUND_CLASSES = [
+  // Original beautiful backgrounds
   'app-bg-mountain-sunrise',
   'app-bg-ocean-sunset',
   'app-bg-forest-path',
   'app-bg-lavender-field',
-  'app-bg-aurora-night'
+  'app-bg-aurora-night',
+  // NEW: Nov 2025 - Galaxies, Nature, Architecture, Art
+  'app-bg-nebula-galaxy',        // Galaxy: Colorful cosmic nebula
+  'app-bg-tropical-waterfall',   // Nature: Lush jungle waterfall
+  'app-bg-colorful-buildings',   // Architecture: Burano Italy pastels
+  'app-bg-cherry-blossom',       // Nature: Pink cherry blossoms
+  'app-bg-starry-art'            // Art: Colorful abstract gallery
 ]
 
 const pickRandomBackground = (exclude?: string) => {
