@@ -22,6 +22,7 @@ An engaging educational racing game where two players compete by identifying fal
 - **Progressive Difficulty**: Game gets more challenging as players advance
 - **Visual Feedback**: Smooth animations and celebratory effects
 - **Performance Monitoring**: Built-in FPS monitoring and optimization
+- **Beautiful Backgrounds**: 10 rotating scenic backgrounds including galaxies, waterfalls, cherry blossoms, and colorful architecture
 
 ## 🚀 Getting Started
 
