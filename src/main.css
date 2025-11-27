@@ -277,7 +277,9 @@
 }
 
 @keyframes coin-sparkle {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0);
     opacity: 0;
   }
@@ -314,6 +316,58 @@
 
 .coin-sparkle {
   animation: coin-sparkle 0.5s ease-out forwards;
+}
+
+/* Fairy Transformation Animations */
+@keyframes fairy-morph {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+    filter: drop-shadow(0 0 5px #FFD700);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
+    filter: drop-shadow(0 0 20px #FFA500) drop-shadow(0 0 40px #FFD700);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(360deg);
+    filter: drop-shadow(0 0 15px #FFD700) drop-shadow(0 0 30px #FFA500);
+  }
+}
+
+@keyframes sparkle-pulse {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 1;
+  }
+}
+
+@keyframes fairy-glow {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px #FFD700) drop-shadow(0 0 20px #FFA500);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 25px #FFD700) drop-shadow(0 0 50px #FFA500) drop-shadow(0 0 75px #FFE4B5);
+  }
+}
+
+.fairy-transform {
+  animation: fairy-glow 0.5s ease-in-out infinite;
+}
+
+.sparkle-pulse {
+  animation: sparkle-pulse 0.3s ease-in-out infinite;
 }
 
 .game-area {

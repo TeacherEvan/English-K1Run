@@ -67,6 +67,15 @@ export interface SplatObject {
   lane: PlayerSide
 }
 
+// Fairy transformation object - replaces splat when worm is tapped
+export interface FairyTransformObject {
+  id: string
+  x: number
+  y: number
+  createdAt: number
+  lane: PlayerSide
+}
+
 const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
 const WORM_INITIAL_COUNT = 5 // Number of worms to spawn at game start
 const WORM_PROGRESSIVE_SPAWN_INTERVAL = 3000 // 3 seconds between initial worm spawns
@@ -280,7 +289,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
   const [worms, setWorms] = useState<WormObject[]>([])
-  const [splats, setSplats] = useState<SplatObject[]>([])
+  const [splats, setSplats] = useState<SplatObject[]>([]) // Legacy - keeping for compatibility
+  const [fairyTransforms, setFairyTransforms] = useState<FairyTransformObject[]>([])
   const [currentTime, setCurrentTime] = useState(() => Date.now())
   const [screenShake, setScreenShake] = useState(false)
   const [gameState, setGameState] = useState<GameState>(() => ({
@@ -996,11 +1006,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           playerSide: worm.lane
         }])
 
-        // Create splat effect at worm position
-        setSplats(prevSplats => [
-          ...prevSplats,
+        // Create fairy transformation effect at worm position (child-friendly rescue animation)
+        setFairyTransforms(prevFairies => [
+          ...prevFairies,
           {
-            id: `splat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            id: `fairy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             x: worm.x,
             y: worm.y,
             createdAt: Date.now(),
@@ -1059,7 +1069,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       const target = generateRandomTarget(safeLevel)
       setGameObjects([])
-      setSplats([]) // Clear any existing splats
+      setSplats([]) // Clear any existing splats (legacy)
+      setFairyTransforms([]) // Clear any existing fairy transformations
       setScreenShake(false) // Reset screen shake
 
       // Clear any existing worm spawn timers
@@ -1151,7 +1162,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     setGameObjects([])
     setWorms([]) // Clear worms when game ends
-    setSplats([]) // Clear splats when game ends
+    setSplats([]) // Clear splats when game ends (legacy)
+    setFairyTransforms([]) // Clear fairy transformations when game ends
     setScreenShake(false) // Reset screen shake
     wormSpeedMultiplier.current = 1 // Reset worm speed
 
@@ -1283,18 +1295,20 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
   }, [gameState.gameStarted, gameState.winner])
 
-  // Splat cleanup and currentTime update
+  // Fairy transformation cleanup and currentTime update
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) return
 
-    const SPLAT_DURATION = 8000 // 8 seconds
-    // Update every 500ms for smoother fade while reducing re-renders
+    const FAIRY_TRANSFORM_DURATION = 10000 // 10 seconds (3s morph + 2s fly + 5s trail fade)
+    // Update every 50ms for smooth fairy animation
     const interval = setInterval(() => {
       const now = Date.now()
       setCurrentTime(now)
-      // Remove splats older than 8 seconds
-      setSplats(prev => prev.filter(splat => now - splat.createdAt < SPLAT_DURATION))
-    }, 500) // Reduced from 100ms to 500ms for better performance
+      // Remove fairy transforms older than 10 seconds
+      setFairyTransforms(prev => prev.filter(fairy => now - fairy.createdAt < FAIRY_TRANSFORM_DURATION))
+      // Also clean up legacy splats
+      setSplats(prev => prev.filter(splat => now - splat.createdAt < 8000))
+    }, 50)
 
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner])
@@ -1363,6 +1377,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameObjects,
     worms,
     splats,
+    fairyTransforms,
     currentTime,
     screenShake,
     gameState,

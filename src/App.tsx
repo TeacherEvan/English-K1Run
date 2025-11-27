@@ -4,6 +4,7 @@ import './App.css'
 import { AchievementDisplay } from './components/AchievementDisplay'
 import { ComboCelebration } from './components/ComboCelebration'
 import { EmojiRotationMonitor } from './components/EmojiRotationMonitor'
+import { FairyTransformation } from './components/FairyTransformation'
 import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
@@ -76,6 +77,7 @@ function App() {
     gameObjects,
     worms,
     splats,
+    fairyTransforms,
     currentTime,
     screenShake,
     gameState,
@@ -265,6 +267,13 @@ function App() {
               <SplatEffect
                 key={splat.id}
                 splat={splat}
+                currentTime={currentTime}
+              />
+            ))}
+            {fairyTransforms.map(fairy => (
+              <FairyTransformation
+                key={fairy.id}
+                fairy={fairy}
                 currentTime={currentTime}
               />
             ))}

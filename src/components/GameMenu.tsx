@@ -27,8 +27,8 @@ export const GameMenu = memo(({
   const bodyFontSize = { fontSize: `calc(1.125rem * var(--font-scale, 1))` }
 
   return (
-    <div 
-      data-testid="game-menu" 
+    <div
+      data-testid="game-menu"
       className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50"
       style={{
         // Explicit inline styles as fallback for CSS variable issues
