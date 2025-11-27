@@ -1,291 +1,56 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-// import { useKV } from '@github/spark/hooks'
-import { CORRECT_MESSAGES, type Achievement } from '../components/AchievementDisplay'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
+// Types
+import type {
+  Achievement,
+  ComboCelebration,
+  FairyTransformObject,
+  GameObject,
+  GameState,
+  PlayerSide,
+  UseGameLogicOptions,
+  WormObject
+} from '../types/game'
+// Constants
+import { COMBO_LEVELS } from '../lib/constants/combo-levels'
+import {
+  clamp,
+  COLLISION_MIN_SEPARATION,
+  EMOJI_SIZE,
+  FAIRY_TRANSFORM_DURATION,
+  HORIZONTAL_SEPARATION,
+  LANE_BOUNDS,
+  MAX_ACTIVE_OBJECTS,
+  MIN_VERTICAL_GAP,
+  ROTATION_THRESHOLD,
+  SPAWN_COUNT,
+  TARGET_GUARANTEE_COUNT,
+  WORM_BASE_SPEED,
+  WORM_INITIAL_COUNT,
+  WORM_PROGRESSIVE_SPAWN_INTERVAL,
+  WORM_RECURRING_COUNT,
+  WORM_RECURRING_INTERVAL,
+  WORM_SIZE,
+} from '../lib/constants/game-config'
+import { CORRECT_MESSAGES } from '../lib/constants/messages'
 
-type PlayerSide = 'left' | 'right'
+// Re-export for backward compatibility
+export { GAME_CATEGORIES } from '../lib/constants/game-categories'
+export type {
+  Achievement,
+  ComboCelebration,
+  FairyTransformObject,
+  GameCategory,
+  GameObject,
+  GameState,
+  PlayerSide,
+  WormObject
+} from '../types/game'
 
-export interface GameObject {
-  id: string
-  type: string
-  emoji: string
-  x: number
-  y: number
-  speed: number
-  size: number
-  lane: PlayerSide
-}
-
-export interface GameState {
-  progress: number
-  currentTarget: string
-  targetEmoji: string
-  level: number
-  gameStarted: boolean
-  winner: boolean
-  targetChangeTime: number
-  streak: number
-}
-
-export interface GameCategory {
-  name: string
-  items: { emoji: string; name: string }[]
-  requiresSequence?: boolean
-  sequenceIndex?: number
-}
-
-interface UseGameLogicOptions {
-  fallSpeedMultiplier?: number
-}
-
-export interface ComboCelebration {
-  id: number
-  streak: number
-  title: string
-  description: string
-}
-
-export interface WormObject {
-  id: string
-  x: number
-  y: number
-  vx: number
-  vy: number
-  alive: boolean
-  angle: number
-  wigglePhase: number
-  lane: PlayerSide
-}
-
-// Fairy transformation object - magical effect when worm is tapped
-export interface FairyTransformObject {
-  id: string
-  x: number
-  y: number
-  createdAt: number
-  lane: PlayerSide
-}
-
-const MAX_ACTIVE_OBJECTS = 30 // Increased to support 8 objects every 1.5s
-const WORM_INITIAL_COUNT = 5 // Number of worms to spawn at game start
-const WORM_PROGRESSIVE_SPAWN_INTERVAL = 3000 // 3 seconds between initial worm spawns
-const WORM_RECURRING_COUNT = 3 // Number of worms to spawn every 30 seconds
-const WORM_RECURRING_INTERVAL = 30000 // 30 seconds
-const WORM_SIZE = 60
-const WORM_BASE_SPEED = 1.5
-const EMOJI_SIZE = 60
-const MIN_VERTICAL_GAP = 120
-const HORIZONTAL_SEPARATION = 6
-const COLLISION_MIN_SEPARATION = 8
-const SPAWN_COUNT = 8 // Always spawn exactly 8 objects
-const TARGET_GUARANTEE_COUNT = 2 // Ensure 2 of the 8 spawned objects are the current target
-const LANE_BOUNDS: Record<PlayerSide, [number, number]> = {
-  left: [10, 45],
-  right: [55, 90]
-}
-
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
-
-const COMBO_LEVELS: Array<{ streak: number; title: string; description: string }> = [
-  {
-    streak: 3,
-    title: 'Triple Treat!',
-    description: 'Three perfect taps in a row! Keep the magic going!'
-  },
-  {
-    streak: 5,
-    title: 'Fantastic Five!',
-    description: 'Five flawless finds! You are racing ahead!'
-  },
-  {
-    streak: 7,
-    title: 'Lucky Legend!',
-    description: 'Seven sparkling successes! Unstoppable energy!'
-  }
-]
-
-export const GAME_CATEGORIES: GameCategory[] = [
-  {
-    name: "Fruits & Vegetables",
-    items: [
-      { emoji: "🍎", name: "apple" },
-      { emoji: "🍌", name: "banana" },
-      { emoji: "🍇", name: "grapes" },
-      { emoji: "🍓", name: "strawberry" },
-      { emoji: "🥕", name: "carrot" },
-      { emoji: "🥒", name: "cucumber" },
-      { emoji: "🍉", name: "watermelon" },
-      { emoji: "🥦", name: "broccoli" },
-      { emoji: "🍊", name: "orange" },
-      { emoji: "🍋", name: "lemon" },
-      { emoji: "🍑", name: "peach" },
-      { emoji: "🍒", name: "cherry" },
-      { emoji: "🥝", name: "kiwi" }
-    ]
-  },
-  {
-    name: "Counting Fun",
-    items: [
-      { emoji: "1️⃣", name: "one" },
-      { emoji: "⚀", name: "one" },
-      { emoji: "2️⃣", name: "two" },
-      { emoji: "⚁", name: "two" },
-      { emoji: "3️⃣", name: "three" },
-      { emoji: "⚂", name: "three" },
-      { emoji: "4️⃣", name: "four" },
-      { emoji: "⚃", name: "four" },
-      { emoji: "5️⃣", name: "five" },
-      { emoji: "⚄", name: "five" },
-      { emoji: "6️⃣", name: "six" },
-      { emoji: "⚅", name: "six" },
-      { emoji: "7️⃣", name: "seven" },
-      { emoji: "8️⃣", name: "eight" },
-      { emoji: "9️⃣", name: "nine" },
-      { emoji: "🔟", name: "ten" }
-    ]
-  },
-  {
-    name: "Shapes & Colors",
-    items: [
-      { emoji: "🔵", name: "blue" },
-      { emoji: "🟥", name: "red" },
-      { emoji: "🔶", name: "orange" },
-      { emoji: "🟩", name: "green" },
-      { emoji: "🔺", name: "triangle" },
-      { emoji: "⭐", name: "star" },
-      { emoji: "🟣", name: "purple" },
-      { emoji: "⚪", name: "white" },
-      { emoji: "🟡", name: "yellow" },
-      { emoji: "🟤", name: "brown" },
-      { emoji: "⬛", name: "black" },
-      { emoji: "🔷", name: "diamond" },
-      { emoji: "🟠", name: "circle" }
-    ]
-  },
-  {
-    name: "Animals & Nature",
-    items: [
-      { emoji: "🐶", name: "dog" },
-      { emoji: "🐱", name: "cat" },
-      { emoji: "🦊", name: "fox" },
-      { emoji: "🐢", name: "turtle" },
-      { emoji: "🦋", name: "butterfly" },
-      { emoji: "🦉", name: "owl" },
-      { emoji: "🌳", name: "tree" },
-      { emoji: "🌸", name: "flower" },
-      { emoji: "🐘", name: "elephant" },
-      { emoji: "🦁", name: "lion" },
-      { emoji: "🐰", name: "rabbit" },
-      { emoji: "🦒", name: "giraffe" },
-      { emoji: "🐧", name: "penguin" }
-    ]
-  },
-  {
-    name: "Things That Go",
-    items: [
-      { emoji: "🚗", name: "car" },
-      { emoji: "🚌", name: "bus" },
-      { emoji: "🚒", name: "fire truck" },
-      { emoji: "✈️", name: "airplane" },
-      { emoji: "🚀", name: "rocket" },
-      { emoji: "🚲", name: "bicycle" },
-      { emoji: "🚁", name: "helicopter" },
-      { emoji: "🚤", name: "boat" },
-      { emoji: "🚂", name: "train" },
-      { emoji: "🚕", name: "taxi" },
-      { emoji: "🚙", name: "van" },
-      { emoji: "🛴", name: "scooter" },
-      { emoji: "🛵", name: "motorcycle" }
-    ]
-  },
-  {
-    name: "Weather Wonders",
-    items: [
-      { emoji: "☀️", name: "sunny" },
-      { emoji: "☁️", name: "cloudy" },
-      { emoji: "🌧️", name: "rainy" },
-      { emoji: "⛈️", name: "stormy" },
-      { emoji: "❄️", name: "snowy" },
-      { emoji: "🌈", name: "rainbow" },
-      { emoji: "🌪️", name: "tornado" },
-      { emoji: "🌬️", name: "windy" },
-      { emoji: "🌙", name: "moon" },
-      { emoji: "⭐", name: "star" },
-      { emoji: "🌞", name: "sun" },
-      { emoji: "🌫️", name: "foggy" },
-      { emoji: "⚡", name: "lightning" }
-    ]
-  },
-  {
-    name: "Feelings & Actions",
-    items: [
-      { emoji: "😄", name: "happy" },
-      { emoji: "😢", name: "sad" },
-      { emoji: "😠", name: "angry" },
-      { emoji: "😴", name: "sleepy" },
-      { emoji: "🤗", name: "hug" },
-      { emoji: "👏", name: "clap" },
-      { emoji: "🕺", name: "dance" },
-      { emoji: "🤸", name: "flip" },
-      { emoji: "😊", name: "smile" },
-      { emoji: "😂", name: "laugh" },
-      { emoji: "🤔", name: "think" },
-      { emoji: "🎉", name: "celebrate" },
-      { emoji: "👋", name: "wave" }
-    ]
-  },
-  {
-    name: "Body Parts",
-    items: [
-      { emoji: "👁️", name: "eye" },
-      { emoji: "👂", name: "ear" },
-      { emoji: "👃", name: "nose" },
-      { emoji: "👄", name: "mouth" },
-      { emoji: "👅", name: "tongue" },
-      { emoji: "🖐️", name: "hand" },
-      { emoji: "🦶", name: "foot" },
-      { emoji: "🦵", name: "leg" },
-      { emoji: "🦷", name: "tooth" },
-      { emoji: "💪", name: "arm" },
-      { emoji: "👂", name: "ear" },
-      { emoji: "🧠", name: "brain" },
-      { emoji: "❤️", name: "heart" }
-    ]
-  },
-  {
-    name: "Alphabet Challenge",
-    items: [
-      { emoji: "A", name: "A" },
-      { emoji: "B", name: "B" },
-      { emoji: "C", name: "C" },
-      { emoji: "D", name: "D" },
-      { emoji: "E", name: "E" },
-      { emoji: "F", name: "F" },
-      { emoji: "G", name: "G" },
-      { emoji: "H", name: "H" },
-      { emoji: "I", name: "I" },
-      { emoji: "J", name: "J" },
-      { emoji: "K", name: "K" },
-      { emoji: "L", name: "L" },
-      { emoji: "M", name: "M" },
-      { emoji: "N", name: "N" },
-      { emoji: "O", name: "O" },
-      { emoji: "P", name: "P" },
-      { emoji: "Q", name: "Q" },
-      { emoji: "R", name: "R" },
-      { emoji: "S", name: "S" },
-      { emoji: "T", name: "T" },
-      { emoji: "U", name: "U" },
-      { emoji: "V", name: "V" },
-      { emoji: "W", name: "W" },
-      { emoji: "X", name: "X" },
-      { emoji: "Y", name: "Y" },
-      { emoji: "Z", name: "Z" }
-    ]
-  }
-]
+// Import GAME_CATEGORIES for internal use
+import { GAME_CATEGORIES } from '../lib/constants/game-categories'
 
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
@@ -309,7 +74,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
   const lastTargetSpawnTime = useRef(Date.now())
-  const ROTATION_THRESHOLD = 10000 // 10 seconds as requested in the issue
 
   // Target pool system: ensures all targets are requested before any repeats
   // Shuffled array of remaining targets for current level
@@ -1297,7 +1061,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) return
 
-    const FAIRY_TRANSFORM_DURATION = 10000 // 10 seconds (3s morph + 2s fly + 5s trail fade)
     // Update every 50ms for smooth fairy animation
     const interval = setInterval(() => {
       const now = Date.now()

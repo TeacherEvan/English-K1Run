@@ -1,46 +1,15 @@
 import { memo, useEffect } from 'react'
+import type { Achievement } from '../types/game'
 import { CoinAnimation } from './CoinAnimation'
 
-export interface Achievement {
-  id: number
-  type: 'correct' | 'worm'
-  message: string
-  emoji?: string
-  x: number // percentage 0-100
-  y: number // pixels
-  playerSide: 'left' | 'right'
-}
+// Re-export for backward compatibility
+export { CORRECT_MESSAGES, WORM_MESSAGES } from '../lib/constants/messages'
+export type { Achievement } from '../types/game'
 
 interface AchievementDisplayProps {
   achievement: Achievement
   onDismiss: () => void
 }
-
-// Positive messages for correct taps
-export const CORRECT_MESSAGES = [
-  { message: 'Perfect!', emoji: '⭐' },
-  { message: 'Great Job!', emoji: '✨' },
-  { message: 'Awesome!', emoji: '🌟' },
-  { message: 'Excellent!', emoji: '💫' },
-  { message: 'Super!', emoji: '🎉' },
-  { message: 'Amazing!', emoji: '🎊' },
-  { message: 'Fantastic!', emoji: '🌈' },
-  { message: 'Wonderful!', emoji: '💖' },
-  { message: 'Brilliant!', emoji: '✨' },
-  { message: 'You did it!', emoji: '🏆' }
-]
-
-// Fun messages for worm taps
-export const WORM_MESSAGES = [
-  { message: 'Got one!', emoji: '🐛' },
-  { message: 'Nice catch!', emoji: '👍' },
-  { message: 'Squish!', emoji: '💥' },
-  { message: 'Gotcha!', emoji: '🎯' },
-  { message: 'Wiggle wiggle!', emoji: '🐛' },
-  { message: 'Worm away!', emoji: '✨' },
-  { message: 'Bye bye worm!', emoji: '👋' },
-  { message: 'Caught it!', emoji: '🎉' }
-]
 
 export const AchievementDisplay = memo(({ achievement, onDismiss }: AchievementDisplayProps) => {
   useEffect(() => {
