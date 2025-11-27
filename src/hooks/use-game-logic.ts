@@ -157,7 +157,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   useEffect(() => {
     if (gameState.gameStarted && gameState.currentTarget) {
-      void playSoundEffect.voice(gameState.currentTarget)
+      // Use voiceWordOnly to just pronounce the word (no sentence templates)
+      void playSoundEffect.voiceWordOnly(gameState.currentTarget)
     }
   }, [gameState.gameStarted, gameState.currentTarget])
 
@@ -771,6 +772,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         }])
 
         // Create fairy transformation effect at worm position (child-friendly rescue animation)
+        if (import.meta.env.DEV) {
+          console.log(`[FairySpawn] Creating fairy at worm position: x=${worm.x}%, y=${worm.y}px, lane=${worm.lane}`)
+        }
         setFairyTransforms(prevFairies => [
           ...prevFairies,
           {

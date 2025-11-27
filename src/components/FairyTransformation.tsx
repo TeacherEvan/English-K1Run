@@ -75,6 +75,13 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
     const sparkleIdRef = useRef(0)
     const frameCountRef = useRef(0)
 
+    // Debug: log initial position
+    useEffect(() => {
+        if (import.meta.env.DEV) {
+            console.log(`[FairyTransformation] Rendering at x=${fairy.x}%, y=${fairy.y}px, lane=${fairy.lane}`)
+        }
+    }, [fairy.x, fairy.y, fairy.lane])
+
     // Initialize random values in useState to keep them stable
     const [orbitingSparkles] = useState<OrbitSparkle[]>(() => createOrbitingSparkles())
     const [flyTarget] = useState(() => createFlyTarget(fairy.x, fairy.y))
@@ -205,7 +212,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
     const glowIntensity = 10 + Math.sin(age / 100) * 5
 
     return (
-        <div className="absolute pointer-events-none select-none" style={{ zIndex: 20 }}>
+        <div className="absolute inset-0 pointer-events-none select-none" style={{ zIndex: 20 }}>
             {/* Morphing/Flying Fairy */}
             {fairyOpacity > 0 && (
                 <div
