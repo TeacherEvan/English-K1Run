@@ -3,7 +3,6 @@ import type { FairyTransformObject } from '../hooks/use-game-logic'
 
 interface FairyTransformationProps {
     fairy: FairyTransformObject
-    currentTime: number
 }
 
 interface TrailSparkle {
@@ -70,9 +69,9 @@ const createBezierControl = (startX: number, startY: number, endX: number, endY:
     }
 }
 
-export const FairyTransformation = memo(({ fairy, currentTime }: FairyTransformationProps) => {
-    const age = currentTime - fairy.createdAt
-    const animationRef = useRef<number | null>(null)
+export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) => {
+    const [now, setNow] = useState(() => Date.now())
+    const age = now - fairy.createdAt
     const sparkleIdRef = useRef(0)
     const frameCountRef = useRef(0)
 
@@ -82,8 +81,6 @@ export const FairyTransformation = memo(({ fairy, currentTime }: FairyTransforma
     // Store bezier control point once to prevent jittery animation
     const [bezierControl] = useState(() => createBezierControl(fairy.x, fairy.y, flyTarget.x, flyTarget.y))
 
-    // Track fairy position during flight (x: percentage, y: pixels)
-    const [fairyPos, setFairyPos] = useState({ x: fairy.x, y: fairy.y })
     const [trailSparkles, setTrailSparkles] = useState<TrailSparkle[]>([])
 
     // Determine current phase
@@ -93,60 +90,98 @@ export const FairyTransformation = memo(({ fairy, currentTime }: FairyTransforma
         return 'trail-fading'
     }, [age])
 
-    // Animation loop for flying phase and sparkle trail
-    useEffect(() => {
-        if (phase !== 'flying' && phase !== 'trail-fading') return
+    // Calculate fairy position derived from age (no state needed)
+    const fairyPos = useMemo(() => {
+        if (phase !== 'flying') return { x: fairy.x, y: fairy.y }
 
         const flyStartTime = fairy.createdAt + MORPH_DURATION
+        const flyAge = now - flyStartTime
+
+        // Eased progress (ease-out cubic)
+        const progress = Math.min(1, flyAge / FLY_DURATION)
+        const easedProgress = 1 - Math.pow(1 - progress, 3)
+
+        // Quadratic bezier using stable control point
+        const t = easedProgress
+        const newX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
+        const newY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
+
+        return { x: newX, y: newY }
+    }, [phase, now, fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
+
+    // Animation loop
+    useEffect(() => {
+        let animationFrameId: number
 
         const animate = () => {
-            const now = Date.now()
-            const flyAge = now - flyStartTime
+            const currentNow = Date.now()
+            setNow(currentNow)
             frameCountRef.current++
 
-            if (phase === 'flying') {
-                // Eased progress (ease-out cubic)
-                const progress = Math.min(1, flyAge / FLY_DURATION)
-                const easedProgress = 1 - Math.pow(1 - progress, 3)
+            // Handle trail sparkles
+            const currentAge = currentNow - fairy.createdAt
+            const currentPhase = currentAge < MORPH_DURATION ? 'morphing' :
+                currentAge < MORPH_DURATION + FLY_DURATION ? 'flying' : 'trail-fading'
 
-                // Quadratic bezier using stable control point
-                const t = easedProgress
-                const newX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
-                const newY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
-
-                setFairyPos({ x: newX, y: newY })
-
+            if (currentPhase === 'flying') {
                 // Spawn trail sparkles less frequently (every 3rd frame, ~20fps)
                 if (frameCountRef.current % 3 === 0) {
+                    // Need to recalculate position here or use a ref to store latest position?
+                    // Since we are inside the loop, we can't access the 'fairyPos' from the render scope easily without it being a dependency.
+                    // But adding it as dependency restarts the effect.
+                    // We can recalculate it.
+
+                    const flyStartTime = fairy.createdAt + MORPH_DURATION
+                    const flyAge = currentNow - flyStartTime
+                    const progress = Math.min(1, flyAge / FLY_DURATION)
+                    const easedProgress = 1 - Math.pow(1 - progress, 3)
+                    const t = easedProgress
+
+                    const currentX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
+                    const currentY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
+
                     const newSparkle: TrailSparkle = {
                         id: sparkleIdRef.current++,
-                        x: newX + (Math.random() - 0.5) * 15,
-                        y: newY + (Math.random() - 0.5) * 30, // pixels
+                        x: currentX + (Math.random() - 0.5) * 15,
+                        y: currentY + (Math.random() - 0.5) * 30, // pixels
                         size: 8 + Math.random() * 12,
                         opacity: 1
                     }
-                    setTrailSparkles(prev => [...prev.slice(-MAX_TRAIL_SPARKLES), newSparkle])
+
+                    setTrailSparkles(prev => {
+                        // Also fade existing sparkles
+                        const faded = prev
+                            .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 }))
+                            .filter(s => s.opacity > 0)
+                        return [...faded.slice(-MAX_TRAIL_SPARKLES), newSparkle]
+                    })
+                } else {
+                    // Just fade existing sparkles
+                    setTrailSparkles(prev => {
+                        if (prev.length === 0) return prev
+                        return prev
+                            .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 }))
+                            .filter(s => s.opacity > 0)
+                    })
                 }
+            } else if (currentPhase === 'trail-fading') {
+                // Just fade existing sparkles
+                setTrailSparkles(prev => {
+                    if (prev.length === 0) return prev
+                    return prev
+                        .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 }))
+                        .filter(s => s.opacity > 0)
+                })
             }
 
-            // Fade out trail sparkles (slower fade for longer trail)
-            setTrailSparkles(prev =>
-                prev
-                    .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 })) // y in pixels
-                    .filter(s => s.opacity > 0)
-            )
-
-            animationRef.current = requestAnimationFrame(animate)
+            animationFrameId = requestAnimationFrame(animate)
         }
 
-        animationRef.current = requestAnimationFrame(animate)
+        animationFrameId = requestAnimationFrame(animate)
+        return () => cancelAnimationFrame(animationFrameId)
+    }, [fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
 
-        return () => {
-            if (animationRef.current) {
-                cancelAnimationFrame(animationRef.current)
-            }
-        }
-    }, [phase, fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
+    // Calculate morph progress (0-1) during morphing phase
 
     // Calculate morph progress (0-1) during morphing phase
     const morphProgress = phase === 'morphing' ? Math.min(1, age / MORPH_DURATION) : 1
@@ -252,12 +287,6 @@ export const FairyTransformation = memo(({ fairy, currentTime }: FairyTransforma
                 </div>
             ))}
         </div>
-    )
-}, (prevProps, nextProps) => {
-    // Only re-render when time changes significantly or fairy changes
-    return (
-        prevProps.fairy.id === nextProps.fairy.id &&
-        Math.abs(prevProps.currentTime - nextProps.currentTime) < 50
     )
 })
 

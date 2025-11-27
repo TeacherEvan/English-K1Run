@@ -9,7 +9,6 @@ import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
 import { PlayerArea } from './components/PlayerArea'
-import { SplatEffect } from './components/SplatEffect'
 import { TargetDisplay } from './components/TargetDisplay'
 import { Worm } from './components/Worm'
 // Hooks
@@ -76,9 +75,7 @@ function App() {
   const {
     gameObjects,
     worms,
-    splats,
     fairyTransforms,
-    currentTime,
     screenShake,
     gameState,
     currentCategory,
@@ -263,18 +260,10 @@ function App() {
                 playerSide={worm.lane}
               />
             ))}
-            {splats.map(splat => (
-              <SplatEffect
-                key={splat.id}
-                splat={splat}
-                currentTime={currentTime}
-              />
-            ))}
             {fairyTransforms.map(fairy => (
               <FairyTransformation
                 key={fairy.id}
                 fairy={fairy}
-                currentTime={currentTime}
               />
             ))}
           </PlayerArea>

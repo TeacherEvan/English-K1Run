@@ -59,15 +59,7 @@ export interface WormObject {
   lane: PlayerSide
 }
 
-export interface SplatObject {
-  id: string
-  x: number
-  y: number
-  createdAt: number
-  lane: PlayerSide
-}
-
-// Fairy transformation object - replaces splat when worm is tapped
+// Fairy transformation object - magical effect when worm is tapped
 export interface FairyTransformObject {
   id: string
   x: number
@@ -137,20 +129,21 @@ export const GAME_CATEGORIES: GameCategory[] = [
     name: "Counting Fun",
     items: [
       { emoji: "1️⃣", name: "one" },
+      { emoji: "⚀", name: "one" },
       { emoji: "2️⃣", name: "two" },
+      { emoji: "⚁", name: "two" },
       { emoji: "3️⃣", name: "three" },
+      { emoji: "⚂", name: "three" },
       { emoji: "4️⃣", name: "four" },
+      { emoji: "⚃", name: "four" },
       { emoji: "5️⃣", name: "five" },
+      { emoji: "⚄", name: "five" },
       { emoji: "6️⃣", name: "six" },
+      { emoji: "⚅", name: "six" },
       { emoji: "7️⃣", name: "seven" },
       { emoji: "8️⃣", name: "eight" },
       { emoji: "9️⃣", name: "nine" },
-      { emoji: "🔟", name: "ten" },
-      { emoji: "11", name: "eleven" },
-      { emoji: "12", name: "twelve" },
-      { emoji: "13", name: "thirteen" },
-      { emoji: "14", name: "fourteen" },
-      { emoji: "15", name: "fifteen" }
+      { emoji: "🔟", name: "ten" }
     ]
   },
   {
@@ -278,10 +271,19 @@ export const GAME_CATEGORIES: GameCategory[] = [
       { emoji: "L", name: "L" },
       { emoji: "M", name: "M" },
       { emoji: "N", name: "N" },
-      { emoji: "O", name: "O" }
-    ],
-    requiresSequence: true,
-    sequenceIndex: 0
+      { emoji: "O", name: "O" },
+      { emoji: "P", name: "P" },
+      { emoji: "Q", name: "Q" },
+      { emoji: "R", name: "R" },
+      { emoji: "S", name: "S" },
+      { emoji: "T", name: "T" },
+      { emoji: "U", name: "U" },
+      { emoji: "V", name: "V" },
+      { emoji: "W", name: "W" },
+      { emoji: "X", name: "X" },
+      { emoji: "Y", name: "Y" },
+      { emoji: "Z", name: "Z" }
+    ]
   }
 ]
 
@@ -289,9 +291,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
   const [worms, setWorms] = useState<WormObject[]>([])
-  const [splats, setSplats] = useState<SplatObject[]>([]) // Legacy - keeping for compatibility
   const [fairyTransforms, setFairyTransforms] = useState<FairyTransformObject[]>([])
-  const [currentTime, setCurrentTime] = useState(() => Date.now())
   const [screenShake, setScreenShake] = useState(false)
   const [gameState, setGameState] = useState<GameState>(() => ({
     progress: 0,
@@ -1069,7 +1069,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       const target = generateRandomTarget(safeLevel)
       setGameObjects([])
-      setSplats([]) // Clear any existing splats (legacy)
       setFairyTransforms([]) // Clear any existing fairy transformations
       setScreenShake(false) // Reset screen shake
 
@@ -1162,7 +1161,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     setGameObjects([])
     setWorms([]) // Clear worms when game ends
-    setSplats([]) // Clear splats when game ends (legacy)
     setFairyTransforms([]) // Clear fairy transformations when game ends
     setScreenShake(false) // Reset screen shake
     wormSpeedMultiplier.current = 1 // Reset worm speed
@@ -1303,11 +1301,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     // Update every 50ms for smooth fairy animation
     const interval = setInterval(() => {
       const now = Date.now()
-      setCurrentTime(now)
+      // setCurrentTime(now) - Removed for performance optimization (App re-render loop)
       // Remove fairy transforms older than 10 seconds
       setFairyTransforms(prev => prev.filter(fairy => now - fairy.createdAt < FAIRY_TRANSFORM_DURATION))
-      // Also clean up legacy splats
-      setSplats(prev => prev.filter(splat => now - splat.createdAt < 8000))
     }, 50)
 
     return () => clearInterval(interval)
@@ -1376,9 +1372,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   return {
     gameObjects,
     worms,
-    splats,
     fairyTransforms,
-    currentTime,
     screenShake,
     gameState,
     currentCategory,

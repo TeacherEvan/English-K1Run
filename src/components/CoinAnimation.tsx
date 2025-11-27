@@ -28,12 +28,12 @@ export const CoinAnimation = memo(({ id, x, y, onDismiss }: CoinAnimationProps) 
       {/* Multiple coins cascading like slot machine win */}
       <div className="relative">
         {/* Main coin - largest */}
-        <div 
+        <div
           className={cn(
             'absolute coin-cascade',
             'flex items-center justify-center',
             'w-16 h-16 rounded-full',
-            'bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500',
+            'bg-linear-to-br from-yellow-300 via-yellow-400 to-amber-500',
             'border-4 border-yellow-200',
             'shadow-2xl'
           )}
@@ -47,12 +47,12 @@ export const CoinAnimation = memo(({ id, x, y, onDismiss }: CoinAnimationProps) 
         </div>
 
         {/* Secondary coin - offset */}
-        <div 
+        <div
           className={cn(
             'absolute coin-cascade',
             'flex items-center justify-center',
             'w-14 h-14 rounded-full',
-            'bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500',
+            'bg-linear-to-br from-yellow-300 via-yellow-400 to-amber-500',
             'border-3 border-yellow-200',
             'shadow-xl'
           )}
@@ -66,12 +66,12 @@ export const CoinAnimation = memo(({ id, x, y, onDismiss }: CoinAnimationProps) 
         </div>
 
         {/* Tertiary coin - smaller */}
-        <div 
+        <div
           className={cn(
             'absolute coin-cascade',
             'flex items-center justify-center',
             'w-12 h-12 rounded-full',
-            'bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500',
+            'bg-linear-to-br from-yellow-300 via-yellow-400 to-amber-500',
             'border-2 border-yellow-200',
             'shadow-lg'
           )}

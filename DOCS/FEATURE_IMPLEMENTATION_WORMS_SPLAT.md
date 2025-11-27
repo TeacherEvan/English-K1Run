@@ -1,7 +1,9 @@
 # Feature Implementation: Worm Spawning & Screen Shake
 
 ## Overview
+
 This document describes the implementation of the requested features for the English K1 Run game:
+
 1. Progressive worm spawning (5 worms, 3-second intervals)
 2. Recurring worm spawning (3 worms every 30 seconds)
 3. Dramatic splat effect (❇️) with 8-second fade
@@ -10,9 +12,11 @@ This document describes the implementation of the requested features for the Eng
 ## Implementation Details
 
 ### 1. Progressive Worm Spawning
+
 **Requirement:** First 5 worms spawn progressively every 3 seconds apart
 
 **Implementation:**
+
 - Modified `startGame()` in `src/hooks/use-game-logic.ts`
 - Uses `setTimeout` to create staggered spawn pattern
 - Each worm spawns at `i * 3000ms` interval (0s, 3s, 6s, 9s, 12s)
@@ -20,6 +24,7 @@ This document describes the implementation of the requested features for the Eng
 - Timers stored in `progressiveSpawnTimeoutRefs` for cleanup
 
 **Code:**
+
 ```typescript
 for (let i = 0; i < WORM_INITIAL_COUNT; i++) {
   const timeout = setTimeout(() => {
@@ -36,9 +41,11 @@ for (let i = 0; i < WORM_INITIAL_COUNT; i++) {
 ```
 
 ### 2. Recurring Worm Spawning
+
 **Requirement:** Add 3 worms every 30 seconds during gameplay
 
 **Implementation:**
+
 - Added `setInterval` in `startGame()` function
 - Spawns 3 new worms every 30,000ms (30 seconds)
 - Continues throughout entire game session
@@ -46,6 +53,7 @@ for (let i = 0; i < WORM_INITIAL_COUNT; i++) {
 - Properly cleared on game reset to prevent memory leaks
 
 **Code:**
+
 ```typescript
 recurringSpawnIntervalRef.current = setInterval(() => {
   setWorms(prev => {
@@ -64,19 +72,27 @@ recurringSpawnIntervalRef.current = setInterval(() => {
 }, WORM_RECURRING_INTERVAL) // 30000ms
 ```
 
-### 3. Dramatic Splat Effect (❇️)
-**Requirement:** Create dramatic splat effect that fades out over 8 seconds
+### 3. Dramatic Splat Effect (❇️) - [REMOVED/REPLACED]
 
-**Implementation:**
-- Created new component: `src/components/SplatEffect.tsx`
-- Splat appears at exact worm tap position
-- Uses ❇️ (sparkle) emoji for dramatic visual effect
-- Size: 80px (larger than worm for impact)
-- Scale: 1.2x for extra emphasis
-- 8-second fade animation using CSS opacity transition
-- Auto-cleanup removes splats after expiration
+**Status:** Removed in November 2025. Replaced by `FairyTransformation` for a more child-friendly "rescue" theme.
 
-**Component Structure:**
+**Original Requirement:** Create dramatic splat effect that fades out over 8 seconds
+
+**Legacy Implementation (Removed):**
+
+- Component: `src/components/SplatEffect.tsx` (Deleted)
+- Logic: `splats` state in `use-game-logic.ts` (Removed)
+- Visual: ❇️ (sparkle) emoji with 8-second fade
+
+**Replacement:**
+
+- See `FairyTransformation` component
+- Worms now transform into fairies/butterflies when tapped
+- Includes particle effects and "rescue" animation
+- Better aligned with educational/positive reinforcement theme
+
+**Legacy Component Structure (Reference Only):**
+
 ```typescript
 export interface SplatObject {
   id: string
@@ -85,36 +101,20 @@ export interface SplatObject {
   createdAt: number
   lane: 'left' | 'right'
 }
-
-export const SplatEffect = memo(({ splat, currentTime }: SplatEffectProps) => {
-  const age = currentTime - splat.createdAt
-  const opacity = Math.max(0, 1 - age / 8000) // 8 second fade
-  
-  return (
-    <div style={{
-      left: `${splat.x}%`,
-      top: `${splat.y}px`,
-      fontSize: '80px',
-      opacity,
-      transform: 'translate(-50%, -50%) scale(1.2)',
-      transition: 'opacity 0.5s ease-out',
-      zIndex: 14
-    }}>
-      ❇️
-    </div>
-  )
-})
 ```
 
-**Integration:**
-- Splats created in `handleWormTap()` when worm is tapped
-- Rendered in `App.tsx` within PlayerArea
-- Cleanup interval runs every 100ms to update fade and remove expired splats
+**Integration (Removed):**
+
+- Splats were created in `handleWormTap()`
+- Rendered in `App.tsx`
+- Cleanup logic removed from `use-game-logic.ts`
 
 ### 4. Screen Shake Animation
+
 **Requirement:** Implement screen shake when wrong emoji is selected
 
 **Implementation:**
+
 - Added CSS keyframe animation to `src/App.css`
 - Triggers on incorrect emoji tap in `handleObjectTap()`
 - Duration: 500ms
@@ -122,6 +122,7 @@ export const SplatEffect = memo(({ splat, currentTime }: SplatEffectProps) => {
 - Uses cubic-bezier easing for smooth acceleration/deceleration
 
 **CSS Animation:**
+
 ```css
 @keyframes screen-shake {
   0%, 100% {
@@ -141,6 +142,7 @@ export const SplatEffect = memo(({ splat, currentTime }: SplatEffectProps) => {
 ```
 
 **Trigger Logic:**
+
 ```typescript
 // In handleObjectTap() for incorrect taps
 if (!isCorrect) {
@@ -154,6 +156,7 @@ if (!isCorrect) {
 ```
 
 **Application:**
+
 ```tsx
 <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
   <PlayerArea>
@@ -165,16 +168,20 @@ if (!isCorrect) {
 ## State Management
 
 ### New State Variables
+
 1. `splats: SplatObject[]` - Array of active splat effects
 2. `currentTime: number` - Current timestamp for opacity calculations
 3. `screenShake: boolean` - Controls shake animation class
 
 ### Timer References
+
 1. `progressiveSpawnTimeoutRefs: NodeJS.Timeout[]` - Cleanup for initial worm spawns
 2. `recurringSpawnIntervalRef: NodeJS.Timeout` - Cleanup for recurring spawns
 
 ### Cleanup Strategy
+
 All timers properly cleared in `resetGame()`:
+
 ```typescript
 // Clear worm spawn timers
 progressiveSpawnTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
@@ -198,6 +205,7 @@ setScreenShake(false) // Reset shake
 ## Testing Checklist
 
 ### Manual Testing Steps
+
 1. ✅ Start a new game
 2. ✅ Verify first worm appears immediately (0s)
 3. ✅ Verify second worm appears at 3 seconds
@@ -253,15 +261,18 @@ const SPLAT_SIZE = 80                  // 80px emoji
 ```
 
 ## Build Status
+
 - ✅ TypeScript compilation: PASSED
 - ✅ ESLint: PASSED (no errors or warnings)
 - ✅ Build: SUCCESS
 - ✅ Bundle size: Within acceptable limits
 
 ## Known Limitations
+
 None - all requirements fully implemented as specified.
 
 ## Future Enhancements (Optional)
+
 1. Add different splat emojis for variety (💥, ✨, 🌟)
 2. Randomize splat rotation for more dynamic effect
 3. Add sound effect on worm tap
