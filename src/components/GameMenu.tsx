@@ -27,7 +27,25 @@ export const GameMenu = memo(({
   const bodyFontSize = { fontSize: `calc(1.125rem * var(--font-scale, 1))` }
 
   return (
-    <div data-testid="game-menu" className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50">
+    <div 
+      data-testid="game-menu" 
+      className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50"
+      style={{
+        // Explicit inline styles as fallback for CSS variable issues
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+      }}
+    >
       <Card className="p-8 max-w-2xl mx-4 text-center bg-card shadow-2xl border-4 border-primary/20">
         <div className="mb-6 flex flex-col items-center gap-3">
           <div style={{ fontSize: `calc(3.75rem * var(--object-scale, 1))` }}>
