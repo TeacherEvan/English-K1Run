@@ -170,8 +170,9 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
 
   return (
     <div
+      data-testid="worm-loading-screen"
       ref={containerRef}
-      className="fixed inset-0 bg-gradient-to-br from-green-50 to-green-100 z-50 overflow-hidden"
+      className="fixed inset-0 bg-linear-to-br from-green-50 to-green-100 z-50 overflow-hidden"
       style={{ touchAction: 'none' }}
     >
       {/* Loading message */}
@@ -233,6 +234,7 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
 
       {/* Skip button */}
       <button
+        data-testid="skip-loading-button"
         onClick={onComplete}
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all hover:scale-105"
       >

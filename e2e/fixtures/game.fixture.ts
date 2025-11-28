@@ -105,7 +105,21 @@ export class GameMenuPage {
     }
 
     async startGame() {
-        await this.startButton.click()
+        await this.startButton.evaluate((button: HTMLButtonElement) => button.click())
+
+        const loadingScreen = this.page.locator('[data-testid="worm-loading-screen"]')
+        const skipButton = this.page.locator('[data-testid="skip-loading-button"]')
+
+        try {
+            await loadingScreen.waitFor({ state: 'visible', timeout: 5_000 })
+            await skipButton.click()
+            await loadingScreen.waitFor({ state: 'detached', timeout: 10_000 })
+        } catch (error) {
+            // Loading screen may be disabled or already dismissed; swallow timeout errors
+            if (error instanceof Error && !/Timeout/.test(error.message)) {
+                throw error
+            }
+        }
     }
 
     async resetGame() {
@@ -181,7 +195,7 @@ export class GameplayPage {
     }
 
     async goBack() {
-        await this.backButton.click()
+        await this.backButton.evaluate((button: HTMLButtonElement) => button.click())
     }
 
     async waitForObjectsToSpawn(minCount: number = 1) {

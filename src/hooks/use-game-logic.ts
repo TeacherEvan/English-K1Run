@@ -23,6 +23,7 @@ import {
   HORIZONTAL_SEPARATION,
   LANE_BOUNDS,
   MAX_ACTIVE_OBJECTS,
+  MIN_DECOY_SLOTS,
   MIN_VERTICAL_GAP,
   ROTATION_THRESHOLD,
   SPAWN_COUNT,
@@ -157,8 +158,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
   useEffect(() => {
     if (gameState.gameStarted && gameState.currentTarget) {
-      // Use voiceWordOnly to just pronounce the word (no sentence templates)
-      void playSoundEffect.voiceWordOnly(gameState.currentTarget)
+      // Announce target with full sentence template for richer instruction
+      void playSoundEffect.voice(gameState.currentTarget)
     }
   }, [gameState.gameStarted, gameState.currentTarget])
 
@@ -291,25 +292,45 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const level = GAME_CATEGORIES[gameStateRef.current.level] || GAME_CATEGORIES[0]
         const currentTarget = gameStateRef.current.targetEmoji
 
-        // If screen is full but we need targets, remove oldest non-target objects to make room
+        // Reserve slots so there is always room for decoys alongside guaranteed targets
+        const requiredSlots = TARGET_GUARANTEE_COUNT + MIN_DECOY_SLOTS
+        const maxObjectsBeforeSpawn = MAX_ACTIVE_OBJECTS - requiredSlots
+
         let workingList = [...prev]
-        if (workingList.length >= MAX_ACTIVE_OBJECTS) {
-          // Always make room for at least TARGET_GUARANTEE_COUNT targets
-          // Remove oldest non-target objects (highest Y value = closest to bottom = oldest)
-          const nonTargets = workingList
-            .filter(obj => obj.emoji !== currentTarget)
-            .sort((a, b) => b.y - a.y) // Sort by Y descending (oldest/lowest first)
+        if (workingList.length > maxObjectsBeforeSpawn) {
+          const targetEmoji = currentTarget
+          let targetCountOnScreen = targetEmoji
+            ? workingList.filter(obj => obj.emoji === targetEmoji).length
+            : 0
 
-          const toRemove = Math.min(nonTargets.length, TARGET_GUARANTEE_COUNT + 2)
-          const removeIds = new Set(nonTargets.slice(0, toRemove).map(obj => obj.id))
-          workingList = workingList.filter(obj => !removeIds.has(obj.id))
+          const removalCandidates = [...workingList].sort((a, b) => b.y - a.y)
+          let removedCount = 0
 
-          if (import.meta.env.DEV && toRemove > 0) {
-            console.log(`[SpawnObject] Removed ${toRemove} old non-targets to make room for targets`)
+          for (const candidate of removalCandidates) {
+            if (workingList.length <= maxObjectsBeforeSpawn) {
+              break
+            }
+
+            const isTargetCandidate = targetEmoji ? candidate.emoji === targetEmoji : false
+
+            // Never drop below the guaranteed target floor
+            if (isTargetCandidate && targetCountOnScreen <= TARGET_GUARANTEE_COUNT) {
+              continue
+            }
+
+            workingList = workingList.filter(obj => obj.id !== candidate.id)
+            if (isTargetCandidate) {
+              targetCountOnScreen--
+            }
+            removedCount++
+          }
+
+          if (import.meta.env.DEV && removedCount > 0) {
+            console.log(`[SpawnObject] Trimmed ${removedCount} old objects to reserve decoy slots`)
           }
         }
 
-        const availableSlots = MAX_ACTIVE_OBJECTS - workingList.length
+        const availableSlots = Math.max(0, MAX_ACTIVE_OBJECTS - workingList.length)
 
         // If forcing target spawn, ensure we have at least 1 slot
         let actualSpawnCount = Math.min(availableSlots, SPAWN_COUNT)
@@ -647,8 +668,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const newState = { ...prev }
 
         if (isCorrect) {
-          // Correct tap: play simple word pronunciation (not full sentence)
-          void playSoundEffect.voiceWordOnly(tappedObject.type)
+          // Correct tap: play phonics sentence for deeper reinforcement
+          void playSoundEffect.voice(tappedObject.type)
 
           // Create achievement popup at tap location
           const randomMsg = CORRECT_MESSAGES[Math.floor(Math.random() * CORRECT_MESSAGES.length)]

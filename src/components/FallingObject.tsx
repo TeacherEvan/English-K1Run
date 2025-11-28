@@ -44,7 +44,8 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
   // Memoize style calculations to prevent recalculation on every render
   const objectStyle = useMemo(() => ({
     left: `${object.x}%`,
-    transform: `translateY(${object.y}px) scale(var(--object-scale, 1))`,
+    top: 0,
+    transform: `translate(-50%, ${object.y}px) scale(var(--object-scale, 1))`,
     fontSize: `${object.size}px`,
     lineHeight: 1,
     zIndex: 10

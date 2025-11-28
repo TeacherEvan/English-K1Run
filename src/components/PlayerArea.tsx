@@ -1,6 +1,5 @@
 import { memo } from 'react'
 import { Card } from './ui/card'
-import { Progress } from './ui/progress'
 
 interface PlayerAreaProps {
   playerNumber: 1 | 2
@@ -12,25 +11,15 @@ interface PlayerAreaProps {
 export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: PlayerAreaProps) => {
   return (
     <Card data-testid={`player-area-${playerNumber}`} className="relative h-full border-0 game-area overflow-hidden">
-      {/* Progress Header */}
-      <div className={`absolute top-4 left-4 right-4 z-20 ${isWinner ? 'celebrate' : ''}`}>
-        <div className="bg-white/80 backdrop-blur-sm text-blue-700 px-4 py-2 rounded-full text-center font-bold shadow-lg border-2 border-white/50"
-          style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
-          Progress
-        </div>
-        <div className="mt-2">
-          <Progress
-            data-testid="progress-bar"
-            value={progress}
-            className="h-3 bg-white/30 backdrop-blur-sm"
-            style={{ height: `calc(0.75rem * var(--spacing-scale, 1))` }}
-          />
-          <div className="text-center font-semibold mt-1 text-foreground/80"
-            style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}>
-            {Math.round(progress)}%
-          </div>
-        </div>
-      </div>
+      {/* Hidden progress indicator retained for telemetry & e2e hooks */}
+      <div
+        data-testid="progress-bar"
+        aria-hidden="true"
+        style={{
+          width: `${Math.max(0, Math.min(progress, 100))}%`,
+          display: 'none'
+        }}
+      />
 
       {/* Game Area */}
       <div data-testid="game-area" className="absolute inset-0 pt-24">

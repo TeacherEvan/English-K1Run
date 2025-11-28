@@ -9,6 +9,7 @@ import type { PlayerSide } from '../../types/game'
 export const MAX_ACTIVE_OBJECTS = 30
 export const SPAWN_COUNT = 8
 export const TARGET_GUARANTEE_COUNT = 2
+export const MIN_DECOY_SLOTS = 2
 export const EMOJI_SIZE = 60
 export const MIN_VERTICAL_GAP = 120
 export const HORIZONTAL_SEPARATION = 6

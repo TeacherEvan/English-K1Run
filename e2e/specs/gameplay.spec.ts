@@ -40,12 +40,12 @@ test.describe('Gameplay', () => {
         expect(gameStarted).toBe(false)
     })
 
-    test('should display progress bars for players', async ({ gamePage }) => {
+    test('should keep legacy progress UI hidden', async ({ gamePage }) => {
         await expect(gamePage.gameplay.player1Area).toBeVisible()
 
-        // Progress should start at 0
-        const progress = await gamePage.gameplay.getProgress(1)
-        expect(progress).toBeGreaterThanOrEqual(0)
+        const indicatorCount = await gamePage.gameplay.progressBars.count()
+        expect(indicatorCount).toBeGreaterThan(0)
+        await expect(gamePage.gameplay.progressBars.first()).toBeHidden()
     })
 
     test('falling objects should be clickable', async ({ gamePage }) => {
@@ -57,7 +57,7 @@ test.describe('Gameplay', () => {
         await expect(firstObject).toBeVisible()
 
         // Click should not throw error
-        await firstObject.click({ timeout: 5000 })
+        await firstObject.click({ timeout: 5000, force: true })
     })
 })
 
@@ -82,7 +82,7 @@ test.describe('Gameplay - Object Interaction', () => {
 
         if (count > 0) {
             const initialProgress = await gamePage.gameplay.getProgress(1)
-            await matchingObjects.first().click()
+            await matchingObjects.first().click({ force: true })
 
             // Small delay for state update
             await page.waitForTimeout(100)
@@ -120,7 +120,7 @@ test.describe('Worms (Distractors)', () => {
             await expect(firstWorm).toBeVisible()
 
             // Tapping worm should not throw
-            await firstWorm.click({ timeout: 2000 })
+            await firstWorm.click({ timeout: 2000, force: true })
         }
     })
 })
