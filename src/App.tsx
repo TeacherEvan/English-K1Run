@@ -94,16 +94,18 @@ function App() {
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
 
-  // Show loading screen on first mount
-  const handleLoadingComplete = () => {
-    setIsLoading(false)
+  // Called when user clicks "Start Game" - show loading screen first
+  const handleStartGame = () => {
+    requestFullscreen()
+    setIsLoading(true)
   }
 
-  // Show loading screen while assets load
-  if (isLoading) {
-    return <WormLoadingScreen onComplete={handleLoadingComplete} />
+  // Called when loading screen completes - actually start the game
+  const handleLoadingComplete = () => {
+    setIsLoading(false)
+    startGame(selectedLevel)
   }
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
@@ -203,6 +205,11 @@ function App() {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])
 
+  // Show loading screen between level select and gameplay (after all hooks)
+  if (isLoading) {
+    return <WormLoadingScreen onComplete={handleLoadingComplete} />
+  }
+
   return (
     <>
       <div className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}>
@@ -283,10 +290,7 @@ function App() {
 
         {/* Game Menu Overlay */}
         <GameMenu
-          onStartGame={() => {
-            requestFullscreen() // Ensure fullscreen when starting game
-            startGame(selectedLevel)
-          }}
+          onStartGame={handleStartGame}
           onResetGame={() => {
             resetGame()
             setBackgroundClass(prev => pickRandomBackground(prev))
