@@ -562,7 +562,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         if (prev.length === 0) return prev
 
         const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
-        const speedMultiplier = 0.6
+        const speedMultiplier = 1.2
         const updated: GameObject[] = []
 
         for (const obj of prev) {

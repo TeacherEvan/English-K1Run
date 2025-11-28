@@ -14,7 +14,7 @@ export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: 
     <Card data-testid={`player-area-${playerNumber}`} className="relative h-full border-0 game-area overflow-hidden">
       {/* Progress Header */}
       <div className={`absolute top-4 left-4 right-4 z-20 ${isWinner ? 'celebrate' : ''}`}>
-        <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-center font-bold shadow-lg"
+        <div className="bg-white/80 backdrop-blur-sm text-blue-700 px-4 py-2 rounded-full text-center font-bold shadow-lg border-2 border-white/50"
           style={{ fontSize: `calc(1.125rem * var(--font-scale, 1))` }}>
           Progress
         </div>
@@ -22,8 +22,8 @@ export const PlayerArea = memo(({ playerNumber, progress, children, isWinner }: 
           <Progress
             data-testid="progress-bar"
             value={progress}
-            className="h-3 bg-white/50"
-            style={{ height: `calc(0.75rem * var(--spacing-scale, 1))`, width: `${progress}%` }}
+            className="h-3 bg-white/30 backdrop-blur-sm"
+            style={{ height: `calc(0.75rem * var(--spacing-scale, 1))` }}
           />
           <div className="text-center font-semibold mt-1 text-foreground/80"
             style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}>

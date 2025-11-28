@@ -11,6 +11,7 @@ import { GameMenu } from './components/GameMenu'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
 import { Worm } from './components/Worm'
+import { WormLoadingScreen } from './components/WormLoadingScreen'
 // Hooks
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
@@ -93,6 +94,17 @@ function App() {
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Show loading screen on first mount
+  const handleLoadingComplete = () => {
+    setIsLoading(false)
+  }
+
+  // Show loading screen while assets load
+  if (isLoading) {
+    return <WormLoadingScreen onComplete={handleLoadingComplete} />
+  }
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
