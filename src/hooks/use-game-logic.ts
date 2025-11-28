@@ -100,7 +100,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [gameObjects])
 
   // Animation frame ref for worm movement
-  const wormAnimationFrameRef = useRef<number | undefined>(undefined)
+
   const wormSpeedMultiplier = useRef(1)
 
   // Refs for worm spawning timers
@@ -962,21 +962,79 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, spawnObject])
 
-  // Update object positions using requestAnimationFrame for smooth 60fps
+  // Combined game loop for objects and worms to ensure synchronization and performance
   useEffect(() => {
-    if (!gameState.gameStarted || gameState.winner) return
+    if (!gameState.gameStarted || gameState.winner) {
+      return
+    }
 
     let animationFrameId: number
-    let lastUpdateTime = performance.now()
+    let lastWormTime = performance.now()
+    let lastObjectUpdateTime = performance.now()
     const targetFps = 60
     const frameInterval = 1000 / targetFps
 
     const animate = (currentTime: number) => {
-      const elapsed = currentTime - lastUpdateTime
+      // 1. Worm Update (Variable DT)
+      const dt = Math.min((currentTime - lastWormTime) / 16.67, 2)
+      lastWormTime = currentTime
 
+      setWorms(prev => {
+        if (prev.length === 0) return prev
+
+        return prev.map(worm => {
+          if (!worm.alive) return worm
+
+          // Get viewport dimensions for boundary checking
+          const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
+          const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+
+          // Update position with speed multiplier and delta time
+          let newX = worm.x + (worm.vx * wormSpeedMultiplier.current * dt) / 10
+          let newY = worm.y + (worm.vy * wormSpeedMultiplier.current * dt) / 10
+
+          // Bounce off walls with lane-specific boundaries
+          let newVx = worm.vx
+          let newVy = worm.vy
+          const [minX, maxX] = LANE_BOUNDS[worm.lane]
+
+          // Calculate margins to prevent worms from clipping boundaries
+          const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
+          const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
+
+          if (newX <= minX + boundsMarginX || newX >= maxX - boundsMarginX) {
+            newVx = -worm.vx
+            newX = Math.max(minX + boundsMarginX, Math.min(maxX - boundsMarginX, newX))
+          }
+
+          if (newY <= boundsMarginY || newY >= viewportHeight - boundsMarginY) {
+            newVy = -worm.vy
+            newY = Math.max(boundsMarginY, Math.min(viewportHeight - boundsMarginY, newY))
+          }
+
+          // Update wiggle phase for animation
+          const newWigglePhase = (worm.wigglePhase + 0.1 * dt) % (Math.PI * 2)
+
+          // Update angle based on velocity direction
+          const newAngle = Math.atan2(newVy, newVx)
+
+          return {
+            ...worm,
+            x: newX,
+            y: newY,
+            vx: newVx,
+            vy: newVy,
+            angle: newAngle,
+            wigglePhase: newWigglePhase
+          }
+        })
+      })
+
+      // 2. Object Update (Fixed Step)
+      const elapsed = currentTime - lastObjectUpdateTime
       if (elapsed >= frameInterval) {
         updateObjects()
-        lastUpdateTime = currentTime - (elapsed % frameInterval)
+        lastObjectUpdateTime = currentTime - (elapsed % frameInterval)
       }
 
       animationFrameId = requestAnimationFrame(animate)
@@ -985,81 +1043,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     animationFrameId = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(animationFrameId)
   }, [gameState.gameStarted, gameState.winner, updateObjects])
-
-  // Worm movement animation loop using requestAnimationFrame
-  useEffect(() => {
-    if (!gameState.gameStarted || gameState.winner) {
-      // Clean up animation frame when game is not active
-      if (wormAnimationFrameRef.current) {
-        cancelAnimationFrame(wormAnimationFrameRef.current)
-      }
-      return
-    }
-
-    let lastTime = performance.now()
-
-    const animate = (time: number) => {
-      const dt = Math.min((time - lastTime) / 16.67, 2) // Normalize to ~60fps, cap at 2x speed to prevent jumps
-      lastTime = time
-
-      setWorms(prev => prev.map(worm => {
-        if (!worm.alive) return worm
-
-        // Get viewport dimensions for boundary checking
-        const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
-        const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
-
-        // Update position with speed multiplier and delta time
-        let newX = worm.x + (worm.vx * wormSpeedMultiplier.current * dt) / 10
-        let newY = worm.y + (worm.vy * wormSpeedMultiplier.current * dt) / 10
-
-        // Bounce off walls with lane-specific boundaries
-        let newVx = worm.vx
-        let newVy = worm.vy
-        const [minX, maxX] = LANE_BOUNDS[worm.lane]
-
-        // Calculate margins to prevent worms from clipping boundaries
-        const boundsMarginX = (WORM_SIZE / viewportWidth) * 100
-        const boundsMarginY = WORM_SIZE // Use pixels for Y boundaries
-
-        if (newX <= minX + boundsMarginX || newX >= maxX - boundsMarginX) {
-          newVx = -worm.vx
-          newX = Math.max(minX + boundsMarginX, Math.min(maxX - boundsMarginX, newX))
-        }
-
-        if (newY <= boundsMarginY || newY >= viewportHeight - boundsMarginY) {
-          newVy = -worm.vy
-          newY = Math.max(boundsMarginY, Math.min(viewportHeight - boundsMarginY, newY))
-        }
-
-        // Update wiggle phase for animation
-        const newWigglePhase = (worm.wigglePhase + 0.1 * dt) % (Math.PI * 2)
-
-        // Update angle based on velocity direction
-        const newAngle = Math.atan2(newVy, newVx)
-
-        return {
-          ...worm,
-          x: newX,
-          y: newY,
-          vx: newVx,
-          vy: newVy,
-          angle: newAngle,
-          wigglePhase: newWigglePhase
-        }
-      }))
-
-      wormAnimationFrameRef.current = requestAnimationFrame(animate)
-    }
-
-    wormAnimationFrameRef.current = requestAnimationFrame(animate)
-
-    return () => {
-      if (wormAnimationFrameRef.current) {
-        cancelAnimationFrame(wormAnimationFrameRef.current)
-      }
-    }
-  }, [gameState.gameStarted, gameState.winner])
 
   // Fairy transformation cleanup and currentTime update
   useEffect(() => {

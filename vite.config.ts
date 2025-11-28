@@ -1,7 +1,11 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
-import { resolve } from 'path';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import { defineConfig } from "vite";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,7 +15,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': resolve('./src')
+      '@': resolve(__dirname, 'src')
     }
   },
   server: {
@@ -43,10 +47,7 @@ export default defineConfig({
       '@radix-ui/react-progress',
       'class-variance-authority',
       'clsx',
-      'tailwind-merge'
-    ],
-    exclude: [
-      // Exclude large dependencies that should be chunked separately
+      'tailwind-merge',
       'lucide-react'
     ],
     force: false,

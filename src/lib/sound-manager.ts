@@ -4,10 +4,9 @@ import { SENTENCE_TEMPLATES } from './constants/sentence-templates'
 import { eventTracker } from './event-tracker'
 
 const rawAudioFiles = import.meta.glob('../../sounds/*.{wav,mp3}', {
-    eager: true,
     import: 'default',
     query: '?url'
-}) as Record<string, string>
+}) as Record<string, () => Promise<string>>
 
 const NUMBER_WORD_TO_DIGIT: Record<string, string> = {
     one: '1',
@@ -32,51 +31,54 @@ const normalizeKey = (value: string) =>
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/^_|_$/g, '')
 
-const audioUrlIndex = new Map<string, string>()
+// Map of normalized keys to audio loader functions
+const audioLoaderIndex = new Map<string, () => Promise<string>>()
+// Cache of resolved URLs to avoid re-fetching the module
+const resolvedUrlCache = new Map<string, string>()
 
-const registerAudioAlias = (key: string, url: string) => {
+const registerAudioAlias = (key: string, loader: () => Promise<string>) => {
     if (!key) return
-    if (!audioUrlIndex.has(key)) {
-        audioUrlIndex.set(key, url)
+    if (!audioLoaderIndex.has(key)) {
+        audioLoaderIndex.set(key, loader)
     }
 }
 
-for (const [path, url] of Object.entries(rawAudioFiles)) {
+for (const [path, loader] of Object.entries(rawAudioFiles)) {
     const fileNameWithExt = path.split('/').pop() ?? ''
     const fileName = fileNameWithExt.replace(/\.(wav|mp3)$/i, '')
     const normalized = normalizeKey(fileName)
 
     // Register the exact filename (normalized)
-    registerAudioAlias(normalized, url)
+    registerAudioAlias(normalized, loader)
 
     // Handle emoji_ prefix: register both with and without prefix, plus space variant
     if (fileName.startsWith('emoji_')) {
         const withoutPrefix = fileName.slice(6) // "emoji_apple" → "apple"
-        registerAudioAlias(normalizeKey(withoutPrefix), url)
+        registerAudioAlias(normalizeKey(withoutPrefix), loader)
         // Also register space variant: "emoji_ice cream" → "ice cream"
-        registerAudioAlias(normalizeKey(withoutPrefix.replace(/_/g, ' ')), url)
+        registerAudioAlias(normalizeKey(withoutPrefix.replace(/_/g, ' ')), loader)
     }
 
     // Number word/digit conversions
     if (DIGIT_TO_WORD[fileName]) {
-        registerAudioAlias(normalizeKey(DIGIT_TO_WORD[fileName]), url)
+        registerAudioAlias(normalizeKey(DIGIT_TO_WORD[fileName]), loader)
     }
 
     if (NUMBER_WORD_TO_DIGIT[fileName]) {
-        registerAudioAlias(normalizeKey(NUMBER_WORD_TO_DIGIT[fileName]), url)
+        registerAudioAlias(normalizeKey(NUMBER_WORD_TO_DIGIT[fileName]), loader)
     }
 
     // Register underscore-to-space variant for multi-word files
     // "fire_truck" → "fire truck", but DON'T split into individual words
     if (fileName.includes('_') && !fileName.startsWith('emoji_')) {
-        registerAudioAlias(normalizeKey(fileName.replace(/_/g, ' ')), url)
+        registerAudioAlias(normalizeKey(fileName.replace(/_/g, ' ')), loader)
     }
 }
 
 // Debug: Log registered audio files (helpful for Vercel debugging)
 if (import.meta.env.DEV) {
-    console.log(`[SoundManager] Registered ${audioUrlIndex.size} audio aliases from ${Object.keys(rawAudioFiles).length} files`)
-    console.log('[SoundManager] Sample URLs:', Array.from(audioUrlIndex.entries()).slice(0, 5))
+    console.log(`[SoundManager] Registered ${audioLoaderIndex.size} audio aliases from ${Object.keys(rawAudioFiles).length} files`)
+    console.log('[SoundManager] Sample Keys:', Array.from(audioLoaderIndex.keys()).slice(0, 5))
 }
 
 class SoundManager {
@@ -264,6 +266,27 @@ class SoundManager {
         return Array.from(candidates)
     }
 
+    private async getUrl(key: string): Promise<string | null> {
+        // Check cache first
+        if (resolvedUrlCache.has(key)) {
+            return resolvedUrlCache.get(key)!
+        }
+
+        // Get loader
+        const loader = audioLoaderIndex.get(key)
+        if (!loader) return null
+
+        try {
+            // Load module and get default export (URL)
+            const url = await loader()
+            resolvedUrlCache.set(key, url)
+            return url
+        } catch (error) {
+            console.error(`[SoundManager] Failed to resolve URL for "${key}":`, error)
+            return null
+        }
+    }
+
     private async loadFromIndex(key: string): Promise<AudioBuffer | null> {
         if (!this.audioContext || !key) return null
 
@@ -273,7 +296,7 @@ class SoundManager {
         const pending = this.loadingCache.get(key)
         if (pending) return pending
 
-        const url = audioUrlIndex.get(key)
+        const url = await this.getUrl(key)
         if (!url) {
             console.warn(`[SoundManager] No URL found for key: "${key}"`)
             return null
@@ -326,7 +349,7 @@ class SoundManager {
     }
 
     private async playWithHtmlAudio(key: string, playbackRate = 0.8, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
-        const url = audioUrlIndex.get(key)
+        const url = await this.getUrl(key)
         if (!url) return false
 
         // Stop any previous instance of this sound
@@ -663,9 +686,9 @@ class SoundManager {
             isEnabled: this.isEnabled,
             hasContext: !!this.audioContext,
             contextState: this.audioContext?.state,
-            registeredAliases: audioUrlIndex.size,
+            registeredAliases: audioLoaderIndex.size,
             cachedBuffers: this.bufferCache.size,
-            sampleAliases: Array.from(audioUrlIndex.entries()).slice(0, 5)
+            sampleAliases: Array.from(audioLoaderIndex.keys()).slice(0, 5)
         }
     }
 
@@ -716,7 +739,7 @@ class SoundManager {
             if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
-                const successfulKey = candidates.find(c => audioUrlIndex.has(c)) || trimmed
+                const successfulKey = candidates.find(c => audioLoaderIndex.has(c)) || trimmed
                 eventTracker.trackAudioPlayback({
                     audioKey: successfulKey,
                     targetName: trimmed,
