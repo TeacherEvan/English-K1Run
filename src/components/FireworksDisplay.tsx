@@ -77,7 +77,8 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
     setFireworks(prev => {
       if (prev.length === 0) return prev
       
-      const updated = prev.map(firework => {
+      const updated: Firework[] = []
+      for (const firework of prev) {
         const particles = firework.particles
           .map(particle => ({
             ...particle,
@@ -88,8 +89,10 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
           }))
           .filter(particle => particle.life > 0)
         
-        return particles.length > 0 ? { ...firework, particles } : null
-      }).filter((fw): fw is Firework => fw !== null)
+        if (particles.length > 0) {
+          updated.push({ ...firework, particles })
+        }
+      }
       
       return updated
     })

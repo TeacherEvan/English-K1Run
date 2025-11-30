@@ -1,0 +1,72 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]: 🐢🏁
+      - heading "Kindergarten Race" [level=1] [ref=e11]
+      - paragraph [ref=e12]: Pick a level and get ready to tap the correct objects to advance!
+    - generic [ref=e14]:
+      - button "Level 1 Fruits & Vegetables" [ref=e15]:
+        - generic [ref=e16]: Level 1
+        - generic [ref=e17]: Fruits & Vegetables
+      - button "Level 2 Counting Fun" [ref=e18]:
+        - generic [ref=e19]: Level 2
+        - generic [ref=e20]: Counting Fun
+      - button "Level 3 Shapes & Colors" [ref=e21]:
+        - generic [ref=e22]: Level 3
+        - generic [ref=e23]: Shapes & Colors
+      - button "Level 4 Animals & Nature" [ref=e24]:
+        - generic [ref=e25]: Level 4
+        - generic [ref=e26]: Animals & Nature
+      - button "Level 5 Things That Go" [ref=e27]:
+        - generic [ref=e28]: Level 5
+        - generic [ref=e29]: Things That Go
+      - button "Level 6 Weather Wonders" [ref=e30]:
+        - generic [ref=e31]: Level 6
+        - generic [ref=e32]: Weather Wonders
+      - button "Level 7 Feelings & Actions" [ref=e33]:
+        - generic [ref=e34]: Level 7
+        - generic [ref=e35]: Feelings & Actions
+      - button "Level 8 Body Parts" [ref=e36]:
+        - generic [ref=e37]: Level 8
+        - generic [ref=e38]: Body Parts
+      - button "Level 9 Alphabet Challenge" [ref=e39]:
+        - generic [ref=e40]: Level 9
+        - generic [ref=e41]: Alphabet Challenge
+    - button "🚀 Start Race" [ref=e43]
+    - button "Reset to Level 1 & pause game" [ref=e44]
+  - generic [ref=e45]:
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - text: 📊 Emoji Rotation & Audio Tracker
+        - generic [ref=e49]: ✅ Healthy
+      - button "➖" [ref=e50]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - heading "🔊 Audio Playback" [level=3] [ref=e53]
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]: Total
+            - generic [ref=e57]: "0"
+          - generic [ref=e58]:
+            - generic [ref=e59]: Success
+            - generic [ref=e60]: "0"
+          - generic [ref=e61]:
+            - generic [ref=e62]: Failed
+            - generic [ref=e63]: "0"
+      - generic [ref=e64]:
+        - heading "🔄 Rotation Health" [level=3] [ref=e65]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]: Max Wait Time
+            - generic [ref=e69]: 0.0s
+          - generic [ref=e70]:
+            - generic [ref=e71]: Threshold
+            - generic [ref=e72]: 10.0s
+      - generic [ref=e73]:
+        - paragraph [ref=e74]: 🎮
+        - paragraph [ref=e75]: Start a game to begin tracking
+      - button "🔄 Refresh" [ref=e77]
+```
