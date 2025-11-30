@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
 // Core game components (critical path)
 import { AchievementDisplay } from './components/AchievementDisplay'
@@ -97,16 +97,25 @@ function App() {
   const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
 
   // Called when user clicks "Start Game" - show loading screen first
-  const handleStartGame = () => {
+  const handleStartGame = useCallback(() => {
     requestFullscreen()
     setIsLoading(true)
-  }
+  }, [])
 
   // Called when loading screen completes - actually start the game
-  const handleLoadingComplete = () => {
+  const handleLoadingComplete = useCallback(() => {
     setIsLoading(false)
     startGame(selectedLevel)
-  }
+  }, [selectedLevel, startGame])
+
+  // Memoized reset handler to avoid creating new function on every render
+  const handleResetGame = useCallback(() => {
+    resetGame()
+    setBackgroundClass(prev => pickRandomBackground(prev))
+  }, [resetGame])
+
+  // Memoized level names to avoid creating new array on every render
+  const levelNames = useMemo(() => GAME_CATEGORIES.map(cat => cat.name), [])
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
@@ -291,13 +300,10 @@ function App() {
         {/* Game Menu Overlay */}
         <GameMenu
           onStartGame={handleStartGame}
-          onResetGame={() => {
-            resetGame()
-            setBackgroundClass(prev => pickRandomBackground(prev))
-          }}
+          onResetGame={handleResetGame}
           onSelectLevel={setSelectedLevel}
           selectedLevel={selectedLevel}
-          levels={GAME_CATEGORIES.map(cat => cat.name)}
+          levels={levelNames}
           gameStarted={gameState.gameStarted}
           winner={gameState.winner}
         />

@@ -645,7 +645,9 @@ class SoundManager {
         if (!this.isEnabled) return
 
         try {
-            console.log(`[SoundManager] playSound called: "${soundName}"`)
+            if (import.meta.env.DEV) {
+                console.log(`[SoundManager] playSound called: "${soundName}"`)
+            }
 
             // On Android, prefer HTMLAudio for better compatibility
             if (this.preferHTMLAudio) {

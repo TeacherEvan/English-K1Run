@@ -130,54 +130,40 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
             const currentPhase = currentAge < MORPH_DURATION ? 'morphing' :
                 currentAge < MORPH_DURATION + FLY_DURATION ? 'flying' : 'trail-fading'
 
-            if (currentPhase === 'flying') {
-                // Spawn trail sparkles less frequently (every 3rd frame, ~20fps)
-                if (frameCountRef.current % 3 === 0) {
-                    // Need to recalculate position here or use a ref to store latest position?
-                    // Since we are inside the loop, we can't access the 'fairyPos' from the render scope easily without it being a dependency.
-                    // But adding it as dependency restarts the effect.
-                    // We can recalculate it.
-
-                    const flyStartTime = fairy.createdAt + MORPH_DURATION
-                    const flyAge = currentNow - flyStartTime
-                    const progress = Math.min(1, flyAge / FLY_DURATION)
-                    const easedProgress = 1 - Math.pow(1 - progress, 3)
-                    const t = easedProgress
-
-                    const currentX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
-                    const currentY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
-
-                    const newSparkle: TrailSparkle = {
-                        id: sparkleIdRef.current++,
-                        x: currentX + (Math.random() - 0.5) * 15,
-                        y: currentY + (Math.random() - 0.5) * 30, // pixels
-                        size: 8 + Math.random() * 12,
-                        opacity: 1
-                    }
-
-                    setTrailSparkles(prev => {
-                        // Also fade existing sparkles
-                        const faded = prev
-                            .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 }))
-                            .filter(s => s.opacity > 0)
-                        return [...faded.slice(-MAX_TRAIL_SPARKLES), newSparkle]
-                    })
-                } else {
-                    // Just fade existing sparkles
-                    setTrailSparkles(prev => {
-                        if (prev.length === 0) return prev
-                        return prev
-                            .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 }))
-                            .filter(s => s.opacity > 0)
-                    })
-                }
-            } else if (currentPhase === 'trail-fading') {
-                // Just fade existing sparkles
+            // Sparkle fade logic - only update when we have sparkles
+            const shouldSpawnNew = currentPhase === 'flying' && frameCountRef.current % 3 === 0
+            
+            if (currentPhase === 'flying' || currentPhase === 'trail-fading') {
                 setTrailSparkles(prev => {
-                    if (prev.length === 0) return prev
-                    return prev
+                    if (prev.length === 0 && !shouldSpawnNew) return prev
+                    
+                    // Fade existing sparkles
+                    const faded = prev
                         .map(s => ({ ...s, opacity: s.opacity - 0.015, y: s.y + 0.5 }))
                         .filter(s => s.opacity > 0)
+                    
+                    // Add new sparkle if in flying phase and on spawn frame
+                    if (shouldSpawnNew) {
+                        const flyStartTime = fairy.createdAt + MORPH_DURATION
+                        const flyAge = currentNow - flyStartTime
+                        const progress = Math.min(1, flyAge / FLY_DURATION)
+                        const easedProgress = 1 - Math.pow(1 - progress, 3)
+                        const t = easedProgress
+
+                        const currentX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
+                        const currentY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
+
+                        const newSparkle: TrailSparkle = {
+                            id: sparkleIdRef.current++,
+                            x: currentX + (Math.random() - 0.5) * 15,
+                            y: currentY + (Math.random() - 0.5) * 30,
+                            size: 8 + Math.random() * 12,
+                            opacity: 1
+                        }
+                        return [...faded.slice(-MAX_TRAIL_SPARKLES), newSparkle]
+                    }
+                    
+                    return faded
                 })
             }
 
