@@ -110,3 +110,5 @@ storybook-static
 
 # Sentry
 .sentryclirc
+e2e/test-results
+playwright-report
