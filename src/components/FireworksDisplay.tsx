@@ -74,10 +74,12 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
   }, [])
 
   const updateFireworks = useCallback(() => {
-    setFireworks(prev =>
-      prev.map(firework => ({
-        ...firework,
-        particles: firework.particles
+    setFireworks(prev => {
+      if (prev.length === 0) return prev
+      
+      const updated: Firework[] = []
+      for (const firework of prev) {
+        const particles = firework.particles
           .map(particle => ({
             ...particle,
             x: particle.x + particle.vx,
@@ -86,9 +88,14 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
             life: particle.life - 0.02
           }))
           .filter(particle => particle.life > 0)
-      }))
-        .filter(firework => firework.particles.length > 0)
-    )
+        
+        if (particles.length > 0) {
+          updated.push({ ...firework, particles })
+        }
+      }
+      
+      return updated
+    })
   }, [])
 
   // Clean up fireworks when not visible

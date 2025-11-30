@@ -560,8 +560,8 @@ class EventTracker {
   }
 
   checkRotationHealth(): { healthy: boolean; overdueCount: number; maxWaitTime: number } {
-    const overdue = this.getOverdueEmojis()
     const allStats = this.getEmojiRotationStats()
+    const overdue = allStats.filter(stat => stat.timeSinceLastAppearance > this.rotationThreshold)
     const maxWaitTime = allStats.length > 0 ? allStats[0].timeSinceLastAppearance : 0
 
     const healthy = overdue.length === 0

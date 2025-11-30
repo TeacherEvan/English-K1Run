@@ -471,10 +471,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           spawnedInBatch.add(item.emoji)
           lastEmojiAppearance.current.set(item.emoji, now)
 
-          // Mark this emoji as spawned in current batch and update last appearance time
-          spawnedInBatch.add(item.emoji)
-          lastEmojiAppearance.current.set(item.emoji, now)
-
           // Track emoji appearance in event tracker
           eventTracker.trackEmojiAppearance(item.emoji, item.name)
           let spawnX = Math.random() * (maxX - minX) + minX
