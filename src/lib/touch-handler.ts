@@ -52,6 +52,7 @@ class MultiTouchHandler {
     private recentTaps = new Map<string, number>() // targetId -> timestamp
     private options: Required<TouchHandlerOptions>
     private enabled = false
+    private cleanupIntervalId: number | null = null
 
     constructor(options: TouchHandlerOptions = {}) {
         this.options = {
@@ -324,21 +325,23 @@ class MultiTouchHandler {
     }
 
     /**
-     * Start the cleanup interval
+     * Start the cleanup interval for memory management
+     * Called when handler is enabled
      */
     private startCleanupInterval() {
         if (this.cleanupIntervalId !== null) return
-        this.cleanupIntervalId = setInterval(() => {
+        this.cleanupIntervalId = window.setInterval(() => {
             this.cleanupOldTaps()
         }, 5000)
     }
 
     /**
-     * Stop the cleanup interval
+     * Stop the cleanup interval to save resources
+     * Called when handler is disabled
      */
     private stopCleanupInterval() {
         if (this.cleanupIntervalId !== null) {
-            clearInterval(this.cleanupIntervalId)
+            window.clearInterval(this.cleanupIntervalId)
             this.cleanupIntervalId = null
         }
     }
@@ -351,3 +354,6 @@ export const multiTouchHandler = new MultiTouchHandler({
     movementThresholdPx: 10, // 10px max movement for tap
     debug: import.meta.env.DEV // Enable debug logging in development
 })
+
+// Note: Cleanup interval is now managed inside enable()/disable() methods
+// to avoid unnecessary background processing when touch handler is not in use

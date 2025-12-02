@@ -131,27 +131,38 @@ export function FireworksDisplay({ isVisible, winner }: FireworksDisplayProps) {
       }, i * 300)
     }
 
-    let lastSpawnTime = Date.now()
+    let lastUpdateTime = 0
+    let lastSpawnTimeRaf = 0 // Use RAF-based timestamp for consistency
     let animationFrameId: number
+    const UPDATE_INTERVAL = 33 // ~30fps for fireworks is sufficient
+    const SPAWN_INTERVAL = 1500 // 1.5s between new fireworks
 
-    // Use requestAnimationFrame for smooth 60fps animations
-    const animate = () => {
-      const currentTime = Date.now()
+    // Use requestAnimationFrame with throttling for smooth but efficient animations
+    const animate = (currentTime: number) => {
+      // Throttle updates to ~30fps
+      if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
+        lastUpdateTime = currentTime
 
-      // Spawn new firework every 1.5s
-      if (currentTime - lastSpawnTime > 1500) {
-        const x = Math.random() * window.innerWidth
-        const y = Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.1
-        setFireworks(prev => {
-          // Limit max fireworks to prevent memory issues
-          if (prev.length > 3) return prev
-          return [...prev, createFirework(x, y)]
-        })
-        lastSpawnTime = currentTime
+        // Initialize spawn timer on first frame
+        if (lastSpawnTimeRaf === 0) {
+          lastSpawnTimeRaf = currentTime
+        }
+
+        // Spawn new firework every 1.5s using RAF timestamp
+        if (currentTime - lastSpawnTimeRaf > SPAWN_INTERVAL) {
+          const x = Math.random() * window.innerWidth
+          const y = Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.1
+          setFireworks(prev => {
+            // Limit max fireworks to prevent memory issues
+            if (prev.length > 3) return prev
+            return [...prev, createFirework(x, y)]
+          })
+          lastSpawnTimeRaf = currentTime
+        }
+
+        // Update fireworks positions
+        updateFireworks()
       }
-
-      // Update fireworks positions
-      updateFireworks()
 
       animationFrameId = requestAnimationFrame(animate)
     }

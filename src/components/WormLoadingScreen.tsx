@@ -48,9 +48,19 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
   const animationFrameRef = useRef<number | undefined>(undefined)
   const splatIdCounter = useRef(0)
 
-  // Animation loop for worm movement
+  // Animation loop for worm movement - throttled to ~30fps for performance
   useEffect(() => {
-    const animate = () => {
+    let lastUpdateTime = 0
+    const UPDATE_INTERVAL = 33 // ~30fps
+
+    const animate = (currentNow: number) => {
+      // Throttle updates for better performance
+      if (currentNow - lastUpdateTime < UPDATE_INTERVAL) {
+        animationFrameRef.current = requestAnimationFrame(animate)
+        return
+      }
+      lastUpdateTime = currentNow
+
       setWorms(prev => prev.map(worm => {
         if (!worm.alive) return worm
 

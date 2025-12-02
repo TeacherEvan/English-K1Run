@@ -79,10 +79,15 @@ class EventTracker {
   private emojiAppearances: Map<string, EmojiAppearanceStats> = new Map()
   private rotationThreshold = 10000 // 10 seconds as requested
 
+  // Performance monitoring state
+  private isPerformanceMonitoringActive = false
+  private performanceAnimationFrameId: number | null = null
+
   constructor() {
     // Set up global error handlers
     this.setupErrorHandlers()
-    this.startPerformanceMonitoring()
+    // Note: Performance monitoring is now started/stopped with startPerformanceMonitoring/stopPerformanceMonitoring
+    // to avoid unnecessary background processing when not in gameplay
   }
 
   private setupErrorHandlers() {
@@ -115,11 +120,20 @@ class EventTracker {
     })
   }
 
-  private startPerformanceMonitoring() {
+  /**
+   * Start performance monitoring - call when gameplay starts
+   * Uses requestAnimationFrame to measure frame rate
+   */
+  startPerformanceMonitoring() {
+    if (this.isPerformanceMonitoringActive) return
+    this.isPerformanceMonitoringActive = true
+
     let frameCount = 0
     let lastTime = performance.now()
 
     const measureFrameRate = () => {
+      if (!this.isPerformanceMonitoringActive) return // Stop if disabled
+      
       frameCount++
       const currentTime = performance.now()
 
@@ -128,8 +142,8 @@ class EventTracker {
         frameCount = 0
         lastTime = currentTime
 
-        // Track low frame rate as warning
-        if (this.performanceMetrics.frameRate < 30) {
+        // Track low frame rate as warning (only in dev to reduce overhead)
+        if (import.meta.env.DEV && this.performanceMetrics.frameRate < 30) {
           this.trackEvent({
             type: 'warning',
             category: 'performance',
@@ -139,10 +153,23 @@ class EventTracker {
         }
       }
 
-      requestAnimationFrame(measureFrameRate)
+      this.performanceAnimationFrameId = requestAnimationFrame(measureFrameRate)
     }
 
-    requestAnimationFrame(measureFrameRate)
+    this.performanceAnimationFrameId = requestAnimationFrame(measureFrameRate)
+  }
+
+  /**
+   * Stop performance monitoring - call when gameplay ends
+   * Saves CPU cycles when not actively tracking
+   */
+  stopPerformanceMonitoring() {
+    this.isPerformanceMonitoringActive = false
+    if (this.performanceAnimationFrameId !== null) {
+      cancelAnimationFrame(this.performanceAnimationFrameId)
+      this.performanceAnimationFrameId = null
+    }
+    this.performanceMetrics.frameRate = 0
   }
 
   trackEvent(eventData: Partial<GameEvent>) {
