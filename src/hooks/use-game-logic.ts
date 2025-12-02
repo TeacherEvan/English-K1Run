@@ -835,6 +835,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       // Enable multi-touch handler for advanced touch support
       multiTouchHandler.enable()
 
+      // Start performance monitoring for gameplay
+      eventTracker.startPerformanceMonitoring()
+
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0
       }
@@ -927,6 +930,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
     // Disable multi-touch handler when game ends
     multiTouchHandler.disable()
+
+    // Stop performance monitoring to save CPU cycles
+    eventTracker.stopPerformanceMonitoring()
 
     // Reset emoji appearance tracking
     lastEmojiAppearance.current.clear()

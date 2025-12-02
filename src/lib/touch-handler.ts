@@ -52,6 +52,7 @@ class MultiTouchHandler {
     private recentTaps = new Map<string, number>() // targetId -> timestamp
     private options: Required<TouchHandlerOptions>
     private enabled = false
+    private cleanupIntervalId: number | null = null
 
     constructor(options: TouchHandlerOptions = {}) {
         this.options = {
@@ -70,6 +71,7 @@ class MultiTouchHandler {
         this.enabled = true
         this.activeTouches.clear()
         this.recentTaps.clear()
+        this.startCleanupInterval()
 
         if (this.options.debug) {
             console.log('[MultiTouchHandler] Enabled with options:', this.options)
@@ -94,6 +96,7 @@ class MultiTouchHandler {
         this.enabled = false
         this.activeTouches.clear()
         this.recentTaps.clear()
+        this.stopCleanupInterval()
 
         if (this.options.debug) {
             console.log('[MultiTouchHandler] Disabled')
@@ -318,6 +321,28 @@ class MultiTouchHandler {
             console.log(`[MultiTouchHandler] Cleanup: ${this.recentTaps.size} recent taps remaining`)
         }
     }
+
+    /**
+     * Start the cleanup interval for memory management
+     * Called when handler is enabled
+     */
+    private startCleanupInterval() {
+        if (this.cleanupIntervalId !== null) return
+        this.cleanupIntervalId = window.setInterval(() => {
+            this.cleanupOldTaps()
+        }, 5000)
+    }
+
+    /**
+     * Stop the cleanup interval to save resources
+     * Called when handler is disabled
+     */
+    private stopCleanupInterval() {
+        if (this.cleanupIntervalId !== null) {
+            window.clearInterval(this.cleanupIntervalId)
+            this.cleanupIntervalId = null
+        }
+    }
 }
 
 // Global singleton instance
@@ -328,9 +353,5 @@ export const multiTouchHandler = new MultiTouchHandler({
     debug: import.meta.env.DEV // Enable debug logging in development
 })
 
-// Cleanup old taps every 5 seconds to prevent memory bloat
-if (typeof window !== 'undefined') {
-    setInterval(() => {
-        multiTouchHandler.cleanupOldTaps()
-    }, 5000)
-}
+// Note: Cleanup interval is now managed inside enable()/disable() methods
+// to avoid unnecessary background processing when touch handler is not in use
