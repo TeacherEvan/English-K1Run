@@ -33,7 +33,7 @@ global.AudioContext = class MockAudioContext {
   get destination() {
     return {}
   }
-} as any
+} as unknown as typeof AudioContext
 
 // Mock HTMLAudioElement
 HTMLAudioElement.prototype.play = () => Promise.resolve()
@@ -53,4 +53,4 @@ global.speechSynthesis = {
   addEventListener: () => {},
   removeEventListener: () => {},
   dispatchEvent: () => true
-} as any
+} as unknown as SpeechSynthesis
