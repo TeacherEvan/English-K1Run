@@ -14,7 +14,10 @@
         "preview": "vite preview",
         "install:android": "npm install --legacy-peer-deps",
         "install:safe": "npm install --no-optional --legacy-peer-deps",
-        "test": "npm run test:e2e",
+        "test": "vitest",
+        "test:run": "vitest run",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest run --coverage",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:headed": "playwright test --headed",
@@ -51,6 +54,7 @@
         "@types/react-dom": "^19.2.2",
         "@vitejs/plugin-react": "^5.0.3",
         "@vitejs/plugin-react-swc": "^4.2.0",
+        "@vitest/ui": "^3.0.0",
         "eslint": "^9.39.1",
         "eslint-plugin-react-hooks": "^7.0.1",
         "eslint-plugin-react-refresh": "^0.4.24",
@@ -58,7 +62,8 @@
         "tailwindcss": "^4.1.16",
         "typescript": "~5.9.2",
         "typescript-eslint": "^8.46.3",
-        "vite": "^7.1.12"
+        "vite": "^7.1.12",
+        "vitest": "^3.0.0"
     },
     "workspaces": {
         "packages": [

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
+import { calculateSafeSpawnPosition } from '../lib/utils/spawn-position'
 // Types
 import type {
   Achievement,
@@ -20,7 +21,6 @@ import {
   COLLISION_MIN_SEPARATION,
   EMOJI_SIZE,
   FAIRY_TRANSFORM_DURATION,
-  HORIZONTAL_SEPARATION,
   LANE_BOUNDS,
   MAX_ACTIVE_OBJECTS,
   MIN_DECOY_SLOTS,
@@ -224,26 +224,18 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Track emoji appearance in event tracker
           eventTracker.trackEmojiAppearance(targetItem.emoji, targetItem.name)
 
-          let spawnX = Math.random() * (maxX - minX) + minX
-          let spawnY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP  // Use smaller gap for faster appearance
+          const initialX = Math.random() * (maxX - minX) + minX
+          const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
           const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
-          for (const existing of laneObjects) {
-            const verticalGap = Math.abs(existing.y - spawnY)
-            const horizontalGap = Math.abs(existing.x - spawnX)
-
-            if (verticalGap < MIN_VERTICAL_GAP) {
-              spawnY = Math.min(spawnY, existing.y - MIN_VERTICAL_GAP)
-            }
-
-            if (horizontalGap < HORIZONTAL_SEPARATION && verticalGap < MIN_VERTICAL_GAP * 1.2) {
-              spawnX = clamp(
-                spawnX < existing.x ? existing.x - HORIZONTAL_SEPARATION : existing.x + HORIZONTAL_SEPARATION,
-                minX,
-                maxX
-              )
-            }
-          }
+          
+          // Use utility function for safe spawn position
+          const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
+            initialX,
+            initialY,
+            existingObjects: laneObjects,
+            laneConstraints: { minX, maxX }
+          })
 
           const newObject: GameObject = {
             id: `immediate-target-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
@@ -403,26 +395,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
             // Track emoji appearance in event tracker
             eventTracker.trackEmojiAppearance(item.emoji, item.name)
-            let spawnX = Math.random() * (maxX - minX) + minX
-            let spawnY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP  // Use smaller gap for faster appearance
+            
+            const initialX = Math.random() * (maxX - minX) + minX
+            const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
             const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
-            for (const existing of laneObjects) {
-              const verticalGap = Math.abs(existing.y - spawnY)
-              const horizontalGap = Math.abs(existing.x - spawnX)
-
-              if (verticalGap < MIN_VERTICAL_GAP) {
-                spawnY = Math.min(spawnY, existing.y - MIN_VERTICAL_GAP)
-              }
-
-              if (horizontalGap < HORIZONTAL_SEPARATION && verticalGap < MIN_VERTICAL_GAP * 1.2) {
-                spawnX = clamp(
-                  spawnX < existing.x ? existing.x - HORIZONTAL_SEPARATION : existing.x + HORIZONTAL_SEPARATION,
-                  minX,
-                  maxX
-                )
-              }
-            }
+            
+            // Use utility function for safe spawn position
+            const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
+              initialX,
+              initialY,
+              existingObjects: laneObjects,
+              laneConstraints: { minX, maxX }
+            })
 
             const newObject: GameObject = {
               id: `target-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
@@ -474,26 +459,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
           // Track emoji appearance in event tracker
           eventTracker.trackEmojiAppearance(item.emoji, item.name)
-          let spawnX = Math.random() * (maxX - minX) + minX
-          let spawnY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP  // Use smaller gap for faster appearance
+          
+          const initialX = Math.random() * (maxX - minX) + minX
+          const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
           const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
-          for (const existing of laneObjects) {
-            const verticalGap = Math.abs(existing.y - spawnY)
-            const horizontalGap = Math.abs(existing.x - spawnX)
-
-            if (verticalGap < MIN_VERTICAL_GAP) {
-              spawnY = Math.min(spawnY, existing.y - MIN_VERTICAL_GAP)
-            }
-
-            if (horizontalGap < HORIZONTAL_SEPARATION && verticalGap < MIN_VERTICAL_GAP * 1.2) {
-              spawnX = clamp(
-                spawnX < existing.x ? existing.x - HORIZONTAL_SEPARATION : existing.x + HORIZONTAL_SEPARATION,
-                minX,
-                maxX
-              )
-            }
-          }
+          
+          // Use utility function for safe spawn position
+          const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
+            initialX,
+            initialY,
+            existingObjects: laneObjects,
+            laneConstraints: { minX, maxX }
+          })
 
           const newObject: GameObject = {
             id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,

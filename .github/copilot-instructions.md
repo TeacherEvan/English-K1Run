@@ -36,7 +36,7 @@ Single-player educational game where a student taps falling objects (emojis) to 
 - Double-digit numbers (11-15) render as plain text with blue background in `FallingObject.tsx`, not emoji
 - Worm distractors spawn progressively: 5 initial worms (3s intervals) + 3 worms every 30s during gameplay
 - Sentence templates in `src/lib/constants/sentence-templates.ts` provide contextual learning phrases for each item
-- **Phonics Pronunciation**: When students tap correct objects, they hear phonetic breakdown before the full word (e.g., "Aah! Aah! - Apple!"). This reinforces letter sounds and word formation. See `PHONICS_MAP` in `src/lib/constants/phonics-map.ts` for all mappings.
+- **Audio Pronunciation**: When students tap correct objects, they hear simple word pronunciation (e.g., "Apple"). The phonics system was removed in November 2025 to prevent audio clashing during gameplay. See `DOCS/PHONICS_REMOVAL_NOV2025.md` for rationale.
 
 ## Critical Architectural Rules
 
