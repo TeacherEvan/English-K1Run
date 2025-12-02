@@ -117,12 +117,19 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
     }, [phase, now, fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
 
     // Animation loop - optimized to reduce state updates
+    // Uses RAF timestamp for consistent timing
     useEffect(() => {
         let animationFrameId: number
         let lastUpdateTime = 0
+        let startTime = 0 // RAF start time to compute age consistently
         const UPDATE_INTERVAL = 33 // ~30fps for trail sparkles (enough for smooth animation)
 
         const animate = (currentNow: number) => {
+            // Initialize start time on first frame
+            if (startTime === 0) {
+                startTime = currentNow - (Date.now() - fairy.createdAt)
+            }
+
             frameCountRef.current++
 
             // Throttle state updates to reduce re-renders
@@ -132,8 +139,8 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                 setNow(Date.now())
             }
 
-            // Handle trail sparkles
-            const currentAge = Date.now() - fairy.createdAt
+            // Handle trail sparkles - use RAF-based age calculation
+            const currentAge = currentNow - startTime
             const currentPhase = currentAge < MORPH_DURATION ? 'morphing' :
                 currentAge < MORPH_DURATION + FLY_DURATION ? 'flying' : 'trail-fading'
 
@@ -152,8 +159,8 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                     
                     // Add new sparkle if in flying phase and on spawn frame
                     if (shouldSpawnNew) {
-                        const flyStartTime = fairy.createdAt + MORPH_DURATION
-                        const flyAge = Date.now() - flyStartTime
+                        const flyStartTime = MORPH_DURATION
+                        const flyAge = currentAge - flyStartTime
                         const progress = Math.min(1, flyAge / FLY_DURATION)
                         const easedProgress = 1 - Math.pow(1 - progress, 3)
                         const t = easedProgress
