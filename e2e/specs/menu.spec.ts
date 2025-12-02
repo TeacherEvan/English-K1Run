@@ -15,9 +15,9 @@ test.describe('Game Menu', () => {
         await expect(gamePage.menu.title).toContainText('Kindergarten Race')
     })
 
-    test('should display all 7 game categories as levels', async ({ gamePage }) => {
+    test('should display all 9 game categories as levels', async ({ gamePage }) => {
         const count = await gamePage.menu.getLevelCount()
-        expect(count).toBe(7)
+        expect(count).toBe(9)
     })
 
     test('should have Level 1 (Fruits & Veggies) selected by default', async ({ gamePage }) => {
