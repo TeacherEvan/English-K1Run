@@ -116,22 +116,30 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
         return { x: newX, y: newY }
     }, [phase, now, fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
 
-    // Animation loop
+    // Animation loop - optimized to reduce state updates
     useEffect(() => {
         let animationFrameId: number
+        let lastUpdateTime = 0
+        const UPDATE_INTERVAL = 33 // ~30fps for trail sparkles (enough for smooth animation)
 
-        const animate = () => {
-            const currentNow = Date.now()
-            setNow(currentNow)
+        const animate = (currentNow: number) => {
             frameCountRef.current++
 
+            // Throttle state updates to reduce re-renders
+            const timeSinceLastUpdate = currentNow - lastUpdateTime
+            if (timeSinceLastUpdate >= UPDATE_INTERVAL) {
+                lastUpdateTime = currentNow
+                setNow(Date.now())
+            }
+
             // Handle trail sparkles
-            const currentAge = currentNow - fairy.createdAt
+            const currentAge = Date.now() - fairy.createdAt
             const currentPhase = currentAge < MORPH_DURATION ? 'morphing' :
                 currentAge < MORPH_DURATION + FLY_DURATION ? 'flying' : 'trail-fading'
 
-            // Sparkle fade logic - only update when we have sparkles
-            const shouldSpawnNew = currentPhase === 'flying' && frameCountRef.current % 3 === 0
+            // Sparkle fade logic - only update when we have sparkles or spawning new ones
+            // Only spawn new sparkles every 6 frames (~10fps) to reduce overhead
+            const shouldSpawnNew = currentPhase === 'flying' && frameCountRef.current % 6 === 0
             
             if (currentPhase === 'flying' || currentPhase === 'trail-fading') {
                 setTrailSparkles(prev => {
@@ -145,7 +153,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                     // Add new sparkle if in flying phase and on spawn frame
                     if (shouldSpawnNew) {
                         const flyStartTime = fairy.createdAt + MORPH_DURATION
-                        const flyAge = currentNow - flyStartTime
+                        const flyAge = Date.now() - flyStartTime
                         const progress = Math.min(1, flyAge / FLY_DURATION)
                         const easedProgress = 1 - Math.pow(1 - progress, 3)
                         const t = easedProgress

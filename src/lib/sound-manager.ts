@@ -89,6 +89,7 @@ class SoundManager {
     private htmlAudioCache: Map<string, string> = new Map()
     private activeSources: Map<string, AudioBufferSourceNode> = new Map() // Track active audio sources
     private activeHtmlAudio: Map<string, HTMLAudioElement> = new Map() // Track active HTML audio elements
+    private candidatesCache: Map<string, string[]> = new Map() // Cache for resolveCandidates results
     private isEnabled = true
     private volume = 0.6
     private speechAvailable: boolean | null = null
@@ -240,6 +241,10 @@ class SoundManager {
     }
 
     private resolveCandidates(name: string): string[] {
+        // Check cache first for performance
+        const cached = this.candidatesCache.get(name)
+        if (cached) return cached
+
         const normalized = normalizeKey(name)
         const candidates = new Set<string>()
 
@@ -263,7 +268,9 @@ class SoundManager {
             candidates.add(normalized)
         }
 
-        return Array.from(candidates)
+        const result = Array.from(candidates)
+        this.candidatesCache.set(name, result)
+        return result
     }
 
     private async getUrl(key: string): Promise<string | null> {
