@@ -227,9 +227,8 @@ export class AudioMock {
     async setup() {
         // Mock Web Audio API
         await this.page.addInitScript(() => {
-            // Mock AudioContext - store original for potential restoration
-            const _originalAudioContext = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-            void _originalAudioContext // Mark as intentionally unused
+            // Mock AudioContext - preserve original if needed for restoration
+            void (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)
 
             class MockAudioContext {
                 state = 'running'
@@ -295,9 +294,8 @@ export class AudioMock {
             (window as unknown as { AudioContext: typeof MockAudioContext }).AudioContext = MockAudioContext
                 ; (window as unknown as { webkitAudioContext: typeof MockAudioContext }).webkitAudioContext = MockAudioContext
 
-            // Mock HTMLAudioElement play - store original for potential restoration
-            const _originalPlay = HTMLAudioElement.prototype.play
-            void _originalPlay // Mark as intentionally unused
+            // Mock HTMLAudioElement play - preserve original if needed for restoration
+            void (HTMLAudioElement.prototype.play)
             HTMLAudioElement.prototype.play = function () {
                 return Promise.resolve()
             }
