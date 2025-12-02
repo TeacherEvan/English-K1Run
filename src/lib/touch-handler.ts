@@ -70,6 +70,7 @@ class MultiTouchHandler {
         this.enabled = true
         this.activeTouches.clear()
         this.recentTaps.clear()
+        this.startCleanupInterval()
 
         if (this.options.debug) {
             console.log('[MultiTouchHandler] Enabled with options:', this.options)
@@ -94,6 +95,7 @@ class MultiTouchHandler {
         this.enabled = false
         this.activeTouches.clear()
         this.recentTaps.clear()
+        this.stopCleanupInterval()
 
         if (this.options.debug) {
             console.log('[MultiTouchHandler] Disabled')
@@ -300,6 +302,8 @@ class MultiTouchHandler {
         }
     }
 
+    private cleanupIntervalId: ReturnType<typeof setInterval> | null = null
+
     /**
      * Clean up old recent taps to prevent memory bloat
      * Call periodically or on game reset
@@ -318,6 +322,26 @@ class MultiTouchHandler {
             console.log(`[MultiTouchHandler] Cleanup: ${this.recentTaps.size} recent taps remaining`)
         }
     }
+
+    /**
+     * Start the cleanup interval
+     */
+    private startCleanupInterval() {
+        if (this.cleanupIntervalId !== null) return
+        this.cleanupIntervalId = setInterval(() => {
+            this.cleanupOldTaps()
+        }, 5000)
+    }
+
+    /**
+     * Stop the cleanup interval
+     */
+    private stopCleanupInterval() {
+        if (this.cleanupIntervalId !== null) {
+            clearInterval(this.cleanupIntervalId)
+            this.cleanupIntervalId = null
+        }
+    }
 }
 
 // Global singleton instance
@@ -327,10 +351,3 @@ export const multiTouchHandler = new MultiTouchHandler({
     movementThresholdPx: 10, // 10px max movement for tap
     debug: import.meta.env.DEV // Enable debug logging in development
 })
-
-// Cleanup old taps every 5 seconds to prevent memory bloat
-if (typeof window !== 'undefined') {
-    setInterval(() => {
-        multiTouchHandler.cleanupOldTaps()
-    }, 5000)
-}

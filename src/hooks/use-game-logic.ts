@@ -27,6 +27,7 @@ import {
   MIN_VERTICAL_GAP,
   ROTATION_THRESHOLD,
   SPAWN_COUNT,
+  SPAWN_VERTICAL_GAP,
   TARGET_GUARANTEE_COUNT,
   WORM_BASE_SPEED,
   WORM_INITIAL_COUNT,
@@ -224,7 +225,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           eventTracker.trackEmojiAppearance(targetItem.emoji, targetItem.name)
 
           let spawnX = Math.random() * (maxX - minX) + minX
-          let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
+          let spawnY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP  // Use smaller gap for faster appearance
 
           const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
           for (const existing of laneObjects) {
@@ -403,7 +404,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             // Track emoji appearance in event tracker
             eventTracker.trackEmojiAppearance(item.emoji, item.name)
             let spawnX = Math.random() * (maxX - minX) + minX
-            let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
+            let spawnY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP  // Use smaller gap for faster appearance
 
             const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
             for (const existing of laneObjects) {
@@ -474,7 +475,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Track emoji appearance in event tracker
           eventTracker.trackEmojiAppearance(item.emoji, item.name)
           let spawnX = Math.random() * (maxX - minX) + minX
-          let spawnY = -EMOJI_SIZE - i * MIN_VERTICAL_GAP
+          let spawnY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP  // Use smaller gap for faster appearance
 
           const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
           for (const existing of laneObjects) {

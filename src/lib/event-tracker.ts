@@ -147,7 +147,7 @@ class EventTracker {
 
   trackEvent(eventData: Partial<GameEvent>) {
     const event: GameEvent = {
-      id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `event-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       timestamp: Date.now(),
       type: eventData.type || 'info',
       category: eventData.category || 'general',
@@ -432,7 +432,7 @@ class EventTracker {
   // Audio playback tracking methods
   trackAudioPlayback(event: Omit<AudioPlaybackEvent, 'id' | 'timestamp'>) {
     const audioEvent: AudioPlaybackEvent = {
-      id: `audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `audio-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       timestamp: Date.now(),
       ...event
     }

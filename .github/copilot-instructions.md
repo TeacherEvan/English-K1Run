@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Split-screen educational racing game where two players compete by tapping falling objects (emojis) to advance their turtle characters. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
+Single-player educational game where a student taps falling objects (emojis) to advance their turtle character. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
 
 **Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
 **Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)  
@@ -10,7 +10,7 @@ Split-screen educational racing game where two players compete by tapping fallin
 **Target Devices**: QBoard interactive displays, tablets, mobile browsers  
 **Repository**: github.com/TeacherEvan/English-K1Run
 
-**Core Gameplay Loop**: Objects fall from top → players tap matching targets → turtle progress bars advance → first to top wins. Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
+**Core Gameplay Loop**: Objects fall from top → student taps matching target → progress bar advances → reach 100% to win. Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
 
 ## Educational Context & Performance Goals
 
@@ -42,7 +42,7 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 **⚠️ State Management**: `src/hooks/use-game-logic.ts` is the **single source of truth**. Never create parallel game state in components. All game mutations flow through this hook's methods.
 
-**⚠️ Coordinate System**: Split-screen uses percentage-based positioning (`x <= 50` = Player 1, `x > 50` = Player 2). Never use absolute pixel coordinates. `App.tsx` handles viewport remapping.
+**⚠️ Coordinate System**: Uses percentage-based positioning (x: 5-95% of screen width). Never use absolute pixel coordinates. Objects spawn across the full width of the screen.
 
 **⚠️ Touch Handling**: `src/lib/touch-handler.ts` singleton manages all touch events. Don't attach raw `onClick` handlers to game objects—use the multi-touch API to prevent QBoard interference issues.
 
@@ -50,18 +50,17 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 ## Architecture & Data Flow
 
-**State Ownership**: `src/hooks/use-game-logic.ts` (1365 lines) is the single source of truth for all gameplay state:
+**State Ownership**: `src/hooks/use-game-logic.ts` is the single source of truth for all gameplay state:
 - `gameObjects[]`: Active falling objects with physics (id, type, emoji, x, y, speed, size, lane)
 - `worms[]`: Distractor objects with wiggle animation (`WormObject` interface)
-- `splats[]`: Splat effects when worms are tapped (`SplatObject` interface)
+- `fairyTransforms[]`: Visual effects when worms are tapped (`FairyTransformObject` interface)
 - `GameState`: Player progress, current target, level, winner status, streak tracking
 - `GAME_CATEGORIES`: Array of 7 categories with items: `{ emoji, name }[]`
 - Never create parallel game state elsewhere—always use the hook's methods
 
-**Split-Screen Coordinate System**: 
-- Percentage-based positioning: `x <= 50` = Player 1 (left), `x > 50` = Player 2 (right)
-- Lane boundaries enforced in collision detection: `LANE_BOUNDS = { left: [10, 45], right: [55, 90] }`
-- `App.tsx` remaps percentages to half-width containers during render pass
+**Coordinate System**: 
+- Percentage-based positioning: Objects spawn across x: 5-95% of screen width
+- Lane system uses `LANE_BOUNDS = { left: [5, 95], right: [5, 95] }` (full width for single player)
 - **Never use absolute pixel coordinates**—maintain percentage system when adding features
 
 **Category System**: 
@@ -89,41 +88,36 @@ Split-screen educational racing game where two players compete by tapping fallin
 
 ## Collision Detection System
 
-**Overview**: Physics-based collision detection prevents emojis from overlapping/phasing through each other while maintaining strict lane boundaries.
+**Overview**: Physics-based collision detection prevents emojis from overlapping/phasing through each other.
 
 **Implementation** (in `use-game-logic.ts` → `updateObjects()` → `processLane()`):
 
 ```typescript
 const processLane = (objects: GameObject[], lane: 'left' | 'right') => {
-  // Define strict lane boundaries - objects MUST stay within their lane
-  const [minX, maxX] = lane === 'left' ? [10, 45] : [55, 90]
-  const emojiRadius = 30 // Approximate radius of emoji (size 60 / 2)
-  const minSeparation = emojiRadius * 2 + 10 // 70px minimum distance between centers
+  // Define boundaries - full screen width for single player
+  const [minX, maxX] = [5, 95]  // 5% to 95% of screen width
   
-  // For each object, check collision with all others in the same lane
-  // If distance < minSeparation:
-  //   - Calculate push angle using atan2(dy, dx)
-  //   - Apply horizontal push to both objects (bidirectional)
-  //   - Clamp to lane boundaries [minX, maxX]
+  // For each object, check collision with all others
+  // If objects too close horizontally:
+  //   - Apply horizontal push to separate them
+  //   - Clamp to boundaries [minX, maxX]
   //   - Preserve Y coordinates (don't affect fall speed)
 }
 ```
 
 **Key Features**:
-- ✅ **Lane Isolation**: Left `[10, 45]` and right `[55, 90]` processed separately
-- ✅ **Physics-Based Push**: Uses proper distance calculations and push angles
+- ✅ **Full Width**: Objects can spawn and move across entire screen (5-95%)
+- ✅ **Physics-Based Push**: Uses distance calculations for natural separation
 - ✅ **Bidirectional Forces**: Both colliding objects pushed apart naturally
 - ✅ **Horizontal Only**: Push is horizontal to preserve fall speed
-- ✅ **Strict Boundaries**: Objects clamped to lane bounds, cannot cross to other side
-- ✅ **No Phasing**: Minimum separation of 70px enforced between emoji centers
+- ✅ **Strict Boundaries**: Objects clamped to screen bounds
 
 **Critical Rules**:
 - Never modify Y coordinates during collision resolution (breaks fall speed)
-- Always clamp X to lane-specific `[minX, maxX]` boundaries
-- Process lanes independently to prevent side-switching
-- Use distance-based collision (Pythagorean theorem) not simple overlap checks
+- Always clamp X to screen boundaries [5, 95]
+- Use distance-based collision not simple overlap checks
 
-**Performance**: O(n²) per lane but limited to ~7-8 objects per side max, so acceptable for 60fps target.
+**Performance**: O(n²) but limited to ~30 objects max, so acceptable for 60fps target.
 
 ## User Interface & UX Features
 
@@ -309,7 +303,7 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 - **Android/ARM64**: Use `npm run install:android` to avoid `@rollup/rollup-android-arm64` errors
 - **Background Images**: External URLs may be blocked; backgrounds defined in `App.css` use local `/public/*.jpg` files
 - **Audio Initialization**: Web Audio requires user interaction; `sound-manager` auto-initializes on first tap
-- **Split-Screen Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values relative to player area
+- **Percentage Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values
 - **Browser Cache**: After rebuilding, use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) to clear cached bundles if seeing old game behavior
 
 ## Recent Bug Fixes (November 2025)
@@ -358,11 +352,9 @@ Both played at once, creating garbled audio output
 ### Emoji Side-Switching Bug (Fixed)
 **Issue**: Objects spawned on right side (x > 50) were being pushed to left side (x <= 50) during collision detection  
 **Root Cause**: Collision detection used hardcoded left lane boundaries `[10, 45]` for both lanes  
-**Fix**: `processLane()` now accepts lane parameter and uses lane-specific boundaries:
-- Left lane: `[10, 45]`
-- Right lane: `[55, 90]`
+**Fix**: `processLane()` now accepts lane parameter and uses lane-specific boundaries. For single-player mode, both lanes now use full width `[5, 95]`.
 
-**Impact**: Objects now maintain consistent `playerSide` throughout their entire lifecycle (spawn → movement → tap/miss → removal)
+**Impact**: Objects now maintain consistent positions throughout their lifecycle
 
 ### Collision Detection Rewrite (October 2025)
 **Issue**: Emojis phasing through each other despite collision detection  

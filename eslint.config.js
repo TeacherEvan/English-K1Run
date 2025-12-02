@@ -23,9 +23,26 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      // Disable style-related warnings for educational game
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      // TypeScript-specific rules
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
+      }],
       '@typescript-eslint/no-explicit-any': 'warn',
+      // Consistent type imports - disabled for now as it's noisy on generated UI components
+      '@typescript-eslint/consistent-type-imports': 'off',
+      // Code quality rules
+      // no-console: disabled as dev logs are wrapped in import.meta.env.DEV checks
+      'no-console': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      // Prevent deprecated methods
+      'no-restricted-properties': ['error', {
+        object: 'String',
+        property: 'substr',
+        message: 'Use String.prototype.slice() or substring() instead.'
+      }],
     },
   },
 )
