@@ -303,8 +303,6 @@ class MultiTouchHandler {
         }
     }
 
-    private cleanupIntervalId: ReturnType<typeof setInterval> | null = null
-
     /**
      * Clean up old recent taps to prevent memory bloat
      * Call periodically or on game reset

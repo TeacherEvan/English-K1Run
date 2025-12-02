@@ -142,7 +142,7 @@ export const SENTENCE_TEMPLATES: Record<string, string> = {
     'brain': 'My brain helps me think',
     'heart': 'My heart beats in my chest',
 
-    // Alphabet (letters A-Z)
+    // Alphabet (letters A-Z) - Using simple, common words for kindergarten
     'a': 'A is for Apple',
     'b': 'B is for Ball',
     'c': 'C is for Cat',
@@ -164,9 +164,9 @@ export const SENTENCE_TEMPLATES: Record<string, string> = {
     's': 'S is for Star',
     't': 'T is for Tree',
     'u': 'U is for Umbrella',
-    'v': 'V is for Violin',
+    'v': 'V is for Van',
     'w': 'W is for Watermelon',
-    'x': 'X is for Xylophone',
-    'y': 'Y is for Yarn',
+    'x': 'X is for X-ray',
+    'y': 'Y is for Yellow',
     'z': 'Z is for Zebra',
 }
