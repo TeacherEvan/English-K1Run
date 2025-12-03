@@ -550,12 +550,9 @@ class EventTracker {
     stats.audioKey = audioKey
     stats.timeSinceLastAppearance = 0
 
-    // Update time since last appearance for all other emojis
-    this.emojiAppearances.forEach((stat, key) => {
-      if (key !== emoji && stat.lastAppearance > 0) {
-        stat.timeSinceLastAppearance = now - stat.lastAppearance
-      }
-    })
+    // OPTIMIZATION: Removed forEach loop that updated all emojis on every appearance
+    // Time since last appearance is now calculated on-demand in getEmojiRotationStats()
+    // This reduces O(n) work to O(1) per spawn, significant for levels with many items
 
     if (import.meta.env.DEV) {
       console.log(`[EmojiRotation] ${emoji} appeared (count: ${stats.appearanceCount}, audio: ${audioKey || 'none'})`)
