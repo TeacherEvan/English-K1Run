@@ -41,7 +41,7 @@ describe('Performance Improvements', () => {
           const lane = i % 2 === 0 ? 'left' : 'right'
           const laneObjects = objects.filter(obj => obj.lane === lane)
           // Simulate some work
-          laneObjects.length
+          void laneObjects.length
         }
       }
       const oldTime = performance.now() - oldStart
@@ -64,7 +64,7 @@ describe('Performance Improvements', () => {
           const lane = i % 2 === 0 ? 'left' : 'right'
           const laneObjects = lane === 'left' ? leftObjects : rightObjects
           // Simulate some work
-          laneObjects.length
+          void laneObjects.length
         }
       }
       const newTime = performance.now() - newStart
@@ -177,7 +177,7 @@ describe('Performance Improvements', () => {
           // Quick Set lookups
           const isDuplicate = spawnedInBatch.has(item.emoji) || activeEmojis.has(item.emoji)
           // Simulate work
-          isDuplicate
+          void isDuplicate
         }
       }
       const newTime = performance.now() - newStart

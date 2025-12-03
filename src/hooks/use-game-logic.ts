@@ -491,13 +491,26 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Select item using helper function (prioritizes stale emojis)
           let item = selectItem()
 
-          // Try to avoid duplicates in current batch and on screen
-          let attempts = 0
-          const maxAttempts = level.items.length * 2
-          while (attempts < maxAttempts && (spawnedInBatch.has(item.emoji) ||
-            (activeEmojis.has(item.emoji) && Math.random() > 0.3))) {
-            item = selectItem()
-            attempts++
+          // Try to avoid duplicates in current batch and on screen (performance optimization)
+          // Pre-check to avoid entering loop if item is acceptable
+          const isDuplicateInBatch = spawnedInBatch.has(item.emoji)
+          const isDuplicateActive = activeEmojis.has(item.emoji)
+          
+          if (isDuplicateInBatch || (isDuplicateActive && Math.random() > 0.3)) {
+            let attempts = 0
+            const maxAttempts = level.items.length * 2
+            
+            // Simplified loop - only re-select if needed
+            while (attempts < maxAttempts) {
+              item = selectItem()
+              attempts++
+              
+              // Check if this item is acceptable
+              if (!spawnedInBatch.has(item.emoji) && 
+                  (!activeEmojis.has(item.emoji) || Math.random() <= 0.3)) {
+                break
+              }
+            }
           }
 
           // Mark this emoji as spawned in current batch and update last appearance time
@@ -1059,16 +1072,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       setWorms(prev => {
         if (prev.length === 0) return prev
 
+        // Hoist constants out of map loop (performance optimization)
+        const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
+        const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+        const speedMult = wormSpeedMultiplier.current
+
         return prev.map(worm => {
           if (!worm.alive) return worm
 
-          // Get viewport dimensions for boundary checking
-          const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
-          const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
-
           // Update position with speed multiplier and delta time
-          let newX = worm.x + (worm.vx * wormSpeedMultiplier.current * dt) / 10
-          let newY = worm.y + (worm.vy * wormSpeedMultiplier.current * dt) / 10
+          let newX = worm.x + (worm.vx * speedMult * dt) / 10
+          let newY = worm.y + (worm.vy * speedMult * dt) / 10
 
           // Bounce off walls with lane-specific boundaries
           let newVx = worm.vx
