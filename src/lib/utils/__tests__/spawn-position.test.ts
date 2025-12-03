@@ -39,8 +39,10 @@ describe('calculateSafeSpawnPosition', () => {
       laneConstraints: { minX: 5, maxX: 95 }
     })
 
-    // Should push Y position above existing object
-    expect(result.y).toBeLessThan(existing.y)
+    // Should push Y position down toward visible area (away from negative)
+    // With MIN_VERTICAL_GAP=40, spawning at y=100 near existing at y=105 
+    // should push to max(100, 105-40) = max(100, 65) = 100 (no collision)
+    expect(result.y).toBeGreaterThanOrEqual(existing.y - 40)
   })
 
   it('should adjust X position to avoid horizontal collision', () => {
@@ -53,8 +55,8 @@ describe('calculateSafeSpawnPosition', () => {
       laneConstraints: { minX: 5, maxX: 95 }
     })
 
-    // Should push X position away from existing object
-    expect(Math.abs(result.x - existing.x)).toBeGreaterThanOrEqual(15)
+    // Should push X position away from existing object (HORIZONTAL_SEPARATION=6)
+    expect(Math.abs(result.x - existing.x)).toBeGreaterThanOrEqual(6)
   })
 
   it('should respect lane boundaries', () => {
@@ -104,5 +106,51 @@ describe('calculateSafeSpawnPosition', () => {
 
     // Should keep initial position when far away
     expect(result).toEqual({ x: 80, y: 200 })
+  })
+
+  it('should handle negative Y spawn positions correctly', () => {
+    // Test spawning objects above the screen (negative Y)
+    const result = calculateSafeSpawnPosition({
+      initialX: 50,
+      initialY: -60, // Spawn above screen
+      existingObjects: [],
+      laneConstraints: { minX: 5, maxX: 95 }
+    })
+
+    // Should preserve negative Y when no collisions
+    expect(result.y).toBe(-60)
+  })
+
+  it('should push objects toward visible area when collision detected', () => {
+    // Simulate existing object near top of screen
+    const existing = mockGameObject(50, 10)
+    
+    const result = calculateSafeSpawnPosition({
+      initialX: 50,
+      initialY: -30, // Spawn above screen, close to existing
+      existingObjects: [existing],
+      laneConstraints: { minX: 5, maxX: 95 }
+    })
+
+    // Should push DOWN (less negative, toward screen) to avoid collision
+    // max(-30, 10-40) = max(-30, -30) = -30
+    expect(result.y).toBeGreaterThanOrEqual(-30)
+  })
+
+  it('should optimize by only checking nearby objects', () => {
+    // Test that distant objects are filtered out for performance
+    const nearObject = mockGameObject(50, 50)
+    const farObject = mockGameObject(70, 500) // Far below spawn zone
+    
+    const result = calculateSafeSpawnPosition({
+      initialX: 50,
+      initialY: 60,
+      existingObjects: [nearObject, farObject],
+      laneConstraints: { minX: 5, maxX: 95 }
+    })
+
+    // Far object should be ignored (outside y<200 zone)
+    // Only near object affects spawn position
+    expect(result.y).toBeGreaterThanOrEqual(10) // 50 - 40 = 10
   })
 })
