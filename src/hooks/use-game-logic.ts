@@ -213,6 +213,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         const created: GameObject[] = []
         const now = Date.now()
 
+        // Pre-partition objects by lane (performance optimization)
+        const leftLaneObjects: GameObject[] = []
+        const rightLaneObjects: GameObject[] = []
+        for (const obj of prev) {
+          if (obj.lane === 'left') {
+            leftLaneObjects.push(obj)
+          } else {
+            rightLaneObjects.push(obj)
+          }
+        }
+
         // Spawn exactly 2 target emojis - one on each side for fairness
         for (let i = 0; i < 2; i++) {
           const lane: PlayerSide = i === 0 ? 'left' : 'right'
@@ -227,7 +238,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           const initialX = Math.random() * (maxX - minX) + minX
           const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
-          const laneObjects = [...prev, ...created].filter(obj => obj.lane === lane)
+          // Use pre-partitioned objects instead of filtering
+          const laneObjects = lane === 'left' 
+            ? [...leftLaneObjects, ...created.filter(obj => obj.lane === 'left')]
+            : [...rightLaneObjects, ...created.filter(obj => obj.lane === 'right')]
           
           // Use utility function for safe spawn position
           const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
@@ -356,6 +370,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           activeEmojis.add(obj.emoji)
         }
 
+        // Pre-partition objects by lane to avoid repeated filtering (performance optimization)
+        const leftLaneObjects: GameObject[] = []
+        const rightLaneObjects: GameObject[] = []
+        for (const obj of workingList) {
+          if (obj.lane === 'left') {
+            leftLaneObjects.push(obj)
+          } else {
+            rightLaneObjects.push(obj)
+          }
+        }
+        const createdLeftLane: GameObject[] = []
+        const createdRightLane: GameObject[] = []
+
         // Get stale emojis (cached for 5 seconds to avoid recalculating every spawn)
         // now is already defined at the top of the function
         let staleEmojis: Array<{ emoji: string; name: string }>
@@ -410,7 +437,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             const initialX = Math.random() * (maxX - minX) + minX
             const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
-            const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
+            // Use pre-partitioned lane objects instead of filtering (performance optimization)
+            const baseLaneObjects = lane === 'left' ? leftLaneObjects : rightLaneObjects
+            const createdLaneObjects = lane === 'left' ? createdLeftLane : createdRightLane
+            const laneObjects = [...baseLaneObjects, ...createdLaneObjects]
             
             // Use utility function for safe spawn position
             const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
@@ -440,6 +470,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               playerSide: newObject.lane
             })
 
+            // Track in lane-specific arrays
+            if (lane === 'left') {
+              createdLeftLane.push(newObject)
+            } else {
+              createdRightLane.push(newObject)
+            }
             created.push(newObject)
           }
         }
@@ -474,7 +510,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           const initialX = Math.random() * (maxX - minX) + minX
           const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
-          const laneObjects = [...workingList, ...created].filter(obj => obj.lane === lane)
+          // Use pre-partitioned lane objects instead of filtering (performance optimization)
+          const baseLaneObjects = lane === 'left' ? leftLaneObjects : rightLaneObjects
+          const createdLaneObjects = lane === 'left' ? createdLeftLane : createdRightLane
+          const laneObjects = [...baseLaneObjects, ...createdLaneObjects]
           
           // Use utility function for safe spawn position
           const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
@@ -504,6 +543,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             playerSide: newObject.lane
           })
 
+          // Track in lane-specific arrays
+          if (lane === 'left') {
+            createdLeftLane.push(newObject)
+          } else {
+            createdRightLane.push(newObject)
+          }
           created.push(newObject)
         }
 
@@ -520,6 +565,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [fallSpeedMultiplier])
 
   const processLane = useCallback((laneObjects: GameObject[], lane: PlayerSide) => {
+    // Cache lane bounds lookup (performance optimization)
     const [minX, maxX] = LANE_BOUNDS[lane]
     const laneLength = laneObjects.length
 
@@ -570,13 +616,26 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
         const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
         const speedMultiplier = 1.2
-        const updated: GameObject[] = []
+        
+        // Pre-allocate array to reduce reallocation overhead (performance optimization)
+        const updated: GameObject[] = new Array(prev.length)
+        let updatedIndex = 0
 
         for (const obj of prev) {
           const newY = obj.y + obj.speed * speedMultiplier
 
           if (newY < screenHeight + EMOJI_SIZE) {
-            updated.push({ ...obj, y: newY })
+            // Only update Y coordinate, reuse other properties (performance optimization)
+            updated[updatedIndex++] = {
+              id: obj.id,
+              type: obj.type,
+              emoji: obj.emoji,
+              x: obj.x,
+              y: newY,  // Only this changed
+              speed: obj.speed,
+              size: obj.size,
+              lane: obj.lane
+            }
           } else {
             eventTracker.trackEmojiLifecycle({
               objectId: obj.id,
@@ -593,6 +652,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               }
             })
           }
+        }
+
+        // Trim array to actual size if objects fell off screen
+        if (updatedIndex < updated.length) {
+          updated.length = updatedIndex
         }
 
         // Only process collision detection if we have multiple objects
