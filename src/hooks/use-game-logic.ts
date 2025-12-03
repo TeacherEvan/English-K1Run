@@ -26,6 +26,7 @@ import {
   MIN_DECOY_SLOTS,
   MIN_VERTICAL_GAP,
   ROTATION_THRESHOLD,
+  SPAWN_ABOVE_SCREEN,
   SPAWN_COUNT,
   SPAWN_VERTICAL_GAP,
   TARGET_GUARANTEE_COUNT,
@@ -238,7 +239,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           eventTracker.trackEmojiAppearance(targetItem.emoji, targetItem.name)
 
           const initialX = Math.random() * (maxX - minX) + minX
-          const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
+          const initialY = -SPAWN_ABOVE_SCREEN - i * SPAWN_VERTICAL_GAP
 
           // Use pre-partitioned objects instead of filtering (performance optimization)
           const baseLaneObjects = lane === 'left' ? leftLaneObjects : rightLaneObjects
@@ -318,12 +319,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           const idsToRemove = new Set<string>()
           let removedCount = 0
 
+          // Get screen height for off-screen detection
+          const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+          const offScreenThreshold = screenHeight * 0.8 // Only remove objects that are 80% down the screen
+
           // Single pass: count targets and identify removal candidates (optimized)
           const candidates: Array<{ id: string; y: number; isTarget: boolean }> = []
           for (const obj of workingList) {
             const isTarget = !!(targetEmoji && obj.emoji === targetEmoji)
             if (isTarget) targetCountOnScreen++
-            candidates.push({ id: obj.id, y: obj.y, isTarget })
+            // Only consider objects that are far down the screen for removal
+            if (obj.y >= offScreenThreshold) {
+              candidates.push({ id: obj.id, y: obj.y, isTarget })
+            }
           }
 
           // Sort by Y descending (furthest down = highest priority for removal)
@@ -443,7 +451,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             eventTracker.trackEmojiAppearance(item.emoji, item.name)
             
             const initialX = Math.random() * (maxX - minX) + minX
-            const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
+            const initialY = -SPAWN_ABOVE_SCREEN - i * SPAWN_VERTICAL_GAP
 
             // Use pre-partitioned lane objects instead of filtering (performance optimization)
             const baseLaneObjects = lane === 'left' ? leftLaneObjects : rightLaneObjects
@@ -529,7 +537,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           eventTracker.trackEmojiAppearance(item.emoji, item.name)
           
           const initialX = Math.random() * (maxX - minX) + minX
-          const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
+          const initialY = -SPAWN_ABOVE_SCREEN - i * SPAWN_VERTICAL_GAP
 
           // Use pre-partitioned lane objects instead of filtering (performance optimization)
           const baseLaneObjects = lane === 'left' ? leftLaneObjects : rightLaneObjects

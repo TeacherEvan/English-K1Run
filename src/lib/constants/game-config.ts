@@ -15,6 +15,7 @@ export const MIN_VERTICAL_GAP = 40  // Reduced from 120 for faster object appear
 export const SPAWN_VERTICAL_GAP = 15  // Smaller gap for spawn stacking
 export const HORIZONTAL_SEPARATION = 6
 export const COLLISION_MIN_SEPARATION = 8
+export const SPAWN_ABOVE_SCREEN = 200  // Pixels above screen top where objects spawn
 
 // Worm spawning
 export const WORM_INITIAL_COUNT = 5
