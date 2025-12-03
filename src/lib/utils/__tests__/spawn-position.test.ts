@@ -153,4 +153,40 @@ describe('calculateSafeSpawnPosition', () => {
     // Only near object affects spawn position
     expect(result.y).toBeGreaterThanOrEqual(10) // 50 - 40 = 10
   })
+
+  it('should handle spawn positions well above screen (SPAWN_ABOVE_SCREEN)', () => {
+    // Test spawning objects at -200px (well above screen)
+    const result = calculateSafeSpawnPosition({
+      initialX: 50,
+      initialY: -200, // Spawn well above screen
+      existingObjects: [],
+      laneConstraints: { minX: 5, maxX: 95 }
+    })
+
+    // Should preserve deeply negative Y when no collisions
+    expect(result.y).toBe(-200)
+    expect(result.y).toBeLessThan(0) // Verify it's above screen
+  })
+
+  it('should maintain spawn offset for multiple objects', () => {
+    // Simulate spawning multiple objects with vertical gap
+    const SPAWN_VERTICAL_GAP = 15
+    const firstResult = calculateSafeSpawnPosition({
+      initialX: 40,
+      initialY: -200,
+      existingObjects: [],
+      laneConstraints: { minX: 5, maxX: 95 }
+    })
+
+    const secondResult = calculateSafeSpawnPosition({
+      initialX: 60,
+      initialY: -200 - SPAWN_VERTICAL_GAP, // 15px higher
+      existingObjects: [],
+      laneConstraints: { minX: 5, maxX: 95 }
+    })
+
+    // Second object should spawn higher than first
+    expect(secondResult.y).toBe(-215)
+    expect(secondResult.y).toBeLessThan(firstResult.y)
+  })
 })
