@@ -73,7 +73,9 @@ describe('Performance Improvements', () => {
       // Using conservative threshold to avoid flaky tests
       expect(newTime).toBeLessThan(oldTime * 0.8) // At least 20% faster
       
-      console.log(`Lane filtering: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, Improvement=${((1 - newTime/oldTime) * 100).toFixed(1)}%`)
+      if (import.meta.env.DEV) {
+        console.log(`Lane filtering: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, Improvement=${((1 - newTime/oldTime) * 100).toFixed(1)}%`)
+      }
     })
   })
 
@@ -132,7 +134,9 @@ describe('Performance Improvements', () => {
       // Using conservative threshold
       expect(newTime).toBeLessThan(oldTime * 1.1) // At most 10% slower (should be faster)
       
-      console.log(`Object update: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, Improvement=${((1 - newTime/oldTime) * 100).toFixed(1)}%`)
+      if (import.meta.env.DEV) {
+        console.log(`Object update: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, Improvement=${((1 - newTime/oldTime) * 100).toFixed(1)}%`)
+      }
     })
   })
 
@@ -185,7 +189,9 @@ describe('Performance Improvements', () => {
       // This validates that Set operations are fast
       expect(newTime).toBeLessThan(oldTime)
       
-      console.log(`Duplicate check: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, Improvement=${((1 - newTime/oldTime) * 100).toFixed(1)}%`)
+      if (import.meta.env.DEV) {
+        console.log(`Duplicate check: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, Improvement=${((1 - newTime/oldTime) * 100).toFixed(1)}%`)
+      }
     })
   })
 
@@ -253,7 +259,9 @@ describe('Performance Improvements', () => {
       expect(checksWithEarlyExit).toBeLessThan(checksWithoutEarlyExit * 0.5)
       // Note: Time comparison can be flaky due to JIT optimization, but check count is deterministic
       
-      console.log(`Collision early exit: Checks=${checksWithEarlyExit}/${checksWithoutEarlyExit}, Time=${earlyExitTime.toFixed(2)}ms/${noEarlyExitTime.toFixed(2)}ms`)
+      if (import.meta.env.DEV) {
+        console.log(`Collision early exit: Checks=${checksWithEarlyExit}/${checksWithoutEarlyExit}, Time=${earlyExitTime.toFixed(2)}ms/${noEarlyExitTime.toFixed(2)}ms`)
+      }
     })
   })
 })

@@ -223,6 +223,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             rightLaneObjects.push(obj)
           }
         }
+        const createdLeftLane: GameObject[] = []
+        const createdRightLane: GameObject[] = []
 
         // Spawn exactly 2 target emojis - one on each side for fairness
         for (let i = 0; i < 2; i++) {
@@ -238,10 +240,10 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           const initialX = Math.random() * (maxX - minX) + minX
           const initialY = -EMOJI_SIZE - i * SPAWN_VERTICAL_GAP
 
-          // Use pre-partitioned objects instead of filtering
-          const laneObjects = lane === 'left' 
-            ? [...leftLaneObjects, ...created.filter(obj => obj.lane === 'left')]
-            : [...rightLaneObjects, ...created.filter(obj => obj.lane === 'right')]
+          // Use pre-partitioned objects instead of filtering (performance optimization)
+          const baseLaneObjects = lane === 'left' ? leftLaneObjects : rightLaneObjects
+          const createdLaneObjects = lane === 'left' ? createdLeftLane : createdRightLane
+          const laneObjects = [...baseLaneObjects, ...createdLaneObjects]
           
           // Use utility function for safe spawn position
           const { x: spawnX, y: spawnY } = calculateSafeSpawnPosition({
@@ -271,6 +273,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             playerSide: newObject.lane
           })
 
+          // Track in lane-specific arrays
+          if (lane === 'left') {
+            createdLeftLane.push(newObject)
+          } else {
+            createdRightLane.push(newObject)
+          }
           created.push(newObject)
         }
 
