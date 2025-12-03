@@ -299,7 +299,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Single pass: count targets and identify removal candidates (optimized)
           const candidates: Array<{ id: string; y: number; isTarget: boolean }> = []
           for (const obj of workingList) {
-            const isTarget = targetEmoji && obj.emoji === targetEmoji
+            const isTarget = !!(targetEmoji && obj.emoji === targetEmoji)
             if (isTarget) targetCountOnScreen++
             candidates.push({ id: obj.id, y: obj.y, isTarget })
           }
