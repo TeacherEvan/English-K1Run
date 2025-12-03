@@ -292,34 +292,45 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         let workingList = [...prev]
         if (workingList.length > maxObjectsBeforeSpawn) {
           const targetEmoji = currentTarget
-          let targetCountOnScreen = targetEmoji
-            ? workingList.filter(obj => obj.emoji === targetEmoji).length
-            : 0
-
-          const removalCandidates = [...workingList].sort((a, b) => b.y - a.y)
+          let targetCountOnScreen = 0
+          const idsToRemove = new Set<string>()
           let removedCount = 0
 
-          for (const candidate of removalCandidates) {
-            if (workingList.length <= maxObjectsBeforeSpawn) {
+          // Single pass: count targets and identify removal candidates (optimized)
+          const candidates: Array<{ id: string; y: number; isTarget: boolean }> = []
+          for (const obj of workingList) {
+            const isTarget = targetEmoji && obj.emoji === targetEmoji
+            if (isTarget) targetCountOnScreen++
+            candidates.push({ id: obj.id, y: obj.y, isTarget })
+          }
+
+          // Sort by Y descending (furthest down = highest priority for removal)
+          candidates.sort((a, b) => b.y - a.y)
+
+          // Mark objects for removal
+          for (const candidate of candidates) {
+            if (workingList.length - removedCount <= maxObjectsBeforeSpawn) {
               break
             }
 
-            const isTargetCandidate = targetEmoji ? candidate.emoji === targetEmoji : false
-
             // Never drop below the guaranteed target floor
-            if (isTargetCandidate && targetCountOnScreen <= TARGET_GUARANTEE_COUNT) {
+            if (candidate.isTarget && targetCountOnScreen <= TARGET_GUARANTEE_COUNT) {
               continue
             }
 
-            workingList = workingList.filter(obj => obj.id !== candidate.id)
-            if (isTargetCandidate) {
+            idsToRemove.add(candidate.id)
+            if (candidate.isTarget) {
               targetCountOnScreen--
             }
             removedCount++
           }
 
-          if (import.meta.env.DEV && removedCount > 0) {
-            console.log(`[SpawnObject] Trimmed ${removedCount} old objects to reserve decoy slots`)
+          // Single filter pass to remove marked objects
+          if (removedCount > 0) {
+            workingList = workingList.filter(obj => !idsToRemove.has(obj.id))
+            if (import.meta.env.DEV) {
+              console.log(`[SpawnObject] Trimmed ${removedCount} old objects to reserve decoy slots`)
+            }
           }
         }
 
@@ -339,7 +350,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
         // Track emojis spawned in this batch to prevent duplicates
         const spawnedInBatch = new Set<string>()
-        // Track recently active emojis on screen to reduce duplicates
+        // Track recently active emojis on screen to reduce duplicates (optimized)
         const activeEmojis = new Set<string>()
         for (const obj of workingList) {
           activeEmojis.add(obj.emoji)

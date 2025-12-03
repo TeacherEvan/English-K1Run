@@ -33,8 +33,9 @@ export function calculateSafeSpawnPosition(params: SpawnPositionParams): { x: nu
     const verticalGap = Math.abs(existing.y - spawnY)
     const horizontalGap = Math.abs(existing.x - spawnX)
 
-    // Adjust vertical position if too close - push DOWN toward visible area
-    // Fix: Changed Math.min to Math.max to prevent objects spawning too far above screen
+    // Adjust vertical position if too close
+    // Math.max pushes spawn position toward less negative Y values (closer to visible screen area)
+    // Example: max(-60, -30) = -30 (less negative, closer to screen top at y=0)
     if (verticalGap < MIN_VERTICAL_GAP) {
       spawnY = Math.max(spawnY, existing.y - MIN_VERTICAL_GAP)
     }
