@@ -81,6 +81,11 @@ if (import.meta.env.DEV) {
     console.log('[SoundManager] Sample Keys:', Array.from(audioLoaderIndex.keys()).slice(0, 5))
 }
 
+// TODO: Refactor this class into smaller modules (see TODO.md Phase 1)
+// - Extract audio loading logic → audio-loader.ts
+// - Extract playback logic → audio-player.ts  
+// - Extract speech synthesis → speech-synthesizer.ts
+// Current size: 900 lines - Target: <300 lines per module
 class SoundManager {
     private audioContext: AudioContext | null = null
     private bufferCache: Map<string, AudioBuffer> = new Map()

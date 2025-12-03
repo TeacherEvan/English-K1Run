@@ -1,3 +1,10 @@
+// TODO: Consider refactoring animation logic (see TODO.md Phase 1)
+// Current approach: JS-based position updates (heavy on main thread)
+// Optimization opportunity:
+// 1. Extract animation presets to constants/fairy-animations.ts
+// 2. Consider using CSS animations/keyframes instead of JS
+// 3. Use CSS transforms for GPU acceleration
+// Impact: Better performance, smoother animations, easier customization
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { FairyTransformObject } from '../hooks/use-game-logic'
 
