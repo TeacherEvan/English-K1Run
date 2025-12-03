@@ -172,6 +172,7 @@ export function useDisplayAdjustment() {
   }, [])
 
   // Memoize getScaledStyles to avoid object recreation on every render
+  // Uses displaySettings as dependency since setDisplaySettings returns prev when unchanged (stable reference)
   const getScaledStyles = useMemo(() => ({
     '--game-scale': displaySettings.scale.toString(),
     '--font-scale': displaySettings.fontSize.toString(),
@@ -179,23 +180,17 @@ export function useDisplayAdjustment() {
     '--turtle-scale': displaySettings.turtleSize.toString(),
     '--spacing-scale': displaySettings.spacing.toString(),
     '--fall-speed-scale': displaySettings.fallSpeed.toString()
-  } as React.CSSProperties), [
-    displaySettings.scale,
-    displaySettings.fontSize,
-    displaySettings.objectSize,
-    displaySettings.turtleSize,
-    displaySettings.spacing,
-    displaySettings.fallSpeed
-  ])
+  } as React.CSSProperties), [displaySettings])
 
   // Memoize screen size helpers to cache computed boolean values
+  // Uses displaySettings as dependency for simpler maintenance
   const screenHelpers = useMemo(() => ({
     isSmallScreen: displaySettings.screenWidth < 768,
     isMediumScreen: displaySettings.screenWidth >= 768 && displaySettings.screenWidth < 1200,
     isLargeScreen: displaySettings.screenWidth >= 1200,
     isUltrawide: displaySettings.aspectRatio > 2.5,
     isTallScreen: displaySettings.aspectRatio < 0.6
-  }), [displaySettings.screenWidth, displaySettings.aspectRatio])
+  }), [displaySettings])
 
   return {
     displaySettings,

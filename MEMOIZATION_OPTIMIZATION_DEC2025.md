@@ -24,7 +24,7 @@ The codebase has already undergone significant optimization work (see OPTIMIZATI
 
 **Issue**: The `getScaledStyles()` function created a new object on every call, causing unnecessary re-renders in consuming components.
 
-**Solution**: Wrapped the return object in `useMemo` with proper dependencies.
+**Solution**: Wrapped the return object in `useMemo` with displaySettings as dependency.
 
 ```typescript
 // Before: Object created on every render
@@ -34,20 +34,15 @@ const getScaledStyles = () => ({
   // ... more properties
 } as React.CSSProperties)
 
-// After: Memoized based on actual values
+// After: Memoized with stable displaySettings reference
 const getScaledStyles = useMemo(() => ({
   '--game-scale': displaySettings.scale.toString(),
   '--font-scale': displaySettings.fontSize.toString(),
   // ... more properties
-} as React.CSSProperties), [
-  displaySettings.scale,
-  displaySettings.fontSize,
-  displaySettings.objectSize,
-  displaySettings.turtleSize,
-  displaySettings.spacing,
-  displaySettings.fallSpeed
-])
+} as React.CSSProperties), [displaySettings])
 ```
+
+**Key Insight**: The `setDisplaySettings` function already checks if values changed and returns the previous object when unchanged (line 126), ensuring `displaySettings` has a stable reference. This allows using the entire object as a dependency instead of individual properties, making the code more maintainable.
 
 **Impact**:
 - Prevents object recreation on every render cycle
@@ -63,7 +58,7 @@ const getScaledStyles = useMemo(() => ({
 
 **Issue**: Boolean helpers (`isSmallScreen`, `isMediumScreen`, etc.) were recalculated on every render.
 
-**Solution**: Created memoized object with all screen size helpers.
+**Solution**: Created memoized object with all screen size helpers, using displaySettings as dependency.
 
 ```typescript
 // Before: Calculated on every render
@@ -84,7 +79,7 @@ const screenHelpers = useMemo(() => ({
   isLargeScreen: displaySettings.screenWidth >= 1200,
   isUltrawide: displaySettings.aspectRatio > 2.5,
   isTallScreen: displaySettings.aspectRatio < 0.6
-}), [displaySettings.screenWidth, displaySettings.aspectRatio])
+}), [displaySettings])
 
 return {
   displaySettings,
@@ -92,6 +87,8 @@ return {
   ...screenHelpers
 }
 ```
+
+**Code Review Improvement**: Initial implementation used individual properties in dependency arrays, but since `displaySettings` has stable reference when unchanged, using `[displaySettings]` is simpler and more maintainable.
 
 **Impact**:
 - Stable boolean values across renders
