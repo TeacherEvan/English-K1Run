@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
 // Core game components (critical path)
 import { AchievementDisplay } from './components/AchievementDisplay'
 import { ComboCelebration } from './components/ComboCelebration'
-import { EmojiRotationMonitor } from './components/EmojiRotationMonitor'
 import { FairyTransformation } from './components/FairyTransformation'
 import { FallingObject } from './components/FallingObject'
 import { FireworksDisplay } from './components/FireworksDisplay'
@@ -15,6 +14,11 @@ import { WormLoadingScreen } from './components/WormLoadingScreen'
 // Hooks
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
+
+// Lazy load debug components to improve initial load time
+const EmojiRotationMonitor = lazy(() => 
+  import('./components/EmojiRotationMonitor').then(m => ({ default: m.EmojiRotationMonitor }))
+)
 
 // Debug components removed per requirements - only target pronunciation audio allowed
 
@@ -314,8 +318,12 @@ function App() {
           winner={gameState.winner}
         />
 
-        {/* Debug: Emoji Rotation Monitor (dev mode only) */}
-        {import.meta.env.DEV && <EmojiRotationMonitor />}
+        {/* Debug: Emoji Rotation Monitor (dev mode only, lazy loaded) */}
+        {import.meta.env.DEV && (
+          <Suspense fallback={null}>
+            <EmojiRotationMonitor />
+          </Suspense>
+        )}
       </div>
     </>
   )

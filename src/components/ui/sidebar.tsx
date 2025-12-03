@@ -1,5 +1,13 @@
 "use client"
 
+// TODO: Refactor this component (see TODO.md Phase 1)
+// Current size: 728 lines - Target: <300 lines
+// Refactoring plan:
+// 1. Extract navigation logic into useSidebarNavigation hook
+// 2. Move menu items to constants/sidebar-items.ts
+// 3. Split into SidebarHeader, SidebarNav, SidebarFooter sub-components
+// 4. Extract sheet animation logic to separate file
+
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import PanelLeftIcon from "lucide-react/dist/esm/icons/panel-left"

@@ -1,5 +1,13 @@
 /**
  * Event tracking system for monitoring game errors and performance
+ * 
+ * TODO: Split this module into smaller focused modules (see TODO.md Phase 1)
+ * Current size: 617 lines - Target: <200 lines per module
+ * Refactoring plan:
+ * 1. Extract emoji tracking → emoji-tracker.ts
+ * 2. Extract performance metrics → performance-tracker.ts
+ * 3. Extract audio tracking → audio-event-tracker.ts
+ * Impact: Better separation of concerns, easier testing
  */
 
 export interface GameEvent {

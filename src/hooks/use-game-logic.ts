@@ -55,6 +55,30 @@ export type {
 // Import GAME_CATEGORIES for internal use
 import { GAME_CATEGORIES } from '../lib/constants/game-categories'
 
+/**
+ * Core game logic hook for Kindergarten Race Game
+ * 
+ * Manages all gameplay state including:
+ * - Falling objects and worms with physics/collision detection
+ * - Target selection and progress tracking
+ * - Audio feedback and visual effects
+ * - Multi-touch input handling
+ * - Performance optimization with 60fps target
+ * 
+ * @param options - Configuration options
+ * @param options.fallSpeedMultiplier - Multiplier for fall speed (default: 1.0)
+ * @returns Game state and control functions
+ * 
+ * @example
+ * ```typescript
+ * const {
+ *   gameObjects,
+ *   gameState,
+ *   startGame,
+ *   handleObjectTap
+ * } = useGameLogic({ fallSpeedMultiplier: 1.2 })
+ * ```
+ */
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1 } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
