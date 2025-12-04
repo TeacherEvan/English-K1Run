@@ -79,6 +79,26 @@
 }
 
 /* Game-specific animations with optimized performance */
+/* Premium shimmer effect for loading states (2025 UX best practice) */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Spring-based bounce with natural physics */
 @keyframes bounce-in {
   0% {
     transform: scale(0);
@@ -253,4 +273,37 @@
   background-position: center, 50% 50%, center;
   background-repeat: no-repeat, repeat, no-repeat;
   background-attachment: fixed;
+}
+
+/* Accessibility: Respect prefers-reduced-motion (2025 best practice) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable shimmer animations */
+  @keyframes shimmer {
+    0%, 100% {
+      background-position: 0 0;
+    }
+  }
+
+  @keyframes shimmerSlide {
+    0%, 100% {
+      transform: translateX(0);
+    }
+  }
+
+  /* Simplify bounce animations */
+  @keyframes bounce-in {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
 }
