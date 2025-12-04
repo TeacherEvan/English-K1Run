@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface DisplaySettings {
   scale: number
@@ -171,23 +171,30 @@ export function useDisplayAdjustment() {
     }
   }, [])
 
-  // Helper function to get CSS custom properties for scaling
-  const getScaledStyles = () => ({
+  // Memoize getScaledStyles to avoid object recreation on every render
+  // Uses displaySettings as dependency since setDisplaySettings returns prev when unchanged (stable reference)
+  const getScaledStyles = useMemo(() => ({
     '--game-scale': displaySettings.scale.toString(),
     '--font-scale': displaySettings.fontSize.toString(),
     '--object-scale': displaySettings.objectSize.toString(),
     '--turtle-scale': displaySettings.turtleSize.toString(),
     '--spacing-scale': displaySettings.spacing.toString(),
     '--fall-speed-scale': displaySettings.fallSpeed.toString()
-  } as React.CSSProperties)
+  } as React.CSSProperties), [displaySettings])
 
-  return {
-    displaySettings,
-    getScaledStyles,
+  // Memoize screen size helpers to cache computed boolean values
+  // Uses displaySettings as dependency for simpler maintenance
+  const screenHelpers = useMemo(() => ({
     isSmallScreen: displaySettings.screenWidth < 768,
     isMediumScreen: displaySettings.screenWidth >= 768 && displaySettings.screenWidth < 1200,
     isLargeScreen: displaySettings.screenWidth >= 1200,
     isUltrawide: displaySettings.aspectRatio > 2.5,
     isTallScreen: displaySettings.aspectRatio < 0.6
+  }), [displaySettings])
+
+  return {
+    displaySettings,
+    getScaledStyles,
+    ...screenHelpers
   }
 }

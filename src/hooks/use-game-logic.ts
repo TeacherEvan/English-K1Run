@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { eventTracker } from '../lib/event-tracker'
 import { playSoundEffect } from '../lib/sound-manager'
 import { multiTouchHandler } from '../lib/touch-handler'
@@ -159,7 +159,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     return Math.max(0, Math.min(levelIndex, GAME_CATEGORIES.length - 1))
   }, [])
 
-  const currentCategory = GAME_CATEGORIES[gameState.level] || GAME_CATEGORIES[0]
+  // Memoize current category to avoid recalculation on every render
+  const currentCategory = useMemo(
+    () => GAME_CATEGORIES[gameState.level] || GAME_CATEGORIES[0],
+    [gameState.level]
+  )
 
   // Fisher-Yates shuffle algorithm for randomizing target pool
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
