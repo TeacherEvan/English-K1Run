@@ -71,8 +71,7 @@ export default defineConfig({
       external: [],
       output: {
         manualChunks(id) {
-          // TODO: [OPTIMIZATION] Consider moving to Redis for server-side caching
-          // Create vendor chunk for node_modules
+          // Create vendor chunk for node_modules with intelligent splitting
           if (id.includes('node_modules')) {
             // React DOM - Split into smaller sub-chunks by internal modules
             if (id.includes('react-dom')) {
