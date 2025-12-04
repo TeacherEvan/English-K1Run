@@ -46,23 +46,30 @@ export const GameMenu = memo(({
         zIndex: 50,
       }}
     >
-      <Card className="p-8 max-w-2xl mx-4 text-center bg-card shadow-2xl border-4 border-primary/20">
+      <Card className="p-8 max-w-2xl mx-4 text-center bg-card shadow-2xl border-4 border-primary/20 animate-in fade-in zoom-in duration-500">
         <div className="mb-6 flex flex-col items-center gap-3">
-          <div style={{ fontSize: `calc(3.75rem * var(--object-scale, 1))` }}>
+          <div 
+            className="transition-transform duration-300 hover:scale-110" 
+            style={{ fontSize: `calc(3.75rem * var(--object-scale, 1))` }}
+          >
             {winner ? '🏆' : '🐢🏁'}
           </div>
-          <h1 data-testid="game-title" className="font-bold text-primary" style={headingFontSize}>
+          <h1 
+            data-testid="game-title" 
+            className="font-bold text-primary transition-colors duration-300 hover:text-primary/80" 
+            style={headingFontSize}
+          >
             Kindergarten Race
           </h1>
-          <p className="text-muted-foreground" style={bodyFontSize}>
+          <p className="text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-700" style={bodyFontSize}>
             {winner
-              ? 'You won! Pick any level and start a new race.'
+              ? '🎉 You won! Pick any level and start a new race.'
               : 'Pick a level and get ready to tap the correct objects to advance!'}
           </p>
         </div>
 
         <div className="mb-6">
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {levels.map((name, index) => {
               const isSelected = index === selectedLevel
               return (
@@ -74,7 +81,7 @@ export const GameMenu = memo(({
                   data-level={index}
                   variant={isSelected ? 'default' : 'outline'}
                   onClick={() => onSelectLevel(index)}
-                  className="justify-between text-left"
+                  className={`justify-between text-left transition-all duration-300 ${isSelected ? 'ring-2 ring-primary/50 scale-105' : 'hover:scale-102'}`}
                   style={{ fontSize: `calc(1rem * var(--font-scale, 1))` }}
                 >
                   <span className="font-semibold">Level {index + 1}</span>
@@ -92,13 +99,17 @@ export const GameMenu = memo(({
             data-testid="start-button"
             onClick={onStartGame}
             size="lg"
-            className="font-bold flex-1"
+            className="font-bold flex-1 relative overflow-hidden group"
             style={{
               fontSize: `calc(1.25rem * var(--font-scale, 1))`,
               padding: `calc(1rem * var(--spacing-scale, 1)) calc(2rem * var(--spacing-scale, 1))`
             }}
           >
-            🚀 Start Race
+            <span className="relative z-10 flex items-center gap-2">
+              <span className="transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12">🚀</span>
+              <span>Start Race</span>
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary-foreground/10 to-primary/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
           </Button>
         </div>
 

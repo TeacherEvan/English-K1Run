@@ -1,26 +1,39 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
-// Core game components (critical path)
-import { AchievementDisplay } from './components/AchievementDisplay'
-import { ComboCelebration } from './components/ComboCelebration'
-import { FairyTransformation } from './components/FairyTransformation'
+
+// Critical path components only - eager load
 import { FallingObject } from './components/FallingObject'
-import { FireworksDisplay } from './components/FireworksDisplay'
 import { GameMenu } from './components/GameMenu'
+import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
 import { Worm } from './components/Worm'
-import { WormLoadingScreen } from './components/WormLoadingScreen'
-// Hooks
-import { useDisplayAdjustment } from './hooks/use-display-adjustment'
-import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
-// Lazy load debug components to improve initial load time
+// Lazy load non-critical UI components for better initial load performance
+const AchievementDisplay = lazy(() => 
+  import('./components/AchievementDisplay').then(m => ({ default: m.AchievementDisplay }))
+)
+const ComboCelebration = lazy(() => 
+  import('./components/ComboCelebration').then(m => ({ default: m.ComboCelebration }))
+)
+const FairyTransformation = lazy(() => 
+  import('./components/FairyTransformation').then(m => ({ default: m.FairyTransformation }))
+)
+const FireworksDisplay = lazy(() => 
+  import('./components/FireworksDisplay').then(m => ({ default: m.FireworksDisplay }))
+)
+const WormLoadingScreen = lazy(() => 
+  import('./components/WormLoadingScreen').then(m => ({ default: m.WormLoadingScreen }))
+)
+
+// Lazy load debug components to improve initial load time (dev only)
 const EmojiRotationMonitor = lazy(() => 
   import('./components/EmojiRotationMonitor').then(m => ({ default: m.EmojiRotationMonitor }))
 )
 
-// Debug components removed per requirements - only target pronunciation audio allowed
+// Hooks - essential for app functionality
+import { useDisplayAdjustment } from './hooks/use-display-adjustment'
+import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
@@ -220,7 +233,11 @@ function App() {
 
   // Show loading screen between level select and gameplay (after all hooks)
   if (isLoading) {
-    return <WormLoadingScreen onComplete={handleLoadingComplete} />
+    return (
+      <Suspense fallback={<LoadingSkeleton variant="worm" />}>
+        <WormLoadingScreen onComplete={handleLoadingComplete} />
+      </Suspense>
+    )
   }
 
   return (
@@ -256,17 +273,21 @@ function App() {
           </div>
         )}
 
+        {/* Lazy loaded celebration components with suspense boundaries */}
         {comboCelebration && (
-          <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
+          <Suspense fallback={null}>
+            <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
+          </Suspense>
         )}
 
-        {/* Achievement Displays */}
+        {/* Achievement Displays - Lazy loaded */}
         {achievements.map(achievement => (
-          <AchievementDisplay
-            key={achievement.id}
-            achievement={achievement}
-            onDismiss={() => clearAchievement(achievement.id)}
-          />
+          <Suspense key={achievement.id} fallback={null}>
+            <AchievementDisplay
+              achievement={achievement}
+              onDismiss={() => clearAchievement(achievement.id)}
+            />
+          </Suspense>
         ))}
 
         {/* Full Screen Game Area */}
@@ -293,10 +314,9 @@ function App() {
               />
             ))}
             {fairyTransforms.map(fairy => (
-              <FairyTransformation
-                key={fairy.id}
-                fairy={fairy}
-              />
+              <Suspense key={fairy.id} fallback={null}>
+                <FairyTransformation fairy={fairy} />
+              </Suspense>
             ))}
           </PlayerArea>
         </div>
@@ -312,11 +332,15 @@ function App() {
           winner={gameState.winner}
         />
 
-        {/* Fireworks Display */}
-        <FireworksDisplay
-          isVisible={!!gameState.winner}
-          winner={gameState.winner}
-        />
+        {/* Fireworks Display - Lazy loaded only when winner */}
+        {gameState.winner && (
+          <Suspense fallback={null}>
+            <FireworksDisplay
+              isVisible={!!gameState.winner}
+              winner={gameState.winner}
+            />
+          </Suspense>
+        )}
 
         {/* Debug: Emoji Rotation Monitor (dev mode only, lazy loaded) */}
         {import.meta.env.DEV && (
