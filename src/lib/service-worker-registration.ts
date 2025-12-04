@@ -31,7 +31,7 @@ interface ServiceWorkerConfig {
  * @returns True if service workers are supported
  */
 const isServiceWorkerSupported = (): boolean => {
-  return 'serviceWorker' in navigator && window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+  return 'serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')
 }
 
 /**
