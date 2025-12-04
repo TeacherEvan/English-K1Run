@@ -10,7 +10,10 @@ const __dirname = dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Enable React Fast Refresh with SWC
+      jsxRuntime: 'automatic',
+    }),
     tailwindcss(),
   ],
   resolve: {
@@ -54,16 +57,21 @@ export default defineConfig({
     esbuildOptions: {
       target: 'es2020',
       keepNames: false, // Better minification
-      treeShaking: true
+      treeShaking: true,
+      // Enable modern JS optimizations
+      legalComments: 'none',
+      minify: true,
     }
   },
   build: {
     sourcemap: false,
+    // Enable faster builds with modern targets
+    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
     rollupOptions: {
       external: [],
       output: {
         manualChunks(id) {
-          // Create vendor chunk for node_modules
+          // Create vendor chunk for node_modules with intelligent splitting
           if (id.includes('node_modules')) {
             // React DOM - Split into smaller sub-chunks by internal modules
             if (id.includes('react-dom')) {
@@ -157,6 +165,10 @@ export default defineConfig({
             return 'game-hooks';
           }
           if (id.includes('src/lib')) {
+            // Split utilities separately for better caching
+            if (id.includes('utils/')) {
+              return 'app-utils';
+            }
             return 'game-utils';
           }
         },
@@ -184,14 +196,22 @@ export default defineConfig({
     chunkSizeWarningLimit: 1400, // Increased to accommodate React 19 DOM core, while encouraging chunking for other modules
     // Enable tree shaking optimizations
     minify: 'esbuild',
-    target: 'es2020',
     // Additional build optimizations
     cssCodeSplit: true,
+    cssMinify: true,
     emptyOutDir: true,
-    reportCompressedSize: false // Faster builds
+    reportCompressedSize: false, // Faster builds
+    // Enable modern module preloading
+    modulePreload: {
+      polyfill: true,
+    },
   },
   css: {
-    devSourcemap: false
+    devSourcemap: false,
+    // Enable CSS module optimization
+    modules: {
+      localsConvention: 'camelCase',
+    },
   },
   assetsInclude: [
     '**/*.woff',
@@ -202,5 +222,9 @@ export default defineConfig({
     '**/*.wav',
     '**/*.ogg'
   ],
-  clearScreen: false
+  clearScreen: false,
+  // Enable JSON optimization
+  json: {
+    stringify: true, // Faster JSON imports
+  },
 });

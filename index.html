@@ -3,22 +3,65 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- Performance & Caching -->
     <meta name="cache-control" content="no-cache, no-store, must-revalidate" />
     <meta name="pragma" content="no-cache" />
     <meta name="expires" content="0" />
+    
+    <!-- SEO & Description -->
+    <meta name="description" content="Kindergarten Race - An engaging educational racing game where students compete by identifying falling objects to advance their turtle characters. Perfect for pattern recognition and learning!" />
+    <meta name="keywords" content="kindergarten, educational game, learning game, pattern recognition, children game, tablet game" />
+    <meta name="author" content="Kindergarten Race Team" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Kindergarten Race - Educational Game" />
+    <meta property="og:description" content="Fun educational racing game for kindergarten students. Tap falling objects to advance your turtle!" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- PWA / Mobile -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="K-Race" />
+    <meta name="theme-color" content="#3b82f6" />
+    
     <title>Kindergarten Race - Educational Game</title>
+    
+    <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Preconnect to external domains for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Font with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    
+    <!-- DNS Prefetch for potential external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    
+    <!-- Preload critical assets -->
+    <link rel="modulepreload" href="/src/main.tsx" />
 </head>
 
 <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- No-JS Fallback -->
+    <noscript>
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+            <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #1f2937;">JavaScript Required</h1>
+            <p style="font-size: 1.125rem; color: #6b7280; max-width: 500px;">This game requires JavaScript to run. Please enable JavaScript in your browser settings and reload the page.</p>
+        </div>
+    </noscript>
 </body>
 
 </html>
