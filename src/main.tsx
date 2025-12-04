@@ -7,6 +7,9 @@ import { ErrorFallback } from './ErrorFallback.tsx';
 // Import only main.css here; ensure all other CSS files are imported within main.css in the correct order.
 import "./main.css";
 
+// Register service worker for PWA capabilities (offline support, caching)
+import './lib/service-worker-registration'
+
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
     <App />
