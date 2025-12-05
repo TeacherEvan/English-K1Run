@@ -226,7 +226,7 @@ export const measureComponentRenderTime = (
     try {
       performance.clearMarks(startMarkName)
       performance.clearMarks(endMarkName)
-    } catch (error) {
+    } catch {
       // Ignore cleanup errors
     }
     
@@ -255,7 +255,7 @@ export const getPerformanceMeasures = (
     return []
   }
   
-  const measures = performance.getEntriesByType('measure') as PerformanceMeasure[]
+  const measures = performance.getEntriesByType('measure') as unknown as PerformanceMeasure[]
   
   if (!namePattern) return measures
   
@@ -320,8 +320,7 @@ export const monitorFrameRate = (
 ): Promise<FrameRateStats> => {
   return new Promise((resolve) => {
     const frameTimestamps: number[] = []
-    let animationFrameId: number
-    let startTime = performance.now()
+    const startTime = performance.now()
     
     const measureFrame = (currentTime: number) => {
       frameTimestamps.push(currentTime)
@@ -335,7 +334,7 @@ export const monitorFrameRate = (
       
       // Continue monitoring if within duration
       if (currentTime - startTime < durationMs) {
-        animationFrameId = requestAnimationFrame(measureFrame)
+        requestAnimationFrame(measureFrame)
       } else {
         // Calculate final statistics
         const totalFrames = frameTimestamps.length
@@ -367,7 +366,7 @@ export const monitorFrameRate = (
       }
     }
     
-    animationFrameId = requestAnimationFrame(measureFrame)
+    requestAnimationFrame(measureFrame)
   })
 }
 

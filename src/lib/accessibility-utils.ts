@@ -423,17 +423,13 @@ export const createAriaAttributes = (config: {
  * ```
  */
 export const enableSmartFocusVisibility = (): void => {
-  let isUsingKeyboard = false
-  
   // Detect keyboard usage
   const handleKeyDown = () => {
-    isUsingKeyboard = true
     document.body.classList.add('using-keyboard')
   }
   
   // Detect mouse usage
   const handleMouseDown = () => {
-    isUsingKeyboard = false
     document.body.classList.remove('using-keyboard')
   }
   

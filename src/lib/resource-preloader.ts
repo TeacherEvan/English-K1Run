@@ -233,21 +233,26 @@ const preloadGenericResource = (resource: ResourceMetadata): Promise<void> => {
 const preloadResource = async (resource: ResourceMetadata): Promise<void> => {
   try {
     switch (resource.type) {
-      case 'image':
+      case 'image': {
         await preloadImage(resource.url)
         break
-      case 'audio':
+      }
+      case 'audio': {
         await preloadAudio(resource.url)
         break
-      case 'font':
+      }
+      case 'font': {
         // Extract font family from URL or use default
         const fontFamily = resource.url.split('/').pop()?.split('.')[0] || 'CustomFont'
         await preloadFont(fontFamily, resource.url)
         break
-      default:
+      }
+      default: {
         await preloadGenericResource(resource)
+        break
+      }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // Log error in development but don't throw (progressive enhancement)
     if (import.meta.env.DEV) {
       console.warn(`[ResourcePreloader] Failed to preload ${resource.url}:`, error)
@@ -318,7 +323,7 @@ export const preloadResources = async (
         try {
           await preloadResource(resource)
           globalPreloadProgress.loaded++
-        } catch (error) {
+        } catch {
           globalPreloadProgress.failed++
           globalPreloadProgress.failedResources.push(resource.url)
         }
