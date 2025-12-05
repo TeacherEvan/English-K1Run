@@ -80,17 +80,10 @@ export const useOptimisticUI = (): OptimisticUIHook => {
   }, [startTransition])
 
   const startAsyncUpdate = useCallback(async (callback: () => Promise<void>) => {
-    return new Promise<void>((resolve, reject) => {
-      startTransition(async () => {
-        try {
-          await callback()
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-    })
-  }, [startTransition])
+    // Note: React 19's startTransition doesn't await async functions
+    // The transition ends immediately, so we manually track the async state
+    return callback()
+  }, [])
 
   return {
     isPending,
@@ -100,23 +93,27 @@ export const useOptimisticUI = (): OptimisticUIHook => {
 }
 
 /**
- * Higher-order component for wrapping non-urgent updates
- * Useful when you want to extract the transition logic from component code
+ * NOTE: This is a placeholder for future enhancement
+ * Currently just calls the callback directly
  * 
- * @param callback - Function containing non-urgent state updates
- * @returns Wrapped function that automatically uses startTransition
+ * For actual usage, wrap callbacks in a component that uses useOptimisticUI:
  * 
  * @example
  * ```typescript
- * const updateBackground = withOptimisticUpdate(() => {
- *   setBackgroundClass(pickRandomBackground())
- * })
+ * const MyComponent = () => {
+ *   const { startOptimisticUpdate } = useOptimisticUI()
+ *   
+ *   const updateBackground = () => {
+ *     startOptimisticUpdate(() => {
+ *       setBackgroundClass(pickRandomBackground())
+ *     })
+ *   }
+ * }
  * ```
  */
 export const withOptimisticUpdate = (callback: () => void) => {
   return () => {
-    // This would need to be called from a component that has useTransition
-    // For now, just call the callback directly
+    // Direct call - actual transition wrapping must happen in a component context
     callback()
   }
 }

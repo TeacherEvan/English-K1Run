@@ -49,10 +49,8 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
   useEffect(() => {
     // Only auto-retry for network or timeout errors, and max 2 times
     if ((errorCategory === 'network' || errorCategory === 'timeout') && retryCount < 2) {
-      // Use a Promise to avoid direct setState in effect
-      Promise.resolve().then(() => {
-        setAutoRetryCountdown(5)
-      })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAutoRetryCountdown(5)  // Intentional: Initialize countdown timer
       
       const countdown = setInterval(() => {
         setAutoRetryCountdown(prev => {

@@ -117,42 +117,35 @@ export const useProgressiveImage = (
     loadImage()
   }, [loadImage])
 
-  // Setup intersection observer for lazy loading
+  // Setup lazy loading trigger
   useEffect(() => {
-    if (!lazy || shouldLoad) {
-      // Use Promise to avoid direct setState in effect
-      if (!shouldLoad) {
-        Promise.resolve().then(() => {
-          setShouldLoad(true)
-        })
-      }
+    if (!lazy) {
+      // Not lazy - load immediately
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShouldLoad(true)  // Intentional: Initialize load state based on lazy prop
       return
     }
 
     // Trigger load immediately if IntersectionObserver is not available
     if (typeof IntersectionObserver === 'undefined') {
-      Promise.resolve().then(() => {
-        setShouldLoad(true)
-      })
+      setShouldLoad(true)
       return
     }
 
-    // For lazy loading, we'd need a ref to observe
-    // For now, just load after a small delay as fallback
+    // TODO: Implement proper Intersection Observer when we have a ref
+    // For now, trigger load after small delay as basic lazy loading
     const timer = setTimeout(() => {
       setShouldLoad(true)
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [lazy, shouldLoad])
+  }, [lazy])
 
-  // Trigger load when shouldLoad changes
+  // Load image when shouldLoad becomes true
   useEffect(() => {
     if (shouldLoad && state === 'idle') {
-      // Use a microtask to avoid setState during render
-      Promise.resolve().then(() => {
-        loadImage()
-      })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadImage()  // Intentional: Trigger image load based on lazy loading state
     }
   }, [shouldLoad, state, loadImage])
 
