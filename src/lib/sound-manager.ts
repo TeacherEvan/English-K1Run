@@ -360,7 +360,7 @@ class SoundManager {
         return null
     }
 
-    private async playWithHtmlAudio(key: string, playbackRate = 0.8, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
+    private async playWithHtmlAudio(key: string, playbackRate = 1.0, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
         const url = await this.getUrl(key)
         if (!url) return false
 
@@ -385,7 +385,7 @@ class SoundManager {
             audio.preload = 'auto'
             audio.crossOrigin = 'anonymous'
             audio.volume = volumeOverride ?? this.volume
-            audio.playbackRate = playbackRate // Use provided playback rate
+            audio.playbackRate = playbackRate // Use provided playback rate (default 1.0 for natural quality)
 
             // Track this audio element
             this.activeHtmlAudio.set(key, audio)
@@ -461,7 +461,7 @@ class SoundManager {
         })
     }
 
-    private async playVoiceClip(name: string, playbackRate = 0.8, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
+    private async playVoiceClip(name: string, playbackRate = 1.0, maxDuration?: number, volumeOverride?: number): Promise<boolean> {
         const candidates = this.resolveCandidates(name)
 
         for (const candidate of candidates) {
@@ -492,7 +492,7 @@ class SoundManager {
         return true
     }
 
-    private speakWithSpeechSynthesis(text: string, volumeOverride?: number): boolean {
+    private speakWithSpeechSynthesis(text: string, volumeOverride?: number, cancelPrevious = false): boolean {
         if (import.meta.env.DEV) {
             console.log(`[SoundManager] Attempting speech synthesis for: "${text}"`)
         }
@@ -523,8 +523,16 @@ class SoundManager {
                 return false
             }
 
+            // Cancel any ongoing speech if requested (for target announcements)
+            if (cancelPrevious && synth.speaking) {
+                synth.cancel()
+                if (import.meta.env.DEV) {
+                    console.log('[SoundManager] Cancelled previous speech synthesis')
+                }
+            }
+
             const utterance = new SpeechSynthesisUtterance(text)
-            utterance.rate = 0.8  // 20% slower for clearer kindergarten comprehension
+            utterance.rate = 1.0  // Natural speed for better quality (was 0.8)
             utterance.pitch = 1.0  // Natural pitch for better voice quality
             utterance.volume = volumeOverride ?? this.volume
 
@@ -558,8 +566,6 @@ class SoundManager {
                 })
             }
 
-            // Don't cancel ongoing speech - this interrupts phonics sequences and target announcements
-            // The Web Speech API will queue utterances naturally
             synth.speak(utterance)
 
             if (import.meta.env.DEV) {
@@ -603,7 +609,7 @@ class SoundManager {
         }
     }
 
-    private startBuffer(buffer: AudioBuffer, delaySeconds = 0, soundKey?: string, playbackRate = 0.8, volumeOverride?: number) {
+    private startBuffer(buffer: AudioBuffer, delaySeconds = 0, soundKey?: string, playbackRate = 1.0, volumeOverride?: number) {
         if (!this.audioContext) return
 
         // Stop any previous instance of this sound
@@ -621,7 +627,7 @@ class SoundManager {
         const gainNode = this.audioContext.createGain()
 
         source.buffer = buffer
-        source.playbackRate.value = playbackRate // Use provided playback rate
+        source.playbackRate.value = playbackRate // Use provided playback rate (default 1.0 for natural quality)
         gainNode.gain.value = volumeOverride ?? this.volume
 
         source.connect(gainNode)
@@ -651,6 +657,46 @@ class SoundManager {
         }
 
         await this.resumeIfSuspended()
+    }
+
+    /**
+     * Stop all currently playing audio sources
+     * Useful for preventing overlapping when target changes
+     */
+    stopAllAudio() {
+        // Stop all Web Audio API sources
+        for (const [key, source] of this.activeSources.entries()) {
+            try {
+                source.stop()
+                this.activeSources.delete(key)
+            } catch {
+                // Source may have already stopped
+            }
+        }
+
+        // Stop all HTMLAudio elements
+        for (const [key, audio] of this.activeHtmlAudio.entries()) {
+            try {
+                audio.pause()
+                audio.currentTime = 0
+                this.activeHtmlAudio.delete(key)
+            } catch {
+                // Audio may have already stopped
+            }
+        }
+
+        // Cancel speech synthesis
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel()
+            } catch {
+                // Speech synthesis may not be available
+            }
+        }
+
+        if (import.meta.env.DEV) {
+            console.log('[SoundManager] Stopped all active audio')
+        }
     }
 
     async playSound(soundName: string, playbackRate = 1.0) {
@@ -711,9 +757,10 @@ class SoundManager {
      * @param phrase - The word/phrase to play
      * @param volumeOverride - Optional volume override
      * @param useSentenceTemplate - Whether to check SENTENCE_TEMPLATES (true for new target, false for tap feedback)
+     * @param cancelPrevious - Whether to cancel any ongoing speech synthesis (true for target announcements)
      * @returns Promise that resolves when audio playback is complete or fails
      */
-    private async playWordInternal(phrase: string, volumeOverride?: number, useSentenceTemplate = true) {
+    private async playWordInternal(phrase: string, volumeOverride?: number, useSentenceTemplate = true, cancelPrevious = false) {
         if (!this.isEnabled || !phrase) return
 
         try {
@@ -732,7 +779,7 @@ class SoundManager {
                 if (sentence) {
                     // We have a sentence template, speak the full sentence FIRST
                     console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
-                    if (this.speakWithSpeechSynthesis(sentence, volumeOverride)) {
+                    if (this.speakWithSpeechSynthesis(sentence, volumeOverride, cancelPrevious)) {
                         console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
                         const duration = performance.now() - startTime
                         eventTracker.trackAudioPlayback({
@@ -750,7 +797,7 @@ class SoundManager {
             }
 
             // Try exact phrase as audio file (PRIORITY 2 when using sentence template, PRIORITY 1 when not)
-            if (await this.playVoiceClip(trimmed, 0.8, undefined, volumeOverride)) {
+            if (await this.playVoiceClip(trimmed, 1.0, undefined, volumeOverride)) {
                 const duration = performance.now() - startTime
                 const candidates = this.resolveCandidates(trimmed)
                 const successfulKey = candidates.find(c => audioLoaderIndex.has(c)) || trimmed
@@ -767,7 +814,7 @@ class SoundManager {
             // For multi-word phrases, try speech synthesis (PRIORITY 3 when using sentence template, PRIORITY 2 when not)
             const parts = trimmed.split(/[\s-]+/).filter(Boolean)
             if (parts.length > 1) {
-                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
+                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride, cancelPrevious)) {
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
                         audioKey: trimmed,
@@ -785,7 +832,7 @@ class SoundManager {
                 for (const part of parts) {
                     const buffer = await this.loadBufferForName(part, false)
                     if (buffer && this.audioContext) {
-                        this.startBuffer(buffer, delay, undefined, 0.8, volumeOverride)
+                        this.startBuffer(buffer, delay, undefined, 1.0, volumeOverride)
                         delay += buffer.duration + 0.1 // 100ms gap between words
                         anyPlayed = true
                     }
@@ -804,7 +851,7 @@ class SoundManager {
                 }
             } else {
                 // Single word: try speech synthesis
-                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride)) {
+                if (this.speakWithSpeechSynthesis(trimmed, volumeOverride, cancelPrevious)) {
                     const duration = performance.now() - startTime
                     eventTracker.trackAudioPlayback({
                         audioKey: trimmed,
@@ -839,13 +886,15 @@ class SoundManager {
     }
 
     async playWord(phrase: string, volumeOverride?: number) {
-        return this.playWordInternal(phrase, volumeOverride, true)
+        // For target announcements, cancel previous speech to avoid overlapping
+        return this.playWordInternal(phrase, volumeOverride, true, true)
     }
 
     async playWordOnly(phrase: string, volumeOverride?: number) {
         // This method plays ONLY the word without sentence template
         // Used for successful tap feedback to avoid repetition
-        return this.playWordInternal(phrase, volumeOverride, false)
+        // Don't cancel previous speech for tap feedback (allows multiple sounds)
+        return this.playWordInternal(phrase, volumeOverride, false, false)
     }
 
     setVolume(volume: number) {
