@@ -886,7 +886,9 @@ class SoundManager {
     }
 
     async playWord(phrase: string, volumeOverride?: number) {
-        // For target announcements, cancel previous speech to avoid overlapping
+        // For target announcements, stop all active audio to avoid overlapping
+        // This includes HTMLAudio from tap feedback and speech synthesis from previous announcements
+        this.stopAllAudio()
         return this.playWordInternal(phrase, volumeOverride, true, true)
     }
 
@@ -946,7 +948,8 @@ export const playSoundEffect = {
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
-    }
+    },
+    stopAll: () => soundManager.stopAllAudio()
     // Other sound effects removed - only target pronunciation and celebration allowed
 }
 
