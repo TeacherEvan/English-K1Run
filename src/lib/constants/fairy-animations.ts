@@ -18,10 +18,8 @@ export const FAIRY_ANIMATION_TIMING = {
   /** Duration of trail sparkles fading out */
   TRAIL_FADE_DURATION: 5000,
   
-  /** Total animation duration */
-  get TOTAL_DURATION() {
-    return this.MORPH_DURATION + this.FLY_DURATION + this.TRAIL_FADE_DURATION
-  },
+  /** Total animation duration (pre-calculated for performance) */
+  TOTAL_DURATION: 10000, // MORPH_DURATION + FLY_DURATION + TRAIL_FADE_DURATION
   
   /** Throttle interval for state updates (ms) - ~30fps for smooth animation */
   UPDATE_INTERVAL: 33,
@@ -42,6 +40,13 @@ export const FAIRY_VISUAL_CONSTANTS = {
   
   /** Spawn new trail sparkles every N frames (~10fps) */
   TRAIL_SPAWN_FRAME_INTERVAL: 6,
+  
+  /** Fly target position constants for screen edge generation */
+  EDGE_VARIATION_X: 40, // Random X variation when flying to top/bottom edges
+  EDGE_VARIATION_Y: 200, // Random Y variation when flying to left/right edges
+  OFF_SCREEN_DISTANCE: 100, // Distance beyond screen edge for target position
+  SCREEN_RIGHT_EDGE: 110, // X position for right edge (percentage)
+  SCREEN_LEFT_EDGE: -20, // X position for left edge (percentage)
 } as const
 
 /**
@@ -85,20 +90,38 @@ export const quadraticBezier = (
  * Generate random fly target position at screen edge
  * @param startX - Starting X position (percentage)
  * @param startY - Starting Y position (pixels)
+ * @param screenHeight - Optional screen height override (for testing/SSR)
  * @returns Target position {x: percentage, y: pixels}
  */
 export const generateFlyTarget = (
   startX: number, 
-  startY: number
+  startY: number,
+  screenHeight?: number
 ): { x: number; y: number } => {
   const edge = Math.floor(Math.random() * 4) // 0=top, 1=right, 2=bottom, 3=left
-  const screenHeight = window.innerHeight || 800
+  const height = screenHeight ?? (typeof window !== 'undefined' ? window.innerHeight : 800)
   
   switch (edge) {
-    case 0: return { x: startX + (Math.random() - 0.5) * 40, y: -100 } // top
-    case 1: return { x: 110, y: startY + (Math.random() - 0.5) * 200 } // right
-    case 2: return { x: startX + (Math.random() - 0.5) * 40, y: screenHeight + 100 } // bottom
-    default: return { x: -20, y: startY + (Math.random() - 0.5) * 200 } // left
+    case 0: // top
+      return { 
+        x: startX + (Math.random() - 0.5) * FAIRY_VISUAL_CONSTANTS.EDGE_VARIATION_X, 
+        y: -FAIRY_VISUAL_CONSTANTS.OFF_SCREEN_DISTANCE 
+      }
+    case 1: // right
+      return { 
+        x: FAIRY_VISUAL_CONSTANTS.SCREEN_RIGHT_EDGE, 
+        y: startY + (Math.random() - 0.5) * FAIRY_VISUAL_CONSTANTS.EDGE_VARIATION_Y 
+      }
+    case 2: // bottom
+      return { 
+        x: startX + (Math.random() - 0.5) * FAIRY_VISUAL_CONSTANTS.EDGE_VARIATION_X, 
+        y: height + FAIRY_VISUAL_CONSTANTS.OFF_SCREEN_DISTANCE 
+      }
+    default: // left
+      return { 
+        x: FAIRY_VISUAL_CONSTANTS.SCREEN_LEFT_EDGE, 
+        y: startY + (Math.random() - 0.5) * FAIRY_VISUAL_CONSTANTS.EDGE_VARIATION_Y 
+      }
   }
 }
 
