@@ -1,12 +1,18 @@
-// TODO: Consider refactoring animation logic (see TODO.md Phase 1)
-// Current approach: JS-based position updates (heavy on main thread)
-// Optimization opportunity:
-// 1. Extract animation presets to constants/fairy-animations.ts
-// 2. Consider using CSS animations/keyframes instead of JS
-// 3. Use CSS transforms for GPU acceleration
-// Impact: Better performance, smoother animations, easier customization
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import type { FairyTransformObject } from '../hooks/use-game-logic'
+import {
+  FAIRY_ANIMATION_TIMING,
+  FAIRY_VISUAL_CONSTANTS,
+  FAIRY_GOLD_COLORS,
+  easeOutCubic,
+  quadraticBezier,
+  generateFlyTarget,
+  generateBezierControl,
+  calculateMorphScale,
+  calculateGlowIntensity,
+  calculateWormOpacity,
+  calculateFairyFadeIn,
+} from '../lib/constants/fairy-animations'
 
 interface FairyTransformationProps {
     fairy: FairyTransformObject
@@ -29,51 +35,16 @@ interface OrbitSparkle {
     color: string
 }
 
-// Animation timing constants
-const MORPH_DURATION = 3000 // 3 seconds morphing
-const FLY_DURATION = 2000 // 2 seconds flying
-const TRAIL_FADE_DURATION = 5000 // 5 seconds trail fade
-const TOTAL_DURATION = MORPH_DURATION + FLY_DURATION + TRAIL_FADE_DURATION // 10 seconds total
-
-// Visual constants
-const FAIRY_SIZE = 80
-const SPARKLE_COUNT = 12 // Sparkles orbiting the fairy
-const MAX_TRAIL_SPARKLES = 30 // Maximum trail sparkles at any time
-
-// Gold color palette
-const GOLD_COLORS = ['#FFD700', '#FFA500', '#FFE4B5', '#FFEC8B', '#F0E68C']
-
 // Generate initial sparkles outside render
 const createOrbitingSparkles = (): OrbitSparkle[] => {
-    return Array.from({ length: SPARKLE_COUNT }, (_, i) => ({
+    return Array.from({ length: FAIRY_VISUAL_CONSTANTS.SPARKLE_COUNT }, (_, i) => ({
         id: i,
-        angle: (Math.PI * 2 * i) / SPARKLE_COUNT,
+        angle: (Math.PI * 2 * i) / FAIRY_VISUAL_CONSTANTS.SPARKLE_COUNT,
         distance: 40 + Math.random() * 20,
         speed: 0.5 + Math.random() * 0.5,
         size: 8 + Math.random() * 8,
-        color: GOLD_COLORS[Math.floor(Math.random() * GOLD_COLORS.length)]
+        color: FAIRY_GOLD_COLORS[Math.floor(Math.random() * FAIRY_GOLD_COLORS.length)]
     }))
-}
-
-// Generate fly target outside render
-// x is percentage (0-100), y is pixels
-const createFlyTarget = (fairyX: number, fairyY: number): { x: number, y: number } => {
-    const edge = Math.floor(Math.random() * 4) // 0=top, 1=right, 2=bottom, 3=left
-    const screenHeight = window.innerHeight || 800
-    switch (edge) {
-        case 0: return { x: fairyX + (Math.random() - 0.5) * 40, y: -100 } // top (pixels)
-        case 1: return { x: 110, y: fairyY + (Math.random() - 0.5) * 200 } // right
-        case 2: return { x: fairyX + (Math.random() - 0.5) * 40, y: screenHeight + 100 } // bottom (pixels)
-        default: return { x: -20, y: fairyY + (Math.random() - 0.5) * 200 } // left
-    }
-}
-
-// Generate stable bezier control point
-const createBezierControl = (startX: number, startY: number, endX: number, endY: number): { x: number, y: number } => {
-    return {
-        x: startX + (endX - startX) * 0.5 + (Math.random() - 0.5) * 20,
-        y: Math.min(startY, endY) - 50 - Math.random() * 50 // Arc upward
-    }
 }
 
 export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) => {
@@ -91,16 +62,16 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
 
     // Initialize random values in useState to keep them stable
     const [orbitingSparkles] = useState<OrbitSparkle[]>(() => createOrbitingSparkles())
-    const [flyTarget] = useState(() => createFlyTarget(fairy.x, fairy.y))
+    const [flyTarget] = useState(() => generateFlyTarget(fairy.x, fairy.y))
     // Store bezier control point once to prevent jittery animation
-    const [bezierControl] = useState(() => createBezierControl(fairy.x, fairy.y, flyTarget.x, flyTarget.y))
+    const [bezierControl] = useState(() => generateBezierControl(fairy.x, fairy.y, flyTarget.x, flyTarget.y))
 
     const [trailSparkles, setTrailSparkles] = useState<TrailSparkle[]>([])
 
     // Determine current phase
     const phase = useMemo(() => {
-        if (age < MORPH_DURATION) return 'morphing'
-        if (age < MORPH_DURATION + FLY_DURATION) return 'flying'
+        if (age < FAIRY_ANIMATION_TIMING.MORPH_DURATION) return 'morphing'
+        if (age < FAIRY_ANIMATION_TIMING.MORPH_DURATION + FAIRY_ANIMATION_TIMING.FLY_DURATION) return 'flying'
         return 'trail-fading'
     }, [age])
 
@@ -108,17 +79,16 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
     const fairyPos = useMemo(() => {
         if (phase !== 'flying') return { x: fairy.x, y: fairy.y }
 
-        const flyStartTime = fairy.createdAt + MORPH_DURATION
+        const flyStartTime = fairy.createdAt + FAIRY_ANIMATION_TIMING.MORPH_DURATION
         const flyAge = now - flyStartTime
 
         // Eased progress (ease-out cubic)
-        const progress = Math.min(1, flyAge / FLY_DURATION)
-        const easedProgress = 1 - Math.pow(1 - progress, 3)
+        const progress = Math.min(1, flyAge / FAIRY_ANIMATION_TIMING.FLY_DURATION)
+        const easedProgress = easeOutCubic(progress)
 
         // Quadratic bezier using stable control point
-        const t = easedProgress
-        const newX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
-        const newY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
+        const newX = quadraticBezier(easedProgress, fairy.x, bezierControl.x, flyTarget.x)
+        const newY = quadraticBezier(easedProgress, fairy.y, bezierControl.y, flyTarget.y)
 
         return { x: newX, y: newY }
     }, [phase, now, fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
@@ -129,7 +99,6 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
         let animationFrameId: number
         let lastUpdateTime = 0
         let startTime = 0 // RAF start time to compute age consistently
-        const UPDATE_INTERVAL = 33 // ~30fps for trail sparkles (enough for smooth animation)
 
         const animate = (currentNow: number) => {
             // Initialize start time on first frame
@@ -141,19 +110,20 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
 
             // Throttle state updates to reduce re-renders
             const timeSinceLastUpdate = currentNow - lastUpdateTime
-            if (timeSinceLastUpdate >= UPDATE_INTERVAL) {
+            if (timeSinceLastUpdate >= FAIRY_ANIMATION_TIMING.UPDATE_INTERVAL) {
                 lastUpdateTime = currentNow
                 setNow(Date.now())
             }
 
             // Handle trail sparkles - use RAF-based age calculation
             const currentAge = currentNow - startTime
-            const currentPhase = currentAge < MORPH_DURATION ? 'morphing' :
-                currentAge < MORPH_DURATION + FLY_DURATION ? 'flying' : 'trail-fading'
+            const currentPhase = currentAge < FAIRY_ANIMATION_TIMING.MORPH_DURATION ? 'morphing' :
+                currentAge < FAIRY_ANIMATION_TIMING.MORPH_DURATION + FAIRY_ANIMATION_TIMING.FLY_DURATION ? 'flying' : 'trail-fading'
 
             // Sparkle fade logic - only update when we have sparkles or spawning new ones
-            // Only spawn new sparkles every 6 frames (~10fps) to reduce overhead
-            const shouldSpawnNew = currentPhase === 'flying' && frameCountRef.current % 6 === 0
+            // Only spawn new sparkles every N frames (~10fps) to reduce overhead
+            const shouldSpawnNew = currentPhase === 'flying' && 
+                frameCountRef.current % FAIRY_VISUAL_CONSTANTS.TRAIL_SPAWN_FRAME_INTERVAL === 0
             
             if (currentPhase === 'flying' || currentPhase === 'trail-fading') {
                 setTrailSparkles(prev => {
@@ -166,14 +136,13 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                     
                     // Add new sparkle if in flying phase and on spawn frame
                     if (shouldSpawnNew) {
-                        const flyStartTime = MORPH_DURATION
+                        const flyStartTime = FAIRY_ANIMATION_TIMING.MORPH_DURATION
                         const flyAge = currentAge - flyStartTime
-                        const progress = Math.min(1, flyAge / FLY_DURATION)
-                        const easedProgress = 1 - Math.pow(1 - progress, 3)
-                        const t = easedProgress
+                        const progress = Math.min(1, flyAge / FAIRY_ANIMATION_TIMING.FLY_DURATION)
+                        const easedProgress = easeOutCubic(progress)
 
-                        const currentX = (1 - t) * (1 - t) * fairy.x + 2 * (1 - t) * t * bezierControl.x + t * t * flyTarget.x
-                        const currentY = (1 - t) * (1 - t) * fairy.y + 2 * (1 - t) * t * bezierControl.y + t * t * flyTarget.y
+                        const currentX = quadraticBezier(easedProgress, fairy.x, bezierControl.x, flyTarget.x)
+                        const currentY = quadraticBezier(easedProgress, fairy.y, bezierControl.y, flyTarget.y)
 
                         const newSparkle: TrailSparkle = {
                             id: sparkleIdRef.current++,
@@ -182,7 +151,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                             size: 8 + Math.random() * 12,
                             opacity: 1
                         }
-                        return [...faded.slice(-MAX_TRAIL_SPARKLES), newSparkle]
+                        return [...faded.slice(-FAIRY_VISUAL_CONSTANTS.MAX_TRAIL_SPARKLES), newSparkle]
                     }
                     
                     return faded
@@ -197,27 +166,21 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
     }, [fairy.createdAt, fairy.x, fairy.y, flyTarget, bezierControl])
 
     // Calculate morph progress (0-1) during morphing phase
-
-    // Calculate morph progress (0-1) during morphing phase
-    const morphProgress = phase === 'morphing' ? Math.min(1, age / MORPH_DURATION) : 1
+    const morphProgress = phase === 'morphing' ? Math.min(1, age / FAIRY_ANIMATION_TIMING.MORPH_DURATION) : 1
 
     // Calculate visibility
-    const isVisible = age < TOTAL_DURATION
+    const isVisible = age < FAIRY_ANIMATION_TIMING.TOTAL_DURATION
     const fairyOpacity = phase === 'trail-fading' ? 0 :
-        phase === 'flying' ? Math.max(0, 1 - (age - MORPH_DURATION - FLY_DURATION * 0.7) / (FLY_DURATION * 0.3)) : 1
+        phase === 'flying' ? Math.max(0, 1 - (age - FAIRY_ANIMATION_TIMING.MORPH_DURATION - FAIRY_ANIMATION_TIMING.FLY_DURATION * 0.7) / (FAIRY_ANIMATION_TIMING.FLY_DURATION * 0.3)) : 1
 
     // Don't render if animation is complete
     if (!isVisible && trailSparkles.length === 0) return null
 
-    // Worm fade-out, fairy fade-in during morph
-    const wormOpacity = Math.max(0, 1 - morphProgress * 2) // Fades out in first half
-    const fairyFadeIn = Math.min(1, morphProgress * 2 - 0.5) // Fades in second half
-
-    // Scale animation during morph
-    const morphScale = 0.5 + morphProgress * 0.7 + Math.sin(morphProgress * Math.PI * 4) * 0.1
-
-    // Glow intensity pulsates
-    const glowIntensity = 10 + Math.sin(age / 100) * 5
+    // Use imported helper functions for opacity and scale calculations
+    const wormOpacity = calculateWormOpacity(morphProgress)
+    const fairyFadeIn = calculateFairyFadeIn(morphProgress)
+    const morphScale = calculateMorphScale(morphProgress)
+    const glowIntensity = calculateGlowIntensity(age)
 
     return (
         <div className="absolute inset-0 pointer-events-none select-none" style={{ zIndex: 20 }}>
@@ -228,9 +191,9 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                     style={{
                         left: `${fairyPos.x}%`,
                         top: `${fairyPos.y}px`, // y is in pixels
-                        width: `${FAIRY_SIZE}px`,
-                        height: `${FAIRY_SIZE}px`,
-                        fontSize: `${FAIRY_SIZE}px`,
+                        width: `${FAIRY_VISUAL_CONSTANTS.FAIRY_SIZE}px`,
+                        height: `${FAIRY_VISUAL_CONSTANTS.FAIRY_SIZE}px`,
+                        fontSize: `${FAIRY_VISUAL_CONSTANTS.FAIRY_SIZE}px`,
                         transform: `translate(-50%, -50%) scale(${morphScale}) rotate(${morphProgress * 360}deg)`,
                         filter: `drop-shadow(0 0 ${glowIntensity}px #FFD700) drop-shadow(0 0 ${glowIntensity * 2}px #FFA500)`,
                         transition: phase === 'morphing' ? 'none' : 'transform 0.05s linear',
@@ -294,7 +257,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                         fontSize: `${sparkle.size}px`,
                         transform: 'translate(-50%, -50%)',
                         opacity: sparkle.opacity,
-                        filter: `drop-shadow(0 0 ${sparkle.size / 2}px ${GOLD_COLORS[sparkle.id % GOLD_COLORS.length]})`,
+                        filter: `drop-shadow(0 0 ${sparkle.size / 2}px ${FAIRY_GOLD_COLORS[sparkle.id % FAIRY_GOLD_COLORS.length]})`,
                         transition: 'opacity 0.1s ease-out'
                     }}
                 >

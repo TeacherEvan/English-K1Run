@@ -3,6 +3,7 @@
  */
 
 export * from './combo-levels'
+export * from './fairy-animations'
 export * from './game-categories'
 export * from './game-config'
 export * from './messages'
