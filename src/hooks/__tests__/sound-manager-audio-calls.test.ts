@@ -58,13 +58,23 @@ describe('Sound Manager Audio Call Behavior', () => {
     }).not.toThrow()
   })
 
-  it('should only export voice, voiceWordOnly, and sticker methods', () => {
-    // Verify that we only have the expected sound effects
+  it('should only export voice, voiceWordOnly, sticker, and stopAll methods', () => {
+    // Verify that we only have the expected sound effects and control methods
     // (per repository documentation: "only target pronunciation and celebration allowed")
     const exportedMethods = Object.keys(playSoundEffect)
-    expect(exportedMethods).toHaveLength(3)
+    expect(exportedMethods).toHaveLength(4)
     expect(exportedMethods).toContain('voice')
     expect(exportedMethods).toContain('voiceWordOnly')
     expect(exportedMethods).toContain('sticker')
+    expect(exportedMethods).toContain('stopAll')
+  })
+
+  it('should have stopAll method to stop all audio', () => {
+    expect(playSoundEffect.stopAll).toBeDefined()
+    expect(typeof playSoundEffect.stopAll).toBe('function')
+    
+    expect(() => {
+      void playSoundEffect.stopAll()
+    }).not.toThrow()
   })
 })
