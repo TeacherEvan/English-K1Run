@@ -23,7 +23,7 @@
     "noUncheckedSideEffectImports": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    /* Path aliases - baseUrl deprecated in TS 5.0, silence warning */
+    /* Path aliases - silence TS deprecation diagnostics */
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {

@@ -1,0 +1,5 @@
+{
+  // Use the project's installed TypeScript version for consistency with CI/build.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

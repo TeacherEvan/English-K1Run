@@ -45,4 +45,15 @@ export default tseslint.config(
       }],
     },
   },
+  // Shadcn-style UI primitives often export variants/helpers alongside components.
+  // Disable this rule for those files to keep lint output clean.
+  {
+    files: [
+      'src/components/ui/**/*.{ts,tsx}',
+      'src/components/AchievementDisplay.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 )
