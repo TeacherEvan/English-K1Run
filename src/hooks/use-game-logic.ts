@@ -5,51 +5,51 @@ import { multiTouchHandler } from '../lib/touch-handler'
 import { calculateSafeSpawnPosition } from '../lib/utils/spawn-position'
 // Types
 import type {
-  Achievement,
-  ComboCelebration,
-  FairyTransformObject,
-  GameObject,
-  GameState,
-  PlayerSide,
-  UseGameLogicOptions,
-  WormObject
+    Achievement,
+    ComboCelebration,
+    FairyTransformObject,
+    GameObject,
+    GameState,
+    PlayerSide,
+    UseGameLogicOptions,
+    WormObject
 } from '../types/game'
 // Constants
 import { COMBO_LEVELS } from '../lib/constants/combo-levels'
 import {
-  clamp,
-  COLLISION_MIN_SEPARATION,
-  EMOJI_SIZE,
-  FAIRY_TRANSFORM_DURATION,
-  LANE_BOUNDS,
-  MAX_ACTIVE_OBJECTS,
-  MIN_DECOY_SLOTS,
-  MIN_VERTICAL_GAP,
-  ROTATION_THRESHOLD,
-  SPAWN_ABOVE_SCREEN,
-  SPAWN_COUNT,
-  SPAWN_VERTICAL_GAP,
-  TARGET_GUARANTEE_COUNT,
-  WORM_BASE_SPEED,
-  WORM_INITIAL_COUNT,
-  WORM_PROGRESSIVE_SPAWN_INTERVAL,
-  WORM_RECURRING_COUNT,
-  WORM_RECURRING_INTERVAL,
-  WORM_SIZE,
+    clamp,
+    COLLISION_MIN_SEPARATION,
+    EMOJI_SIZE,
+    FAIRY_TRANSFORM_DURATION,
+    LANE_BOUNDS,
+    MAX_ACTIVE_OBJECTS,
+    MIN_DECOY_SLOTS,
+    MIN_VERTICAL_GAP,
+    ROTATION_THRESHOLD,
+    SPAWN_ABOVE_SCREEN,
+    SPAWN_COUNT,
+    SPAWN_VERTICAL_GAP,
+    TARGET_GUARANTEE_COUNT,
+    WORM_BASE_SPEED,
+    WORM_INITIAL_COUNT,
+    WORM_PROGRESSIVE_SPAWN_INTERVAL,
+    WORM_RECURRING_COUNT,
+    WORM_RECURRING_INTERVAL,
+    WORM_SIZE,
 } from '../lib/constants/game-config'
 import { CORRECT_MESSAGES } from '../lib/constants/messages'
 
 // Re-export for backward compatibility
 export { GAME_CATEGORIES } from '../lib/constants/game-categories'
 export type {
-  Achievement,
-  ComboCelebration,
-  FairyTransformObject,
-  GameCategory,
-  GameObject,
-  GameState,
-  PlayerSide,
-  WormObject
+    Achievement,
+    ComboCelebration,
+    FairyTransformObject,
+    GameCategory,
+    GameObject,
+    GameState,
+    PlayerSide,
+    WormObject
 } from '../types/game'
 
 // Import GAME_CATEGORIES for internal use
@@ -97,6 +97,21 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }))
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
   const [achievements, setAchievements] = useState<Achievement[]>([])
+
+  // Cache viewport size to avoid reading window dimensions every frame.
+  const viewportRef = useRef({ width: 1920, height: 1080 })
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const updateViewport = () => {
+      viewportRef.current.width = window.innerWidth
+      viewportRef.current.height = window.innerHeight
+    }
+
+    updateViewport()
+    window.addEventListener('resize', updateViewport)
+    return () => window.removeEventListener('resize', updateViewport)
+  }, [])
 
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map())
@@ -671,7 +686,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         // Early exit if no objects to update
         if (prev.length === 0) return prev
 
-        const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+        const screenHeight = viewportRef.current.height
         const speedMultiplier = 1.2
         
         // Pre-allocate array to reduce reallocation overhead (performance optimization)
@@ -1117,8 +1132,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         if (prev.length === 0) return prev
 
         // Hoist constants out of map loop (performance optimization)
-        const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
-        const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+        const viewportWidth = viewportRef.current.width
+        const viewportHeight = viewportRef.current.height
         const speedMult = wormSpeedMultiplier.current
 
         return prev.map(worm => {

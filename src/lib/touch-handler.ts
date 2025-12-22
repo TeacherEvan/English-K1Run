@@ -54,6 +54,13 @@ class MultiTouchHandler {
     private enabled = false
     private cleanupIntervalId: number | null = null
 
+    private track(event: Parameters<typeof eventTracker.trackEvent>[0]) {
+        // High-volume touch telemetry is only useful for debugging.
+        // Avoid allocating/storing events in production for better performance.
+        if (!this.options.debug && !import.meta.env.DEV) return
+        eventTracker.trackEvent(event)
+    }
+
     constructor(options: TouchHandlerOptions = {}) {
         this.options = {
             debounceMs: options.debounceMs ?? 150,
@@ -77,7 +84,7 @@ class MultiTouchHandler {
             console.log('[MultiTouchHandler] Enabled with options:', this.options)
         }
 
-        eventTracker.trackEvent({
+        this.track({
             type: 'info',
             category: 'touch_handler',
             message: 'Touch handler enabled',
@@ -102,7 +109,7 @@ class MultiTouchHandler {
             console.log('[MultiTouchHandler] Disabled')
         }
 
-        eventTracker.trackEvent({
+        this.track({
             type: 'info',
             category: 'touch_handler',
             message: 'Touch handler disabled'
@@ -115,10 +122,11 @@ class MultiTouchHandler {
     handleTouchStart(event: TouchEvent, targetId: string): boolean {
         if (!this.enabled) return false
 
-        const touches = Array.from(event.changedTouches)
-        let anyRegistered = false
+        const touches = event.changedTouches
+        let anyRegistered = touches.length > 0
 
-        for (const touch of touches) {
+        for (let i = 0; i < touches.length; i++) {
+            const touch = touches[i]
             const touchPoint: TouchPoint = {
                 id: touch.identifier,
                 x: touch.clientX,
@@ -136,7 +144,7 @@ class MultiTouchHandler {
             }
         }
 
-        eventTracker.trackEvent({
+        this.track({
             type: 'user_action',
             category: 'touch_handler',
             message: 'Touch started',
@@ -156,10 +164,11 @@ class MultiTouchHandler {
     handleTouchEnd(event: TouchEvent, targetId: string): boolean {
         if (!this.enabled) return false
 
-        const touches = Array.from(event.changedTouches)
+        const touches = event.changedTouches
         let validTapDetected = false
 
-        for (const touch of touches) {
+        for (let i = 0; i < touches.length; i++) {
+            const touch = touches[i]
             const touchPoint = this.activeTouches.get(touch.identifier)
 
             if (!touchPoint) {
@@ -197,7 +206,7 @@ class MultiTouchHandler {
                         console.log(`[MultiTouchHandler] Valid tap: ID=${touch.identifier}, Target=${targetId}, Duration=${duration}ms, Movement=${movement.toFixed(1)}px`)
                     }
 
-                    eventTracker.trackEvent({
+                    this.track({
                         type: 'user_action',
                         category: 'touch_handler',
                         message: 'Valid tap detected',
@@ -213,7 +222,7 @@ class MultiTouchHandler {
                         console.log(`[MultiTouchHandler] Debounced tap: Target=${targetId}, TimeSince=${timeSinceLastTap}ms`)
                     }
 
-                    eventTracker.trackEvent({
+                    this.track({
                         type: 'info',
                         category: 'touch_handler',
                         message: 'Tap debounced',
@@ -228,7 +237,7 @@ class MultiTouchHandler {
                     console.log(`[MultiTouchHandler] Invalid tap (drag/long-press): ID=${touch.identifier}, Duration=${duration}ms, Movement=${movement.toFixed(1)}px`)
                 }
 
-                eventTracker.trackEvent({
+                this.track({
                     type: 'info',
                     category: 'touch_handler',
                     message: 'Invalid tap (drag or long-press)',
@@ -266,7 +275,7 @@ class MultiTouchHandler {
                 console.log(`[MultiTouchHandler] Valid mouse click: Target=${targetId}`)
             }
 
-            eventTracker.trackEvent({
+            this.track({
                 type: 'user_action',
                 category: 'touch_handler',
                 message: 'Valid click detected',
@@ -279,7 +288,7 @@ class MultiTouchHandler {
             console.log(`[MultiTouchHandler] Debounced mouse click: Target=${targetId}`)
         }
 
-        eventTracker.trackEvent({
+        this.track({
             type: 'info',
             category: 'touch_handler',
             message: 'Click debounced',
