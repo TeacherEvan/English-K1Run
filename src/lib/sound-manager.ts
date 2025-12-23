@@ -85,7 +85,7 @@ if (import.meta.env.DEV) {
 // - Extract audio loading logic → audio-loader.ts
 // - Extract playback logic → audio-player.ts  
 // - Extract speech synthesis → speech-synthesizer.ts
-// Current size: 949 lines (down from 955 after voiceWordOnly removal) - Target: <300 lines per module
+// Current size: 953 lines (down from 959 after voiceWordOnly removal) - Target: <300 lines per module
 class SoundManager {
     private audioContext: AudioContext | null = null
     private bufferCache: Map<string, AudioBuffer> = new Map()
