@@ -126,6 +126,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           </h1>
 
           {/* Thai text styling (using English as placeholder) */}
+          {/* Thai text: "อนุบาลสงสม" (Sangsom Kindergarten) */}
           <p
             className="text-3xl font-semibold text-amber-600 animate-in slide-in-from-bottom-4 duration-700"
             style={{
