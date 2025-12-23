@@ -7,6 +7,7 @@ import { GameMenu } from './components/GameMenu'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
+import { WelcomeScreen } from './components/WelcomeScreen'
 import { Worm } from './components/Worm'
 
 // Lazy load non-critical UI components for better initial load performance
@@ -112,6 +113,8 @@ function App() {
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
   const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
+  const [showWelcome, setShowWelcome] = useState(true) // Show welcome screen on first load
+  const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
 
   // Called when user clicks "Start Game" - show loading screen first
   const handleStartGame = useCallback(() => {
@@ -133,6 +136,16 @@ function App() {
 
   // Memoized level names to avoid creating new array on every render
   const levelNames = useMemo(() => GAME_CATEGORIES.map(cat => cat.name), [])
+
+  // Handle welcome screen completion
+  const handleWelcomeComplete = useCallback(() => {
+    setShowWelcome(false)
+  }, [])
+
+  // Handle continuous mode toggle
+  const handleToggleContinuousMode = useCallback((enabled: boolean) => {
+    setContinuousMode(enabled)
+  }, [])
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
@@ -230,6 +243,11 @@ function App() {
 
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])
+
+  // Show welcome screen on first load (after all hooks)
+  if (showWelcome) {
+    return <WelcomeScreen onComplete={handleWelcomeComplete} />
+  }
 
   // Show loading screen between level select and gameplay (after all hooks)
   if (isLoading) {
@@ -330,6 +348,8 @@ function App() {
           levels={levelNames}
           gameStarted={gameState.gameStarted}
           winner={gameState.winner}
+          continuousMode={continuousMode}
+          onToggleContinuousMode={handleToggleContinuousMode}
         />
 
         {/* Fireworks Display - Lazy loaded only when winner */}

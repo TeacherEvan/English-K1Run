@@ -949,6 +949,10 @@ export const playSoundEffect = {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
     },
+    welcome: async () => {
+        // Play welcome audio file - 5 second happy monophonic tune
+        return soundManager.playSound('welcome')
+    },
     stopAll: () => soundManager.stopAllAudio()
     // Other sound effects removed - only target pronunciation and celebration allowed
 }
