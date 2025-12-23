@@ -892,13 +892,6 @@ class SoundManager {
         return this.playWordInternal(phrase, volumeOverride, true, true)
     }
 
-    async playWordOnly(phrase: string, volumeOverride?: number) {
-        // This method plays ONLY the word without sentence template
-        // Used for successful tap feedback to avoid repetition
-        // Don't cancel previous speech for tap feedback (allows multiple sounds)
-        return this.playWordInternal(phrase, volumeOverride, false, false)
-    }
-
     setVolume(volume: number) {
         this.volume = Math.max(0, Math.min(1, volume))
     }
@@ -944,13 +937,12 @@ export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
-    voiceWordOnly: (phrase: string) => soundManager.playWordOnly(phrase),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
     },
     stopAll: () => soundManager.stopAllAudio()
-    // Other sound effects removed - only target pronunciation and celebration allowed
+    // Single-word pronunciation removed - only full sentence announcements and celebration allowed
 }
 
 // Export debug function for troubleshooting
