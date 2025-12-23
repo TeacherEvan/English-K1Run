@@ -80,7 +80,7 @@ import { GAME_CATEGORIES } from '../lib/constants/game-categories'
  * ```
  */
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
-  const { fallSpeedMultiplier = 1 } = options
+  const { fallSpeedMultiplier = 1, continuousMode = false } = options
   const [gameObjects, setGameObjects] = useState<GameObject[]>([])
   const [worms, setWorms] = useState<WormObject[]>([])
   const [fairyTransforms, setFairyTransforms] = useState<FairyTransformObject[]>([])
@@ -827,11 +827,27 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
           newState.progress = Math.min(prev.progress + 20, 100)
 
-          // Check for winner
+          // Check for winner or continuous mode
           if (newState.progress >= 100) {
-            newState.winner = true
-            // Win sound removed - only target pronunciations allowed
-            eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'player_wins')
+            if (continuousMode) {
+              // Continuous mode: reset progress and continue playing
+              newState.progress = 0
+              newState.winner = false
+              eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'continuous_mode_reset')
+              
+              // Generate next target
+              const nextTarget = generateRandomTarget()
+              newState.currentTarget = nextTarget.name
+              newState.targetEmoji = nextTarget.emoji
+              newState.targetChangeTime = Date.now() + 10000
+              
+              // Spawn immediate targets for continuous play
+              setTimeout(() => spawnImmediateTargets(), 0)
+            } else {
+              // Normal mode: declare winner
+              newState.winner = true
+              eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'player_wins')
+            }
           }
 
           // Change target immediately on correct tap (for non-sequence modes)

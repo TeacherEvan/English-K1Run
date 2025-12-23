@@ -91,6 +91,14 @@ function App() {
     displaySettings
   } = useDisplayAdjustment()
 
+  // State declarations must come before hooks that use them
+  const [timeRemaining, setTimeRemaining] = useState(10000)
+  const [selectedLevel, setSelectedLevel] = useState(0)
+  const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
+  const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
+  const [showWelcome, setShowWelcome] = useState(true) // Show welcome screen on first load
+  const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
+
   const {
     gameObjects,
     worms,
@@ -107,14 +115,10 @@ function App() {
     changeTargetToVisibleEmoji,
     achievements,
     clearAchievement
-  } = useGameLogic({ fallSpeedMultiplier: displaySettings.fallSpeed })
-
-  const [timeRemaining, setTimeRemaining] = useState(10000)
-  const [selectedLevel, setSelectedLevel] = useState(0)
-  const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
-  const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
-  const [showWelcome, setShowWelcome] = useState(true) // Show welcome screen on first load
-  const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
+  } = useGameLogic({ 
+    fallSpeedMultiplier: displaySettings.fallSpeed,
+    continuousMode 
+  })
 
   // Called when user clicks "Start Game" - show loading screen first
   const handleStartGame = useCallback(() => {
