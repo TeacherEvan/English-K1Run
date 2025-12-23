@@ -911,7 +911,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
-  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, spawnImmediateTargets])
+  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, spawnImmediateTargets, continuousMode])
 
   const handleWormTap = useCallback((wormId: string, playerSide: 'left' | 'right') => {
     try {
