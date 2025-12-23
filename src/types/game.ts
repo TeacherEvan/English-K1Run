@@ -78,4 +78,5 @@ export interface Achievement {
 
 export interface UseGameLogicOptions {
     fallSpeedMultiplier?: number
+    continuousMode?: boolean
 }

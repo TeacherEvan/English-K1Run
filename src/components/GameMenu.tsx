@@ -10,6 +10,8 @@ interface GameMenuProps {
   levels: string[]
   gameStarted: boolean
   winner: boolean
+  continuousMode?: boolean
+  onToggleContinuousMode?: (enabled: boolean) => void
 }
 
 /**
@@ -31,7 +33,9 @@ export const GameMenu = memo(({
   selectedLevel,
   levels,
   gameStarted,
-  winner
+  winner,
+  continuousMode = false,
+  onToggleContinuousMode
 }: GameMenuProps) => {
   // Track hover states for micro-interactions (must be declared before any conditional returns)
   const [hoveredLevel, setHoveredLevel] = useState<number | null>(null)
@@ -148,6 +152,39 @@ export const GameMenu = memo(({
             })}
           </div>
         </div>
+
+        {/* Continuous Mode Checkbox */}
+        {onToggleContinuousMode && (
+          <div className="mb-6 flex items-center justify-center gap-3 p-4 bg-primary/5 rounded-lg border-2 border-primary/20 transition-all hover:border-primary/40">
+            <label 
+              htmlFor="continuous-mode" 
+              className="flex items-center gap-3 cursor-pointer select-none"
+            >
+              <input
+                id="continuous-mode"
+                type="checkbox"
+                checked={continuousMode}
+                onChange={(e) => onToggleContinuousMode(e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-primary/40 text-primary focus:ring-2 focus:ring-primary/50 cursor-pointer transition-all"
+                style={{
+                  accentColor: 'var(--color-primary)',
+                }}
+              />
+              <span 
+                className="font-semibold text-foreground"
+                style={{ fontSize: `calc(1rem * var(--font-scale, 1))` }}
+              >
+                🔄 Continuous Play Mode
+              </span>
+              <span 
+                className="text-sm text-muted-foreground ml-2"
+                style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}
+              >
+                (Auto-advance through all targets)
+              </span>
+            </label>
+          </div>
+        )}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button

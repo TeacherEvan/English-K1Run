@@ -1,10 +1,17 @@
 # 🐢 Kindergarten Race - Educational Game
 
-> **Production-Grade v1.1** - A premium educational racing game with cutting-edge UX, PWA support, React 19 concurrent features, and 60fps performance
+> **Production-Grade v1.2** - A premium educational racing game with cutting-edge UX, PWA support, React 19 concurrent features, and 60fps performance
 
 An engaging educational racing game where students identify falling objects to advance their turtle characters. Engineered with 2025 best practices for performance, accessibility, and delightful micro-interactions.
 
 ## ✨ What's New (December 2025)
+
+### 🎉 Welcome Screen & Continuous Mode (NEW - Dec 23)
+- **Welcome screen** with Sangsom Kindergarten branding and animated sun logo
+- **5-second welcome tune** plays on app launch for warm introduction
+- **Continuous Play Mode** checkbox at level selection for uninterrupted gameplay
+- **Auto-advancing targets** - progress resets at 100% instead of showing winner screen
+- **Seamless experience** for extended practice sessions
 
 ### 🚀 React 19 Concurrent Features (NEW - Dec 5)
 - **useTransition integration** for smooth non-urgent updates
@@ -56,6 +63,17 @@ An engaging educational racing game where students identify falling objects to a
 - **Audio Feedback**: Simple word pronunciations for correct taps
 - **Progress Tracking**: Visual feedback with celebratory effects
 - **Beautiful Backgrounds**: 10 rotating scenic backgrounds
+- **Continuous Play Mode**: Optional endless gameplay mode without winner interruptions
+
+### 🔄 How to Use Continuous Mode
+
+1. **Enable**: At level selection, check the "🔄 Continuous Play Mode" checkbox
+2. **Play**: Start the game normally by tapping matching objects
+3. **Auto-Reset**: When progress reaches 100%, the game automatically:
+   - Resets progress to 0%
+   - Generates a new random target
+   - Continues playing seamlessly without showing winner screen
+4. **Disable**: Return to menu and uncheck the box for normal mode (shows winner at 100%)
 
 ### Technical Excellence
 
