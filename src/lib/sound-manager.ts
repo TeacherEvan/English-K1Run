@@ -85,7 +85,7 @@ if (import.meta.env.DEV) {
 // - Extract audio loading logic → audio-loader.ts
 // - Extract playback logic → audio-player.ts  
 // - Extract speech synthesis → speech-synthesizer.ts
-// Current size: 900 lines - Target: <300 lines per module
+// Current size: 953 lines (down from 959 after voiceWordOnly removal) - Target: <300 lines per module
 class SoundManager {
     private audioContext: AudioContext | null = null
     private bufferCache: Map<string, AudioBuffer> = new Map()
@@ -778,9 +778,13 @@ class SoundManager {
 
                 if (sentence) {
                     // We have a sentence template, speak the full sentence FIRST
-                    console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                    if (import.meta.env.DEV) {
+                        console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                    }
                     if (this.speakWithSpeechSynthesis(sentence, volumeOverride, cancelPrevious)) {
-                        console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                        if (import.meta.env.DEV) {
+                            console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                        }
                         const duration = performance.now() - startTime
                         eventTracker.trackAudioPlayback({
                             audioKey: normalizedPhrase,
@@ -892,13 +896,6 @@ class SoundManager {
         return this.playWordInternal(phrase, volumeOverride, true, true)
     }
 
-    async playWordOnly(phrase: string, volumeOverride?: number) {
-        // This method plays ONLY the word without sentence template
-        // Used for successful tap feedback to avoid repetition
-        // Don't cancel previous speech for tap feedback (allows multiple sounds)
-        return this.playWordInternal(phrase, volumeOverride, false, false)
-    }
-
     setVolume(volume: number) {
         this.volume = Math.max(0, Math.min(1, volume))
     }
@@ -944,7 +941,6 @@ export const soundManager = new SoundManager()
 
 export const playSoundEffect = {
     voice: (phrase: string) => soundManager.playWord(phrase),
-    voiceWordOnly: (phrase: string) => soundManager.playWordOnly(phrase),
     sticker: () => {
         // Play excited "GIVE THEM A STICKER!" voice using speech synthesis
         soundManager.playSpeech('GIVE THEM A STICKER!', { pitch: 1.2, rate: 1.1 })
@@ -954,7 +950,7 @@ export const playSoundEffect = {
         return soundManager.playSound('welcome')
     },
     stopAll: () => soundManager.stopAllAudio()
-    // Other sound effects removed - only target pronunciation and celebration allowed
+    // Single-word pronunciation removed - only full sentence announcements and celebration allowed
 }
 
 // Export debug function for troubleshooting

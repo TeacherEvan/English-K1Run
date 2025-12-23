@@ -3,7 +3,7 @@
  * 
  * Tests verify that the game uses the correct audio playback methods:
  * - Target announcements use full sentences (playSoundEffect.voice)
- * - Tap feedback uses word-only pronunciation (playSoundEffect.voiceWordOnly)
+ * - Single-word tap feedback has been removed per December 2025 requirements
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -15,23 +15,13 @@ describe('Sound Manager Audio Call Behavior', () => {
     vi.clearAllMocks()
   })
 
-  it('should export voiceWordOnly function', () => {
-    expect(playSoundEffect.voiceWordOnly).toBeDefined()
-    expect(typeof playSoundEffect.voiceWordOnly).toBe('function')
-  })
-
   it('should export voice function for full sentences', () => {
     expect(playSoundEffect.voice).toBeDefined()
     expect(typeof playSoundEffect.voice).toBe('function')
   })
 
-  it('should have both voice and voiceWordOnly available as separate methods', () => {
-    // Verify that both methods exist and are distinct
-    expect(playSoundEffect.voice).not.toBe(playSoundEffect.voiceWordOnly)
-    
-    // Both should be callable functions
-    expect(playSoundEffect.voice).toBeInstanceOf(Function)
-    expect(playSoundEffect.voiceWordOnly).toBeInstanceOf(Function)
+  it('should NOT export voiceWordOnly (removed in Dec 2025)', () => {
+    expect(playSoundEffect).not.toHaveProperty('voiceWordOnly')
   })
 
   it('should call the underlying soundManager methods with correct parameters', () => {
@@ -42,10 +32,6 @@ describe('Sound Manager Audio Call Behavior', () => {
     // but we can verify the functions don't throw errors when called
     expect(() => {
       void playSoundEffect.voice(testPhrase)
-    }).not.toThrow()
-    
-    expect(() => {
-      void playSoundEffect.voiceWordOnly(testPhrase)
     }).not.toThrow()
   })
 
@@ -58,15 +44,15 @@ describe('Sound Manager Audio Call Behavior', () => {
     }).not.toThrow()
   })
 
-  it('should only export voice, voiceWordOnly, sticker, and stopAll methods', () => {
+  it('should only export voice, sticker, and stopAll methods', () => {
     // Verify that we only have the expected sound effects and control methods
-    // (per repository documentation: "only target pronunciation and celebration allowed")
+    // voiceWordOnly was removed in December 2025 per issue requirements
     const exportedMethods = Object.keys(playSoundEffect)
-    expect(exportedMethods).toHaveLength(4)
+    expect(exportedMethods).toHaveLength(3)
     expect(exportedMethods).toContain('voice')
-    expect(exportedMethods).toContain('voiceWordOnly')
     expect(exportedMethods).toContain('sticker')
     expect(exportedMethods).toContain('stopAll')
+    expect(exportedMethods).not.toContain('voiceWordOnly')
   })
 
   it('should have stopAll method to stop all audio', () => {
