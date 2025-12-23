@@ -85,7 +85,7 @@ if (import.meta.env.DEV) {
 // - Extract audio loading logic → audio-loader.ts
 // - Extract playback logic → audio-player.ts  
 // - Extract speech synthesis → speech-synthesizer.ts
-// Current size: 900 lines - Target: <300 lines per module
+// Current size: 949 lines (down from 955 after voiceWordOnly removal) - Target: <300 lines per module
 class SoundManager {
     private audioContext: AudioContext | null = null
     private bufferCache: Map<string, AudioBuffer> = new Map()
@@ -778,9 +778,13 @@ class SoundManager {
 
                 if (sentence) {
                     // We have a sentence template, speak the full sentence FIRST
-                    console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                    if (import.meta.env.DEV) {
+                        console.log(`[SoundManager] Using sentence template for "${trimmed}": "${sentence}"`)
+                    }
                     if (this.speakWithSpeechSynthesis(sentence, volumeOverride, cancelPrevious)) {
-                        console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                        if (import.meta.env.DEV) {
+                            console.log(`[SoundManager] Successfully spoke sentence via speech synthesis`)
+                        }
                         const duration = performance.now() - startTime
                         eventTracker.trackAudioPlayback({
                             audioKey: normalizedPhrase,
