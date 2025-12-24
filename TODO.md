@@ -1,6 +1,6 @@
 # TODO - Optimization & Refactoring Roadmap
 
-**Last Updated:** December 3, 2025  
+**Last Updated:** December 24, 2025  
 **Priority Legend:** 🔴 Critical | 🟡 High | 🟢 Medium | 🔵 Low | ⚪ Future
 
 ---
@@ -16,9 +16,18 @@
 
 ## 📋 Active Tasks
 
+### Welcome Screen Enhancements 🟡
+
+- [x] Sequential audio (association ➜ choir tagline) wired and timed (~6.5s total)
+- [x] Welcome audio regenerated via ElevenLabs `eleven_turbo_v2_5` (`welcome_association`, `welcome_learning`)
+- [ ] Add fallback copy if audio files missing (show text banner + optional skip)
+- [ ] Preload welcome audio during splash to avoid first-play delay
+- [ ] QA on tablets/QBoard: verify Thai font stack and volume balance at 0.9x playback rate
+
 ### Phase 1: Code Organization 🟡
 
 #### Large Component Refactoring
+
 - [ ] **ui/sidebar.tsx** (728 lines) - Extract navigation logic
   - [ ] Create `useSidebarNavigation` hook
   - [ ] Extract menu items to constants file
@@ -39,6 +48,7 @@
   - **Estimated Time:** 1 hour
 
 #### Large Utility Refactoring
+
 - [ ] **sound-manager.ts** (900 lines) - Modularize responsibilities
   - [ ] Extract audio loading logic → `audio-loader.ts`
   - [ ] Extract audio playback logic → `audio-player.ts`
@@ -60,6 +70,7 @@
 ### Phase 2: Performance Optimizations 🟢
 
 #### Lazy Loading Improvements
+
 - [ ] **Debug Components** - Currently eager loaded
   - [ ] Lazy load `PerformanceMonitor` (166 lines)
   - [ ] Lazy load `EventTrackerDebug` (182 lines)
@@ -77,6 +88,7 @@
   - **Risk:** Low (additive change)
 
 #### Memoization Opportunities
+
 - [ ] **Display Settings Calculations** (`use-display-adjustment.ts`)
   - [ ] Add useMemo for scale calculations
   - [ ] Cache CSS variable updates
@@ -90,6 +102,7 @@
   - **Estimated Time:** 30 minutes
 
 #### Render Optimization
+
 - [ ] **Worm Component** - Review animation rendering
   - [ ] Consider CSS transforms over JS position updates
   - [ ] Evaluate `will-change` CSS property
@@ -101,6 +114,7 @@
 ### Phase 3: Developer Experience 🟡
 
 #### TypeScript Improvements
+
 - [ ] **Stricter Type Checking**
   - [ ] Enable `noUncheckedIndexedAccess` in tsconfig
   - [ ] Enable `noImplicitOverride`
@@ -116,6 +130,7 @@
   - **Estimated Time:** 2 hours
 
 #### Error Handling
+
 - [ ] **Improved Error Boundaries**
   - [ ] Create category-specific error boundaries
   - [ ] Add error recovery suggestions
@@ -131,6 +146,7 @@
   - **Estimated Time:** 2 hours
 
 #### Development Utilities
+
 - [ ] **Create Developer Console**
   - [ ] Consolidate all debug overlays
   - [ ] Add keyboard shortcuts (Ctrl+D for debug)
@@ -143,6 +159,7 @@
 ### Phase 4: Testing Expansion 🟢
 
 #### Unit Tests Needed
+
 - [ ] **sound-manager.ts** - No tests currently
   - [ ] Test audio loading logic
   - [ ] Test fallback mechanisms
@@ -165,6 +182,7 @@
   - **Estimated Time:** 2 hours
 
 #### Integration Tests
+
 - [ ] **Game Flow Tests**
   - [ ] Test level selection → gameplay → winner flow
   - [ ] Test audio playback during gameplay
@@ -172,6 +190,7 @@
   - **Estimated Time:** 3 hours
 
 #### Performance Regression Tests
+
 - [ ] **Create Performance Benchmarks**
   - [ ] Baseline spawn rate benchmarks
   - [ ] Baseline render performance
@@ -184,6 +203,7 @@
 ### Phase 5: Documentation 🔵
 
 #### Code Documentation
+
 - [ ] **Architecture Decision Records (ADRs)**
   - [ ] Document collision detection approach
   - [ ] Document audio system design
@@ -198,6 +218,7 @@
   - **Estimated Time:** 3 hours
 
 #### User Documentation
+
 - [ ] **Troubleshooting Guide Updates**
   - [ ] Add common QBoard display issues
   - [ ] Add audio troubleshooting flowchart
@@ -211,6 +232,7 @@
 ### Low Priority Improvements
 
 #### Advanced Performance
+
 - [ ] **Object Pooling** for GameObjects
   - Potential 10-20% memory improvement
   - Requires significant refactoring
@@ -227,6 +249,7 @@
   - Only needed if consistent frame drops observed
 
 #### Code Quality
+
 - [ ] **Hook Size Reduction** (`use-game-logic.ts` - 1248 lines)
   - Split into multiple hooks if grows beyond 1500 lines
   - Current size is acceptable for now
@@ -237,6 +260,7 @@
   - Only consider if styling becomes unmaintainable
 
 #### Feature Enhancements
+
 - [ ] **Multiplayer Mode** (2-player split screen)
   - Major feature, requires architectural changes
   - Estimate: 40+ hours
@@ -265,6 +289,7 @@
 ## 📊 Progress Tracking
 
 ### Completed ✅
+
 - Lane partitioning optimization (44.9% improvement)
 - Object update optimization (54.9% improvement)
 - Event tracker optimization (O(n) → O(1))
@@ -274,11 +299,13 @@
 - Spawn position utility extraction
 
 ### In Progress 🔄
+
 - Optimization investigation and planning
 - TODO documentation
 - Best practices documentation
 
 ### Blocked ⛔
+
 - None currently
 
 ---
@@ -286,6 +313,7 @@
 ## 🔍 Monitoring & Metrics
 
 **Track these metrics before/after major changes:**
+
 - Build time: ~3.25s (baseline)
 - Bundle size: 7.4MB (baseline)
 - Test run time: ~929ms (baseline)
@@ -298,6 +326,7 @@
 ## 📝 Notes & Considerations
 
 ### Best Practices
+
 - Always run `npm run verify` before committing
 - Add tests for new utilities and functions
 - Update documentation when changing public APIs
@@ -305,11 +334,13 @@
 - Keep bundle chunks under 1MB each
 
 ### Risk Management
+
 - **Low Risk:** Documentation, tests, new utilities
 - **Medium Risk:** Component refactoring, type changes
 - **High Risk:** Core game logic changes, build config changes
 
 ### Dependencies to Watch
+
 - React 19: Still evolving, keep `--noCheck` for now
 - Vite 7: New major version, monitor for issues
 - Tailwind 4: Recently upgraded, watch for CSS issues

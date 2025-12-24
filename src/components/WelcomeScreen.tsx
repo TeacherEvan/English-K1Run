@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { soundManager } from '../lib/sound-manager'
 
 interface WelcomeScreenProps {
@@ -25,6 +25,20 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [audioPhase, setAudioPhase] = useState<'intro' | 'tagline'>('intro')
   const [showTagline, setShowTagline] = useState(false)
+
+  // Precompute fish sprites so they animate independently without re-renders
+  const fishSchool = useMemo(
+    () =>
+      [
+        { top: 18, size: 44, duration: 14, delay: 0.2, direction: 'right' as const, opacity: 0.55 },
+        { top: 26, size: 36, duration: 16, delay: 1.1, direction: 'left' as const, opacity: 0.4 },
+        { top: 34, size: 50, duration: 15, delay: 0.6, direction: 'right' as const, opacity: 0.6 },
+        { top: 45, size: 30, duration: 13, delay: 1.8, direction: 'left' as const, opacity: 0.35 },
+        { top: 58, size: 38, duration: 17, delay: 0.9, direction: 'right' as const, opacity: 0.5 },
+        { top: 72, size: 32, duration: 15, delay: 1.4, direction: 'left' as const, opacity: 0.45 },
+      ].map((item, idx) => ({ ...item, id: `fish-${idx}` })),
+    []
+  )
 
   useEffect(() => {
     const playSequentialAudio = async () => {
@@ -68,13 +82,55 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-sky-100 via-amber-50 to-orange-100 transition-opacity duration-500 ${
+      className={`fixed inset-0 z-100 flex items-center justify-center bg-linear-to-br from-sky-100 via-amber-50 to-orange-100 transition-opacity duration-500 ${
         fadeOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
       }}
     >
+      {/* Ambient fish/sprite layer */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {fishSchool.map((fish, index) => (
+          <div
+            key={fish.id}
+            className="absolute"
+            style={{
+              top: `${fish.top}%`,
+              left: fish.direction === 'right' ? '-15%' : '115%',
+              filter: 'blur(0.4px)',
+              animation: `${fish.direction === 'right' ? 'swimRight' : 'swimLeft'} ${fish.duration}s ease-in-out ${fish.delay}s infinite`,
+              animationDelay: `${fish.delay + index * 0.05}s`,
+            }}
+            aria-hidden
+          >
+            <span
+              className="block rounded-full shadow-lg"
+              style={{
+                width: `${fish.size}px`,
+                height: `${fish.size * 0.6}px`,
+                background: 'radial-gradient(circle at 30% 40%, rgba(59,130,246,0.9), rgba(59,130,246,0.2) 60%)',
+                boxShadow: '0 0 18px rgba(59,130,246,0.25)',
+                opacity: fish.opacity,
+                transform: 'rotate(-8deg)',
+                position: 'relative',
+                animation: `pulseScale ${fish.duration / 3}s ease-in-out infinite`,
+              }}
+            >
+              <span
+                className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 rounded-full"
+                style={{
+                  width: `${fish.size * 0.35}px`,
+                  height: `${fish.size * 0.35}px`,
+                  background: 'radial-gradient(circle, rgba(14,165,233,0.9), rgba(14,165,233,0.1) 70%)',
+                  filter: 'blur(1px)',
+                }}
+              />
+            </span>
+          </div>
+        ))}
+      </div>
+
       {/* Main content container */}
       <div className="text-center px-8 animate-in zoom-in duration-700">
         {/* Sun Logo - Inspired by Sangsom Kindergarten branding */}
@@ -99,7 +155,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div
                     key={i}
-                    className="absolute w-1 bg-gradient-to-t from-yellow-400 to-transparent"
+                    className="absolute w-1 bg-linear-to-t from-yellow-400 to-transparent"
                     style={{
                       height: '48px',
                       left: '50%',
@@ -114,7 +170,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             </div>
 
             {/* Sun center */}
-            <div className="relative z-10 flex items-center justify-center w-24 h-24 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 rounded-full shadow-2xl border-4 border-yellow-200">
+            <div className="relative z-10 flex items-center justify-center w-24 h-24 bg-linear-to-br from-yellow-300 via-yellow-400 to-amber-500 rounded-full shadow-2xl border-4 border-yellow-200">
               {/* Happy face */}
               <div className="text-4xl" role="img" aria-label="Happy sun">
                 😊
@@ -137,7 +193,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
             {/* Kindergarten name with premium gradient */}
             <h1
-              className="text-6xl font-bold bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 bg-clip-text text-transparent"
+              className="text-6xl font-bold bg-linear-to-r from-amber-500 via-yellow-500 to-orange-500 bg-clip-text text-transparent"
               style={{
                 textShadow: '0 4px 24px rgba(251, 191, 36, 0.3)',
                 letterSpacing: '-0.02em',
@@ -168,7 +224,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             }`}
           >
             <div
-              className="text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent px-8"
+              className="text-5xl font-bold bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent px-8"
               style={{
                 textShadow: '0 4px 24px rgba(139, 92, 246, 0.3)',
                 animation: showTagline ? 'bounceIn 0.7s ease-out' : 'none',
@@ -266,6 +322,39 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           }
           100% {
             transform: scale(1) translateY(0);
+          }
+        }
+
+        @keyframes swimRight {
+          0% {
+            transform: translateX(-10%) translateY(0);
+          }
+          50% {
+            transform: translateX(55vw) translateY(6px);
+          }
+          100% {
+            transform: translateX(120vw) translateY(-4px);
+          }
+        }
+
+        @keyframes swimLeft {
+          0% {
+            transform: translateX(10%) translateY(0);
+          }
+          50% {
+            transform: translateX(-55vw) translateY(-6px);
+          }
+          100% {
+            transform: translateX(-120vw) translateY(4px);
+          }
+        }
+
+        @keyframes pulseScale {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.06);
           }
         }
       `}</style>

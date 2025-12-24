@@ -4,11 +4,13 @@
 
 Single-player educational game where a student taps falling objects (emojis) to advance their turtle character. Built with React 19 + TypeScript + Vite, optimized for tablets and touch devices in kindergarten classrooms.
 
-**Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
+**Tech Stack**: React 19.2, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
 **Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)  
 **Deployment**: Vercel (production), Docker with nginx, Termux-compatible for Android dev, PWA-enabled  
 **Target Devices**: QBoard interactive displays, tablets, mobile browsers  
 **Repository**: github.com/TeacherEvan/English-K1Run
+
+**IMPORTANT**: This was originally a two-player split-screen game but has been refactored to single-player. Some legacy documentation (`.clinerules`) may reference split-screen features - ignore those and refer to this document as the authoritative source.
 
 **Core Gameplay Loop**: Objects fall from top → student taps matching target → progress bar advances → reach 100% to win (or auto-reset in continuous mode). Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
 
@@ -179,11 +181,18 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 **Development**:
 
 ```bash
-npm run dev       # Vite on port 5173 with polling HMR
-npm run test      # Run unit tests with Vitest (watch mode)
-npm run test:ui   # Run tests with interactive UI
-npm run test:e2e  # Run Playwright end-to-end tests
-npm run verify    # Run lint + type check + build
+npm run dev              # Vite on port 5173 with polling HMR
+npm run test             # Run unit tests with Vitest (watch mode)
+npm run test:run         # Run tests once (CI mode)
+npm run test:ui          # Run tests with interactive UI
+npm run test:coverage    # Generate coverage reports
+npm run test:e2e         # Run Playwright end-to-end tests
+npm run test:e2e:ui      # Playwright UI mode
+npm run test:e2e:headed  # See browser during E2E tests
+npm run test:e2e:debug   # Debug E2E tests step-by-step
+npm run verify           # Run lint + type check + build
+npm run check-types      # TypeScript type checking only
+npm run optimize         # Vite dependency optimization
 ```
 
 **Constrained Devices**: Run `npm run install:android` or `npm run install:safe` before first dev server start to handle ARM64 rollup compatibility on Android/Termux.
@@ -205,11 +214,17 @@ Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react`
 
 **Docker**:
 
-- Dev: `docker-compose --profile dev up kindergarten-race-dev` (hot reload, volume-mounted)
+- Dev: `docker-compose --profile dev up kindergarten-race-dev` (hot reload, volume-mounted source)
 - Prod: `docker-compose up -d` (nginx-served static bundles at port 3000)
-- Volume mapping excludes `/app/node_modules` to avoid platform conflicts
+- Volume mapping excludes `/app/node_modules` to avoid platform-specific native dependency conflicts
+- Multi-stage Dockerfile: build stage (Node) → serve stage (nginx)
 
-**Deployment**: Project uses Vercel for production. Static assets are served with proper CORS and MIME type headers configured in `vercel.json`.
+**Deployment**: 
+
+- **Primary**: Vercel for production (automatic deployments from main branch)
+- **Configuration**: `vercel.json` configures CORS headers, MIME types for `.wav` files, rewrites for SPA routing
+- Static assets served with proper headers to prevent audio loading issues
+- **Alternative**: Docker deployment via `deploy.sh` script for self-hosted environments
 
 **Bundle Optimization**: Manual chunking in `vite.config.ts` keeps vendor bundles <1MB. Avoid adding large dependencies (d3, three.js, recharts) without updating chunk strategy.
 
@@ -391,7 +406,7 @@ const status = resourcePreloader.getPreloadStatus()
 
 **TypeScript Compilation**: Uses `tsc -b` (project references) but with `--noCheck` flag due to React 19 type evolution. Don't remove the flag until React 19 is stable.
 
-**Performance Targets**: 60fps gameplay, max 15 concurrent objects, touch latency monitoring for tablets.
+**Performance Targets**: 60fps gameplay, max 30 concurrent objects (reduced from initial 15), touch latency monitoring for tablets. See `MAX_ACTIVE_OBJECTS` in `game-config.ts`.
 
 **Combo System**: Streak thresholds at 3, 5, 7 taps trigger `ComboCelebration` component with predefined messages in `COMBO_LEVELS` array.
 
@@ -399,15 +414,44 @@ const status = resourcePreloader.getPreloadStatus()
 
 **Add New Game Category**:
 
-1. Append to `GAME_CATEGORIES` in `src/lib/constants/game-categories.ts`
+1. Append to `GAME_CATEGORIES` in `src/lib/constants/game-categories.ts`:
+   ```typescript
+   {
+     name: 'Category Name',
+     items: [
+       { emoji: '🎯', name: 'item1' },
+       { emoji: '🎨', name: 'item2' }
+     ],
+     requiresSequence: false  // Set true for A→B→C sequential gameplay
+   }
+   ```
 2. Add `.wav` files to `/sounds/` with matching names (use `scripts/generate-audio.cjs` if available)
 3. Add sentence templates to `src/lib/constants/sentence-templates.ts` for contextual learning
-4. If sequential gameplay needed, set `requiresSequence: true`
+4. Test by selecting the category in-game and verifying audio playback
 
 **Add Sentence Template**:
 
 1. Edit `src/lib/constants/sentence-templates.ts`
 2. Add entry: `'word': 'Educational context phrase'` (e.g., `'apple': 'Let\'s eat an apple!'`)
+
+**Run Tests Before Committing**:
+
+```bash
+npm run verify  # Comprehensive: lint + typecheck + build (recommended)
+# OR run individually:
+npm run lint         # ESLint only
+npm run check-types  # TypeScript only
+npm run test:run     # Vitest unit tests
+npm run test:e2e     # Playwright E2E tests
+```
+
+**Create Unit Test for New Utility**:
+
+1. Create `src/lib/utils/__tests__/my-utility.test.ts`
+2. Import Vitest functions: `import { describe, it, expect } from 'vitest'`
+3. Follow pattern from `spawn-position.test.ts` for structure
+4. Run `npm run test:ui` for interactive test development
+5. Aim for edge cases: boundary values, error conditions, typical usage
 3. Keep phrases simple and age-appropriate for kindergarten (4-6 years)
 4. Test by tapping the object in-game - should hear contextual phrase
 
@@ -422,12 +466,50 @@ const status = resourcePreloader.getPreloadStatus()
 ## Gotchas & Known Issues
 
 - **Node Version**: Must use Node 20.18+ or 22.12+ (not 18.x) due to Vite 7 requirement
-- **React 19 Types**: Keep `--noCheck` flag in build script until `@types/react` v19 stabilizes
-- **Android/ARM64**: Use `npm run install:android` to avoid `@rollup/rollup-android-arm64` errors
+- **React 19 Types**: Keep `--noCheck` flag in build script until `@types/react` v19 stabilizes (current workaround for type evolution)
+- **Android/ARM64**: Use `npm run install:android` to avoid `@rollup/rollup-android-arm64` errors on Termux/Android devices
 - **Background Images**: External URLs may be blocked; backgrounds defined in `App.css` use local `/public/*.jpg` files
-- **Audio Initialization**: Web Audio requires user interaction; `sound-manager` auto-initializes on first tap
-- **Percentage Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values
+- **Audio Initialization**: Web Audio requires user interaction; `sound-manager` auto-initializes on first tap (context starts `suspended`)
+- **Percentage Coordinates**: Never use absolute pixel positioning; always use percentage-based `x` values (5-95 range)
 - **Browser Cache**: After rebuilding, use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) to clear cached bundles if seeing old game behavior
+- **Singleton Patterns**: Never instantiate new instances of `eventTracker`, `soundManager`, `multiTouchHandler`, `performanceProfiler`, or `resourcePreloader` - they're initialized on import
+
+## Essential Documentation Files
+
+When debugging issues or understanding features, consult these key documents in `/DOCS/`:
+
+**Architecture & Decisions**:
+- `ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices and rationale
+- `BEST_PRACTICES.md` - Project-wide coding standards and patterns
+- `VISUAL_FLOW_DIAGRAM.md` - Visual representation of data flow
+
+**Feature Documentation**:
+- `WELCOME_SCREEN_ENHANCEMENT_DEC2025.md` - Sequential audio welcome screen architecture
+- `MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling system for QBoard displays
+- `EMOJI_ROTATION_SYSTEM.md` - Fair emoji distribution algorithm
+- `SENTENCE_TEMPLATES_ENHANCEMENT.md` - Contextual learning phrases system
+
+**Performance & Optimization**:
+- `PERFORMANCE_OPTIMIZATION_DEC2025.md` - Latest performance improvements (Dec 2025)
+- `PERFORMANCE_OPTIMIZATION_NOV2025.md` - November 2025 optimizations
+- `PERFORMANCE_OPTIMIZATION_OCT2025.md` - October 2025 baseline improvements
+- `CODE_QUALITY_IMPROVEMENTS_DEC2025.md` - 7.4→10/10 quality upgrade details
+
+**Audio System**:
+- `AUDIO_OVERLAP_QUALITY_FIX_DEC2025.md` - Audio quality improvements
+- `PHONICS_REMOVAL_NOV2025.md` - Why phonics was removed (prevents audio clashing)
+- `SINGLE_WORD_AUDIO_REMOVAL_DEC2025.md` - Audio simplification rationale
+- `VERCEL_AUDIO_DEBUG.md` - Troubleshooting audio on deployment platforms
+
+**Bug Fix Documentation**:
+- `SPAWN_FIX_DEC2025.md`, `SPAWN_FIX_VISUAL_GUIDE.md` - Spawn system fixes
+- `SENTENCE_REPETITION_FIX_DEC2025.md` - Audio repetition bug fix
+- Root-level `*.md` files document specific bugs (e.g., `EMOJI_SIDE_SWITCHING_BUG_FIX.md`)
+
+**General**:
+- `README.md` - User-facing features and getting started
+- `CHANGELOG.md` - Version history and release notes
+- `TESTING_INSTRUCTIONS.md` - Comprehensive testing guide
 
 ## Code Quality & Testing (December 2025)
 
@@ -449,14 +531,17 @@ const status = resourcePreloader.getPreloadStatus()
 
 ### Quality Score
 
-**Status**: 10/10 (upgraded from 7.4/10)
+**Status**: 10/10 (upgraded from 7.4/10 - December 2025)
 **Key Improvements**:
 
-- Fixed TypeScript configuration (`ignoreDeprecations: "5.0"`)
-- Eliminated ESLint errors in E2E fixtures
-- Added comprehensive unit testing
-- Removed code duplication with utilities
+- Fixed TypeScript configuration (`ignoreDeprecations: "5.0"` for TS 5.9)
+- Eliminated all ESLint errors (0 errors, down from 2 in E2E fixtures)
+- Added comprehensive unit testing infrastructure with Vitest
+- Removed ~50 lines of code duplication with `spawn-position.ts` utility
+- Enhanced test coverage with Web Audio API mocks
 - See `CODE_QUALITY_IMPROVEMENTS_DEC2025.md` for full analysis
+
+**Testing Philosophy**: Core utilities have dedicated unit tests (e.g., `spawn-position.test.ts`). When adding new utilities, create corresponding test files in `__tests__/` subdirectories. Use Vitest UI (`npm run test:ui`) for interactive test development.
 
 ## Recent Bug Fixes (November 2025)
 
