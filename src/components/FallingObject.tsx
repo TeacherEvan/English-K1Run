@@ -72,7 +72,6 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
   // Detect object types for enhanced animations
   const isLetter = /^[A-Za-z]$/.test(object.emoji)
   const isNumericText = /^\d+$/.test(object.emoji)
-  const isSingleDigit = /^[0-9]$/.test(object.emoji)
 
   return (
     <div
@@ -90,21 +89,20 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
       aria-label={`Tap ${object.emoji}`}
       tabIndex={0}
     >
-      <div 
-        className={`transition-all duration-150 ease-out ${
-          isNumericText 
-            ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg' 
+      <div
+        className={`transition-all duration-150 ease-out ${isNumericText
+            ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
             : 'drop-shadow-2xl'
-        }`}
+          }`}
         style={{
-          filter: isNumericText 
-            ? 'none' 
+          filter: isNumericText
+            ? 'none'
             : isLetter
-            ? undefined // Rainbow pulse applied via animation below
-            : 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
+              ? undefined // Rainbow pulse applied via animation below
+              : 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
           // Spring-based hover animation for premium feel
-          transform: isHovered 
-            ? 'scale(1.15) translateY(-2px)' 
+          transform: isHovered
+            ? 'scale(1.15) translateY(-2px)'
             : 'scale(1)',
           // Subtle glow on hover
           boxShadow: isHovered && isNumericText
@@ -113,11 +111,11 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
           // Smooth transition with custom cubic-bezier for spring effect
           transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
           // Rainbow pulsating animation for letters
-          animation: isLetter 
-            ? 'rainbowPulse 2.5s ease-in-out infinite' 
+          animation: isLetter
+            ? 'rainbowPulse 2.5s ease-in-out infinite'
             : isNumericText
-            ? 'gradientPulse 3s ease infinite'
-            : undefined,
+              ? 'gradientPulse 3s ease infinite'
+              : undefined,
           // Gradient background for numbers
           background: isNumericText
             ? 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6)'

@@ -24,7 +24,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     /* Path aliases - silence TS deprecation diagnostics */
-    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": [

@@ -90,13 +90,13 @@ Enhance gameplay with premium animations, improved audio quality, and smooth vis
 - Cleaned ESLint “react-refresh/only-export-components” warnings for shadcn-style UI primitives by disabling the rule only for those files (no runtime changes):
   - File: [eslint.config.js](eslint.config.js)
 
-## Validation
+## Validation (December 22, 2025)
 
 - Installed deps: `npm install`
 - Unit tests: `npm run test:run` (pass)
 - Type check: `npm run check-types` (pass)
 - Lint/build: `npm run verify` (pass)
 
-## Notes / Follow-ups
+## Notes / Follow-ups (December 22, 2025)
 
 - If VS Code still shows a `tsconfig.json` deprecation warning for `baseUrl`, run “TypeScript: Select TypeScript Version” → “Use Workspace Version”, or reload VS Code. The repo’s `tsc` build is green.

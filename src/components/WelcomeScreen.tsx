@@ -1,4 +1,5 @@
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, startTransition, useCallback, useEffect, useMemo, useState } from 'react'
+import { preloadResources } from '../lib/resource-preloader'
 import { soundManager } from '../lib/sound-manager'
 
 interface WelcomeScreenProps {
@@ -25,6 +26,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [audioPhase, setAudioPhase] = useState<'intro' | 'tagline'>('intro')
   const [showTagline, setShowTagline] = useState(false)
+  const [showSkip, setShowSkip] = useState(false)
 
   // Precompute fish sprites so they animate independently without re-renders
   const fishSchool = useMemo(
@@ -40,28 +42,44 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     []
   )
 
+  const skip = useCallback(() => {
+    // Stop any ongoing audio and dismiss quickly
+    soundManager.stopAllAudio()
+    startTransition(() => setFadeOut(true))
+    setTimeout(onComplete, 350)
+  }, [onComplete])
+
   useEffect(() => {
+    // Preload welcome audio to avoid first-play jank (metadata only)
+    void preloadResources([
+      { url: '/sounds/welcome_association.wav', type: 'audio', priority: 'high' },
+      { url: '/sounds/welcome_learning.wav', type: 'audio', priority: 'high' },
+    ])
+
+    // Reveal Skip after a short moment
+    const skipTimer = setTimeout(() => setShowSkip(true), 1000)
+
     const playSequentialAudio = async () => {
       try {
         // Phase 1: Play "In association with SANGSOM Kindergarten" (intellectual voice)
         await soundManager.playSound('welcome_association')
-        
+
         // Wait for first audio to complete (~3 seconds)
         await new Promise(resolve => setTimeout(resolve, 3000))
-        
+
         // Transition to tagline phase
         setAudioPhase('tagline')
         setShowTagline(true)
-        
+
         // Phase 2: Play "Learning through games for everyone!" (children's choir)
         await soundManager.playSound('welcome_learning')
-        
+
         // Wait for second audio to complete (~3 seconds)
         await new Promise(resolve => setTimeout(resolve, 3000))
-        
+
         // Start fade-out
         setFadeOut(true)
-        
+
         // Complete after fade-out animation
         await new Promise(resolve => setTimeout(resolve, 500))
         onComplete()
@@ -78,17 +96,56 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }
 
     playSequentialAudio()
-  }, [onComplete])
+    // Keyboard accessibility: Space/Enter/Escape to skip
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+        e.preventDefault()
+        skip()
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => {
+      window.removeEventListener('keydown', handleKey)
+      clearTimeout(skipTimer)
+    }
+  }, [onComplete, skip])
+
+  // Confetti layer (limited count, transform-only anims)
+  const confetti = useMemo(
+    () =>
+      [
+        { emoji: '🎈', top: 12, size: 32, duration: 10, delay: 0.2, drift: 'right' as const },
+        { emoji: '🎉', top: 22, size: 28, duration: 12, delay: 0.6, drift: 'left' as const },
+        { emoji: '🪄', top: 30, size: 30, duration: 11, delay: 0.9, drift: 'right' as const },
+        { emoji: '🌈', top: 44, size: 34, duration: 13, delay: 0.4, drift: 'left' as const },
+        { emoji: '🫧', top: 56, size: 26, duration: 12, delay: 0.7, drift: 'right' as const },
+        { emoji: '🎨', top: 68, size: 30, duration: 11, delay: 0.5, drift: 'left' as const },
+        { emoji: '🎵', top: 76, size: 28, duration: 12, delay: 0.8, drift: 'right' as const },
+        { emoji: '✨', top: 84, size: 26, duration: 10, delay: 0.3, drift: 'left' as const },
+      ].map((c, i) => ({ ...c, id: `confetti-${i}` })),
+    []
+  )
 
   return (
     <div
-      className={`fixed inset-0 z-100 flex items-center justify-center bg-linear-to-br from-sky-100 via-amber-50 to-orange-100 transition-opacity duration-500 ${
-        fadeOut ? 'opacity-0' : 'opacity-100'
-      }`}
+      className={`fixed inset-0 z-100 flex items-center justify-center bg-linear-to-br from-sky-100 via-amber-50 to-orange-100 transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
+        }`}
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
       }}
     >
+      {/* Skip control (appears after a short delay) */}
+      {showSkip && (
+        <button
+          type="button"
+          onClick={skip}
+          className="absolute top-4 left-4 rounded-full px-4 py-2 text-sm font-semibold bg-white/80 text-gray-800 shadow-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+          aria-label="Skip welcome"
+        >
+          Skip
+        </button>
+      )}
+
       {/* Ambient fish/sprite layer */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {fishSchool.map((fish, index) => (
@@ -127,6 +184,26 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                 }}
               />
             </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Confetti/emoji layer (limited, transform-only) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {confetti.map((c, i) => (
+          <div
+            key={c.id}
+            className="absolute"
+            style={{
+              top: `${c.top}%`,
+              left: c.drift === 'right' ? `${5 + i * 10}%` : `${95 - i * 10}%`,
+              animation: `floatConfetti ${c.duration}s ease-in-out ${c.delay}s infinite, ${c.drift === 'right' ? 'driftRight' : 'driftLeft'
+                } ${c.duration * 2}s linear ${c.delay}s infinite`,
+              willChange: 'transform',
+            }}
+            aria-hidden
+          >
+            <span style={{ fontSize: `${c.size}px`, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.1))' }}>{c.emoji}</span>
           </div>
         ))}
       </div>
@@ -183,9 +260,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         <div className="space-y-6 min-h-[300px] flex flex-col justify-center">
           {/* Phase 1: Partnership Introduction */}
           <div
-            className={`transition-all duration-500 ${
-              audioPhase === 'intro' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none absolute'
-            }`}
+            className={`transition-all duration-500 ${audioPhase === 'intro' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none absolute'
+              }`}
           >
             <p className="text-2xl font-semibold text-gray-700 mb-4">
               In association with
@@ -219,9 +295,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
           {/* Phase 2: Tagline with Children's Energy */}
           <div
-            className={`transition-all duration-700 ${
-              showTagline ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none absolute'
-            }`}
+            className={`transition-all duration-700 ${showTagline ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none absolute'
+              }`}
           >
             <div
               className="text-5xl font-bold bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent px-8"
@@ -239,9 +314,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
           {/* Decorative stars - appear with tagline */}
           <div
-            className={`flex justify-center gap-3 mt-6 transition-all duration-500 ${
-              showTagline ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`flex justify-center gap-3 mt-6 transition-all duration-500 ${showTagline ? 'opacity-100' : 'opacity-0'
+              }`}
           >
             {['🌟', '✨', '💫', '✨', '🌟'].map((emoji, i) => (
               <span
@@ -356,6 +430,29 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           50% {
             transform: scale(1.06);
           }
+        }
+
+        /* Confetti animations (transform only) */
+        @keyframes floatConfetti {
+          0% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-10px) scale(1.05); }
+          100% { transform: translateY(0) scale(1); }
+        }
+        @keyframes driftRight {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(10vw); }
+        }
+        @keyframes driftLeft {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-10vw); }
+        }
+
+        /* Accessibility: reduce motion when user prefers */
+        @media (prefers-reduced-motion: reduce) {
+          .animate-in, .animate-out { animation: none !important; }
+          * { transition: none !important; }
+          /* Disable decorative layers */
+          .pointer-events-none > div { animation: none !important; }
         }
       `}</style>
     </div>
