@@ -10,19 +10,19 @@
  */
 export const FAIRY_ANIMATION_TIMING = {
   /** Duration of the morphing phase (worm → fairy transformation) */
-  MORPH_DURATION: 3000,
+  MORPH_DURATION: 2000,
   
   /** Duration of the flying phase (fairy flying off screen) */
-  FLY_DURATION: 2000,
+  FLY_DURATION: 1500,
   
   /** Duration of trail sparkles fading out */
-  TRAIL_FADE_DURATION: 5000,
+  TRAIL_FADE_DURATION: 3500,
   
   /** Total animation duration (pre-calculated for performance) */
-  TOTAL_DURATION: 10000, // MORPH_DURATION + FLY_DURATION + TRAIL_FADE_DURATION
+  TOTAL_DURATION: 7000, // MORPH_DURATION + FLY_DURATION + TRAIL_FADE_DURATION
   
-  /** Throttle interval for state updates (ms) - ~30fps for smooth animation */
-  UPDATE_INTERVAL: 33,
+  /** Throttle interval for state updates (ms) - ~60fps for smooth animation */
+  UPDATE_INTERVAL: 16,
 } as const
 
 /**

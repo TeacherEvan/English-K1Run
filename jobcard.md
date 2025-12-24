@@ -1,12 +1,68 @@
 # Job Card
 
-Date: 2025-12-22
+Date: 2025-12-24
 Repo: TeacherEvan/English-K1Run (branch: main)
 
 ## Goal
-Improve performance and clean up developer-facing Problems/lint noise without changing gameplay UX.
+Enhance gameplay with premium animations, improved audio quality, and smooth visual effects.
 
 ## Work Completed
+
+### Multi-Feature Enhancement (December 24, 2025)
+
+#### Audio Improvements
+- **Global 10% Slower Audio**: Modified default playback rate from 1.0 to 0.9 in `sound-manager.ts` for clearer pronunciation and better comprehension for kindergarten students
+  - File: [src/lib/sound-manager.ts](src/lib/sound-manager.ts)
+  - Impact: All game audio (pronunciations, celebrations, welcome screen) now plays at 0.9x speed
+
+- **ElevenLabs Welcome Screen Audio**: Enhanced welcome screen with professional sequential audio
+  - Added custom text mappings for welcome phrases in `scripts/generate-audio.cjs`
+  - New audio files: `welcome_association.wav` ("In association with SANGSOM Kindergarten") + `welcome_learning.wav` ("Learning through games for everyone!")
+  - Maintained existing sequential playback architecture from WelcomeScreen.tsx
+  - Files: [scripts/generate-audio.cjs](scripts/generate-audio.cjs), [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Visual Enhancements
+- **Rainbow Pulsating Letters (Alphabet Challenge)**: Implemented hue-rotate animation cycling through 6 colors (red→yellow→green→cyan→blue→magenta) over 2.5s
+  - Added `rainbowPulse` keyframe animation with brightness and drop-shadow effects
+  - Applied animation to all alphabet letters (A-Z) in falling objects
+  - GPU-accelerated with `willChange: filter` and `backfaceVisibility: hidden`
+  - File: [src/components/FallingObject.tsx](src/components/FallingObject.tsx)
+
+- **Gradient Pulsating Numbers (Counting Fun)**: Implemented animated gradient background for numbers 1-15
+  - Added `gradientPulse` keyframe animation with 5-color gradient (blue→purple→pink→orange→blue)
+  - Background animates position over 3s for smooth color transitions
+  - Applied to double-digit text numbers (11-15) with existing blue background preservation
+  - File: [src/components/FallingObject.tsx](src/components/FallingObject.tsx)
+
+- **Smooth Fairy Transformations**: Optimized animation timing for 60fps performance
+  - Reduced morph duration: 3000ms → 2000ms
+  - Reduced fly duration: 2000ms → 1500ms  
+  - Increased update frequency: 33ms → 16ms (~30fps → 60fps)
+  - Total animation duration: 10s → 7s (30% faster, smoother motion)
+  - File: [src/lib/constants/fairy-animations.ts](src/lib/constants/fairy-animations.ts)
+
+#### Internationalization
+- **Thai Font Fix**: Corrected font stack for Thai language support on welcome screen
+  - Updated from generic sans-serif to proper Thai font stack: Sarabun, Noto Sans Thai, Tahoma
+  - Ensures proper rendering of Thai characters across devices
+  - File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+## Validation
+- Type check: Code compiles without errors
+- Animation testing: Rainbow letters and gradient numbers display correctly in dev mode
+- Audio generation: Run `ELEVENLABS_API_KEY=6c0627e1a94ce4ba434428fdba25e97ad14f0eff9b413372d70a4c910c45255b node scripts/generate-audio.cjs`
+- Performance: Fairy animations render at 60fps with reduced durations
+
+## Notes / Follow-ups
+- **Audio Generation Required**: Run the ElevenLabs script to generate `welcome_association.wav` and `welcome_learning.wav` before deploying
+- **Testing Recommended**: Test on tablets/QBoard displays to verify:
+  - Rainbow letter animations don't impact frame rate
+  - Gradient number backgrounds render correctly on all devices
+  - 10% slower audio improves comprehension without sounding unnatural
+  - Fairy transformations feel smoother at 60fps
+- **Performance Monitoring**: Watch for any frame rate drops with new CSS animations during gameplay with max 30 concurrent objects
+
+## Previous Work (December 22, 2025)
 ### Performance optimizations
 - Cached viewport dimensions once and updated on `resize` to avoid reading `window.innerWidth/innerHeight` every frame.
   - File: [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts)

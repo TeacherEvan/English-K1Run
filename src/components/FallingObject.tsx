@@ -69,8 +69,10 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     willChange: 'transform',
   }), [object.x, object.y, object.size])
 
-  // Check if the emoji is actually a number (for numbers >9)
+  // Detect object types for enhanced animations
+  const isLetter = /^[A-Za-z]$/.test(object.emoji)
   const isNumericText = /^\d+$/.test(object.emoji)
+  const isSingleDigit = /^[0-9]$/.test(object.emoji)
 
   return (
     <div
@@ -97,6 +99,8 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
         style={{
           filter: isNumericText 
             ? 'none' 
+            : isLetter
+            ? undefined // Rainbow pulse applied via animation below
             : 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))',
           // Spring-based hover animation for premium feel
           transform: isHovered 
@@ -108,6 +112,20 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
             : undefined,
           // Smooth transition with custom cubic-bezier for spring effect
           transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          // Rainbow pulsating animation for letters
+          animation: isLetter 
+            ? 'rainbowPulse 2.5s ease-in-out infinite' 
+            : isNumericText
+            ? 'gradientPulse 3s ease infinite'
+            : undefined,
+          // Gradient background for numbers
+          background: isNumericText
+            ? 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6)'
+            : undefined,
+          backgroundSize: isNumericText ? '400% 400%' : undefined,
+          // GPU acceleration
+          willChange: (isLetter || isNumericText) ? 'filter, background-position' : 'transform',
+          backfaceVisibility: 'hidden' as const,
         }}
       >
         {object.emoji}
@@ -123,3 +141,47 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     prevProps.playerSide === nextProps.playerSide
   )
 })
+
+FallingObject.displayName = 'FallingObject'
+
+// Inline CSS animations for letters and numbers
+// Using inline styles to keep component self-contained
+if (typeof document !== 'undefined') {
+  const styleId = 'falling-object-animations'
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style')
+    style.id = styleId
+    style.textContent = `
+      @keyframes rainbowPulse {
+        0%, 100% {
+          filter: hue-rotate(0deg) brightness(1) drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+        }
+        16.67% {
+          filter: hue-rotate(60deg) brightness(1.2) drop-shadow(0 6px 12px rgba(255,223,0,0.4));
+        }
+        33.33% {
+          filter: hue-rotate(120deg) brightness(1.2) drop-shadow(0 6px 12px rgba(0,255,0,0.4));
+        }
+        50% {
+          filter: hue-rotate(180deg) brightness(1.1) drop-shadow(0 6px 12px rgba(0,255,255,0.4));
+        }
+        66.67% {
+          filter: hue-rotate(240deg) brightness(1.2) drop-shadow(0 6px 12px rgba(0,0,255,0.4));
+        }
+        83.33% {
+          filter: hue-rotate(300deg) brightness(1.2) drop-shadow(0 6px 12px rgba(255,0,255,0.4));
+        }
+      }
+
+      @keyframes gradientPulse {
+        0%, 100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+    `
+    document.head.appendChild(style)
+  }
+}

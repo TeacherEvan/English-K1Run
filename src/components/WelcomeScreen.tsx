@@ -153,7 +153,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             <p
               className="text-3xl font-semibold text-amber-600 mt-3"
               style={{
-                fontFamily: 'system-ui, sans-serif',
+                fontFamily: "'Sarabun', 'Noto Sans Thai', 'Tahoma', system-ui, sans-serif",
+                fontWeight: 600,
               }}
             >
               อนุบาลสงสม

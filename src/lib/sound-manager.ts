@@ -699,7 +699,7 @@ class SoundManager {
         }
     }
 
-    async playSound(soundName: string, playbackRate = 1.0) {
+    async playSound(soundName: string, playbackRate = 0.9) {
         if (!this.isEnabled) return
 
         try {

@@ -88,23 +88,36 @@ const AUDIO_PHRASES = [
     'success', 'wrong', 'win', 'tap', 'explosion', 'laser',
 
     // Welcome messages
-    'welcome'
+    'welcome',
+    
+    // Welcome screen sequential audio (professional voice + children's choir)
+    'welcome_association', // "In association with SANGSOM Kindergarten"
+    'welcome_learning'      // "Learning through games for everyone!"
 ];
 
 // Rate limiting
 const DELAY_BETWEEN_REQUESTS = 500; // ms
+
+// Custom text mappings for phrases that need different spoken text
+const PHRASE_TEXT_MAPPING = {
+    'welcome_association': 'In association with SANGSOM Kindergarten',
+    'welcome_learning': 'Learning through games for everyone!'
+};
 
 /**
  * Generate audio using ElevenLabs API
  */
 function generateAudio(text, outputPath) {
     return new Promise((resolve, reject) => {
+        // Check if there's a custom text mapping first
+        let speechText = PHRASE_TEXT_MAPPING[text] || text;
+        
         // Prepare text for speech (remove emoji_ prefix for natural pronunciation)
-        const speechText = text.replace('emoji_', '').replace(/_/g, ' ');
+        speechText = speechText.replace('emoji_', '').replace(/_/g, ' ');
 
         const postData = JSON.stringify({
             text: speechText,
-            model_id: 'eleven_monolingual_v1',
+            model_id: 'eleven_turbo_v2_5',
             voice_settings: VOICE_SETTINGS
         });
 
