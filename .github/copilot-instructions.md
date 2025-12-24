@@ -6,11 +6,17 @@ Single-player educational game where a student taps falling objects (emojis) to 
 
 **Tech Stack**: React 19, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, class-variance-authority  
 **Node Requirements**: Node.js 20.18+ or 22.12+ (Vite 7 requirement)  
-**Deployment**: Vercel (production), Docker with nginx, Termux-compatible for Android dev  
+**Deployment**: Vercel (production), Docker with nginx, Termux-compatible for Android dev, PWA-enabled  
 **Target Devices**: QBoard interactive displays, tablets, mobile browsers  
 **Repository**: github.com/TeacherEvan/English-K1Run
 
-**Core Gameplay Loop**: Objects fall from top → student taps matching target → progress bar advances → reach 100% to win. Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
+**Core Gameplay Loop**: Objects fall from top → student taps matching target → progress bar advances → reach 100% to win (or auto-reset in continuous mode). Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
+
+**Key Features** (December 2025):
+- **Welcome Screen**: Sequential audio experience with professional narrator + children's choir. Dynamic two-phase storytelling inspired by Sangsom's modern branding. See `WELCOME_SCREEN_ENHANCEMENT_DEC2025.md` for architecture.
+- **Continuous Play Mode**: Optional endless gameplay - progress auto-resets at 100% instead of showing winner screen
+- **PWA Support**: Offline gameplay, intelligent caching, install to home screen
+- **React 19 Concurrent Features**: useTransition for smooth non-urgent updates, optimistic UI patterns
 
 ## Educational Context & Performance Goals
 
@@ -85,15 +91,23 @@ Single-player educational game where a student taps falling objects (emojis) to 
 
 **Component Ownership**:
 
-- `App.tsx` (297 lines): Top-level orchestrator, owns `debugVisible`, `backgroundClass`, `selectedLevel`, `timeRemaining`
+- `App.tsx` (297 lines): Top-level orchestrator, owns `debugVisible`, `backgroundClass`, `selectedLevel`, `timeRemaining`, `showWelcome`, `continuousMode`
+- **Welcome Screen Flow**: `WelcomeScreen.tsx` (277 lines) displays on first load with:
+  - **Sequential Audio**: Professional voice ("In association with SANGSOM Kindergarten") → Children's choir ("Learning through games for everyone!")
+  - **Dynamic Phases**: Two-phase visual storytelling synced with audio (intro → tagline)
+  - **Timing**: 3 seconds per phase + 0.5s fade = ~6.5 seconds total
+  - **Fallback**: Auto-dismisses after 6s if audio files missing
+- **Continuous Mode**: When enabled, winner detection is bypassed and progress auto-resets at 100%
 - All game logic delegates to `useGameLogic()` hook—components are presentational
-- Background rotation every 30s via `BACKGROUND_CLASSES` array (5 backgrounds in `App.css`)
+- Background rotation every 30s via `BACKGROUND_CLASSES` array (10 backgrounds in `App.css`, doubled Nov 2025)
 
 **Singleton Pattern** (initialized on import—never instantiate new):
 
 - `eventTracker` (`src/lib/event-tracker.ts`): Global error/performance logging, max 500 events
 - `soundManager` (`src/lib/sound-manager.ts`): Web Audio API manager, lazy-initialized on first user interaction
 - `multiTouchHandler` (`src/lib/touch-handler.ts`): Touch validation for QBoard displays (150ms debounce, 10px drag threshold)
+- `performanceProfiler` (`src/lib/performance-profiler.ts`): Production profiler for tracking component render times (NEW Dec 2025)
+- `resourcePreloader` (`src/lib/resource-preloader.ts`): Intelligent asset preloading with priority queue (NEW Dec 2025)
 
 ## Collision Detection System
 
@@ -215,7 +229,7 @@ Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react`
 - Add global styles by extending `main.css` to preserve Tailwind's layer order
 - Use `cn()` utility from `src/lib/utils.ts` to merge Tailwind classes safely
 
-**Background Rotation**: `App.css` defines 5 `.app-bg-*` classes using real image overlays (`.app-bg-sunrise`, `.app-bg-deep-ocean`, etc.). `pickRandomBackground()` in `App.tsx` switches every 30s—add new backgrounds by extending both the class list and `BACKGROUND_CLASSES` array.
+**Background Rotation**: `App.css` defines 10 `.app-bg-*` classes using real image overlays (`.app-bg-sunrise`, `.app-bg-deep-ocean`, `.app-bg-nebula-galaxy`, etc.). `pickRandomBackground()` in `App.tsx` switches every 30s—add new backgrounds by extending both the class list and `BACKGROUND_CLASSES` array. Background images added November 2025 to double variety.
 
 ## Component Patterns
 
@@ -249,6 +263,79 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 
 **State Updates**: Use functional setState when new state depends on previous (e.g., `setGameObjects(prev => [...prev, newObj])`).
 
+## React 19 Features & Production Utilities (December 2025)
+
+### Optimistic UI Pattern
+
+**File**: `src/hooks/use-optimistic-ui.ts`
+
+React 19's `useTransition` hook for marking non-urgent state updates, preventing UI blocking during expensive operations.
+
+**Usage**:
+```tsx
+const { startOptimisticUpdate, isPending } = useOptimisticUI()
+
+// Urgent: Update immediately
+setSearchQuery(value)
+
+// Non-urgent: Filter in background without blocking input
+startOptimisticUpdate(() => {
+  setFilteredResults(expensiveFilter(value))
+})
+```
+
+**Features**: Async transitions, error handling, stable function references, proper TypeScript typing
+
+### Performance Profiler
+
+**File**: `src/lib/performance-profiler.ts`
+
+Enterprise-grade monitoring for component render times and bottleneck detection.
+
+**Usage with React Profiler**:
+```tsx
+import { Profiler } from 'react'
+import { performanceProfiler } from '@/lib/performance-profiler'
+
+<Profiler id="GameArea" onRender={performanceProfiler.recordMeasurement}>
+  <GameArea />
+</Profiler>
+```
+
+**Features**: 
+- Automatic slowest render detection (16.67ms threshold for 60fps)
+- Performance marks for React DevTools integration
+- Configurable thresholds and memory limits (max 100 measurements)
+- JSON export for external analysis
+
+**Utility Functions**:
+```tsx
+// Measure synchronous execution
+const result = measureExecutionTime('calculation', () => complexCalc())
+
+// Measure async execution  
+const data = await measureAsyncExecutionTime('fetch', () => fetchData())
+```
+
+### Resource Preloader
+
+**File**: `src/lib/resource-preloader.ts`
+
+Intelligent asset preloading with priority queue for images, audio, and fonts.
+
+**Usage**:
+```tsx
+resourcePreloader.preloadAssets([
+  { url: '/sounds/welcome.wav', type: 'audio', priority: 'high' },
+  { url: '/images/logo.png', type: 'image', priority: 'medium' }
+])
+
+// Check preload status
+const status = resourcePreloader.getPreloadStatus()
+```
+
+**Features**: Priority-based loading (high/medium/low), parallel loading, status tracking, error handling
+
 ## Telemetry & Audio
 
 **Event Tracking**: `src/lib/event-tracker.ts` is a singleton that auto-registers global error handlers, FPS tracking, and spawn-rate warnings on import. Use `eventTracker.trackEvent()`, `trackError()`, `trackUserAction()` for logging so overlays render consistently. Max 500 events tracked in memory (reduced from 1000 for performance).
@@ -271,6 +358,14 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 - Number words auto-map to digits (`one.wav` → `"1"` key)
 - **Playback Method**: Web Audio API is always preferred for correct pitch/speed. HTMLAudio fallback has `playbackRate = 1.0` explicitly set to prevent distorted voices
 - Fallback hierarchy: Web Audio API → HTMLAudio (playbackRate=1.0) → Speech Synthesis → Web Audio tones
+
+**Sequential Audio Pattern** (Welcome Screen):
+
+- Use `soundManager.playSound()` directly for custom audio sequences
+- Pattern: `await playSound(key1)` → `await delay(duration)` → `await playSound(key2)`
+- Welcome screen uses: `welcome_association` (professional voice) → 3s delay → `welcome_learning` (children's choir)
+- Always provide fallback timing if audio files missing
+- See `WELCOME_SCREEN_ENHANCEMENT_DEC2025.md` for implementation details
 
 ## Vite Configuration
 

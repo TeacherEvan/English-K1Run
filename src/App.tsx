@@ -11,13 +11,10 @@ import { WelcomeScreen } from './components/WelcomeScreen'
 import { Worm } from './components/Worm'
 
 // Lazy load non-critical UI components for better initial load performance
-const AchievementDisplay = lazy(() => 
+const AchievementDisplay = lazy(() =>
   import('./components/AchievementDisplay').then(m => ({ default: m.AchievementDisplay }))
 )
-const ComboCelebration = lazy(() => 
-  import('./components/ComboCelebration').then(m => ({ default: m.ComboCelebration }))
-)
-const FairyTransformation = lazy(() => 
+const FairyTransformation = lazy(() =>
   import('./components/FairyTransformation').then(m => ({ default: m.FairyTransformation }))
 )
 const FireworksDisplay = lazy(() => 
@@ -110,12 +107,10 @@ function App() {
     handleWormTap,
     startGame,
     resetGame,
-    comboCelebration,
-    clearComboCelebration,
     changeTargetToVisibleEmoji,
     achievements,
     clearAchievement
-  } = useGameLogic({ 
+  } = useGameLogic({
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode 
   })
@@ -295,12 +290,7 @@ function App() {
           </div>
         )}
 
-        {/* Lazy loaded celebration components with suspense boundaries */}
-        {comboCelebration && (
-          <Suspense fallback={null}>
-            <ComboCelebration celebration={comboCelebration} onDismiss={clearComboCelebration} />
-          </Suspense>
-        )}
+
 
         {/* Achievement Displays - Lazy loaded */}
         {achievements.map(achievement => (

@@ -1,47 +1,69 @@
 import { memo, useEffect, useState } from 'react'
-import { playSoundEffect } from '../lib/sound-manager'
+import { soundManager } from '../lib/sound-manager'
 
 interface WelcomeScreenProps {
   onComplete: () => void
 }
 
 /**
- * WelcomeScreen - Thoughtful splash screen for Sangsom Kindergarten partnership
+ * WelcomeScreen - Premium splash screen for Sangsom Kindergarten partnership
  * 
  * Features:
- * - Warm, welcoming design with sun logo
- * - 5-second happy monophonic tune
- * - Smooth fade animations
- * - Auto-dismisses after display duration
- * - Optimized for user gratification and engagement
+ * - Sequential audio: intellectual voice → children's choir
+ * - Dynamic text phases synced with audio
+ * - Inspired by Sangsom's modern architecture and sun branding
+ * - Smooth fade animations with visual storytelling
+ * - Auto-dismisses after complete audio sequence
+ * 
+ * Audio Sequence:
+ * 1. "In association with SANGSOM Kindergarten" (intellectual voice, ~3s)
+ * 2. "Learning through games for everyone!" (children's choir, ~3s)
  * 
  * @component
  */
 export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
+  const [audioPhase, setAudioPhase] = useState<'intro' | 'tagline'>('intro')
+  const [showTagline, setShowTagline] = useState(false)
 
   useEffect(() => {
-    // Play welcome tune on mount
-    playSoundEffect.welcome().catch(err => {
-      if (import.meta.env.DEV) {
-        console.log('[WelcomeScreen] Could not play welcome audio:', err)
+    const playSequentialAudio = async () => {
+      try {
+        // Phase 1: Play "In association with SANGSOM Kindergarten" (intellectual voice)
+        await soundManager.playSound('welcome_association')
+        
+        // Wait for first audio to complete (~3 seconds)
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        
+        // Transition to tagline phase
+        setAudioPhase('tagline')
+        setShowTagline(true)
+        
+        // Phase 2: Play "Learning through games for everyone!" (children's choir)
+        await soundManager.playSound('welcome_learning')
+        
+        // Wait for second audio to complete (~3 seconds)
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        
+        // Start fade-out
+        setFadeOut(true)
+        
+        // Complete after fade-out animation
+        await new Promise(resolve => setTimeout(resolve, 500))
+        onComplete()
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.log('[WelcomeScreen] Audio playback error:', err)
+        }
+        // Fallback: auto-dismiss after 6 seconds if audio fails
+        setTimeout(() => {
+          setFadeOut(true)
+          setTimeout(onComplete, 500)
+        }, 6000)
       }
-    })
-
-    // Start fade-out animation at 4.5 seconds
-    const fadeTimer = setTimeout(() => {
-      setFadeOut(true)
-    }, 4500)
-
-    // Complete and unmount at 5 seconds
-    const completeTimer = setTimeout(() => {
-      onComplete()
-    }, 5000)
-
-    return () => {
-      clearTimeout(fadeTimer)
-      clearTimeout(completeTimer)
     }
+
+    playSequentialAudio()
   }, [onComplete])
 
   return (
@@ -101,58 +123,76 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           </div>
         </div>
 
-        {/* Partnership text */}
-        <div className="space-y-4">
-          <p
-            className="text-2xl font-semibold text-gray-700 animate-in slide-in-from-bottom-4 duration-700"
-            style={{
-              animationDelay: '0.2s',
-              animationFillMode: 'backwards',
-            }}
-          >
-            In association with
-          </p>
-
-          {/* Kindergarten name with Thai-inspired styling */}
-          <h1
-            className="text-5xl font-bold bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 bg-clip-text text-transparent animate-in slide-in-from-bottom-4 duration-700"
-            style={{
-              animationDelay: '0.4s',
-              animationFillMode: 'backwards',
-              textShadow: '0 2px 20px rgba(255,215,0,0.3)',
-            }}
-          >
-            Sangsom Kindergarten
-          </h1>
-
-          {/* Thai text styling (using English as placeholder) */}
-          {/* Thai text: "อนุบาลสงสม" (Sangsom Kindergarten) */}
-          <p
-            className="text-3xl font-semibold text-amber-600 animate-in slide-in-from-bottom-4 duration-700"
-            style={{
-              animationDelay: '0.6s',
-              animationFillMode: 'backwards',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            อนุบาลสงสม
-          </p>
-
-          {/* Decorative element */}
+        {/* Dynamic text content - changes with audio phase */}
+        <div className="space-y-6 min-h-[300px] flex flex-col justify-center">
+          {/* Phase 1: Partnership Introduction */}
           <div
-            className="flex justify-center gap-2 mt-6 animate-in fade-in duration-700"
-            style={{
-              animationDelay: '0.8s',
-              animationFillMode: 'backwards',
-            }}
+            className={`transition-all duration-500 ${
+              audioPhase === 'intro' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none absolute'
+            }`}
           >
-            {['🌟', '✨', '🌟'].map((emoji, i) => (
+            <p className="text-2xl font-semibold text-gray-700 mb-4">
+              In association with
+            </p>
+
+            {/* Kindergarten name with premium gradient */}
+            <h1
+              className="text-6xl font-bold bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 bg-clip-text text-transparent"
+              style={{
+                textShadow: '0 4px 24px rgba(251, 191, 36, 0.3)',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              SANGSOM
+            </h1>
+            <h2 className="text-4xl font-bold text-amber-600 mt-2">
+              Kindergarten
+            </h2>
+
+            {/* Thai text */}
+            <p
+              className="text-3xl font-semibold text-amber-600 mt-3"
+              style={{
+                fontFamily: 'system-ui, sans-serif',
+              }}
+            >
+              อนุบาลสงสม
+            </p>
+          </div>
+
+          {/* Phase 2: Tagline with Children's Energy */}
+          <div
+            className={`transition-all duration-700 ${
+              showTagline ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none absolute'
+            }`}
+          >
+            <div
+              className="text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent px-8"
+              style={{
+                textShadow: '0 4px 24px rgba(139, 92, 246, 0.3)',
+                animation: showTagline ? 'bounceIn 0.7s ease-out' : 'none',
+                lineHeight: '1.2',
+              }}
+            >
+              Learning through games
+              <br />
+              <span className="text-6xl font-extrabold">for everyone!</span>
+            </div>
+          </div>
+
+          {/* Decorative stars - appear with tagline */}
+          <div
+            className={`flex justify-center gap-3 mt-6 transition-all duration-500 ${
+              showTagline ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            {['🌟', '✨', '💫', '✨', '🌟'].map((emoji, i) => (
               <span
                 key={i}
-                className="text-2xl"
+                className="text-3xl"
                 style={{
-                  animation: `twinkle ${1.5 + i * 0.3}s ease-in-out infinite`,
-                  animationDelay: `${i * 0.2}s`,
+                  animation: showTagline ? `twinkle ${1.5 + i * 0.2}s ease-in-out infinite` : 'none',
+                  animationDelay: `${i * 0.1}s`,
                 }}
               >
                 {emoji}
@@ -162,7 +202,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         </div>
       </div>
 
-      {/* Inline keyframe animations */}
+      {/* Enhanced keyframe animations */}
       <style>{`
         @keyframes fadeIn {
           from {
@@ -208,6 +248,23 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           50% {
             opacity: 0.5;
             transform: scale(0.8);
+          }
+        }
+
+        @keyframes bounceIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.3) translateY(30px);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.05) translateY(-10px);
+          }
+          70% {
+            transform: scale(0.95) translateY(5px);
+          }
+          100% {
+            transform: scale(1) translateY(0);
           }
         }
       `}</style>
