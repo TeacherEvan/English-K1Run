@@ -29,15 +29,35 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [showSkip, setShowSkip] = useState(false)
 
   // Precompute fish sprites so they animate independently without re-renders
+  // Enhanced with variety of colors and more fish for organic school-of-fish effect
   const fishSchool = useMemo(
     () =>
       [
-        { top: 18, size: 44, duration: 14, delay: 0.2, direction: 'right' as const, opacity: 0.55 },
-        { top: 26, size: 36, duration: 16, delay: 1.1, direction: 'left' as const, opacity: 0.4 },
-        { top: 34, size: 50, duration: 15, delay: 0.6, direction: 'right' as const, opacity: 0.6 },
-        { top: 45, size: 30, duration: 13, delay: 1.8, direction: 'left' as const, opacity: 0.35 },
-        { top: 58, size: 38, duration: 17, delay: 0.9, direction: 'right' as const, opacity: 0.5 },
-        { top: 72, size: 32, duration: 15, delay: 1.4, direction: 'left' as const, opacity: 0.45 },
+        // Blue fish (original color)
+        { top: 12, size: 48, duration: 15, delay: 0.3, direction: 'right' as const, opacity: 0.6, color: { primary: 'rgba(59,130,246,0.9)', secondary: 'rgba(59,130,246,0.2)', tail: 'rgba(14,165,233,0.9)' } },
+        { top: 22, size: 38, duration: 17, delay: 1.2, direction: 'left' as const, opacity: 0.45, color: { primary: 'rgba(59,130,246,0.9)', secondary: 'rgba(59,130,246,0.2)', tail: 'rgba(14,165,233,0.9)' } },
+        { top: 70, size: 42, duration: 16, delay: 0.8, direction: 'right' as const, opacity: 0.55, color: { primary: 'rgba(96,165,250,0.9)', secondary: 'rgba(96,165,250,0.2)', tail: 'rgba(59,130,246,0.9)' } },
+        
+        // Purple/Violet fish
+        { top: 18, size: 44, duration: 14, delay: 0.5, direction: 'left' as const, opacity: 0.5, color: { primary: 'rgba(139,92,246,0.9)', secondary: 'rgba(139,92,246,0.2)', tail: 'rgba(167,139,250,0.9)' } },
+        { top: 55, size: 36, duration: 18, delay: 1.5, direction: 'right' as const, opacity: 0.4, color: { primary: 'rgba(167,139,250,0.9)', secondary: 'rgba(167,139,250,0.2)', tail: 'rgba(139,92,246,0.9)' } },
+        { top: 78, size: 40, duration: 15, delay: 0.4, direction: 'left' as const, opacity: 0.48, color: { primary: 'rgba(124,58,237,0.9)', secondary: 'rgba(124,58,237,0.2)', tail: 'rgba(139,92,246,0.9)' } },
+        
+        // Pink/Rose fish
+        { top: 28, size: 34, duration: 16, delay: 1.0, direction: 'right' as const, opacity: 0.42, color: { primary: 'rgba(244,114,182,0.9)', secondary: 'rgba(244,114,182,0.2)', tail: 'rgba(251,207,232,0.9)' } },
+        { top: 62, size: 46, duration: 14, delay: 0.6, direction: 'left' as const, opacity: 0.52, color: { primary: 'rgba(236,72,153,0.9)', secondary: 'rgba(236,72,153,0.2)', tail: 'rgba(244,114,182,0.9)' } },
+        
+        // Orange/Amber fish
+        { top: 35, size: 40, duration: 17, delay: 1.3, direction: 'left' as const, opacity: 0.46, color: { primary: 'rgba(251,146,60,0.9)', secondary: 'rgba(251,146,60,0.2)', tail: 'rgba(253,186,116,0.9)' } },
+        { top: 48, size: 50, duration: 15, delay: 0.2, direction: 'right' as const, opacity: 0.58, color: { primary: 'rgba(249,115,22,0.9)', secondary: 'rgba(249,115,22,0.2)', tail: 'rgba(251,146,60,0.9)' } },
+        
+        // Teal/Cyan fish
+        { top: 42, size: 36, duration: 16, delay: 1.7, direction: 'right' as const, opacity: 0.44, color: { primary: 'rgba(20,184,166,0.9)', secondary: 'rgba(20,184,166,0.2)', tail: 'rgba(45,212,191,0.9)' } },
+        { top: 85, size: 38, duration: 14, delay: 0.9, direction: 'left' as const, opacity: 0.5, color: { primary: 'rgba(6,182,212,0.9)', secondary: 'rgba(6,182,212,0.2)', tail: 'rgba(34,211,238,0.9)' } },
+        
+        // Green/Emerald fish
+        { top: 8, size: 32, duration: 18, delay: 1.4, direction: 'right' as const, opacity: 0.38, color: { primary: 'rgba(16,185,129,0.9)', secondary: 'rgba(16,185,129,0.2)', tail: 'rgba(52,211,153,0.9)' } },
+        { top: 92, size: 44, duration: 15, delay: 0.7, direction: 'left' as const, opacity: 0.54, color: { primary: 'rgba(5,150,105,0.9)', secondary: 'rgba(5,150,105,0.2)', tail: 'rgba(16,185,129,0.9)' } },
       ].map((item, idx) => ({ ...item, id: `fish-${idx}` })),
     []
   )
@@ -110,22 +130,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }
   }, [onComplete, skip])
 
-  // Confetti layer (limited count, transform-only anims)
-  const confetti = useMemo(
-    () =>
-      [
-        { emoji: '🎈', top: 12, size: 32, duration: 10, delay: 0.2, drift: 'right' as const },
-        { emoji: '🎉', top: 22, size: 28, duration: 12, delay: 0.6, drift: 'left' as const },
-        { emoji: '🪄', top: 30, size: 30, duration: 11, delay: 0.9, drift: 'right' as const },
-        { emoji: '🌈', top: 44, size: 34, duration: 13, delay: 0.4, drift: 'left' as const },
-        { emoji: '🫧', top: 56, size: 26, duration: 12, delay: 0.7, drift: 'right' as const },
-        { emoji: '🎨', top: 68, size: 30, duration: 11, delay: 0.5, drift: 'left' as const },
-        { emoji: '🎵', top: 76, size: 28, duration: 12, delay: 0.8, drift: 'right' as const },
-        { emoji: '✨', top: 84, size: 26, duration: 10, delay: 0.3, drift: 'left' as const },
-      ].map((c, i) => ({ ...c, id: `confetti-${i}` })),
-    []
-  )
-
   return (
     <div
       className={`fixed inset-0 z-100 flex items-center justify-center bg-linear-to-br from-sky-100 via-amber-50 to-orange-100 transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
@@ -166,8 +170,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
               style={{
                 width: `${fish.size}px`,
                 height: `${fish.size * 0.6}px`,
-                background: 'radial-gradient(circle at 30% 40%, rgba(59,130,246,0.9), rgba(59,130,246,0.2) 60%)',
-                boxShadow: '0 0 18px rgba(59,130,246,0.25)',
+                background: `radial-gradient(circle at 30% 40%, ${fish.color.primary}, ${fish.color.secondary} 60%)`,
+                boxShadow: `0 0 18px ${fish.color.secondary}`,
                 opacity: fish.opacity,
                 transform: 'rotate(-8deg)',
                 position: 'relative',
@@ -179,31 +183,11 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                 style={{
                   width: `${fish.size * 0.35}px`,
                   height: `${fish.size * 0.35}px`,
-                  background: 'radial-gradient(circle, rgba(14,165,233,0.9), rgba(14,165,233,0.1) 70%)',
+                  background: `radial-gradient(circle, ${fish.color.tail}, ${fish.color.secondary} 70%)`,
                   filter: 'blur(1px)',
                 }}
               />
             </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Confetti/emoji layer (limited, transform-only) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {confetti.map((c, i) => (
-          <div
-            key={c.id}
-            className="absolute"
-            style={{
-              top: `${c.top}%`,
-              left: c.drift === 'right' ? `${5 + i * 10}%` : `${95 - i * 10}%`,
-              animation: `floatConfetti ${c.duration}s ease-in-out ${c.delay}s infinite, ${c.drift === 'right' ? 'driftRight' : 'driftLeft'
-                } ${c.duration * 2}s linear ${c.delay}s infinite`,
-              willChange: 'transform',
-            }}
-            aria-hidden
-          >
-            <span style={{ fontSize: `${c.size}px`, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.1))' }}>{c.emoji}</span>
           </div>
         ))}
       </div>
@@ -311,25 +295,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
               <span className="text-6xl font-extrabold">for everyone!</span>
             </div>
           </div>
-
-          {/* Decorative stars - appear with tagline */}
-          <div
-            className={`flex justify-center gap-3 mt-6 transition-all duration-500 ${showTagline ? 'opacity-100' : 'opacity-0'
-              }`}
-          >
-            {['🌟', '✨', '💫', '✨', '🌟'].map((emoji, i) => (
-              <span
-                key={i}
-                className="text-3xl"
-                style={{
-                  animation: showTagline ? `twinkle ${1.5 + i * 0.2}s ease-in-out infinite` : 'none',
-                  animationDelay: `${i * 0.1}s`,
-                }}
-              >
-                {emoji}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -368,17 +333,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           }
           to {
             transform: rotate(360deg);
-          }
-        }
-
-        @keyframes twinkle {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(0.8);
           }
         }
 
@@ -430,21 +384,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           50% {
             transform: scale(1.06);
           }
-        }
-
-        /* Confetti animations (transform only) */
-        @keyframes floatConfetti {
-          0% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-10px) scale(1.05); }
-          100% { transform: translateY(0) scale(1); }
-        }
-        @keyframes driftRight {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(10vw); }
-        }
-        @keyframes driftLeft {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-10vw); }
         }
 
         /* Accessibility: reduce motion when user prefers */
