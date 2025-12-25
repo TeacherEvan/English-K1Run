@@ -1,7 +1,7 @@
 # Welcome Screen Visual Enhancement - December 2025
 
-**Date**: December 24, 2025  
-**Status**: ✅ Complete  
+**Date**: December 24-25, 2025  
+**Status**: ✅ Enhanced (v2 with TypeScript interfaces and increased visibility)  
 **Issue**: Remove juvenile emojis and enhance fish sprite animations
 
 ## Problem Statement
@@ -10,10 +10,11 @@ The welcome screen had excessive emoji decorations that appeared unprofessional:
 - 8 floating confetti emojis (🎈🎉🪄🌈🫧🎨🎵✨)
 - 5 decorative star emojis (🌟✨💫✨🌟)
 - Limited fish sprite variety (only 6 fish, all blue)
+- Fish sprites were too subtle (low opacity, heavy blur)
 
-User feedback: "LOOKS LIKE KINDERGARTENERS WITH AUTISM HAD ACCESS TO MICROSOFT PAINT"
+User feedback: "LOOKS LIKE KINDERGARTENERS WITH AUTISM HAD ACCESS TO MICROSOFT PAINT... I don't see the school of sprites"
 
-## Solution Implemented
+## Solution Implemented (v2)
 
 ### 1. Removed All Emoji Decorations
 
@@ -27,11 +28,21 @@ User feedback: "LOOKS LIKE KINDERGARTENERS WITH AUTISM HAD ACCESS TO MICROSOFT P
   - `driftLeft`
   - `twinkle`
 
-**Code Reduction:** -61 lines total
+**Code Reduction:** -61 lines total (v1)
 
-### 2. Enhanced Fish Sprite System
+### 2. Enhanced Fish Sprite System (v2 - Increased Visibility)
 
-**Expanded from 6 to 14 fish** with diverse characteristics:
+**Expanded from 6 to 25 fish** with highly visible characteristics:
+
+**v2 Enhancements (Dec 25):**
+- Added TypeScript `FishSprite` interface for type safety
+- Increased fish count: 14 → 25 fish
+- Enhanced visibility:
+  - Opacity: 0.7-0.85 (was 0.38-0.6)
+  - Size: 46-64px (was 32-50px)
+  - Removed blur filter (was 0.4px)
+  - Enhanced glow: dual-layer box-shadow
+- Extended delay range: 0.2-2.5s for better distribution
 
 #### Color Palette (6 variants):
 1. **Blue** (3 fish)
@@ -62,12 +73,15 @@ User feedback: "LOOKS LIKE KINDERGARTENERS WITH AUTISM HAD ACCESS TO MICROSOFT P
 
 | Property | Range | Purpose |
 |----------|-------|---------|
-| Size | 32-50px | Varied depth perception |
-| Duration | 13-18s | Natural speed variation |
-| Delay | 0.2-1.7s | Staggered animation starts |
-| Opacity | 0.38-0.6 | Subtle layering effect |
+| Size | 46-64px | Varied depth perception (enhanced from 32-50px) |
+| Duration | 13-17s | Natural speed variation |
+| Delay | 0.2-2.5s | Staggered animation starts (enhanced from 0.2-1.7s) |
+| Opacity | 0.7-0.85 | Enhanced visibility (increased from 0.38-0.6) |
 | Direction | left/right | Alternating for organic flow |
-| Top Position | 8-92% | Full vertical coverage |
+| Top Position | 5-95% | Full vertical coverage |
+| Fish Count | 25 fish | Expanded from 14 for fuller school effect |
+| Blur | 0px | Removed for crisp visibility (was 0.4px) |
+| Glow | Enhanced | Dual-layer box-shadow for better visibility |
 
 #### Technical Implementation:
 
