@@ -64,7 +64,7 @@ User feedback: "LOOKS LIKE KINDERGARTENERS WITH AUTISM HAD ACCESS TO MICROSOFT P
 |----------|-------|---------|
 | Size | 32-50px | Varied depth perception |
 | Duration | 13-18s | Natural speed variation |
-| Delay | 0.2-1.8s | Staggered animation starts |
+| Delay | 0.2-1.7s | Staggered animation starts |
 | Opacity | 0.38-0.6 | Subtle layering effect |
 | Direction | left/right | Alternating for organic flow |
 | Top Position | 8-92% | Full vertical coverage |
