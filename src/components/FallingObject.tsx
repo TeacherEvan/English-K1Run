@@ -110,17 +110,17 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
             : undefined,
           // Smooth transition with custom cubic-bezier for spring effect
           transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-          // Rainbow pulsating animation for letters
+          // Rainbow pulsating animation for letters - DRAMATICALLY ENHANCED
           animation: isLetter
-            ? 'rainbowPulse 2.5s ease-in-out infinite'
+            ? 'rainbowPulse 1.8s ease-in-out infinite'
             : isNumericText
-              ? 'gradientPulse 3s ease infinite'
+              ? 'gradientPulse 2s ease infinite'
               : undefined,
-          // Gradient background for numbers
+          // Gradient background for numbers - MORE VIBRANT
           background: isNumericText
-            ? 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6)'
+            ? 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6)'
             : undefined,
-          backgroundSize: isNumericText ? '400% 400%' : undefined,
+          backgroundSize: isNumericText ? '600% 600%' : undefined,
           // GPU acceleration
           willChange: (isLetter || isNumericText) ? 'filter, background-position' : 'transform',
           backfaceVisibility: 'hidden' as const,
@@ -152,31 +152,45 @@ if (typeof document !== 'undefined') {
     style.textContent = `
       @keyframes rainbowPulse {
         0%, 100% {
-          filter: hue-rotate(0deg) brightness(1) drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+          filter: hue-rotate(0deg) brightness(1.3) saturate(1.5) drop-shadow(0 4px 12px rgba(255,0,0,0.6));
         }
         16.67% {
-          filter: hue-rotate(60deg) brightness(1.2) drop-shadow(0 6px 12px rgba(255,223,0,0.4));
+          filter: hue-rotate(60deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(255,223,0,0.8));
         }
         33.33% {
-          filter: hue-rotate(120deg) brightness(1.2) drop-shadow(0 6px 12px rgba(0,255,0,0.4));
+          filter: hue-rotate(120deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(0,255,0,0.8));
         }
         50% {
-          filter: hue-rotate(180deg) brightness(1.1) drop-shadow(0 6px 12px rgba(0,255,255,0.4));
+          filter: hue-rotate(180deg) brightness(1.4) saturate(1.6) drop-shadow(0 6px 16px rgba(0,255,255,0.8));
         }
         66.67% {
-          filter: hue-rotate(240deg) brightness(1.2) drop-shadow(0 6px 12px rgba(0,0,255,0.4));
+          filter: hue-rotate(240deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(0,0,255,0.8));
         }
         83.33% {
-          filter: hue-rotate(300deg) brightness(1.2) drop-shadow(0 6px 12px rgba(255,0,255,0.4));
+          filter: hue-rotate(300deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(255,0,255,0.8));
         }
       }
 
       @keyframes gradientPulse {
         0%, 100% {
           background-position: 0% 50%;
+          transform: scale(1) rotate(0deg);
+          box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+        }
+        25% {
+          background-position: 50% 50%;
+          transform: scale(1.05) rotate(2deg);
+          box-shadow: 0 12px 40px rgba(139, 92, 246, 0.6);
         }
         50% {
           background-position: 100% 50%;
+          transform: scale(1.1) rotate(0deg);
+          box-shadow: 0 16px 48px rgba(236, 72, 153, 0.7);
+        }
+        75% {
+          background-position: 50% 50%;
+          transform: scale(1.05) rotate(-2deg);
+          box-shadow: 0 12px 40px rgba(245, 158, 11, 0.6);
         }
       }
     `

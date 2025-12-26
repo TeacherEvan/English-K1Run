@@ -98,6 +98,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const [comboCelebration, setComboCelebration] = useState<ComboCelebration | null>(null)
   const [achievements, setAchievements] = useState<Achievement[]>([])
 
+  // Track target count in continuous mode for level cycling
+  const continuousModeTargetCount = useRef(0)
+
   // Cache viewport size to avoid reading window dimensions every frame.
   const viewportRef = useRef({ width: 1920, height: 1080 })
   useEffect(() => {
@@ -141,9 +144,72 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameObjectsRef.current = gameObjects
   }, [gameObjects])
 
+  // Keep a ref to worms for collision detection
+  const wormsRef = useRef<WormObject[]>(worms)
+  useEffect(() => {
+    wormsRef.current = worms
+  }, [worms])
+
   // Animation frame ref for worm movement
 
   const wormSpeedMultiplier = useRef(1)
+
+  // Helper function to check and apply worm-object collision
+  const applyWormObjectCollision = useCallback((worms: WormObject[], objects: GameObject[]) => {
+    // Skip if no worms or objects
+    if (worms.length === 0 || objects.length === 0) return
+
+    const viewportWidth = viewportRef.current.width
+    const viewportHeight = viewportRef.current.height
+    
+    // Collision radius in pixels
+    const wormRadiusPx = WORM_SIZE / 2
+    const objectRadiusPx = EMOJI_SIZE / 2
+    const collisionDistancePx = wormRadiusPx + objectRadiusPx
+
+    // Check each worm against each object
+    for (const worm of worms) {
+      if (!worm.alive) continue
+
+      // Convert worm X from percentage to pixels for distance calculation
+      const wormXPx = (worm.x / 100) * viewportWidth
+      const wormYPx = worm.y
+
+      for (const obj of objects) {
+        // Convert object X from percentage to pixels
+        const objXPx = (obj.x / 100) * viewportWidth
+        const objYPx = obj.y
+
+        // Calculate distance between worm and object centers
+        const dx = objXPx - wormXPx
+        const dy = objYPx - wormYPx
+        const distance = Math.sqrt(dx * dx + dy * dy)
+
+        // Check if collision occurred
+        if (distance < collisionDistancePx && distance > 0) {
+          // Calculate bump force (push object away from worm)
+          const overlap = collisionDistancePx - distance
+          const pushStrength = overlap * 0.3 // Moderate push strength
+          
+          // Normalize direction vector
+          const dirX = dx / distance
+          const dirY = dy / distance
+
+          // Apply push to object (convert back to percentage for X)
+          const pushXPx = dirX * pushStrength
+          const pushYPx = dirY * pushStrength
+
+          obj.x += (pushXPx / viewportWidth) * 100 // Convert pixels to percentage
+          obj.y += pushYPx
+
+          // Clamp object position to screen bounds
+          const [minX, maxX] = LANE_BOUNDS[obj.lane]
+          obj.x = clamp(obj.x, minX, maxX)
+          obj.y = Math.max(0, obj.y) // Don't push above screen
+        }
+      }
+    }
+  }, [])
 
   // Refs for worm spawning timers
   const progressiveSpawnTimeoutRefs = useRef<NodeJS.Timeout[]>([])
@@ -829,13 +895,40 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           // Check for winner or continuous mode
           if (newState.progress >= 100) {
             if (continuousMode) {
-              // Continuous mode: reset progress and continue playing
+              // Continuous mode: increment target count and check for level change
+              continuousModeTargetCount.current += 1
+              
+              // Reset progress and continue playing
               newState.progress = 0
               newState.winner = false
-              eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'continuous_mode_reset')
               
-              // Generate next target
-              const nextTarget = generateRandomTarget()
+              // Check if we should advance to next level (every 10 targets)
+              if (continuousModeTargetCount.current >= 10) {
+                continuousModeTargetCount.current = 0 // Reset counter
+                
+                // Advance to next level, loop back to 0 after last level
+                const nextLevel = (prev.level + 1) % GAME_CATEGORIES.length
+                newState.level = nextLevel
+                
+                // Reset sequence index for new level if needed
+                if (GAME_CATEGORIES[nextLevel].requiresSequence) {
+                  GAME_CATEGORIES[nextLevel].sequenceIndex = 0
+                }
+                
+                // Refill target pool for new level
+                refillTargetPool(nextLevel)
+                
+                eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'continuous_mode_level_change')
+                
+                if (import.meta.env.DEV) {
+                  console.log(`[ContinuousMode] Advanced to level ${nextLevel}: ${GAME_CATEGORIES[nextLevel].name}`)
+                }
+              } else {
+                eventTracker.trackGameStateChange({ ...prev }, { ...newState }, 'continuous_mode_reset')
+              }
+              
+              // Generate next target for the (possibly new) level
+              const nextTarget = generateRandomTarget(newState.level)
               newState.currentTarget = nextTarget.name
               newState.targetEmoji = nextTarget.emoji
               newState.targetChangeTime = Date.now() + 10000
@@ -988,6 +1081,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
 
       // Reset target pool for new level (ensures fresh shuffle)
       targetPool.current = []
+
+      // Reset continuous mode target counter
+      continuousModeTargetCount.current = 0
 
       // Initialize emoji rotation tracking in event tracker
       const currentCategory = GAME_CATEGORIES[safeLevel]
@@ -1208,6 +1304,32 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     animationFrameId = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(animationFrameId)
   }, [gameState.gameStarted, gameState.winner, updateObjects])
+
+  // Separate effect for worm-object collision physics
+  useEffect(() => {
+    if (!gameState.gameStarted || gameState.winner) {
+      return
+    }
+
+    let collisionFrameId: number
+    const applyCollisions = () => {
+      const currentWorms = wormsRef.current
+      const currentObjects = gameObjectsRef.current
+
+      if (currentWorms.length > 0 && currentObjects.length > 0) {
+        setGameObjects(prev => {
+          const updated = [...prev]
+          applyWormObjectCollision(currentWorms, updated)
+          return updated
+        })
+      }
+
+      collisionFrameId = requestAnimationFrame(applyCollisions)
+    }
+
+    collisionFrameId = requestAnimationFrame(applyCollisions)
+    return () => cancelAnimationFrame(collisionFrameId)
+  }, [gameState.gameStarted, gameState.winner, applyWormObjectCollision])
 
   // Fairy transformation cleanup and currentTime update
   useEffect(() => {
