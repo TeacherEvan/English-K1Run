@@ -37,12 +37,12 @@ interface FishSprite {
 }
 
 /**
- * WelcomeScreen - Premium splash screen for Sangsom Kindergarten partnership
+ * WelcomeScreen - Premium splash screen for Lalitaporn Kindergarten partnership
  * 
  * Features:
  * - Sequential audio: intellectual voice → children's choir
  * - Dynamic text phases synced with audio
- * - Inspired by Sangsom's modern architecture and sun branding
+ * - Inspired by Lalitaporn's modern architecture and sun branding
  * - Smooth fade animations with visual storytelling
  * - Auto-dismisses after complete audio sequence
  * - 3D parallax effects with multiple depth layers
@@ -54,7 +54,7 @@ interface FishSprite {
  * - Floating ambient sparkles and bubbles
  * 
  * Audio Sequence:
- * 1. "In association with SANGSOM Kindergarten" (intellectual voice, ~3s)
+ * 1. "In association with LALITAPORN Kindergarten" (intellectual voice, ~3s)
  * 2. "Learning through games for everyone!" (children's choir, ~3s)
  * 
  * @component
@@ -512,7 +512,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                   animation: 'shimmer 3s ease-in-out infinite',
                 }}
               >
-                SANGSOM
+                LALITAPORN
               </h1>
               <h2
                 className="font-bold text-amber-700 mt-2"
@@ -532,7 +532,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                   fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                 }}
               >
-                อนุบาลสงสม
+                อนุบาลลลิดาภรณ์
               </p>
             </div>
           </div>
