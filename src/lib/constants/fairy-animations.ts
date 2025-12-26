@@ -50,7 +50,7 @@ export const FAIRY_VISUAL_CONSTANTS = {
 } as const
 
 /**
- * Gold color palette for sparkles
+ * Gold color palette for sparkles (legacy - kept for compatibility)
  */
 export const FAIRY_GOLD_COLORS = [
   '#FFD700', // Gold
@@ -59,6 +59,38 @@ export const FAIRY_GOLD_COLORS = [
   '#FFEC8B', // Light Goldenrod
   '#F0E68C'  // Khaki
 ] as const
+
+/**
+ * Intense pulsating color palettes for fairy transformations
+ * Each palette has vibrant, high-contrast colors for visual excitement
+ */
+export const FAIRY_INTENSE_COLOR_PALETTES = [
+  // Electric Rainbow
+  ['#FF00FF', '#00FFFF', '#FFFF00', '#FF0080', '#00FF80'],
+  // Neon Fire
+  ['#FF0000', '#FF4500', '#FF8C00', '#FFD700', '#FFFF00'],
+  // Ocean Deep
+  ['#0080FF', '#00BFFF', '#00FFFF', '#40E0D0', '#7FFFD4'],
+  // Purple Dream
+  ['#8B00FF', '#9370DB', '#BA55D3', '#DA70D6', '#FF00FF'],
+  // Tropical Sunset
+  ['#FF1493', '#FF69B4', '#FFA500', '#FFD700', '#FF6347'],
+  // Emerald Galaxy
+  ['#00FF00', '#32CD32', '#7FFF00', '#ADFF2F', '#00FA9A'],
+  // Electric Blue
+  ['#0000FF', '#1E90FF', '#00BFFF', '#87CEEB', '#87CEFA'],
+  // Lava Burst
+  ['#FF0000', '#FF4500', '#FF6347', '#FF7F50', '#FFA500']
+] as const
+
+/**
+ * Select a random intense color palette for fairy transformation
+ * @returns Array of vibrant hex colors
+ */
+export const getRandomIntenseColorPalette = (): readonly string[] => {
+  const index = Math.floor(Math.random() * FAIRY_INTENSE_COLOR_PALETTES.length)
+  return FAIRY_INTENSE_COLOR_PALETTES[index]
+}
 
 /**
  * Animation easing function - cubic ease-out

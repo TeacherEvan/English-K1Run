@@ -3,7 +3,7 @@ import type { FairyTransformObject } from '../hooks/use-game-logic'
 import {
   FAIRY_ANIMATION_TIMING,
   FAIRY_VISUAL_CONSTANTS,
-  FAIRY_GOLD_COLORS,
+  getRandomIntenseColorPalette,
   easeOutCubic,
   quadraticBezier,
   generateFlyTarget,
@@ -35,15 +35,16 @@ interface OrbitSparkle {
     color: string
 }
 
-// Generate initial sparkles outside render
+// Generate initial sparkles outside render with random intense color palette
 const createOrbitingSparkles = (): OrbitSparkle[] => {
+    const colorPalette = getRandomIntenseColorPalette()
     return Array.from({ length: FAIRY_VISUAL_CONSTANTS.SPARKLE_COUNT }, (_, i) => ({
         id: i,
         angle: (Math.PI * 2 * i) / FAIRY_VISUAL_CONSTANTS.SPARKLE_COUNT,
         distance: 40 + Math.random() * 20,
         speed: 0.5 + Math.random() * 0.5,
         size: 8 + Math.random() * 8,
-        color: FAIRY_GOLD_COLORS[Math.floor(Math.random() * FAIRY_GOLD_COLORS.length)]
+        color: colorPalette[Math.floor(Math.random() * colorPalette.length)]
     }))
 }
 
@@ -62,6 +63,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
 
     // Initialize random values in useState to keep them stable
     const [orbitingSparkles] = useState<OrbitSparkle[]>(() => createOrbitingSparkles())
+    const [colorPalette] = useState(() => getRandomIntenseColorPalette())
     const [flyTarget] = useState(() => generateFlyTarget(fairy.x, fairy.y))
     // Store bezier control point once to prevent jittery animation
     const [bezierControl] = useState(() => generateBezierControl(fairy.x, fairy.y, flyTarget.x, flyTarget.y))
@@ -195,7 +197,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                         height: `${FAIRY_VISUAL_CONSTANTS.FAIRY_SIZE}px`,
                         fontSize: `${FAIRY_VISUAL_CONSTANTS.FAIRY_SIZE}px`,
                         transform: `translate(-50%, -50%) scale(${morphScale}) rotate(${morphProgress * 360}deg)`,
-                        filter: `drop-shadow(0 0 ${glowIntensity}px #FFD700) drop-shadow(0 0 ${glowIntensity * 2}px #FFA500)`,
+                        filter: `drop-shadow(0 0 ${glowIntensity}px ${colorPalette[0]}) drop-shadow(0 0 ${glowIntensity * 2}px ${colorPalette[1]})`,
                         transition: phase === 'morphing' ? 'none' : 'transform 0.05s linear',
                         opacity: fairyOpacity
                     }}
@@ -257,7 +259,7 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
                         fontSize: `${sparkle.size}px`,
                         transform: 'translate(-50%, -50%)',
                         opacity: sparkle.opacity,
-                        filter: `drop-shadow(0 0 ${sparkle.size / 2}px ${FAIRY_GOLD_COLORS[sparkle.id % FAIRY_GOLD_COLORS.length]})`,
+                        filter: `drop-shadow(0 0 ${sparkle.size / 2}px ${colorPalette[sparkle.id % colorPalette.length]})`,
                         transition: 'opacity 0.1s ease-out'
                     }}
                 >

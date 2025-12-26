@@ -65,14 +65,14 @@ export const SPAWN_ABOVE_SCREEN = 200
 // WORM DISTRACTOR CONFIGURATION
 // ============================================================================
 
-/** Initial number of worms spawned at game start */
-export const WORM_INITIAL_COUNT = 5
+/** Initial number of worms spawned at game start (reduced by 50% for better gameplay balance) */
+export const WORM_INITIAL_COUNT = 3
 
 /** Interval for progressive worm spawning during gameplay (milliseconds) */
 export const WORM_PROGRESSIVE_SPAWN_INTERVAL = 3000
 
-/** Number of worms spawned in recurring intervals */
-export const WORM_RECURRING_COUNT = 3
+/** Number of worms spawned in recurring intervals (reduced by 50% for better gameplay balance) */
+export const WORM_RECURRING_COUNT = 2
 
 /** Recurring worm spawn interval (every 30 seconds) */
 export const WORM_RECURRING_INTERVAL = 30000
