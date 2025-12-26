@@ -702,41 +702,48 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [fallSpeedMultiplier])
 
   const processLane = useCallback((laneObjects: GameObject[], lane: PlayerSide) => {
-    // Cache lane bounds lookup (performance optimization)
-    const [minX, maxX] = LANE_BOUNDS[lane]
     const laneLength = laneObjects.length
-
+    
     // Early exit if no objects to process
     if (laneLength === 0) return
+    
+    // Cache lane bounds lookup (performance optimization)
+    const [minX, maxX] = LANE_BOUNDS[lane]
+    const minSep = COLLISION_MIN_SEPARATION
+    const minVertGap = MIN_VERTICAL_GAP
+
+    // Sort objects by Y position once for better spatial coherence
+    // This allows us to break early when objects are too far apart vertically
+    const sorted = laneObjects.slice().sort((a, b) => a.y - b.y)
 
     for (let i = 0; i < laneLength; i++) {
-      const current = laneObjects[i]
-      current.x = clamp(current.x, minX, maxX)
-
+      const current = sorted[i]
+      
       // Skip collision detection for objects still spawning (y < 0)
       // This prevents the 8 newly spawned emojis from pushing each other around
       if (current.y < 0) continue
+      
+      // Clamp once before collision checks
+      current.x = clamp(current.x, minX, maxX)
 
-      // Early exit if only one object or current is last object
-      if (i === laneLength - 1) break
-
+      // Only check objects below current (spatial coherence optimization)
       for (let j = i + 1; j < laneLength; j++) {
-        const other = laneObjects[j]
+        const other = sorted[j]
 
         // Skip collision with objects still spawning (y < 0)
         if (other.y < 0) continue
 
-        const verticalGap = Math.abs(current.y - other.y)
-
-        // Early exit: objects far apart vertically don't need collision check
-        if (verticalGap > MIN_VERTICAL_GAP) continue
+        // Early exit: since sorted by Y, if vertical gap too large, all remaining objects are also too far
+        const verticalGap = other.y - current.y // Always positive since sorted
+        if (verticalGap > minVertGap) break // No need to check remaining objects
 
         const horizontalGap = Math.abs(current.x - other.x)
 
         // Early exit: objects far enough apart horizontally or exactly overlapping
-        if (horizontalGap >= COLLISION_MIN_SEPARATION || horizontalGap === 0) continue
+        if (horizontalGap >= minSep || horizontalGap === 0) continue
 
-        const overlap = (COLLISION_MIN_SEPARATION - horizontalGap) / 2
+        // Apply collision resolution
+        const overlap = (minSep - horizontalGap) / 2
         const direction = current.x < other.x ? -1 : 1
 
         current.x = clamp(current.x + overlap * direction, minX, maxX)
@@ -1305,22 +1312,33 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   }, [gameState.gameStarted, gameState.winner, updateObjects])
 
   // Separate effect for worm-object collision physics
+  // Optimized to run at 30fps instead of 60fps since worm collisions don't need to be frame-perfect
   useEffect(() => {
     if (!gameState.gameStarted || gameState.winner) {
       return
     }
 
     let collisionFrameId: number
-    const applyCollisions = () => {
-      const currentWorms = wormsRef.current
-      const currentObjects = gameObjectsRef.current
+    let lastCollisionTime = 0
+    const collisionInterval = 1000 / 30 // 30fps for collision checks
 
-      if (currentWorms.length > 0 && currentObjects.length > 0) {
-        setGameObjects(prev => {
-          const updated = [...prev]
-          applyWormObjectCollision(currentWorms, updated)
-          return updated
-        })
+    const applyCollisions = (currentTime: number) => {
+      const elapsed = currentTime - lastCollisionTime
+
+      // Only apply collisions every ~33ms (30fps) instead of every frame (60fps)
+      if (elapsed >= collisionInterval) {
+        const currentWorms = wormsRef.current
+        const currentObjects = gameObjectsRef.current
+
+        if (currentWorms.length > 0 && currentObjects.length > 0) {
+          setGameObjects(prev => {
+            const updated = [...prev]
+            applyWormObjectCollision(currentWorms, updated)
+            return updated
+          })
+        }
+
+        lastCollisionTime = currentTime - (elapsed % collisionInterval)
       }
 
       collisionFrameId = requestAnimationFrame(applyCollisions)
