@@ -160,7 +160,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     if (worms.length === 0 || objects.length === 0) return
 
     const viewportWidth = viewportRef.current.width
-    const viewportHeight = viewportRef.current.height
     
     // Collision radius in pixels
     const wormRadiusPx = WORM_SIZE / 2
@@ -1003,7 +1002,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     } catch (error) {
       eventTracker.trackError(error as Error, 'handleObjectTap')
     }
-  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, spawnImmediateTargets, continuousMode])
+  }, [gameState.currentTarget, gameState.targetEmoji, currentCategory, generateRandomTarget, spawnImmediateTargets, continuousMode, refillTargetPool])
 
   const handleWormTap = useCallback((wormId: string, playerSide: 'left' | 'right') => {
     try {

@@ -3,7 +3,6 @@ import type { FairyTransformObject } from '../hooks/use-game-logic'
 import {
   FAIRY_ANIMATION_TIMING,
   FAIRY_VISUAL_CONSTANTS,
-  FAIRY_GOLD_COLORS,
   getRandomIntenseColorPalette,
   easeOutCubic,
   quadraticBezier,
