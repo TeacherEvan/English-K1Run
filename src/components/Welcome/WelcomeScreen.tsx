@@ -1,8 +1,8 @@
 import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { preloadResources } from '../lib/resource-preloader'
-import { soundManager } from '../lib/sound-manager'
-import { AnimatedText } from './Welcome/AnimatedText'
-import { SunLogo } from './Welcome/SunLogo'
+import { preloadResources } from '../../lib/resource-preloader'
+import { soundManager } from '../../lib/sound-manager'
+import { AnimatedText } from './AnimatedText'
+import { SunLogo } from './SunLogo'
 
 // TODO: [OPTIMIZATION] Split WelcomeScreen into smaller components (SunLogo, AnimatedText, ParticleSystem) for better maintainability
 

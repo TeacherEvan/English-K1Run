@@ -7,7 +7,7 @@ import { GameMenu } from './components/GameMenu'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { PlayerArea } from './components/PlayerArea'
 import { TargetDisplay } from './components/TargetDisplay'
-import { WelcomeScreen } from './components/WelcomeScreen'
+import { WelcomeScreen } from './components/Welcome'
 import { Worm } from './components/Worm'
 
 // Lazy load non-critical UI components for better initial load performance
