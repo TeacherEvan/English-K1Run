@@ -11,6 +11,8 @@ interface HomeWindowProps {
     onToggleContinuousMode?: (enabled: boolean) => void;
 }
 
+type TabId = 'levels' | 'settings' | 'credits';
+
 export const HomeWindow = memo(({
     onStartGame,
     onSettingsChange,
@@ -18,13 +20,19 @@ export const HomeWindow = memo(({
     continuousMode = false,
     onToggleContinuousMode
 }: HomeWindowProps) => {
-    const [activeTab, setActiveTab] = useState<'levels' | 'settings' | 'credits'>('levels');
+    const [activeTab, setActiveTab] = useState<TabId>('levels');
     const [fontScale, setFontScale] = useState(1);
     const [objectScale, setObjectScale] = useState(1);
 
     const handleSettingsChange = () => {
         onSettingsChange?.({ fontScale, objectScale });
     };
+
+    const tabs: Array<{ id: TabId; label: string; icon: string }> = [
+        { id: 'levels', label: 'Levels', icon: '🎯' },
+        { id: 'settings', label: 'Settings', icon: '⚙️' },
+        { id: 'credits', label: 'Credits', icon: '👥' }
+    ];
 
     return (
         <div className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
@@ -39,14 +47,10 @@ export const HomeWindow = memo(({
                 {/* Tabs */}
                 <div className="flex justify-center mb-6">
                     <div className="flex space-x-2 bg-secondary/20 rounded-lg p-1">
-                        {[
-                            { id: 'levels', label: 'Levels', icon: '🎯' },
-                            { id: 'settings', label: 'Settings', icon: '⚙️' },
-                            { id: 'credits', label: 'Credits', icon: '👥' }
-                        ].map((tab) => (
+                        {tabs.map((tab) => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${activeTab === tab.id
                                         ? 'bg-primary text-primary-foreground shadow-md'
                                         : 'hover:bg-secondary/40'

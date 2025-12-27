@@ -1161,6 +1161,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       generateRandomTarget,
       spawnImmediateTargets,
       continuousMode,
+      continuousModeHighScore,
+      continuousModeStartTime,
       refillTargetPool,
     ]
   );
@@ -1351,6 +1353,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       generateRandomTarget,
       spawnImmediateTargets,
       createWorms,
+      continuousMode,
     ]
   );
 
