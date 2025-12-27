@@ -44,13 +44,15 @@ describe('Sound Manager Audio Call Behavior', () => {
     }).not.toThrow()
   })
 
-  it('should only export voice, sticker, and stopAll methods', () => {
+  it('should only export voice, sticker, welcome, and stopAll methods', () => {
     // Verify that we only have the expected sound effects and control methods
     // voiceWordOnly was removed in December 2025 per issue requirements
+    // welcome method added in December 2025 for welcome screen audio
     const exportedMethods = Object.keys(playSoundEffect)
-    expect(exportedMethods).toHaveLength(3)
+    expect(exportedMethods).toHaveLength(4)
     expect(exportedMethods).toContain('voice')
     expect(exportedMethods).toContain('sticker')
+    expect(exportedMethods).toContain('welcome')
     expect(exportedMethods).toContain('stopAll')
     expect(exportedMethods).not.toContain('voiceWordOnly')
   })
