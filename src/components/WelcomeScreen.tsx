@@ -1,6 +1,10 @@
 import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { preloadResources } from '../lib/resource-preloader'
 import { soundManager } from '../lib/sound-manager'
+import { AnimatedText } from './Welcome/AnimatedText'
+import { SunLogo } from './Welcome/SunLogo'
+
+// TODO: [OPTIMIZATION] Split WelcomeScreen into smaller components (SunLogo, AnimatedText, ParticleSystem) for better maintainability
 
 interface WelcomeScreenProps {
   onComplete: () => void
@@ -56,6 +60,7 @@ interface FishSprite {
  * Audio Sequence:
  * 1. "In association with LALITAPORN Kindergarten" (intellectual voice, ~3s)
  * 2. "Learning through games for everyone!" (children's choir, ~3s)
+ * 3. "Learning through playing for everyone!" (Thai male, ~3s)
  * 
  * @component
  */
@@ -64,51 +69,58 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [audioPhase, setAudioPhase] = useState<'intro' | 'tagline'>('intro')
   const [showTagline, setShowTagline] = useState(false)
   const [showSkip, setShowSkip] = useState(false)
+  const [showLoadingSkeleton, setShowLoadingSkeleton] = useState(true)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Use the new Sangsom welcome image when present in /public.
+  // Controlled by Vite env var: VITE_USE_SANGSOM_SPLASH ("true"/"false"), defaults to true.
+  const useSangsomSplash =
+    typeof import.meta !== 'undefined' && typeof import.meta.env !== 'undefined'
+      ? import.meta.env.VITE_USE_SANGSOM_SPLASH !== 'false'
+      : true
 
   // Precompute fish sprites so they animate independently without re-renders
-  // Enhanced with variety of colors and more fish for organic school-of-fish effect
+  // Fixed: All fish now flow right with natural sine wave motion, no retarded left-right
   const fishSchool = useMemo<FishSprite[]>(
     () =>
       [
         // Blue fish (increased visibility with glow trails)
         { top: 10, size: 60, duration: 14, delay: 0.3, direction: 'right' as const, opacity: 0.85, color: { primary: 'rgba(59,130,246,1)', secondary: 'rgba(59,130,246,0.3)', tail: 'rgba(14,165,233,1)' } },
-        { top: 20, size: 52, duration: 16, delay: 1.2, direction: 'left' as const, opacity: 0.75, color: { primary: 'rgba(59,130,246,1)', secondary: 'rgba(59,130,246,0.3)', tail: 'rgba(14,165,233,1)' } },
+        { top: 20, size: 52, duration: 16, delay: 1.2, direction: 'right' as const, opacity: 0.75, color: { primary: 'rgba(59,130,246,1)', secondary: 'rgba(59,130,246,0.3)', tail: 'rgba(14,165,233,1)' } },
         { top: 68, size: 56, duration: 15, delay: 0.8, direction: 'right' as const, opacity: 0.8, color: { primary: 'rgba(96,165,250,1)', secondary: 'rgba(96,165,250,0.3)', tail: 'rgba(59,130,246,1)' } },
-        { top: 88, size: 48, duration: 17, delay: 2.0, direction: 'left' as const, opacity: 0.7, color: { primary: 'rgba(59,130,246,1)', secondary: 'rgba(59,130,246,0.3)', tail: 'rgba(96,165,250,1)' } },
+        { top: 88, size: 48, duration: 17, delay: 2.0, direction: 'right' as const, opacity: 0.7, color: { primary: 'rgba(59,130,246,1)', secondary: 'rgba(59,130,246,0.3)', tail: 'rgba(96,165,250,1)' } },
 
         // Purple/Violet fish (enhanced visibility)
-        { top: 15, size: 58, duration: 13, delay: 0.5, direction: 'left' as const, opacity: 0.8, color: { primary: 'rgba(139,92,246,1)', secondary: 'rgba(139,92,246,0.3)', tail: 'rgba(167,139,250,1)' } },
+        { top: 15, size: 58, duration: 13, delay: 0.5, direction: 'right' as const, opacity: 0.8, color: { primary: 'rgba(139,92,246,1)', secondary: 'rgba(139,92,246,0.3)', tail: 'rgba(167,139,250,1)' } },
         { top: 52, size: 50, duration: 17, delay: 1.5, direction: 'right' as const, opacity: 0.75, color: { primary: 'rgba(167,139,250,1)', secondary: 'rgba(167,139,250,0.3)', tail: 'rgba(139,92,246,1)' } },
-        { top: 76, size: 54, duration: 14, delay: 0.4, direction: 'left' as const, opacity: 0.78, color: { primary: 'rgba(124,58,237,1)', secondary: 'rgba(124,58,237,0.3)', tail: 'rgba(139,92,246,1)' } },
+        { top: 76, size: 54, duration: 14, delay: 0.4, direction: 'right' as const, opacity: 0.78, color: { primary: 'rgba(124,58,237,1)', secondary: 'rgba(124,58,237,0.3)', tail: 'rgba(139,92,246,1)' } },
         { top: 92, size: 46, duration: 16, delay: 2.2, direction: 'right' as const, opacity: 0.72, color: { primary: 'rgba(139,92,246,1)', secondary: 'rgba(139,92,246,0.3)', tail: 'rgba(167,139,250,1)' } },
 
         // Pink/Rose fish (vivid colors)
         { top: 25, size: 48, duration: 15, delay: 1.0, direction: 'right' as const, opacity: 0.82, color: { primary: 'rgba(244,114,182,1)', secondary: 'rgba(244,114,182,0.3)', tail: 'rgba(251,207,232,1)' } },
-        { top: 60, size: 62, duration: 13, delay: 0.6, direction: 'left' as const, opacity: 0.78, color: { primary: 'rgba(236,72,153,1)', secondary: 'rgba(236,72,153,0.3)', tail: 'rgba(244,114,182,1)' } },
+        { top: 60, size: 62, duration: 13, delay: 0.6, direction: 'right' as const, opacity: 0.78, color: { primary: 'rgba(236,72,153,1)', secondary: 'rgba(236,72,153,0.3)', tail: 'rgba(244,114,182,1)' } },
         { top: 82, size: 50, duration: 16, delay: 1.8, direction: 'right' as const, opacity: 0.76, color: { primary: 'rgba(236,72,153,1)', secondary: 'rgba(236,72,153,0.3)', tail: 'rgba(251,207,232,1)' } },
 
         // Orange/Amber fish (warm tones)
-        { top: 32, size: 56, duration: 16, delay: 1.3, direction: 'left' as const, opacity: 0.8, color: { primary: 'rgba(251,146,60,1)', secondary: 'rgba(251,146,60,0.3)', tail: 'rgba(253,186,116,1)' } },
+        { top: 32, size: 56, duration: 16, delay: 1.3, direction: 'right' as const, opacity: 0.8, color: { primary: 'rgba(251,146,60,1)', secondary: 'rgba(251,146,60,0.3)', tail: 'rgba(253,186,116,1)' } },
         { top: 45, size: 64, duration: 14, delay: 0.2, direction: 'right' as const, opacity: 0.85, color: { primary: 'rgba(249,115,22,1)', secondary: 'rgba(249,115,22,0.3)', tail: 'rgba(251,146,60,1)' } },
-        { top: 70, size: 52, duration: 15, delay: 2.1, direction: 'left' as const, opacity: 0.77, color: { primary: 'rgba(251,146,60,1)', secondary: 'rgba(251,146,60,0.3)', tail: 'rgba(253,186,116,1)' } },
+        { top: 70, size: 52, duration: 15, delay: 2.1, direction: 'right' as const, opacity: 0.77, color: { primary: 'rgba(251,146,60,1)', secondary: 'rgba(251,146,60,0.3)', tail: 'rgba(253,186,116,1)' } },
 
         // Teal/Cyan fish (vibrant blues)
         { top: 38, size: 50, duration: 15, delay: 1.7, direction: 'right' as const, opacity: 0.8, color: { primary: 'rgba(20,184,166,1)', secondary: 'rgba(20,184,166,0.3)', tail: 'rgba(45,212,191,1)' } },
-        { top: 84, size: 54, duration: 13, delay: 0.9, direction: 'left' as const, opacity: 0.75, color: { primary: 'rgba(6,182,212,1)', secondary: 'rgba(6,182,212,0.3)', tail: 'rgba(34,211,238,1)' } },
+        { top: 84, size: 54, duration: 13, delay: 0.9, direction: 'right' as const, opacity: 0.75, color: { primary: 'rgba(6,182,212,1)', secondary: 'rgba(6,182,212,0.3)', tail: 'rgba(34,211,238,1)' } },
         { top: 55, size: 48, duration: 17, delay: 2.3, direction: 'right' as const, opacity: 0.73, color: { primary: 'rgba(20,184,166,1)', secondary: 'rgba(20,184,166,0.3)', tail: 'rgba(45,212,191,1)' } },
 
         // Green/Emerald fish (natural greens)
         { top: 5, size: 46, duration: 17, delay: 1.4, direction: 'right' as const, opacity: 0.78, color: { primary: 'rgba(16,185,129,1)', secondary: 'rgba(16,185,129,0.3)', tail: 'rgba(52,211,153,1)' } },
-        { top: 48, size: 58, duration: 14, delay: 0.7, direction: 'left' as const, opacity: 0.82, color: { primary: 'rgba(5,150,105,1)', secondary: 'rgba(5,150,105,0.3)', tail: 'rgba(16,185,129,1)' } },
+        { top: 48, size: 58, duration: 14, delay: 0.7, direction: 'right' as const, opacity: 0.82, color: { primary: 'rgba(5,150,105,1)', secondary: 'rgba(5,150,105,0.3)', tail: 'rgba(16,185,129,1)' } },
         { top: 95, size: 52, duration: 16, delay: 1.9, direction: 'right' as const, opacity: 0.74, color: { primary: 'rgba(16,185,129,1)', secondary: 'rgba(16,185,129,0.3)', tail: 'rgba(52,211,153,1)' } },
 
         // Additional colorful fish for fuller effect
-        { top: 12, size: 44, duration: 15, delay: 2.5, direction: 'left' as const, opacity: 0.7, color: { primary: 'rgba(251,146,60,1)', secondary: 'rgba(251,146,60,0.3)', tail: 'rgba(253,186,116,1)' } },
+        { top: 12, size: 44, duration: 15, delay: 2.5, direction: 'right' as const, opacity: 0.7, color: { primary: 'rgba(251,146,60,1)', secondary: 'rgba(251,146,60,0.3)', tail: 'rgba(253,186,116,1)' } },
         { top: 64, size: 60, duration: 14, delay: 1.1, direction: 'right' as const, opacity: 0.8, color: { primary: 'rgba(244,114,182,1)', secondary: 'rgba(244,114,182,0.3)', tail: 'rgba(251,207,232,1)' } },
-        { top: 28, size: 50, duration: 16, delay: 0.4, direction: 'left' as const, opacity: 0.75, color: { primary: 'rgba(6,182,212,1)', secondary: 'rgba(6,182,212,0.3)', tail: 'rgba(34,211,238,1)' } },
+        { top: 28, size: 50, duration: 16, delay: 0.4, direction: 'right' as const, opacity: 0.75, color: { primary: 'rgba(6,182,212,1)', secondary: 'rgba(6,182,212,0.3)', tail: 'rgba(34,211,238,1)' } },
         { top: 42, size: 56, duration: 13, delay: 1.6, direction: 'right' as const, opacity: 0.82, color: { primary: 'rgba(124,58,237,1)', secondary: 'rgba(124,58,237,0.3)', tail: 'rgba(167,139,250,1)' } },
-        { top: 78, size: 48, duration: 17, delay: 0.8, direction: 'left' as const, opacity: 0.76, color: { primary: 'rgba(5,150,105,1)', secondary: 'rgba(5,150,105,0.3)', tail: 'rgba(52,211,153,1)' } },
+        { top: 78, size: 48, duration: 17, delay: 0.8, direction: 'right' as const, opacity: 0.76, color: { primary: 'rgba(5,150,105,1)', secondary: 'rgba(5,150,105,0.3)', tail: 'rgba(52,211,153,1)' } },
       ].map((item, idx) => ({ ...item, id: `fish-${idx}` })),
     []
   )
@@ -217,14 +229,21 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     void preloadResources([
       { url: '/sounds/welcome_association.wav', type: 'audio', priority: 'high' },
       { url: '/sounds/welcome_learning.wav', type: 'audio', priority: 'high' },
-    ])
+      { url: '/sounds/welcome_learning_thai.wav', type: 'audio', priority: 'high' },
+    ]).then(() => {
+      // Hide loading skeleton after preload completes
+      setShowLoadingSkeleton(false)
+    }).catch(() => {
+      // Hide skeleton even on error
+      setShowLoadingSkeleton(false)
+    })
 
     // Reveal Skip after a short moment
     const skipTimer = setTimeout(() => setShowSkip(true), 1000)
 
     const playSequentialAudio = async () => {
       try {
-        // Phase 1: Play "In association with SANGSOM Kindergarten" (intellectual voice)
+        // Phase 1: Play "In association with LALITAPORN Kindergarten" (intellectual voice)
         await soundManager.playSound('welcome_association')
 
         // Wait for first audio to complete (~3 seconds)
@@ -240,6 +259,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         // Wait for second audio to complete (~3 seconds)
         await new Promise(resolve => setTimeout(resolve, 3000))
 
+        // Phase 3: Play "Learning through playing for everyone!" (Thai male)
+        await soundManager.playSound('welcome_learning_thai')
+
+        // Wait for third audio to complete (~3 seconds)
+        await new Promise(resolve => setTimeout(resolve, 3000))
+
         // Start fade-out
         setFadeOut(true)
 
@@ -250,7 +275,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         if (import.meta.env.DEV) {
           console.log('[WelcomeScreen] Audio playback error:', err)
         }
-        // Fallback: auto-dismiss after 6 seconds if audio fails
+        // Fallback: auto-dismiss after 9 seconds if audio fails
         setTimeout(() => {
           setFadeOut(true)
           setTimeout(onComplete, 500)
@@ -294,6 +319,17 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         className="absolute inset-0 pointer-events-none"
         style={{ zIndex: 50 }}
       />
+
+      {/* Optional: full-screen welcome image (add /welcome-sangsom.png to public/) */}
+      {useSangsomSplash && (
+        <img
+          src="/welcome-sangsom.png"
+          alt="Sangsom Kindergarten welcome"
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ zIndex: 1, opacity: 0.98 }}
+        />
+      )}
 
       {/* Skip control (appears after a short delay) */}
       {showSkip && (
@@ -380,92 +416,10 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           zIndex: 20,
         }}
       >
-        {/* Sun Logo - Enhanced with color-shifting rays */}
-        <div className="mb-8 flex justify-center">
-          <div
-            className="relative"
-            style={{
-              animation: 'gentlePulse 2s ease-in-out infinite',
-              transform: audioPhase === 'tagline' ? 'scale(1.15)' : 'scale(1)',
-              transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
-            {/* Outer glow corona */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{
-                transform: 'translateZ(-20px)',
-              }}
-            >
-              <div
-                className="w-40 h-40 rounded-full"
-                style={{
-                  background: audioPhase === 'intro'
-                    ? 'radial-gradient(circle, rgba(251,191,36,0.4) 0%, rgba(251,191,36,0) 70%)'
-                    : 'radial-gradient(circle, rgba(139,92,246,0.4) 0%, rgba(236,72,153,0.3) 50%, rgba(139,92,246,0) 70%)',
-                  filter: 'blur(8px)',
-                  animation: 'pulse 3s ease-in-out infinite',
-                  transition: 'background 1s ease-in-out',
-                }}
-              />
-            </div>
+        {/* Sun Logo - extracted into component */}
+        <SunLogo phase={audioPhase} />
 
-            {/* Sun rays with color shifting */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className="w-32 h-32 rounded-full"
-                style={{
-                  background:
-                    'radial-gradient(circle, rgba(255,215,0,0.3) 0%, rgba(255,215,0,0) 70%)',
-                  animation: 'rotate 20s linear infinite',
-                }}
-              >
-                {/* Animated rays */}
-                {Array.from({ length: 16 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-1"
-                    style={{
-                      height: '56px',
-                      left: '50%',
-                      top: '50%',
-                      transformOrigin: '0 0',
-                      transform: `rotate(${i * 22.5}deg) translateX(-0.5px)`,
-                      background: audioPhase === 'intro'
-                        ? 'linear-gradient(to top, #fbbf24, #fb923c, transparent)'
-                        : `linear-gradient(to top, ${['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'][i % 4]}, transparent)`,
-                      opacity: 0.7,
-                      animation: `rayPulse ${2 + (i % 3)}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.1}s`,
-                      transition: 'background 1s ease-in-out',
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
 
-            {/* Sun center with enhanced 3D effect */}
-            <div
-              className="relative z-10 flex items-center justify-center w-24 h-24 rounded-full shadow-2xl border-4"
-              style={{
-                background: audioPhase === 'intro'
-                  ? 'linear-gradient(135deg, #fef08a, #fde047, #facc15, #f59e0b)'
-                  : 'linear-gradient(135deg, #ddd6fe, #c4b5fd, #a78bfa, #8b5cf6)',
-                borderColor: audioPhase === 'intro' ? '#fef08a' : '#ddd6fe',
-                transform: 'translateZ(30px)',
-                boxShadow: audioPhase === 'intro'
-                  ? '0 20px 60px rgba(251,191,36,0.6), 0 0 40px rgba(251,191,36,0.4)'
-                  : '0 20px 60px rgba(139,92,246,0.6), 0 0 40px rgba(139,92,246,0.4)',
-                transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
-              }}
-            >
-              {/* Happy face */}
-              <div className="text-4xl" role="img" aria-label="Happy sun">
-                😊
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Dynamic text content with glassmorphism - changes with audio phase */}
         <div
@@ -474,148 +428,15 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             transformStyle: 'preserve-3d',
           }}
         >
+          {/* Subtle loading skeleton during audio preload */}
+          {showLoadingSkeleton && (
+            <div className="animate-pulse flex flex-col items-center space-y-4">
+              <div className="h-8 bg-white/20 rounded w-32"></div>
+              <div className="h-4 bg-white/10 rounded w-24"></div>
+            </div>
+          )}
           {/* Phase 1: Partnership Introduction with glassmorphism card */}
-          <div
-            className={`transition-all duration-700 ${audioPhase === 'intro' ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none absolute'
-              }`}
-            style={{
-              transform: audioPhase === 'intro' ? 'translateZ(10px) rotateY(0deg)' : 'translateZ(10px) rotateY(90deg)',
-              transformStyle: 'preserve-3d',
-              transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
-            <div
-              className="backdrop-blur-xl bg-white/20 rounded-3xl p-8 shadow-2xl border border-white/30"
-              style={{
-                boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 0 40px rgba(255,255,255,0.1)',
-              }}
-            >
-              <p
-                className="font-semibold text-gray-800 mb-4"
-                style={{
-                  fontSize: 'clamp(1.25rem, 3vw, 1.75rem)',
-                }}
-              >
-                In association with
-              </p>
-
-              {/* Kindergarten name with premium gradient */}
-              <h1
-                className="font-bold bg-clip-text text-transparent"
-                style={{
-                  fontSize: 'clamp(3rem, 8vw, 6rem)',
-                  background: 'linear-gradient(135deg, #f59e0b, #fbbf24, #fb923c, #ea580c)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  textShadow: '0 4px 24px rgba(251, 191, 36, 0.3)',
-                  letterSpacing: '-0.02em',
-                  animation: 'shimmer 3s ease-in-out infinite',
-                }}
-              >
-                LALITAPORN
-              </h1>
-              <h2
-                className="font-bold text-amber-700 mt-2"
-                style={{
-                  fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                }}
-              >
-                Kindergarten
-              </h2>
-
-              {/* Thai text */}
-              <p
-                className="font-semibold text-amber-700 mt-3"
-                style={{
-                  fontFamily: "'Sarabun', 'Noto Sans Thai', 'Tahoma', system-ui, sans-serif",
-                  fontWeight: 600,
-                  fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-                }}
-              >
-                อนุบาลลลิดาภรณ์
-              </p>
-            </div>
-          </div>
-
-          {/* Phase 2: Tagline with Children's Energy and glassmorphism */}
-          <div
-            className={`transition-all duration-700 ${showTagline ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none absolute'
-              }`}
-            style={{
-              transform: showTagline ? 'translateZ(20px) rotateY(0deg)' : 'translateZ(20px) rotateY(-90deg)',
-              transformStyle: 'preserve-3d',
-              transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
-            <div
-              className="backdrop-blur-xl bg-white/20 rounded-3xl p-8 shadow-2xl border border-white/30"
-              style={{
-                boxShadow: '0 25px 60px rgba(0,0,0,0.15), inset 0 0 40px rgba(255,255,255,0.1)',
-                animation: showTagline ? 'cardBounce 0.7s ease-out' : 'none',
-              }}
-            >
-              <div
-                className="font-bold bg-clip-text text-transparent px-4"
-                style={{
-                  fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-                  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  textShadow: '0 4px 24px rgba(139, 92, 246, 0.3)',
-                  lineHeight: '1.2',
-                  animation: 'shimmer 4s ease-in-out infinite',
-                }}
-              >
-                {/* Letter-by-letter reveal animation */}
-                {'Learning through games'.split('').map((char, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      display: 'inline-block',
-                      animation: showTagline ? `letterReveal 0.05s ease-out ${i * 0.03}s both` : 'none',
-                    }}
-                  >
-                    {char === ' ' ? '\u00A0' : char}
-                  </span>
-                ))}
-                <br />
-                <span
-                  className="font-extrabold"
-                  style={{
-                    fontSize: 'clamp(3rem, 7vw, 5rem)',
-                  }}
-                >
-                  {'for everyone!'.split('').map((char, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        display: 'inline-block',
-                        animation: showTagline ? `letterReveal 0.05s ease-out ${(i + 20) * 0.03}s both` : 'none',
-                      }}
-                    >
-                      {char === ' ' ? '\u00A0' : char}
-                    </span>
-                  ))}
-                </span>
-              </div>
-
-              {/* Animated stars */}
-              <div className="flex justify-center gap-4 mt-6">
-                {['🌟', '✨', '💫', '✨', '🌟'].map((star, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
-                      display: 'inline-block',
-                      animation: showTagline ? `starTwinkle ${1.5 + (i * 0.2)}s ease-in-out ${i * 0.1}s infinite` : 'none',
-                    }}
-                  >
-                    {star}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          <AnimatedText audioPhase={audioPhase} showTagline={showTagline} />
         </div>
       </div>
 
@@ -765,11 +586,17 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           0% {
             transform: translateX(-10%) translateY(0);
           }
+          25% {
+            transform: translateX(22.5vw) translateY(8px);
+          }
           50% {
-            transform: translateX(55vw) translateY(6px);
+            transform: translateX(55vw) translateY(0);
+          }
+          75% {
+            transform: translateX(87.5vw) translateY(-8px);
           }
           100% {
-            transform: translateX(120vw) translateY(-4px);
+            transform: translateX(120vw) translateY(0);
           }
         }
 
@@ -802,7 +629,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           .pointer-events-none > div { animation: none !important; }
         }
       `}</style>
-    </div>
+    </div >
   )
 })
 

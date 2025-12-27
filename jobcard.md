@@ -9,6 +9,52 @@ Enhance gameplay with premium animations, improved audio quality, and smooth vis
 
 ## Work Completed
 
+### Welcome Screen & Continuous Play Enhancements (December 27, 2025)
+
+#### Welcome Screen Fixes
+
+- **Fish Animation Fix**: Unified all fish sprites to swim right with natural sine-wave Y motion, eliminating retarded left-right alternation
+  - Changed all `direction: 'right'` in fish school array
+  - Updated `swimRight` keyframes to use 4 keyframes for smooth sine approximation (0%, 25%, 50%, 75%, 100%)
+  - File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+- **Thai Audio Integration**: Added Thai male speaking audio for welcome screen
+  - Added preload and playback for `welcome_learning_thai.wav`
+  - Updated audio sequence: Association → Learning (English) → Learning (Thai)
+  - Increased fallback timeout to 9 seconds
+  - File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Target Spawning Fix
+
+- **Top Edge Spawning**: Changed initial Y position from `-SPAWN_ABOVE_SCREEN` to `0` to spawn targets from top edges instead of above screen
+  - Updated in `spawnImmediateTargets` and `spawnObject` functions
+  - File: [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts)
+
+#### Continuous Play Mode Enhancements
+
+- **Level Alternation After 5 Targets**: Changed level advancement from every 10 to every 5 successfully tapped targets
+  - Updated logic in `handleObjectTap` for continuous mode progress tracking
+  - File: [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts)
+
+- **Digital Timer**: Added timer tracking total time to complete all levels in continuous mode
+  - Added `continuousModeStartTime` state and elapsed time calculation
+  - Timer starts on continuous mode game start, records on completion
+  - File: [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts)
+
+- **High Score System**: Implemented persistent high score tracking for continuous mode
+  - Added localStorage-based high score storage and retrieval
+  - Created `HighScoreWindow` component with completion time display and high score comparison
+  - Triggers when all levels completed (level loops back to 0)
+  - File: [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts), [src/components/HighScoreWindow.tsx](src/components/HighScoreWindow.tsx)
+
+#### Home Window Creation
+
+- **Multi-Tab Interface**: Created comprehensive home screen with Settings, Levels, and Credits tabs
+  - Settings: Font scale and object scale sliders (0.5x to 2.0x) following best practices
+  - Levels: Grid of level buttons with continuous mode toggle
+  - Credits: Game credits and version information
+  - File: [src/components/HomeWindow.tsx](src/components/HomeWindow.tsx)
+
 ### Multi-Feature Enhancement (December 24, 2025)
 
 #### Audio Improvements
@@ -53,6 +99,18 @@ Enhance gameplay with premium animations, improved audio quality, and smooth vis
 
 ## Validation
 
+- **Code Review**: All changes verified in modified/created files:
+  - [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx): Fish directions unified, keyframes updated for sine motion, Thai audio added ✓
+  - [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts): Target spawning from top (y=0), continuous mode after 5 targets, timer/high score logic ✓
+  - [src/components/HighScoreWindow.tsx](src/components/HighScoreWindow.tsx): High score display component ✓
+  - [src/components/HomeWindow.tsx](src/components/HomeWindow.tsx): Multi-tab home interface ✓
+- **Animation Testing**: Fish now flow right with smooth Y oscillation; targets spawn from screen top edge
+- **Continuous Mode**: Level advances every 5 targets, timer tracks elapsed time, high score persists in localStorage
+- **Audio**: Thai audio sequence added (requires `welcome_learning_thai.wav` generation)
+- **UI Testing**: Home window tabs functional with settings sliders and level selection
+
+## Validation
+
 - **Code Review**: All changes verified in modified files:
   - [src/lib/sound-manager.ts](src/lib/sound-manager.ts#L702): `playSound()` default `playbackRate = 0.9` ✓
   - [src/components/FallingObject.tsx](src/components/FallingObject.tsx#L117-L119): Rainbow + gradient animations ✓
@@ -64,7 +122,15 @@ Enhance gameplay with premium animations, improved audio quality, and smooth vis
 
 ## Notes / Follow-ups
 
-- **Audio Generation Required**: Run the ElevenLabs script to generate `welcome_association.wav` and `welcome_learning.wav` before deploying
+- **Audio Generation Required**: Run the ElevenLabs script to generate `welcome_association.wav`, `welcome_learning.wav`, and `welcome_learning_thai.wav` before deploying
+- **Integration Required**: Add HomeWindow and HighScoreWindow to App.tsx for full functionality
+- **Testing Recommended**: Test on tablets/QBoard displays to verify:
+  - Fish flow smoothly right with Y sine motion without frame drops
+  - Targets spawn from top edge and fall naturally
+  - Continuous mode advances every 5 targets, timer accurate, high score saves
+  - Thai audio plays correctly in sequence
+  - Home window settings apply (font/object scale)
+- **Performance Monitoring**: Ensure new components don't impact 60fps target, especially with high score localStorage access
 - **Testing Recommended**: Test on tablets/QBoard displays to verify:
   - Rainbow letter animations don't impact frame rate
   - Gradient number backgrounds render correctly on all devices

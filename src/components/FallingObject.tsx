@@ -91,8 +91,8 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     >
       <div
         className={`transition-all duration-150 ease-out ${isNumericText
-            ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
-            : 'drop-shadow-2xl'
+          ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
+          : 'drop-shadow-2xl'
           }`}
         style={{
           filter: isNumericText
@@ -150,47 +150,56 @@ if (typeof document !== 'undefined') {
     const style = document.createElement('style')
     style.id = styleId
     style.textContent = `
+      /* Enhanced pulsating animation for alphabet (letters) */
       @keyframes rainbowPulse {
         0%, 100% {
-          filter: hue-rotate(0deg) brightness(1.3) saturate(1.5) drop-shadow(0 4px 12px rgba(255,0,0,0.6));
+          filter: hue-rotate(0deg) brightness(1.25) saturate(1.4) drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+          transform: scale(1);
+          text-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
         16.67% {
-          filter: hue-rotate(60deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(255,223,0,0.8));
+          filter: hue-rotate(60deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(255,223,0,0.85));
+          transform: scale(1.06);
         }
         33.33% {
-          filter: hue-rotate(120deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(0,255,0,0.8));
+          filter: hue-rotate(120deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(0,255,0,0.85));
+          transform: scale(1.08);
         }
         50% {
-          filter: hue-rotate(180deg) brightness(1.4) saturate(1.6) drop-shadow(0 6px 16px rgba(0,255,255,0.8));
+          filter: hue-rotate(180deg) brightness(1.45) saturate(1.7) drop-shadow(0 10px 22px rgba(0,255,255,0.85));
+          transform: scale(1.08);
         }
         66.67% {
-          filter: hue-rotate(240deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(0,0,255,0.8));
+          filter: hue-rotate(240deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(0,0,255,0.85));
+          transform: scale(1.08);
         }
         83.33% {
-          filter: hue-rotate(300deg) brightness(1.5) saturate(1.8) drop-shadow(0 6px 16px rgba(255,0,255,0.8));
+          filter: hue-rotate(300deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(255,0,255,0.85));
+          transform: scale(1.06);
         }
       }
 
+      /* Enhanced gradient pulse for numeric (counting) clarity */
       @keyframes gradientPulse {
         0%, 100% {
           background-position: 0% 50%;
           transform: scale(1) rotate(0deg);
-          box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+          box-shadow: 0 10px 36px rgba(59, 130, 246, 0.55);
         }
         25% {
-          background-position: 50% 50%;
-          transform: scale(1.05) rotate(2deg);
-          box-shadow: 0 12px 40px rgba(139, 92, 246, 0.6);
+          background-position: 40% 50%;
+          transform: scale(1.04) rotate(2deg);
+          box-shadow: 0 12px 40px rgba(139, 92, 246, 0.7);
         }
         50% {
           background-position: 100% 50%;
           transform: scale(1.1) rotate(0deg);
-          box-shadow: 0 16px 48px rgba(236, 72, 153, 0.7);
+          box-shadow: 0 16px 48px rgba(236, 72, 153, 0.8);
         }
         75% {
-          background-position: 50% 50%;
-          transform: scale(1.05) rotate(-2deg);
-          box-shadow: 0 12px 40px rgba(245, 158, 11, 0.6);
+          background-position: 60% 50%;
+          transform: scale(1.04) rotate(-2deg);
+          box-shadow: 0 12px 40px rgba(245, 158, 11, 0.7);
         }
       }
     `
