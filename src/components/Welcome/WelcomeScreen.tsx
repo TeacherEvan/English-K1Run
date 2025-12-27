@@ -320,14 +320,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         style={{ zIndex: 50 }}
       />
 
-      {/* Optional: full-screen welcome image (add /welcome-sangsom.png to public/) */}
+      {/* Gemini-generated full-screen welcome image */}
       {useSangsomSplash && (
         <img
           src="/welcome-sangsom.png"
           alt="Sangsom Kindergarten welcome"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 1, opacity: 0.98 }}
+          style={{ zIndex: 2, opacity: 1 }}
         />
       )}
 
