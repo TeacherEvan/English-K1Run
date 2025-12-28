@@ -5,11 +5,78 @@ Repo: TeacherEvan/English-K1Run (branch: main)
 
 ## Goal
 
-Enhance gameplay with premium animations, improved audio quality, and smooth visual effects.
+Complete TODO.md Quick Wins tasks and fix build errors.
 
 ## Work Completed
 
-### Welcome Screen Dramatic Enhancements (December 28, 2025)
+### TODO.md Quick Wins Implementation (December 28, 2025)
+
+#### 1. Welcome Screen Fallback Text ✅
+
+- **Glassmorphism Overlays**: Added three-phase text fallback system with premium styling
+  - Phase 1 (English): "In association with SANGSOM Kindergarten" (Helvetica Neue)
+  - Phase 2 (English): "Learning through games for everyone!" (Helvetica Neue)
+  - Phase 3 (Thai): "เรียนรู้ผ่านเกม สนุกทุกคน" (Sarabun, Noto Sans Thai)
+- **Styling**: Semi-transparent glass cards with backdrop-blur-xl, white/20 backgrounds, shadow-2xl
+- **Synced with Audio**: Each phase displays while corresponding audio plays
+- **Accessibility**: Ensures users see message even if audio files fail to load
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx#L189-L227)
+
+#### 2. JSDoc Documentation Enhancement ✅
+
+- **useGameLogic Hook**: Added comprehensive JSDoc comments to 5 core functions:
+  - `handleObjectTap()`: Main gameplay tap handler with scoring, audio, and progress
+  - `handleWormTap()`: Worm removal and fairy transformation spawning
+  - `startGame()`: Game initialization with spawning, multi-touch, and timers
+  - `resetGame()`: Cleanup operations and return to menu
+  - `changeTargetToVisibleEmoji()`: Emergency fallback for unwinnable states
+- **Benefits**: Improved IDE IntelliSense, better code documentation, easier onboarding
+- File: [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts#L1640-L1667)
+
+#### 3. Debug Mode Keyboard Shortcut ✅
+
+- **Keyboard Listener**: Added Ctrl+D/Cmd+D shortcut to toggle debug overlays
+- **Cross-Platform**: Supports both Windows (Ctrl) and macOS (Cmd/Meta)
+- **Event Prevention**: Calls `preventDefault()` to avoid browser conflicts
+- **State Management**: Updates `debugVisible` state in App.tsx
+- **Overlay Control**: Shows/hides EmojiRotationMonitor, PerformanceMonitor, EventTrackerDebug
+- File: [src/App.tsx](src/App.tsx#L98)
+
+#### 4. TODO.md Progress Updates ✅
+
+- **Completed Items**: Marked 2 tasks complete with ✅ Dec 28, 2025 timestamps
+  - "Add fallback copy if audio files missing"
+  - "Preload welcome audio" (already implemented, confirmed status)
+- **Documentation**: Updated completion dates and validation notes
+- File: [TODO.md](TODO.md)
+
+#### 5. WelcomeScreen Build Fix ✅
+
+- **Root Cause**: Extra features added to WelcomeScreen (backgroundGradient state, Particle interface, canvas particles, 3D transforms, unused keyframes)
+- **Errors Fixed**:
+  - TypeScript TS6133: 'backgroundGradient' declared but never used
+  - ESLint error from unused variable
+- **Cleanup Applied**: 10 targeted replacements via multi_replace_string_in_file:
+  1. Removed Particle interface definition
+  2. Removed backgroundGradient and canvasRef state
+  3. Removed setBackgroundGradient() calls in audio phases
+  4. Removed 50+ lines of canvas particle burst animation
+  5. Removed 3D perspective transforms from container
+  6. Removed gradient background div layer
+  7. Removed canvas element
+  8. Removed 3D translateZ from text overlay
+  9. Simplified glassmorphism card styling
+  10. Removed 9 unused keyframe animations (150+ lines)
+- **ESSENTIAL Features Preserved**:
+  - ✅ Sequential 3-phase audio playback (association → learning → thai)
+  - ✅ Fallback text overlays with glassmorphism styling
+  - ✅ Splash image background
+  - ✅ Keyboard skip functionality (Space/Enter/Escape)
+  - ✅ Fade-in/fade-out animations
+- **Verification**: npm run verify passed successfully (build, lint, type-check)
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+### Welcome Screen Dramatic Enhancements (December 28, 2025) [REVERTED]
 
 #### Branding Correction
 
