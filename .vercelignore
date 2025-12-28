@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Testing
+coverage/
+.nyc_output/
+e2e/test-results/
+e2e/.cache/
+playwright-report/
+test-results/
+
+# Build artifacts
+dist/
+dist-ssr/
+*-dist/
+build/
+.cache/
+
+# Development
+.vscode/
+.idea/
+*.log
+*.tsbuildinfo
+
+# Environment and config
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.github/
+
+# Documentation (not needed for deployment)
+DOCS/
+*.md
+!README.md
+
+# Test files
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Scripts
+scripts/
+deploy.sh
+deploy.ps1
+verify-quality.sh
+test-android-compat.sh
+
+# Docker
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
+nginx.conf
+
+# Other
+.snapshots/
+.clinerules/
+.cline/
