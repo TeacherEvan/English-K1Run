@@ -20,8 +20,8 @@
 
 - [x] Sequential audio (association ➜ choir tagline) wired and timed (~6.5s total)
 - [x] Welcome audio regenerated via ElevenLabs `eleven_turbo_v2_5` (`welcome_association`, `welcome_learning`)
-- [ ] Add fallback copy if audio files missing (show text banner + optional skip)
-- [ ] Preload welcome audio during splash to avoid first-play delay
+- [x] Add fallback copy if audio files missing (show text banner + optional skip) ✅ COMPLETED Dec 28, 2025
+- [x] Preload welcome audio during splash to avoid first-play delay ✅ ALREADY IMPLEMENTED (lines 53-57)
 - [ ] QA on tablets/QBoard: verify Thai font stack and volume balance at 0.9x playback rate
 
 ### Phase 1: Code Organization 🟡

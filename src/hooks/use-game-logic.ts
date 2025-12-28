@@ -909,6 +909,33 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
   }, [processLane]);
 
+  /**
+   * Handles tap events on falling objects
+   *
+   * Core gameplay function that:
+   * - Validates if tapped object matches current target
+   * - Updates progress bar (10 points per correct tap)
+   * - Plays audio feedback (correct word pronunciation or wrong sound)
+   * - Manages streak tracking for combo celebrations
+   * - Detects winner when progress reaches 100%
+   * - Removes tapped object from game
+   *
+   * In continuous mode:
+   * - Advances to next level every 5 correct taps
+   * - Auto-resets progress at 100% instead of showing winner screen
+   * - Tracks completion time for high score system
+   *
+   * @param objectId - Unique identifier of the tapped object
+   * @param playerSide - Side of screen where tap occurred ("left" or "right")
+   *
+   * @example
+   * ```tsx
+   * <FallingObject
+   *   id={obj.id}
+   *   onTap={() => handleObjectTap(obj.id, "left")}
+   * />
+   * ```
+   */
   const handleObjectTap = useCallback(
     (objectId: string, playerSide: "left" | "right") => {
       const tapStartTime = performance.now();
@@ -1167,6 +1194,29 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     ]
   );
 
+  /**
+   * Handles tap events on worm distractor objects
+   *
+   * Creates visual fairy transformation effect when worms are tapped.
+   * Worms are distractor objects that don't affect score or progress.
+   *
+   * Effects triggered:
+   * - Removes tapped worm from game
+   * - Spawns fairy transform animation at worm's position
+   * - Fairy animation lasts 7 seconds with morph + fly phases
+   * - No audio feedback (silent distractor removal)
+   *
+   * @param wormId - Unique identifier of the tapped worm
+   * @param playerSide - Side of screen where tap occurred ("left" or "right")
+   *
+   * @example
+   * ```tsx
+   * <Worm
+   *   id={worm.id}
+   *   onTap={() => handleWormTap(worm.id, "left")}
+   * />
+   * ```
+   */
   const handleWormTap = useCallback(
     (wormId: string, playerSide: "left" | "right") => {
       try {
@@ -1232,6 +1282,31 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     []
   );
 
+  /**
+   * Starts a new game session
+   *
+   * Initializes gameplay by:
+   * - Setting selected level/category from GAME_CATEGORIES
+   * - Resetting all game state (progress, streak, achievements)
+   * - Spawning initial falling objects (8 per spawn, 2 guaranteed targets)
+   * - Spawning initial worms (5 distractors with 3s spawn intervals)
+   * - Generating first target emoji from category items
+   * - Enabling multi-touch input handling via touch-handler
+   * - Starting game loop (60fps target with requestAnimationFrame)
+   *
+   * In continuous mode:
+   * - Starts timer for completion tracking
+   * - Stores start time for elapsed time calculation
+   *
+   * @param levelIndex - Index into GAME_CATEGORIES array (0-6)
+   *
+   * @example
+   * ```tsx
+   * <Button onClick={() => startGame(2)}>
+   *   Start Alphabet Challenge
+   * </Button>
+   * ```
+   */
   const startGame = useCallback(
     (levelIndex?: number) => {
       try {
@@ -1357,6 +1432,29 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     ]
   );
 
+  /**
+   * Resets game to level selection menu
+   *
+   * Cleanup operations:
+   * - Stops all game loops and timers
+   * - Clears all falling objects, worms, and fairy effects
+   * - Resets sequence indices for sequential categories (Alphabet)
+   * - Disables multi-touch input handling
+   * - Returns to game menu screen
+   * - Preserves high scores (not cleared)
+   *
+   * Call this when:
+   * - User clicks "Back to Levels" button
+   * - Game needs to return to menu
+   * - Switching between game modes
+   *
+   * @example
+   * ```tsx
+   * <Button onClick={resetGame}>
+   *   Back to Levels
+   * </Button>
+   * ```
+   */
   const resetGame = useCallback(() => {
     GAME_CATEGORIES.forEach((cat) => {
       cat.sequenceIndex = 0;
@@ -1570,6 +1668,32 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   );
 
   // Change target to a random emoji from currently visible objects
+  /**
+   * Changes current target to a different visible emoji
+   *
+   * Emergency fallback function used when current target emoji
+   * is no longer visible on screen. Helps prevent deadlock situations
+   * where students cannot make progress.
+   *
+   * Algorithm:
+   * 1. Collects all unique emojis from currently falling objects
+   * 2. Filters out the current target emoji
+   * 3. Randomly selects a new target from remaining visible emojis
+   * 4. Updates gameState with new target emoji and name
+   *
+   * Safety:
+   * - Returns early if no alternative emojis available
+   * - Validates new target exists in current category
+   * - Logs warning if target not found in category items
+   *
+   * @example
+   * ```tsx
+   * // Typically called from TargetDisplay when user clicks target
+   * <div onClick={changeTargetToVisibleEmoji}>
+   *   Click to change target
+   * </div>
+   * ```
+   */
   const changeTargetToVisibleEmoji = useCallback(() => {
     try {
       // Get unique emojis from currently visible objects

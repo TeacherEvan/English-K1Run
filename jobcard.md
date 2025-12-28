@@ -1,6 +1,6 @@
 # Job Card
 
-Date: 2025-12-24
+Date: 2025-12-28
 Repo: TeacherEvan/English-K1Run (branch: main)
 
 ## Goal
@@ -8,6 +8,57 @@ Repo: TeacherEvan/English-K1Run (branch: main)
 Enhance gameplay with premium animations, improved audio quality, and smooth visual effects.
 
 ## Work Completed
+
+### Welcome Screen Dramatic Enhancements (December 28, 2025)
+
+#### Branding Correction
+
+- **Sangsom Kindergarten**: Updated all references from Lalitaporn to Sangsom in code comments and text content
+  - Updated component JSDoc, audio sequence comments, and phase content strings
+  - File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### 3D Perspective & Depth Layers
+
+- **Perspective Container**: Added `perspective: 1200px` and `transformStyle: 'preserve-3d'` to root container
+- **Depth Transforms**: Applied `translateZ()` for layering:
+  - Background gradient: `translateZ(-30px)`
+  - Image: `translateZ(-20px)`
+  - Text overlay: `translateZ(10px)`
+  - Canvas particles: `translateZ(5px)`
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Glassmorphism Content Cards
+
+- **Frosted Glass Effect**: Updated text cards with `backdrop-blur-xl bg-white/20 rounded-3xl p-8 shadow-2xl border border-white/30`
+- **Premium Aesthetics**: Semi-transparent backgrounds with enhanced shadows and borders
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Animated Gradient Mesh Background
+
+- **Phase-Based Gradients**: Dynamic background transitions between audio phases
+  - Phase 1: Warm amber/yellow/orange gradient
+  - Phase 2: Vibrant blue/purple/pink gradient
+- **Smooth Transitions**: 1.5s cubic-bezier transitions with shimmer animation
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Particle Burst System
+
+- **Canvas-Based Effects**: Implemented 60-particle radial burst on phase 2 transition
+- **Physics Simulation**: Velocity, gravity, and life decay with automatic cleanup
+- **Performance Optimized**: Uses `requestAnimationFrame` for 60fps target
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Animation Keyframes
+
+- **Added Keyframes**: shimmer, letterReveal, starTwinkle, rayPulse, floatSparkle, cardBounce, pulse
+- **Prepared for Future Features**: Ready for letter-by-letter reveals, floating sparkles, and enhanced animations
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+#### Component Documentation
+
+- **Updated JSDoc**: Enhanced component documentation with new visual features
+- **Feature List**: Added 3D effects, glassmorphism, particle systems, and animations
+- File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
 
 ### Welcome Screen & Continuous Play Enhancements (December 27, 2025)
 

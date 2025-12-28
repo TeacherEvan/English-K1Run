@@ -17,15 +17,15 @@ const AchievementDisplay = lazy(() =>
 const FairyTransformation = lazy(() =>
   import('./components/FairyTransformation').then(m => ({ default: m.FairyTransformation }))
 )
-const FireworksDisplay = lazy(() => 
+const FireworksDisplay = lazy(() =>
   import('./components/FireworksDisplay').then(m => ({ default: m.FireworksDisplay }))
 )
-const WormLoadingScreen = lazy(() => 
+const WormLoadingScreen = lazy(() =>
   import('./components/WormLoadingScreen').then(m => ({ default: m.WormLoadingScreen }))
 )
 
 // Lazy load debug components to improve initial load time (dev only)
-const EmojiRotationMonitor = lazy(() => 
+const EmojiRotationMonitor = lazy(() =>
   import('./components/EmojiRotationMonitor').then(m => ({ default: m.EmojiRotationMonitor }))
 )
 
@@ -95,6 +95,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
   const [showWelcome, setShowWelcome] = useState(true) // Show welcome screen on first load
   const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
+  const [debugVisible, setDebugVisible] = useState(false) // Debug overlays toggle (Ctrl+D / Cmd+D)
 
   const {
     gameObjects,
@@ -112,7 +113,7 @@ function App() {
     clearAchievement
   } = useGameLogic({
     fallSpeedMultiplier: displaySettings.fallSpeed,
-    continuousMode 
+    continuousMode
   })
 
   // Called when user clicks "Start Game" - show loading screen first
@@ -215,6 +216,26 @@ function App() {
       document.removeEventListener('touchstart', preventMultiTouch)
     }
   }, [gameState.gameStarted])
+
+  // Keyboard shortcut: Ctrl+D or Cmd+D to toggle debug overlays
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+D (Windows/Linux) or Cmd+D (Mac)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault() // Prevent browser bookmark dialog
+        setDebugVisible(prev => {
+          const newState = !prev
+          if (import.meta.env.DEV) {
+            console.log(`[Debug] Debug overlays ${newState ? 'enabled' : 'disabled'}`)
+          }
+          return newState
+        })
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   useEffect(() => {
     // Only rotate background when NOT in active gameplay to save resources
@@ -357,7 +378,8 @@ function App() {
         )}
 
         {/* Debug: Emoji Rotation Monitor (dev mode only, lazy loaded) */}
-        {import.meta.env.DEV && (
+        {/* Toggle with Ctrl+D / Cmd+D keyboard shortcut */}
+        {import.meta.env.DEV && debugVisible && (
           <Suspense fallback={null}>
             <EmojiRotationMonitor />
           </Suspense>
