@@ -6,6 +6,7 @@ import { FallingObject } from './components/FallingObject'
 import { GameMenu } from './components/GameMenu'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { PlayerArea } from './components/PlayerArea'
+import { Stopwatch } from './components/Stopwatch'
 import { TargetDisplay } from './components/TargetDisplay'
 import { WelcomeScreen } from './components/Welcome'
 import { Worm } from './components/Worm'
@@ -96,6 +97,30 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(true) // Show welcome screen on first load
   const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
   const [debugVisible, setDebugVisible] = useState(false) // Debug overlays toggle (Ctrl+D / Cmd+D)
+  const [bestTime, setBestTime] = useState(() => {
+    if (typeof window === 'undefined') return 0
+    try {
+      const saved = window.localStorage.getItem('continuousModeBestTime')
+      if (saved != null) {
+        const parsed = parseInt(saved, 10)
+        if (!Number.isNaN(parsed)) {
+          return parsed
+        }
+      }
+    } catch {
+      // If localStorage is unavailable or throws, keep the default bestTime
+    }
+    return 0
+  })
+  const handleContinuousRunComplete = useCallback((time: number) => {
+    setBestTime(prev => {
+      if (time > prev) {
+        localStorage.setItem('continuousModeBestTime', time.toString())
+        return time
+      }
+      return prev
+    })
+  }, [])
 
   const {
     gameObjects,
@@ -127,12 +152,6 @@ function App() {
     setIsLoading(false)
     startGame(selectedLevel)
   }, [selectedLevel, startGame])
-
-  // Memoized reset handler to avoid creating new function on every render
-  const handleResetGame = useCallback(() => {
-    resetGame()
-    setBackgroundClass(prev => pickRandomBackground(prev))
-  }, [resetGame])
 
   // Memoized level names to avoid creating new array on every render
   const levelNames = useMemo(() => GAME_CATEGORIES.map(cat => cat.name), [])
@@ -311,7 +330,14 @@ function App() {
           </div>
         )}
 
-
+        {/* Stopwatch - Continuous Mode Only */}
+        {gameState.gameStarted && !gameState.winner && continuousMode && (
+          <Stopwatch
+            isRunning={!gameState.winner}
+            bestTime={bestTime}
+            onRunComplete={handleContinuousRunComplete}
+          />
+        )}
 
         {/* Achievement Displays - Lazy loaded */}
         {achievements.map(achievement => (
@@ -357,7 +383,6 @@ function App() {
         {/* Game Menu Overlay */}
         <GameMenu
           onStartGame={handleStartGame}
-          onResetGame={handleResetGame}
           onSelectLevel={setSelectedLevel}
           selectedLevel={selectedLevel}
           levels={levelNames}
@@ -365,6 +390,7 @@ function App() {
           winner={gameState.winner}
           continuousMode={continuousMode}
           onToggleContinuousMode={handleToggleContinuousMode}
+          bestTime={bestTime}
         />
 
         {/* Fireworks Display - Lazy loaded only when winner */}

@@ -15,6 +15,7 @@ Single-player educational game where a student taps falling objects (emojis) to 
 **Core Gameplay Loop**: Objects fall from top → student taps matching target → progress bar advances → reach 100% to win (or auto-reset in continuous mode). Educational categories include fruits/vegetables, counting (1-15), shapes/colors, animals, vehicles, and weather concepts.
 
 **Key Features** (December 2025):
+
 - **Welcome Screen**: Sequential audio experience with professional narrator + children's choir. Dynamic two-phase storytelling inspired by Sangsom's modern branding. See `WELCOME_SCREEN_ENHANCEMENT_DEC2025.md` for architecture.
 - **Continuous Play Mode**: Optional endless gameplay - progress auto-resets at 100% instead of showing winner screen
 - **PWA Support**: Offline gameplay, intelligent caching, install to home screen
@@ -95,10 +96,9 @@ Single-player educational game where a student taps falling objects (emojis) to 
 
 - `App.tsx` (297 lines): Top-level orchestrator, owns `debugVisible`, `backgroundClass`, `selectedLevel`, `timeRemaining`, `showWelcome`, `continuousMode`
 - **Welcome Screen Flow**: `WelcomeScreen.tsx` (277 lines) displays on first load with:
-  - **Sequential Audio**: Professional voice ("In association with SANGSOM Kindergarten") → Children's choir ("Learning through games for everyone!")
-  - **Dynamic Phases**: Two-phase visual storytelling synced with audio (intro → tagline)
-  - **Timing**: 3 seconds per phase + 0.5s fade = ~6.5 seconds total
-  - **Fallback**: Auto-dismisses after 6s if audio files missing
+  - **Sequential Audio**: 4-phase narration (2 English + 2 Thai translations)
+  - **Continue Gate**: After audio finishes, waits for tap/click (or Enter/Space) to proceed
+  - **Fallback**: If audio fails/missing, overlays still show and continue is enabled after a fallback timer (no auto-dismiss)
 - **Continuous Mode**: When enabled, winner detection is bypassed and progress auto-resets at 100%
 - All game logic delegates to `useGameLogic()` hook—components are presentational
 - Background rotation every 30s via `BACKGROUND_CLASSES` array (10 backgrounds in `App.css`, doubled Nov 2025)
@@ -219,7 +219,7 @@ Keep the `--noCheck` flag due to React 19 type instabilities with `@types/react`
 - Volume mapping excludes `/app/node_modules` to avoid platform-specific native dependency conflicts
 - Multi-stage Dockerfile: build stage (Node) → serve stage (nginx)
 
-**Deployment**: 
+**Deployment**:
 
 - **Primary**: Vercel for production (automatic deployments from main branch)
 - **Configuration**: `vercel.json` configures CORS headers, MIME types for `.wav` files, rewrites for SPA routing
@@ -287,16 +287,17 @@ Wrap usage with `<Suspense>`. Apply same pattern for new large/optional componen
 React 19's `useTransition` hook for marking non-urgent state updates, preventing UI blocking during expensive operations.
 
 **Usage**:
+
 ```tsx
-const { startOptimisticUpdate, isPending } = useOptimisticUI()
+const { startOptimisticUpdate, isPending } = useOptimisticUI();
 
 // Urgent: Update immediately
-setSearchQuery(value)
+setSearchQuery(value);
 
 // Non-urgent: Filter in background without blocking input
 startOptimisticUpdate(() => {
-  setFilteredResults(expensiveFilter(value))
-})
+  setFilteredResults(expensiveFilter(value));
+});
 ```
 
 **Features**: Async transitions, error handling, stable function references, proper TypeScript typing
@@ -308,28 +309,31 @@ startOptimisticUpdate(() => {
 Enterprise-grade monitoring for component render times and bottleneck detection.
 
 **Usage with React Profiler**:
+
 ```tsx
-import { Profiler } from 'react'
-import { performanceProfiler } from '@/lib/performance-profiler'
+import { Profiler } from "react";
+import { performanceProfiler } from "@/lib/performance-profiler";
 
 <Profiler id="GameArea" onRender={performanceProfiler.recordMeasurement}>
   <GameArea />
-</Profiler>
+</Profiler>;
 ```
 
-**Features**: 
+**Features**:
+
 - Automatic slowest render detection (16.67ms threshold for 60fps)
 - Performance marks for React DevTools integration
 - Configurable thresholds and memory limits (max 100 measurements)
 - JSON export for external analysis
 
 **Utility Functions**:
+
 ```tsx
 // Measure synchronous execution
-const result = measureExecutionTime('calculation', () => complexCalc())
+const result = measureExecutionTime("calculation", () => complexCalc());
 
-// Measure async execution  
-const data = await measureAsyncExecutionTime('fetch', () => fetchData())
+// Measure async execution
+const data = await measureAsyncExecutionTime("fetch", () => fetchData());
 ```
 
 ### Resource Preloader
@@ -339,14 +343,15 @@ const data = await measureAsyncExecutionTime('fetch', () => fetchData())
 Intelligent asset preloading with priority queue for images, audio, and fonts.
 
 **Usage**:
+
 ```tsx
 resourcePreloader.preloadAssets([
-  { url: '/sounds/welcome.wav', type: 'audio', priority: 'high' },
-  { url: '/images/logo.png', type: 'image', priority: 'medium' }
-])
+  { url: "/sounds/welcome.wav", type: "audio", priority: "high" },
+  { url: "/images/logo.png", type: "image", priority: "medium" },
+]);
 
 // Check preload status
-const status = resourcePreloader.getPreloadStatus()
+const status = resourcePreloader.getPreloadStatus();
 ```
 
 **Features**: Priority-based loading (high/medium/low), parallel loading, status tracking, error handling
@@ -378,7 +383,8 @@ const status = resourcePreloader.getPreloadStatus()
 
 - Use `soundManager.playSound()` directly for custom audio sequences
 - Pattern: `await playSound(key1)` → `await delay(duration)` → `await playSound(key2)`
-- Welcome screen uses: `welcome_association` (professional voice) → 3s delay → `welcome_learning` (children's choir)
+- Welcome screen uses: `welcome_association` → `welcome_learning` → `welcome_association_thai` → `welcome_learning_thai` (then waits for user input)
+- All welcome audio files use `.wav` format for consistency with project standards
 - Always provide fallback timing if audio files missing
 - See `WELCOME_SCREEN_ENHANCEMENT_DEC2025.md` for implementation details
 
@@ -452,8 +458,8 @@ npm run test:e2e     # Playwright E2E tests
 3. Follow pattern from `spawn-position.test.ts` for structure
 4. Run `npm run test:ui` for interactive test development
 5. Aim for edge cases: boundary values, error conditions, typical usage
-3. Keep phrases simple and age-appropriate for kindergarten (4-6 years)
-4. Test by tapping the object in-game - should hear contextual phrase
+6. Keep phrases simple and age-appropriate for kindergarten (4-6 years)
+7. Test by tapping the object in-game - should hear contextual phrase
 
 **Adjust Difficulty**: Modify `spawnObject()` intervals in `use-game-logic.ts`, `fallSpeedMultiplier` in `use-display-adjustment.ts`, or max concurrent objects (currently 15).
 
@@ -479,34 +485,40 @@ npm run test:e2e     # Playwright E2E tests
 When debugging issues or understanding features, consult these key documents in `/DOCS/`:
 
 **Architecture & Decisions**:
+
 - `ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices and rationale
 - `BEST_PRACTICES.md` - Project-wide coding standards and patterns
 - `VISUAL_FLOW_DIAGRAM.md` - Visual representation of data flow
 
 **Feature Documentation**:
+
 - `WELCOME_SCREEN_ENHANCEMENT_DEC2025.md` - Sequential audio welcome screen architecture
 - `MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling system for QBoard displays
 - `EMOJI_ROTATION_SYSTEM.md` - Fair emoji distribution algorithm
 - `SENTENCE_TEMPLATES_ENHANCEMENT.md` - Contextual learning phrases system
 
 **Performance & Optimization**:
+
 - `PERFORMANCE_OPTIMIZATION_DEC2025.md` - Latest performance improvements (Dec 2025)
 - `PERFORMANCE_OPTIMIZATION_NOV2025.md` - November 2025 optimizations
 - `PERFORMANCE_OPTIMIZATION_OCT2025.md` - October 2025 baseline improvements
 - `CODE_QUALITY_IMPROVEMENTS_DEC2025.md` - 7.4→10/10 quality upgrade details
 
 **Audio System**:
+
 - `AUDIO_OVERLAP_QUALITY_FIX_DEC2025.md` - Audio quality improvements
 - `PHONICS_REMOVAL_NOV2025.md` - Why phonics was removed (prevents audio clashing)
 - `SINGLE_WORD_AUDIO_REMOVAL_DEC2025.md` - Audio simplification rationale
 - `VERCEL_AUDIO_DEBUG.md` - Troubleshooting audio on deployment platforms
 
 **Bug Fix Documentation**:
+
 - `SPAWN_FIX_DEC2025.md`, `SPAWN_FIX_VISUAL_GUIDE.md` - Spawn system fixes
 - `SENTENCE_REPETITION_FIX_DEC2025.md` - Audio repetition bug fix
 - Root-level `*.md` files document specific bugs (e.g., `EMOJI_SIDE_SWITCHING_BUG_FIX.md`)
 
 **General**:
+
 - `README.md` - User-facing features and getting started
 - `CHANGELOG.md` - Version history and release notes
 - `TESTING_INSTRUCTIONS.md` - Comprehensive testing guide
@@ -648,7 +660,6 @@ Follow this pattern: create detailed `.md` files for significant fixes with root
 **Debugging Steps**:
 
 1. **Check Console Logs**: Look for `[SoundManager]` prefixed messages showing:
-
    - Registered audio file count (should be 165+ aliases from 110+ files)
    - Audio context state (`suspended` → `running` after first tap)
    - File load success/failures with URLs
@@ -662,7 +673,6 @@ Follow this pattern: create detailed `.md` files for significant fixes with root
    ```
 
 3. **Verify File Loading**: Check if `.wav` files load from `/sounds/` via Vite's `import.meta.glob()`:
-
    - Files indexed at build time into `audioUrlIndex` Map
    - Keys are normalized (lowercase, underscores, emoji prefix handling)
    - Example: `emoji_apple.wav` → keys: `"apple"`, `"emoji_apple"`, `"emoji apple"`

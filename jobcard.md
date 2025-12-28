@@ -13,10 +13,10 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 
 #### 1. Welcome Screen Fallback Text ✅
 
-- **Glassmorphism Overlays**: Added three-phase text fallback system with premium styling
+- **Glassmorphism Overlays**: Added phase-based text fallback system with premium styling
   - Phase 1 (English): "In association with SANGSOM Kindergarten" (Helvetica Neue)
   - Phase 2 (English): "Learning through games for everyone!" (Helvetica Neue)
-  - Phase 3 (Thai): "เรียนรู้ผ่านเกม สนุกทุกคน" (Sarabun, Noto Sans Thai)
+  - Phase 3–4 (Thai audio): Thai translations play after English (overlays remain visible)
 - **Styling**: Semi-transparent glass cards with backdrop-blur-xl, white/20 backgrounds, shadow-2xl
 - **Synced with Audio**: Each phase displays while corresponding audio plays
 - **Accessibility**: Ensures users see message even if audio files fail to load
@@ -68,7 +68,7 @@ Complete TODO.md Quick Wins tasks and fix build errors.
   9. Simplified glassmorphism card styling
   10. Removed 9 unused keyframe animations (150+ lines)
 - **ESSENTIAL Features Preserved**:
-  - ✅ Sequential 3-phase audio playback (association → learning → thai)
+  - ✅ Sequential 4-phase audio playback (association → learning → association_thai → learning_thai)
   - ✅ Fallback text overlays with glassmorphism styling
   - ✅ Splash image background
   - ✅ Keyboard skip functionality (Space/Enter/Escape)
@@ -136,9 +136,9 @@ Complete TODO.md Quick Wins tasks and fix build errors.
   - Updated `swimRight` keyframes to use 4 keyframes for smooth sine approximation (0%, 25%, 50%, 75%, 100%)
   - File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
 
-- **Thai Audio Integration**: Added Thai male speaking audio for welcome screen
-  - Added preload and playback for `welcome_learning_thai.wav`
-  - Updated audio sequence: Association → Learning (English) → Learning (Thai)
+- **Thai Audio Integration**: Added Thai translations for welcome screen
+  - Added preload and playback for `welcome_association_thai.wav` and `welcome_learning_thai.wav`
+  - Updated audio sequence: Association (English) → Learning (English) → Association (Thai) → Learning (Thai)
   - Increased fallback timeout to 9 seconds
   - File: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
 
@@ -240,7 +240,25 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 
 ## Notes / Follow-ups
 
-- **Audio Generation Required**: Run the ElevenLabs script to generate `welcome_association.wav`, `welcome_learning.wav`, and `welcome_learning_thai.wav` before deploying
+- **Audio Generation Required**: Run the ElevenLabs script to generate three welcome screen audio files before deploying:
+  1. `welcome_association.wav` - English female voice (Phase 1)
+  2. `welcome_learning.wav` - English female voice (Phase 2)
+  3. `welcome_association_thai.wav` - Thai male voice: translation of Phase 1 English (Phase 3)
+  4. `welcome_learning_thai.wav` - Thai male voice: translation of Phase 2 English (Phase 4)
+
+  **Thai Male Voice Specifications (Phase 3 + 4):**
+  - Language: Thai (spoken by male voice for Phase 3 variety)
+  - Thai Text: exact Thai translation of the existing English audio phrases (Phase 1 + Phase 2)
+  - Tone: Warm, encouraging, celebratory (marks final phase of welcome sequence)
+  - Duration: ~3 seconds (consistent with other phases)
+  - Format: WAV, 16-bit PCM, 44.1kHz or 48kHz sample rate
+
+  **Continue Behavior:**
+  - After the audio sequence completes, the welcome screen waits for user tap/click to continue.
+
+  Update `scripts/generate-audio.cjs` with Thai male voice provider if using different service than ElevenLabs.
+  Preload configuration already in place: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx#L74)
+
 - **Integration Required**: Add HomeWindow and HighScoreWindow to App.tsx for full functionality
 - **Testing Recommended**: Test on tablets/QBoard displays to verify:
   - Fish flow smoothly right with Y sine motion without frame drops

@@ -11,9 +11,46 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
+function loadDotEnvIfPresent() {
+  try {
+    const envPath = path.join(__dirname, "..", ".env");
+    if (!fs.existsSync(envPath)) return;
+    const raw = fs.readFileSync(envPath, "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq <= 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      if (!key) continue;
+      if (process.env[key]) continue;
+      let value = trimmed.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      process.env[key] = value;
+    }
+  } catch {
+    // Ignore .env load errors and fall back to real env vars.
+  }
+}
+
+loadDotEnvIfPresent();
+
 // Configuration
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "zmcVlqmyk3Jpn5AVYcAL";
+const VOICE_ID_THAI =
+  process.env.ELEVENLABS_VOICE_ID_THAI ||
+  process.env.ELEVENLABS_VOICE_ID_MALE ||
+  "";
+const WELCOME_ASSOCIATION_THAI_TEXT =
+  process.env.WELCOME_ASSOCIATION_THAI_TEXT || "";
+const WELCOME_LEARNING_THAI_TEXT = process.env.WELCOME_LEARNING_THAI_TEXT || "";
+const FORCE_REGEN = (process.env.FORCE_REGEN || "").toLowerCase() === "true";
 const OUTPUT_DIR = path.join(__dirname, "..", "sounds");
 
 if (!ELEVENLABS_API_KEY) {
@@ -286,6 +323,9 @@ const AUDIO_PHRASES = [
   // Welcome screen sequential audio (professional voice + children's choir)
   "welcome_association", // "In association with SANGSOM Kindergarten"
   "welcome_learning", // "Learning through games for everyone!"
+  // Thai male translations (must translate the existing English welcome lines)
+  "welcome_association_thai",
+  "welcome_learning_thai",
 ];
 
 // Rate limiting
@@ -295,7 +335,9 @@ const DELAY_BETWEEN_REQUESTS = 500; // ms
 const PHRASE_TEXT_MAPPING = {
   welcome_association: "In association with SANGSOM Kindergarten",
   welcome_learning: "Learning through games for everyone!",
-  welcome_thai: "",
+  // REQUIRED: provide exact Thai translation text via env vars
+  welcome_association_thai: WELCOME_ASSOCIATION_THAI_TEXT,
+  welcome_learning_thai: WELCOME_LEARNING_THAI_TEXT,
 };
 
 /**
@@ -306,6 +348,21 @@ function generateAudio(text, outputPath) {
     // Check if there's a custom text mapping first
     let speechText = PHRASE_TEXT_MAPPING[text] || text;
 
+    if (
+      (text === "welcome_association_thai" ||
+        text === "welcome_learning_thai") &&
+      !speechText
+    ) {
+      reject(
+        new Error(
+          "Missing Thai welcome text for " +
+            text +
+            ". Set WELCOME_ASSOCIATION_THAI_TEXT or WELCOME_LEARNING_THAI_TEXT to the exact Thai translations you want recorded."
+        )
+      );
+      return;
+    }
+
     // Prepare text for speech (remove emoji_ prefix for natural pronunciation)
     speechText = speechText.replace("emoji_", "").replace(/_/g, " ");
 
@@ -315,10 +372,15 @@ function generateAudio(text, outputPath) {
       voice_settings: VOICE_SETTINGS,
     });
 
+    const isThaiWelcome =
+      text === "welcome_association_thai" || text === "welcome_learning_thai";
+    const voiceIdToUse =
+      isThaiWelcome && VOICE_ID_THAI ? VOICE_ID_THAI : VOICE_ID;
+
     const options = {
       hostname: "api.elevenlabs.io",
       port: 443,
-      path: `/v1/text-to-speech/${VOICE_ID}`,
+      path: `/v1/text-to-speech/${voiceIdToUse}`,
       method: "POST",
       headers: {
         Accept: "audio/mpeg",
@@ -387,12 +449,22 @@ async function main() {
 
   let successCount = 0;
   let failCount = 0;
+  let skippedCount = 0;
   const errors = [];
 
   for (let i = 0; i < AUDIO_PHRASES.length; i++) {
     const phrase = AUDIO_PHRASES[i];
     const filename = `${phrase}.wav`;
     const outputPath = path.join(OUTPUT_DIR, filename);
+
+    if (!FORCE_REGEN && fs.existsSync(outputPath)) {
+      process.stdout.write(
+        `[${i + 1}/${AUDIO_PHRASES.length}] Skipping "${phrase}" (already exists) ...`
+      );
+      console.log(" ✓");
+      skippedCount++;
+      continue;
+    }
 
     try {
       process.stdout.write(
@@ -420,6 +492,7 @@ async function main() {
   console.log("📊 Generation Summary");
   console.log("━".repeat(60));
   console.log(`✓ Success: ${successCount} files`);
+  console.log(`⊘ Skipped: ${skippedCount} files`);
   console.log(`✗ Failed: ${failCount} files`);
   console.log("");
 

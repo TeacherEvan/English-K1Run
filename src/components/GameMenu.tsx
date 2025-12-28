@@ -1,10 +1,18 @@
+import { ArrowLeft, Check, Info, LogOut, Play, Settings, Trophy } from 'lucide-react'
 import { memo, useState } from 'react'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog"
 
 interface GameMenuProps {
   onStartGame: () => void
-  onResetGame: () => void
   onSelectLevel: (levelIndex: number) => void
   selectedLevel: number
   levels: string[]
@@ -12,230 +20,327 @@ interface GameMenuProps {
   winner: boolean
   continuousMode?: boolean
   onToggleContinuousMode?: (enabled: boolean) => void
+  onResetGame?: () => void
+  bestTime?: number
 }
 
 /**
- * GameMenu - Production-grade menu with premium UX
+ * GameMenu - Overhauled Homescreen (Dec 2025)
  * 
- * Features 2025 best practices:
- * - Spring-based animations for natural feel
- * - Smooth hover states with transform
- * - Tactile micro-interactions
- * - Accessible keyboard navigation
- * - Reduced motion support
- * 
- * @component
+ * Features:
+ * - "Homescreen" layout with main actions
+ * - "New Game" -> Level Selection
+ * - "Best Times" -> Digital Stopwatch Display
+ * - "Settings" -> Modal with Continuous Mode toggle
+ * - "Credits" -> Modal with attribution
+ * - "Exit Game" -> Close window action
+ * - Thai translations for all main actions
  */
 export const GameMenu = memo(({
   onStartGame,
-  onResetGame,
   onSelectLevel,
   selectedLevel,
   levels,
   gameStarted,
   winner,
   continuousMode = false,
-  onToggleContinuousMode
+  onToggleContinuousMode,
+  onResetGame,
+  bestTime = 0
 }: GameMenuProps) => {
-  // Track hover states for micro-interactions (must be declared before any conditional returns)
-  const [hoveredLevel, setHoveredLevel] = useState<number | null>(null)
+  const [view, setView] = useState<'main' | 'levels'>('main')
+  const [showExitDialog, setShowExitDialog] = useState(false)
 
   if (gameStarted && !winner) return null
 
-  const headingFontSize = { fontSize: `calc(1.875rem * var(--font-scale, 1))` }
-  const bodyFontSize = { fontSize: `calc(1.125rem * var(--font-scale, 1))` }
+  // Format time helper
+  const formatTime = (ms: number) => {
+    const minutes = Math.floor(ms / 60000)
+    const seconds = Math.floor((ms % 60000) / 1000)
+    const tenths = Math.floor((ms % 1000) / 100)
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`
+  }
 
+  const handleExit = () => {
+    setShowExitDialog(true)
+  }
+
+  const confirmExit = () => {
+    setShowExitDialog(false)
+    // Reset game state before exit to ensure clean shutdown
+    onResetGame?.()
+    // Attempt to close the window
+    try {
+      window.close()
+    } catch {
+      // Fallback: if browser blocks close, state is still reset from above
+      console.log('[GameMenu] window.close() blocked by browser')
+    }
+  }
+
+  // Main Homescreen View
+  if (view === 'main') {
+    return (
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
+        <Card className="w-full max-w-4xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl backdrop-blur-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+
+            {/* Left Column: Title & Mascot */}
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="text-8xl animate-bounce cursor-default select-none">
+                🐢
+              </div>
+              <div>
+                <h1 className="text-5xl font-bold text-primary mb-2 tracking-tight">
+                  Kindergarten Race
+                </h1>
+                <h2 className="text-3xl font-semibold text-primary/80 font-thai">
+                  การแข่งขันอนุบาล
+                </h2>
+              </div>
+
+              {/* Best Times Display */}
+              <div className="mt-8 p-6 bg-black/80 rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)] w-full max-w-xs transform hover:scale-105 transition-transform duration-300">
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trophy className="w-5 h-5 text-yellow-500" />
+                    <span className="text-yellow-500 font-bold uppercase tracking-widest text-sm">
+                      Best Time / เวลาที่ดีที่สุด
+                    </span>
+                  </div>
+                  <div className="text-4xl font-mono font-bold text-yellow-400 animate-pulse" style={{ textShadow: '0 0 20px rgba(234,179,8,0.6)' }}>
+                    {formatTime(bestTime)}
+                  </div>
+                  {continuousMode && (
+                    <div className="mt-2 text-xs text-white/60">
+                      Continuous Mode Record
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Menu Actions */}
+            <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
+
+              <Button
+                size="lg"
+                className="h-20 text-2xl font-bold shadow-lg hover:scale-105 transition-all duration-200 gap-4"
+                onClick={() => setView('levels')}
+              >
+                <Play className="w-8 h-8 fill-current" />
+                <div className="flex flex-col items-start">
+                  <span>New Game</span>
+                  <span className="text-sm font-normal opacity-90">เกมใหม่</span>
+                </div>
+              </Button>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="lg" className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/10">
+                    <Settings className="w-6 h-6" />
+                    <div className="flex flex-col items-start">
+                      <span>Settings</span>
+                      <span className="text-xs font-normal opacity-70">การตั้งค่า</span>
+                    </div>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl flex items-center gap-2">
+                      <Settings className="w-6 h-6" />
+                      Settings / การตั้งค่า
+                    </DialogTitle>
+                    <DialogDescription>
+                      Configure your game experience
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-6 space-y-6">
+                    <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
+                      <div className="space-y-1">
+                        <h4 className="font-medium leading-none">Continuous Mode</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Play without winning/stopping
+                        </p>
+                      </div>
+                      <Button
+                        variant={continuousMode ? "default" : "outline"}
+                        onClick={() => onToggleContinuousMode?.(!continuousMode)}
+                        className={continuousMode ? "bg-green-600 hover:bg-green-700" : ""}
+                      >
+                        {continuousMode ? <Check className="w-4 h-4 mr-2" /> : null}
+                        {continuousMode ? "On" : "Off"}
+                      </Button>
+                    </div>
+                    {/* Placeholder for Audio Settings */}
+                    <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 opacity-50 cursor-not-allowed">
+                      <div className="space-y-1">
+                        <h4 className="font-medium leading-none">Audio Volume</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Managed by device
+                        </p>
+                      </div>
+                      <Button variant="outline" disabled>Max</Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="lg" className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/10">
+                    <Info className="w-6 h-6" />
+                    <div className="flex flex-col items-start">
+                      <span>Credits</span>
+                      <span className="text-xs font-normal opacity-70">เครดิต</span>
+                    </div>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl flex items-center gap-2">
+                      <Info className="w-6 h-6" />
+                      Credits / เครดิต
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="py-8 text-center space-y-6">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground uppercase tracking-widest">Created By</p>
+                      <h3 className="text-2xl font-bold text-primary">TEACHER EVAN</h3>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground uppercase tracking-widest">In Association With</p>
+                      <h3 className="text-xl font-bold text-orange-500">SANGSOM KINDERGARTEN</h3>
+                    </div>
+
+                    <div className="p-4 bg-muted/50 rounded-xl">
+                      <p className="text-sm font-semibold mb-2">SPECIAL THANKS TO</p>
+                      <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Button
+                variant="destructive"
+                size="lg"
+                className="h-16 text-xl font-semibold justify-start px-8 gap-4 mt-4"
+                onClick={handleExit}
+              >
+                <LogOut className="w-6 h-6" />
+                <div className="flex flex-col items-start">
+                  <span>Exit Game</span>
+                  <span className="text-xs font-normal opacity-70">ออกจากเกม</span>
+                </div>
+              </Button>
+
+              {/* Exit Confirmation Dialog */}
+              <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl flex items-center gap-2">
+                      <LogOut className="w-6 h-6 text-destructive" />
+                      Exit Game / ออกจากเกม
+                    </DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to exit? / คุณแน่ใจหรือไม่ว่าต้องการออก?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex gap-4 justify-end mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowExitDialog(false)}
+                    >
+                      Cancel / ยกเลิก
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={confirmExit}
+                    >
+                      Exit / ออก
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  // Level Selection View
   return (
-    <div
-      data-testid="game-menu"
-      className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300"
-      style={{
-        // Explicit inline styles as fallback for CSS variable issues
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 50,
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Game menu"
-    >
-      <Card className="p-8 max-w-2xl mx-4 text-center bg-card shadow-2xl border-4 border-primary/20 animate-in fade-in zoom-in duration-500">
-        <div className="mb-6 flex flex-col items-center gap-3">
-          {/* Enhanced emoji with spring animation */}
-          <div 
-            className="transition-all duration-300 hover:scale-110 cursor-default" 
-            style={{ 
-              fontSize: `calc(3.75rem * var(--object-scale, 1))`,
-              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.1))',
-              transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            }}
-            role="img"
-            aria-label={winner ? "Trophy" : "Race starting line"}
-          >
-            {winner ? '🏆' : '🐢🏁'}
-          </div>
-          
-          <h1 
-            data-testid="game-title" 
-            className="font-bold text-primary transition-all duration-300 hover:text-primary/80 hover:scale-105 cursor-default" 
-            style={{
-              ...headingFontSize,
-              textShadow: '0 2px 8px rgba(0,0,0,0.05)',
-              transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            }}
-          >
-            Kindergarten Race
-          </h1>
-          
-          <p 
-            className="text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-700" 
-            style={bodyFontSize}
-          >
-            {winner
-              ? '🎉 You won! Pick any level and start a new race.'
-              : 'Pick a level and get ready to tap the correct objects to advance!'}
-          </p>
-        </div>
-
-        <div className="mb-6">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {levels.map((name, index) => {
-              const isSelected = index === selectedLevel
-              const isHovered = index === hoveredLevel
-              
-              return (
-                <Button
-                  key={`${index}-${name}`}
-                  type="button"
-                  data-testid="level-button"
-                  data-selected={isSelected}
-                  data-level={index}
-                  variant={isSelected ? 'default' : 'outline'}
-                  onClick={() => onSelectLevel(index)}
-                  onMouseEnter={() => setHoveredLevel(index)}
-                  onMouseLeave={() => setHoveredLevel(null)}
-                  className={`justify-between text-left transition-all duration-200 ${
-                    isSelected ? 'ring-2 ring-primary/50' : ''
-                  }`}
-                  style={{ 
-                    fontSize: `calc(1rem * var(--font-scale, 1))`,
-                    // Spring-based scale animation for premium feel
-                    transform: isSelected 
-                      ? 'scale(1.05)' 
-                      : isHovered 
-                        ? 'scale(1.02) translateY(-2px)' 
-                        : 'scale(1)',
-                    boxShadow: isHovered 
-                      ? '0 4px 12px rgba(0,0,0,0.1)' 
-                      : isSelected 
-                        ? '0 2px 8px rgba(0,0,0,0.05)' 
-                        : 'none',
-                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                  }}
-                  aria-pressed={isSelected}
-                >
-                  <span className="font-semibold">Level {index + 1}</span>
-                  <span className="truncate text-sm text-muted-foreground ml-2">
-                    {name}
-                  </span>
-                </Button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Continuous Mode Checkbox */}
-        {onToggleContinuousMode && (
-          <div className="mb-6 flex items-center justify-center gap-3 p-4 bg-primary/5 rounded-lg border-2 border-primary/20 transition-all hover:border-primary/40">
-            <label 
-              htmlFor="continuous-mode" 
-              className="flex items-center gap-3 cursor-pointer select-none"
-            >
-              <input
-                id="continuous-mode"
-                type="checkbox"
-                checked={continuousMode}
-                onChange={(e) => onToggleContinuousMode(e.target.checked)}
-                className="w-5 h-5 rounded border-2 border-primary/40 text-primary focus:ring-2 focus:ring-primary/50 cursor-pointer transition-all"
-                style={{
-                  accentColor: 'var(--color-primary)',
-                }}
-              />
-              <span 
-                className="font-semibold text-foreground"
-                style={{ fontSize: `calc(1rem * var(--font-scale, 1))` }}
-              >
-                🔄 Continuous Play Mode
-              </span>
-              <span 
-                className="text-sm text-muted-foreground ml-2"
-                style={{ fontSize: `calc(0.875rem * var(--font-scale, 1))` }}
-              >
-                (Auto-advance through all targets)
-              </span>
-            </label>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+    <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300">
+      <Card className="w-full max-w-5xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between mb-8">
           <Button
-            data-testid="start-button"
-            onClick={onStartGame}
+            variant="ghost"
             size="lg"
-            className="font-bold flex-1 relative overflow-hidden group"
-            style={{
-              fontSize: `calc(1.25rem * var(--font-scale, 1))`,
-              padding: `calc(1rem * var(--spacing-scale, 1)) calc(2rem * var(--spacing-scale, 1))`,
-              transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            }}
-            aria-label="Start the race"
+            onClick={() => setView('main')}
+            className="gap-2 text-xl"
           >
-            <span className="relative z-10 flex items-center gap-2">
-              {/* Micro-interaction: rocket spins on hover */}
-              <span 
-                className="inline-block"
-                style={{
-                  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                }}
-                aria-hidden="true"
-              >
-                🚀
-              </span>
-              <span>Start Race</span>
-            </span>
-            {/* Shimmer effect on hover */}
-            <div 
-              className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary-foreground/10 to-primary/0"
-              style={{
-                transform: 'translateX(-200%)',
-                transition: 'transform 0.7s ease-out'
-              }}
-              aria-hidden="true"
-            />
+            <ArrowLeft className="w-6 h-6" />
+            Back / กลับ
+          </Button>
+          <h2 className="text-4xl font-bold text-primary">Select Level / เลือกระดับ</h2>
+          {(() => {
+            const thaiTranslations = [
+              'ผลไม้และผัก',           // Fruits & Vegetables
+              'สนุกกับการนับ',          // Counting Fun
+              'รูปร่างและสี',          // Shapes & Colors
+              'สัตว์และธรรมชาติ',       // Animals & Nature
+              'ยานพาหนะ',              // Things That Go
+              'สภาพอากาศ',             // Weather Wonders
+              'ความรู้สึกและการกระทำ',  // Feelings & Actions
+              'ส่วนต่างๆของร่างกาย'     // Body Parts
+            ]
+
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto p-4 flex-1">
+                {levels.map((level, index) => {
+                  return (
+                    <Button
+                      key={level}
+                      variant={selectedLevel === index ? "default" : "outline"}
+                      className={`h-32 text-xl font-bold flex flex-col gap-2 transition-all hover:scale-105 ${selectedLevel === index
+                        ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
+                        : 'hover:border-primary/50'
+                        }`}
+                      onClick={() => onSelectLevel(index)}
+                    >
+                      <span className="text-4xl mb-1">
+                        {index === 0 ? '🍎' :
+                          index === 1 ? '1️⃣' :
+                            index === 2 ? '🅰️' :
+                              index === 3 ? '🎨' :
+                                index === 4 ? '🦁' :
+                                  index === 5 ? '🚗' :
+                                    index === 6 ? '🌤️' : '🎮'}
+                      </span>
+                      <div className="flex flex-col items-center">
+                        <span className="text-center px-2 leading-tight">{level}</span>
+                        <span className="text-xs text-gray-400 mt-1">{thaiTranslations[index] || ''}</span>
+                      </div>
+                    </Button>
+                  )
+                })}
+              </div>
+            )
+          })()}
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <Button
+            size="lg"
+            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform"
+            onClick={onStartGame}
+          >
+            START GAME / เริ่มเกม
           </Button>
         </div>
-
-        <Button
-          data-testid="reset-button"
-          onClick={onResetGame}
-          variant="ghost"
-          className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-all duration-200"
-          style={{
-            transition: 'all 0.2s ease-out'
-          }}
-          aria-label="Reset to level 1 and pause game"
-        >
-          Reset to Level 1 & pause game
-        </Button>
       </Card>
     </div>
   )

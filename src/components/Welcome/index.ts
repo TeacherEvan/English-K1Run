@@ -1,10 +1,11 @@
 /**
  * Welcome Screen Module
- * 
- * Exports all welcome screen components for clean imports.
- * Main welcome screen with sub-components for animations and visual effects.
+ *
+ * Barrel export for the welcome screen and its sub-components.
+ * Main component is located at ../WelcomeScreen.tsx
+ * Sub-components (AnimatedText, SunLogo) are utilities for the welcome experience.
  */
 
-export { WelcomeScreen } from './WelcomeScreen'
-export { AnimatedText } from './AnimatedText'
-export { SunLogo } from './SunLogo'
+export { WelcomeScreen } from "../WelcomeScreen";
+export { AnimatedText } from "./AnimatedText";
+export { SunLogo } from "./SunLogo";

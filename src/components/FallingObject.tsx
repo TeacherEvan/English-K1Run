@@ -104,25 +104,31 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
           transform: isHovered
             ? 'scale(1.15) translateY(-2px)'
             : 'scale(1)',
-          // Subtle glow on hover
-          boxShadow: isHovered && isNumericText
-            ? '0 8px 24px rgba(37, 99, 235, 0.3)'
+          // Subtle glow with enhanced depth for numeric text
+          // NOTE: We always apply a base shadow for numeric text now (even when not hovered).
+          // The previous gradient orb background was removed for visual simplicity and
+          // performance; this persistent shadow preserves depth and contrast on all
+          // backgrounds, while hover simply *enhances* the effect instead of toggling it.
+          boxShadow: isNumericText
+            ? isHovered
+              ? '0 0 0 4px rgba(37, 99, 235, 0.3)'
+              : '0 2px 8px rgba(59, 130, 246, 0.4)'
             : undefined,
           // Smooth transition with custom cubic-bezier for spring effect
           transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-          // Rainbow pulsating animation for letters - DRAMATICALLY ENHANCED
+          // Outline pulsating animation for letters and numbers
           animation: isLetter
-            ? 'rainbowPulse 1.8s ease-in-out infinite'
+            ? 'outlinePulseLetter 2s ease-in-out infinite'
             : isNumericText
-              ? 'gradientPulse 2s ease infinite'
+              ? 'outlinePulseNumber 2s ease-in-out infinite'
               : undefined,
-          // Gradient background for numbers - MORE VIBRANT
+          // Removed background gradient orb, kept white bg for readability
           background: isNumericText
-            ? 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6)'
+            ? 'rgba(255, 255, 255, 0.95)'
             : undefined,
-          backgroundSize: isNumericText ? '600% 600%' : undefined,
+          border: isNumericText ? '2px solid transparent' : undefined,
           // GPU acceleration
-          willChange: (isLetter || isNumericText) ? 'filter, background-position' : 'transform',
+          willChange: (isLetter || isNumericText) ? 'box-shadow, transform' : 'transform',
           backfaceVisibility: 'hidden' as const,
         }}
       >
@@ -150,56 +156,29 @@ if (typeof document !== 'undefined') {
     const style = document.createElement('style')
     style.id = styleId
     style.textContent = `
-      /* Enhanced pulsating animation for alphabet (letters) */
-      @keyframes rainbowPulse {
+      /* Enhanced outline pulsation for alphabet (letters) */
+      @keyframes outlinePulseLetter {
         0%, 100% {
-          filter: hue-rotate(0deg) brightness(1.25) saturate(1.4) drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+          filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
           transform: scale(1);
-          text-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        16.67% {
-          filter: hue-rotate(60deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(255,223,0,0.85));
-          transform: scale(1.06);
-        }
-        33.33% {
-          filter: hue-rotate(120deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(0,255,0,0.85));
-          transform: scale(1.08);
         }
         50% {
-          filter: hue-rotate(180deg) brightness(1.45) saturate(1.7) drop-shadow(0 10px 22px rgba(0,255,255,0.85));
-          transform: scale(1.08);
-        }
-        66.67% {
-          filter: hue-rotate(240deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(0,0,255,0.85));
-          transform: scale(1.08);
-        }
-        83.33% {
-          filter: hue-rotate(300deg) brightness(1.6) saturate(1.9) drop-shadow(0 10px 20px rgba(255,0,255,0.85));
-          transform: scale(1.06);
+          filter: drop-shadow(0 0 8px rgba(255, 0, 255, 0.8)) drop-shadow(0 0 12px rgba(255, 0, 255, 0.4));
+          transform: scale(1.05);
         }
       }
 
-      /* Enhanced gradient pulse for numeric (counting) clarity */
-      @keyframes gradientPulse {
+      /* Enhanced outline pulsation for numeric (counting) */
+      @keyframes outlinePulseNumber {
         0%, 100% {
-          background-position: 0% 50%;
-          transform: scale(1) rotate(0deg);
-          box-shadow: 0 10px 36px rgba(59, 130, 246, 0.55);
-        }
-        25% {
-          background-position: 40% 50%;
-          transform: scale(1.04) rotate(2deg);
-          box-shadow: 0 12px 40px rgba(139, 92, 246, 0.7);
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+          transform: scale(1);
+          border-color: rgba(59, 130, 246, 0.8);
         }
         50% {
-          background-position: 100% 50%;
-          transform: scale(1.1) rotate(0deg);
-          box-shadow: 0 16px 48px rgba(236, 72, 153, 0.8);
-        }
-        75% {
-          background-position: 60% 50%;
-          transform: scale(1.04) rotate(-2deg);
-          box-shadow: 0 12px 40px rgba(245, 158, 11, 0.7);
+          box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.0), 0 0 0 12px rgba(59, 130, 246, 0.2);
+          transform: scale(1.05);
+          border-color: rgba(37, 99, 235, 1);
         }
       }
     `

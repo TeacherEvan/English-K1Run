@@ -6,48 +6,59 @@ interface WelcomeScreenProps {
   onComplete: () => void
 }
 
-type AudioPhase = 1 | 2 | null
+type AudioPhase = 1 | 2 | 3 | 4 | null
 
 /**
  * WelcomeScreen - Premium splash screen for Sangsom Kindergarten partnership
- * 
+ *
  * Features:
- * - Sequential audio: intellectual voice → children's choir
- * - Dynamic text phases synced with audio
- * - Inspired by Sangsom's modern architecture and sun branding
- * - Smooth fade animations with visual storytelling
- * - Auto-dismisses after complete audio sequence
- * - 3D parallax effects with multiple depth layers
- * - Glassmorphism frosted glass content cards
- * - Animated gradient mesh background
- * - Particle burst effects on phase transitions
- * - Enhanced sun logo with color-shifting rays
- * - Letter-by-letter text reveal animations
- * - Floating ambient sparkles and bubbles
- * 
+ * - Four-phase sequential audio (2 English + 2 Thai translations)
+ * - Phase-based text overlays synced with audio
+ * - Preloads welcome audio to avoid first-play jank
+ * - Waits for user tap/click (or Enter/Space) after audio sequence
+ * - Escape skips immediately
+ *
  * Audio Sequence:
- * 1. "In association with SANGSOM Kindergarten" (intellectual voice, ~3s)
- * 2. "Learning through games for everyone!" (children's choir, ~3s)
- * 
+ * 1. English: welcome_association (~3s)
+ * 2. English: welcome_learning (~3s)
+ * 3. Thai translation: welcome_association_thai (~3s)
+ * 4. Thai translation: welcome_learning_thai (~3s)
+ * Then: waits for user input to continue
+ *
  * @component
  */
 export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
+  const [readyToContinue, setReadyToContinue] = useState(false)
   const splashSrc = '/welcome-splash.png'
 
   // Text content for each audio phase with fallback support
+  // Phases 1-2: Show English + Thai text overlays during English audio playback
+  // Phases 3-4: Thai audio only; overlays disabled (empty strings below)
   const phaseContent = {
     1: {
       english: 'In association with',
-      thai: '',
+      thai: 'ร่วมกับ',
       school: 'SANGSOM Kindergarten',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     2: {
       english: 'Learning through games',
-      thai: '',
+      thai: 'เรียนรู้ผ่านการเล่น',
       school: 'for everyone!',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    },
+    3: {
+      english: '',
+      thai: '',
+      school: '',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    },
+    4: {
+      english: '',
+      thai: '',
+      school: '',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }
   } as const
@@ -64,58 +75,86 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     void preloadResources([
       { url: '/sounds/welcome_association.wav', type: 'audio', priority: 'high' },
       { url: '/sounds/welcome_learning.wav', type: 'audio', priority: 'high' },
+      { url: '/sounds/welcome_association_thai.wav', type: 'audio', priority: 'high' },
+      { url: '/sounds/welcome_learning_thai.wav', type: 'audio', priority: 'high' },
     ])
+
+    let cancelled = false
 
     const playSequentialAudio = async () => {
       try {
-        // Phase 1: Play "In association with SANGSOM Kindergarten" (intellectual voice)
-        setCurrentPhase(1)
+        // Phase 1: English (female voice)
+        if (!cancelled) setCurrentPhase(1)
         await soundManager.playSound('welcome_association')
 
         // Wait for first audio to complete (~3 seconds)
         await new Promise(resolve => setTimeout(resolve, 3000))
 
-        // Phase 2: Play "Learning through games for everyone!" (children's choir)
-        setCurrentPhase(2)
+        // Phase 2: English (female voice)
+        if (!cancelled) setCurrentPhase(2)
         await soundManager.playSound('welcome_learning')
 
         // Wait for second audio to complete (~3 seconds)
         await new Promise(resolve => setTimeout(resolve, 3000))
 
-        // Phase 3: Play "Learning through playing for everyone!" (Thai male)
-        setCurrentPhase(null)
-        setFadeOut(true)
+        // Phase 3: Thai translation of phase 1 (male voice)
+        if (!cancelled) setCurrentPhase(3)
+        await soundManager.playSound('welcome_association_thai')
 
-        // Complete after fade-out animation
-        await new Promise(resolve => setTimeout(resolve, 500))
-        onComplete()
+        // Wait for third audio to complete (~3 seconds)
+        await new Promise(resolve => setTimeout(resolve, 3000))
+
+        // Phase 4: Thai translation of phase 2 (male voice)
+        if (!cancelled) setCurrentPhase(4)
+        await soundManager.playSound('welcome_learning_thai')
+
+        // Wait for fourth audio to complete (~3 seconds)
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        if (!cancelled) {
+          setReadyToContinue(true)
+        }
+        // Finished audio sequence; wait for user tap/click to continue
+        if (!cancelled) setReadyToContinue(true)
       } catch (err) {
         if (import.meta.env.DEV) {
           console.log('[WelcomeScreen] Audio playback error:', err)
         }
-        // Fallback: auto-dismiss after 6 seconds if audio fails (2 phases × 3s)
+        // Fallback: wait for user tap/click even if audio fails
         // Text overlays will still be visible during fallback
         setTimeout(() => {
-          setCurrentPhase(null)
-          setFadeOut(true)
-          setTimeout(onComplete, 500)
-        }, 6000)
+          if (!cancelled) setReadyToContinue(true)
+        }, 9000)
       }
     }
 
     playSequentialAudio()
-    // Keyboard accessibility: Space/Enter/Escape to skip
+
+    return () => {
+      cancelled = true
+      soundManager.stopAllAudio()
+    }
+  }, [])
+
+  useEffect(() => {
+    // Keyboard accessibility: Escape skips anytime; Space/Enter continues after audio
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+      if (e.key === 'Escape') {
         e.preventDefault()
         skip()
+        return
+      }
+
+      if ((e.key === ' ' || e.key === 'Enter') && readyToContinue) {
+        e.preventDefault()
+        startTransition(() => setFadeOut(true))
+        setTimeout(onComplete, 500)
       }
     }
     window.addEventListener('keydown', handleKey)
     return () => {
       window.removeEventListener('keydown', handleKey)
     }
-  }, [onComplete, skip])
+  }, [onComplete, skip, readyToContinue])
 
   return (
     <div
@@ -129,7 +168,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         src={splashSrc}
         alt="Welcome"
         className="absolute inset-0 w-full h-full object-cover"
-        onClick={skip}
+        onClick={() => {
+          if (readyToContinue) {
+            startTransition(() => setFadeOut(true))
+            setTimeout(onComplete, 500)
+            return
+          }
+          skip()
+        }}
       />
 
       {/* Fallback text overlay - shows during each audio phase */}
@@ -177,6 +223,15 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                 }}
               >
                 {phaseContent[currentPhase].school}
+              </p>
+            )}
+
+            {readyToContinue && (
+              <p
+                className="text-2xl md:text-3xl font-semibold mt-4"
+                style={{ color: '#1a1a1a' }}
+              >
+                Tap to continue
               </p>
             )}
           </div>
