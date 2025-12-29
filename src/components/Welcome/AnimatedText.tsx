@@ -24,7 +24,7 @@ export const AnimatedText = memo(({ audioPhase, showTagline }: AnimatedTextProps
 
                     {/* Kindergarten name with premium gradient */}
                     <h1 className="font-bold bg-clip-text text-transparent" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', background: 'linear-gradient(135deg, #f59e0b, #fbbf24, #fb923c, #ea580c)', WebkitBackgroundClip: 'text', backgroundClip: 'text', textShadow: '0 4px 24px rgba(251, 191, 36, 0.3)', letterSpacing: '-0.02em', animation: 'shimmer 3s ease-in-out infinite' }}>
-                        LALITAPORN
+                        SANGSOM
                     </h1>
                     <h2 className="font-bold text-amber-700 mt-2" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
                         Kindergarten
@@ -32,7 +32,7 @@ export const AnimatedText = memo(({ audioPhase, showTagline }: AnimatedTextProps
 
                     {/* Thai text */}
                     <p className="font-semibold text-amber-700 mt-3" style={{ fontFamily: "'Sarabun', 'Noto Sans Thai', 'Tahoma', system-ui, sans-serif", fontWeight: 600, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)' }}>
-                        อนุบาลลลิดาภรณ์
+                        อนุบาลแสงโสม
                     </p>
                 </div>
             </div>

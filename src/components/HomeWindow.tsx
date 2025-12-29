@@ -52,8 +52,8 @@ export const HomeWindow = memo(({
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${activeTab === tab.id
-                                        ? 'bg-primary text-primary-foreground shadow-md'
-                                        : 'hover:bg-secondary/40'
+                                    ? 'bg-primary text-primary-foreground shadow-md'
+                                    : 'hover:bg-secondary/40'
                                     }`}
                             >
                                 <span>{tab.icon}</span>
@@ -164,7 +164,7 @@ export const HomeWindow = memo(({
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-foreground">Special Thanks</h3>
-                                        <p>Lalitaporn Kindergarten for inspiration</p>
+                                        <p>Sangsom Kindergarten for inspiration</p>
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-foreground">Version</h3>
