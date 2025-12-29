@@ -12,7 +12,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -259,6 +258,16 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /* Fix deprecated vendor prefixes for font smoothing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    /* Fix text-size-adjust parsing errors by using modern values */
+    -webkit-text-size-adjust: auto;
+    -moz-text-size-adjust: auto;
+    text-size-adjust: auto;
   }
 
   body {
@@ -297,7 +306,8 @@
 }
 
 .slide-in-from-bottom {
-  animation: slide-in-from-bottom var(--animate-slide-in-from-bottom, 0.5s ease-out);
+  animation: slide-in-from-bottom
+    var(--animate-slide-in-from-bottom, 0.5s ease-out);
 }
 
 .slide-in-from-left {
@@ -305,7 +315,8 @@
 }
 
 .slide-in-from-right {
-  animation: slide-in-from-right var(--animate-slide-in-from-right, 0.5s ease-out);
+  animation: slide-in-from-right
+    var(--animate-slide-in-from-right, 0.5s ease-out);
 }
 
 .duration-300 {
@@ -343,7 +354,6 @@
 }
 
 @keyframes celebrate {
-
   0%,
   100% {
     transform: scale(1) rotate(0deg);
@@ -359,7 +369,6 @@
 }
 
 @keyframes turtle-hop {
-
   0%,
   100% {
     transform: translateY(0) scale(var(--turtle-scale, 1));
@@ -422,7 +431,6 @@
 }
 
 @keyframes coin-sparkle {
-
   0%,
   100% {
     transform: scale(0);
@@ -486,22 +494,21 @@
 @keyframes fairy-morph {
   0% {
     transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
-    filter: drop-shadow(0 0 5px #FFD700);
+    filter: drop-shadow(0 0 5px #ffd700);
   }
 
   50% {
     transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
-    filter: drop-shadow(0 0 20px #FFA500) drop-shadow(0 0 40px #FFD700);
+    filter: drop-shadow(0 0 20px #ffa500) drop-shadow(0 0 40px #ffd700);
   }
 
   100% {
     transform: translate(-50%, -50%) scale(1) rotate(360deg);
-    filter: drop-shadow(0 0 15px #FFD700) drop-shadow(0 0 30px #FFA500);
+    filter: drop-shadow(0 0 15px #ffd700) drop-shadow(0 0 30px #ffa500);
   }
 }
 
 @keyframes sparkle-pulse {
-
   0%,
   100% {
     transform: translate(-50%, -50%) scale(0.8);
@@ -515,14 +522,14 @@
 }
 
 @keyframes fairy-glow {
-
   0%,
   100% {
-    filter: drop-shadow(0 0 10px #FFD700) drop-shadow(0 0 20px #FFA500);
+    filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px #ffa500);
   }
 
   50% {
-    filter: drop-shadow(0 0 25px #FFD700) drop-shadow(0 0 50px #FFA500) drop-shadow(0 0 75px #FFE4B5);
+    filter: drop-shadow(0 0 25px #ffd700) drop-shadow(0 0 50px #ffa500)
+      drop-shadow(0 0 75px #ffe4b5);
   }
 }
 
@@ -535,31 +542,45 @@
 }
 
 .game-area {
-  background: linear-gradient(135deg,
-      hsl(var(--primary) / 0.1) 0%,
-      hsl(var(--secondary) / 0.15) 25%,
-      hsl(var(--accent) / 0.1) 50%,
-      hsl(var(--primary) / 0.15) 75%,
-      hsl(var(--secondary) / 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1) 0%,
+    hsl(var(--secondary) / 0.15) 25%,
+    hsl(var(--accent) / 0.1) 50%,
+    hsl(var(--primary) / 0.15) 75%,
+    hsl(var(--secondary) / 0.1) 100%
+  );
   position: relative;
 }
 
 .game-area::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 30%);
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 70%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 30%
+    );
   pointer-events: none;
   z-index: 1;
 }
 
-.game-area>* {
+.game-area > * {
   position: relative;
   z-index: 2;
 }
@@ -595,22 +616,36 @@
 
 @media (min-aspect-ratio: 21/9) {
   .game-area {
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.05) 0%,
-        rgba(255, 255, 255, 0.15) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
   }
 }
 
 .bg-background {
   background:
-    linear-gradient(135deg,
+    linear-gradient(
+      135deg,
       hsl(var(--primary) / 0.1) 0%,
       hsl(var(--secondary) / 0.15) 50%,
-      hsl(var(--accent) / 0.1) 100%),
-    radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+      hsl(var(--accent) / 0.1) 100%
+    ),
+    radial-gradient(
+      circle at 30% 70%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 40%
+    ),
     hsl(var(--primary) / 0.05);
-  background-size: cover, 120px 120px, 100% 100%;
-  background-position: center, 50% 50%, center;
+  background-size:
+    cover,
+    120px 120px,
+    100% 100%;
+  background-position:
+    center,
+    50% 50%,
+    center;
   background-repeat: no-repeat, repeat, no-repeat;
   background-attachment: fixed;
 }

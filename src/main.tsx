@@ -8,7 +8,14 @@ import { ErrorFallback } from './ErrorFallback.tsx';
 import "./main.css";
 
 // Register service worker for PWA capabilities (offline support, caching)
-import './lib/service-worker-registration'
+import './lib/service-worker-registration';
+
+// Initialize accessibility manager
+import { enableSmartFocusVisibility, getAccessibilityManager } from './lib/accessibility-utils';
+
+// Initialize accessibility features
+enableSmartFocusVisibility()
+getAccessibilityManager() // Initialize the singleton
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>

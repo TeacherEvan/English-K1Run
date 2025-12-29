@@ -34,6 +34,10 @@ const EmojiRotationMonitor = lazy(() =>
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
 
+// Utilities
+import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
+import { eventTracker } from './lib/event-tracker'
+
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
   'app-bg-mountain-sunrise',
@@ -350,35 +354,43 @@ function App() {
         ))}
 
         {/* Full Screen Game Area */}
-        <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
-          <PlayerArea
-            playerNumber={1}
-            progress={gameState.progress}
-            isWinner={gameState.winner}
-          >
-            {gameObjects.map(obj => (
-              <FallingObject
-                key={obj.id}
-                object={obj}
-                onTap={handleObjectTap}
-                playerSide={obj.lane}
-              />
-            ))}
-            {worms.map(worm => (
-              <Worm
-                key={worm.id}
-                worm={worm}
-                onTap={handleWormTap}
-                playerSide={worm.lane}
-              />
-            ))}
-            {fairyTransforms.map(fairy => (
-              <Suspense key={fairy.id} fallback={null}>
-                <FairyTransformation fairy={fairy} />
-              </Suspense>
-            ))}
-          </PlayerArea>
-        </div>
+        <CategoryErrorBoundary
+          category="rendering"
+          enableSafeMode
+          onError={(error, _errorInfo, category) => {
+            eventTracker.trackError(error, `rendering-${category}`)
+          }}
+        >
+          <div className={`h-full ${screenShake ? 'screen-shake' : ''}`}>
+            <PlayerArea
+              playerNumber={1}
+              progress={gameState.progress}
+              isWinner={gameState.winner}
+            >
+              {gameObjects.map(obj => (
+                <FallingObject
+                  key={obj.id}
+                  object={obj}
+                  onTap={handleObjectTap}
+                  playerSide={obj.lane}
+                />
+              ))}
+              {worms.map(worm => (
+                <Worm
+                  key={worm.id}
+                  worm={worm}
+                  onTap={handleWormTap}
+                  playerSide={worm.lane}
+                />
+              ))}
+              {fairyTransforms.map(fairy => (
+                <Suspense key={fairy.id} fallback={null}>
+                  <FairyTransformation fairy={fairy} />
+                </Suspense>
+              ))}
+            </PlayerArea>
+          </div>
+        </CategoryErrorBoundary>
 
         {/* Game Menu Overlay */}
         <GameMenu

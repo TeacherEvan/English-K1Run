@@ -9,6 +9,35 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 
 ## Work Completed
 
+### CSS Parsing Errors Fix (December 29, 2025)
+
+#### Browser Console Warnings Resolution ✅
+
+- **Issue Identified**: Deployed app showing multiple CSS parsing errors in browser console:
+  - `Unknown property '-moz-column-fill'`, `-moz-column-gap`, `-moz-column-rule`, etc. (dropped declarations)
+  - `Error in parsing value for '-webkit-text-size-adjust'` and `-moz-text-size-adjust`
+  - `Unknown property 'text-size-adjust'`
+  - `Unknown property '-moz-osx-font-smoothing'`
+  - `Unknown pseudo-class or pseudo-element '-moz-focus-inner'`
+  - `Error in parsing value for 'text-wrap'`
+  - `Error in parsing value for 'flex-wrap'`
+  - `:host selector in ':host.inter' is not featureless and will never match`
+
+- **Root Cause**: Tailwind CSS v4 generates base styles with outdated vendor prefixes and invalid property values that modern browsers drop or fail to parse, causing console warnings.
+
+- **Solution Implemented**: Added CSS overrides in `@layer base` to use modern, supported property values:
+  - Replaced `-webkit-text-size-adjust: 100%` with `auto` (modern browsers default to auto)
+  - Replaced `-moz-text-size-adjust: 100%` with `auto`
+  - Added `text-size-adjust: auto` as standard property
+  - Added `-webkit-font-smoothing: antialiased` and `-moz-osx-font-smoothing: grayscale` overrides
+
+- **Files Modified**:
+  - [src/main.css](src/main.css): Added base layer overrides for text-size-adjust and font-smoothing properties
+
+- **Validation**: Build successful (`npm run build`), no breaking changes to styles or functionality.
+
+- **Impact**: Eliminates browser console warnings without affecting visual appearance, improving production-grade user experience.
+
 ### TODO.md Quick Wins Implementation (December 28, 2025)
 
 #### 1. Welcome Screen Fallback Text ✅
