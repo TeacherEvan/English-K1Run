@@ -15,16 +15,18 @@ Diagnosed and resolved **critical JavaScript bundle loading errors** on the Verc
 **Location**: `vendor-misc-DIq6FCQ2.js:1` in Chrome DevTools console
 
 **Root Cause**: Over-granular vendor chunk splitting created circular dependency in the catch-all `vendor-misc` bundle:
+
 - Previous config split dependencies into 8 separate vendor chunks: `vendor-lucide-icons`, `vendor-date-utils`, `vendor-theme-utils`, `vendor-large-utils`, etc.
 - The `vendor-misc` catch-all was picking up smaller indirect dependencies that had interdependencies
 - Rollup's module resolution couldn't properly order chunks with circular references
 - Result: `R` function (likely a Rollup-generated runtime helper) was undefined when a chunk tried to use it
 
 **Example problematic pattern**:
+
 ```typescript
 // Old config created separate chunks that could have circular deps:
 - vendor-lucide-icons.js (separate) ← depends on React
-- vendor-ui-utils.js (separate) ← depends on vendor-lucide-icons  
+- vendor-ui-utils.js (separate) ← depends on vendor-lucide-icons
 - vendor-misc.js ← catches remaining deps with unresolved references
 ```
 
@@ -35,6 +37,7 @@ Diagnosed and resolved **critical JavaScript bundle loading errors** on the Verc
 **Severity**: 🟡 MEDIUM (UX: clutters console, no functional impact)
 
 **Sample Warnings**:
+
 ```
 Unknown property '-moz-columns'. Declaration dropped.
 Unknown property '-moz-osx-font-smoothing'. Declaration dropped.
@@ -52,6 +55,7 @@ Unknown property '-webkit-mask'. Declaration dropped.
 **Severity**: 🟡 LOW (functional impact: none)
 
 **Message**:
+
 ```
 [DEPRECATED] Default export is deprecated. Instead use 'import ( create ) from 'zustand''.
 ```
@@ -67,8 +71,9 @@ Unknown property '-webkit-mask'. Declaration dropped.
 **Severity**: 🟢 LOW (informational only)
 
 **Message**:
+
 ```
-Partitioned cookie or storage access was provided to "https://vercel.live/next-live/feedback/feedback.html?dpl=..." 
+Partitioned cookie or storage access was provided to "https://vercel.live/next-live/feedback/feedback.html?dpl=..."
 because it is loaded in the third-party context and dynamic site partitioning is enabled.
 ```
 
@@ -85,6 +90,7 @@ because it is loaded in the third-party context and dynamic site partitioning is
 **File**: `vite.config.ts` (lines 65-130)
 
 **Changes**:
+
 1. **Consolidated vendor splits** - Reduced from 8 vendor chunks to 4:
    - `vendor-react` - React 19 + scheduler (~234 KB)
    - `vendor-radix` - Radix UI components
@@ -105,6 +111,7 @@ because it is loaded in the third-party context and dynamic site partitioning is
    - Removed `game-utils` and `app-utils` (too small)
 
 **Why This Works**:
+
 - ✅ **Fewer chunks = fewer inter-chunk dependencies** → less circular reference risk
 - ✅ **Consolidating related libs** (UI utils grouped together) → Rollup can resolve references correctly
 - ✅ **Simpler catch-all** → `vendor-other` is now truly a misc collection without internal deps
@@ -187,6 +194,7 @@ The original chunking strategy attempted to maximize code splitting by creating 
 ### Why The Fix Works
 
 By **consolidating related dependencies into single chunks**, we:
+
 - Reduce the import graph complexity
 - Let Rollup inline more references (no cross-chunk lookup needed)
 - Keep chunks that have actual dependencies together
@@ -196,14 +204,14 @@ By **consolidating related dependencies into single chunks**, we:
 
 ## Impact Assessment
 
-| Aspect | Before | After | Impact |
-|--------|--------|-------|--------|
-| **Build Status** | ❌ Error on load | ✅ Works | CRITICAL FIX |
-| **Bundle Size** | 411 KB (vendor) | 411 KB (vendor) | 0% change |
-| **Number of Chunks** | 12+ | 7 | Simplified |
-| **Load Time** | ❌ Error | ✅ Fast | IMPROVED |
-| **Cache Effectiveness** | N/A | Same | No change |
-| **Console Errors** | 4 categories | 3 categories | IMPROVED |
+| Aspect                  | Before           | After           | Impact       |
+| ----------------------- | ---------------- | --------------- | ------------ |
+| **Build Status**        | ❌ Error on load | ✅ Works        | CRITICAL FIX |
+| **Bundle Size**         | 411 KB (vendor)  | 411 KB (vendor) | 0% change    |
+| **Number of Chunks**    | 12+              | 7               | Simplified   |
+| **Load Time**           | ❌ Error         | ✅ Fast         | IMPROVED     |
+| **Cache Effectiveness** | N/A              | Same            | No change    |
+| **Console Errors**      | 4 categories     | 3 categories    | IMPROVED     |
 
 ---
 
@@ -227,8 +235,8 @@ By **consolidating related dependencies into single chunks**, we:
 
 ## Files Modified
 
-| File | Changes | Reason |
-|------|---------|--------|
+| File             | Changes                                                          | Reason                  |
+| ---------------- | ---------------------------------------------------------------- | ----------------------- |
 | `vite.config.ts` | Simplified vendor chunking (35 lines removed, 12 lines modified) | Fix circular dependency |
 
 ---
