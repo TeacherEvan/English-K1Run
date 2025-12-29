@@ -78,11 +78,9 @@ export default defineConfig({
               return "vendor-radix";
             }
 
-            // UI utilities and styling
-            if (id.includes("lucide-react")) {
-              return "vendor-lucide-icons";
-            }
+            // UI utilities and styling - CONSOLIDATED to prevent circular deps
             if (
+              id.includes("lucide-react") ||
               id.includes("class-variance-authority") ||
               id.includes("clsx") ||
               id.includes("tailwind-merge")
@@ -95,46 +93,25 @@ export default defineConfig({
               return "vendor-animation";
             }
 
-            // Large utility libraries (if any)
-            if (
-              id.includes("d3") ||
-              id.includes("recharts") ||
-              id.includes("three") ||
-              id.includes("@tanstack")
-            ) {
-              return "vendor-large-utils";
+            // Error boundary and other critical libs
+            if (id.includes("react-error-boundary")) {
+              return "vendor-react-utils";
             }
 
-            // Date/time utilities
-            if (id.includes("react-day-picker") || id.includes("date-fns")) {
-              return "vendor-date-utils";
-            }
-
-            // Theme utilities
-            if (id.includes("next-themes")) {
-              return "vendor-theme-utils";
-            }
-
-            // Other node_modules - catch-all for smaller dependencies
-            return "vendor-misc";
+            // Other node_modules - minimal catch-all
+            // This prevents circular dependency issues from overly granular splitting
+            return "vendor-other";
           }
 
-          // Create separate chunks for large application modules
+          // Application code chunking (lighter strategy)
           if (id.includes("src/components")) {
             if (id.includes("ui/")) {
-              return "ui-components";
+              return "app-ui";
             }
-            return "game-components";
+            return "app-components";
           }
           if (id.includes("src/hooks")) {
-            return "game-hooks";
-          }
-          if (id.includes("src/lib")) {
-            // Split utilities separately for better caching
-            if (id.includes("utils/")) {
-              return "app-utils";
-            }
-            return "game-utils";
+            return "app-hooks";
           }
         },
         // Optimize chunk file names for better caching
