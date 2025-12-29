@@ -1,69 +1,5 @@
 @import "tailwindcss";
 
-@import '@radix-ui/colors/sage-dark.css' layer(base);
-@import '@radix-ui/colors/olive.css' layer(base);
-@import '@radix-ui/colors/olive-dark.css' layer(base);
-@import '@radix-ui/colors/sand.css' layer(base);
-@import '@radix-ui/colors/sand-dark.css' layer(base);
-@import '@radix-ui/colors/red.css' layer(base);
-@import '@radix-ui/colors/red-dark.css' layer(base);
-@import '@radix-ui/colors/ruby.css' layer(base);
-@import '@radix-ui/colors/ruby-dark.css' layer(base);
-@import '@radix-ui/colors/crimson.css' layer(base);
-@import '@radix-ui/colors/crimson-dark.css' layer(base);
-@import '@radix-ui/colors/pink.css' layer(base);
-@import '@radix-ui/colors/pink-dark.css' layer(base);
-@import '@radix-ui/colors/plum.css' layer(base);
-@import '@radix-ui/colors/plum-dark.css' layer(base);
-@import '@radix-ui/colors/purple.css' layer(base);
-@import '@radix-ui/colors/purple-dark.css' layer(base);
-@import '@radix-ui/colors/violet.css' layer(base);
-@import '@radix-ui/colors/violet-dark.css' layer(base);
-@import '@radix-ui/colors/iris.css' layer(base);
-@import '@radix-ui/colors/iris-dark.css' layer(base);
-@import '@radix-ui/colors/indigo.css' layer(base);
-@import '@radix-ui/colors/indigo-dark.css' layer(base);
-@import '@radix-ui/colors/blue.css' layer(base);
-@import '@radix-ui/colors/blue-dark.css' layer(base);
-@import '@radix-ui/colors/cyan.css' layer(base);
-@import '@radix-ui/colors/cyan-dark.css' layer(base);
-@import '@radix-ui/colors/teal.css' layer(base);
-@import '@radix-ui/colors/teal-dark.css' layer(base);
-@import '@radix-ui/colors/jade.css' layer(base);
-@import '@radix-ui/colors/jade-dark.css' layer(base);
-@import '@radix-ui/colors/green.css' layer(base);
-@import '@radix-ui/colors/green-dark.css' layer(base);
-@import '@radix-ui/colors/grass.css' layer(base);
-@import '@radix-ui/colors/grass-dark.css' layer(base);
-@import '@radix-ui/colors/bronze.css' layer(base);
-@import '@radix-ui/colors/bronze-dark.css' layer(base);
-@import '@radix-ui/colors/gold.css' layer(base);
-@import '@radix-ui/colors/gold-dark.css' layer(base);
-@import '@radix-ui/colors/brown.css' layer(base);
-@import '@radix-ui/colors/brown-dark.css' layer(base);
-@import '@radix-ui/colors/orange.css' layer(base);
-@import '@radix-ui/colors/orange-dark.css' layer(base);
-@import '@radix-ui/colors/amber.css' layer(base);
-@import '@radix-ui/colors/amber-dark.css' layer(base);
-@import '@radix-ui/colors/yellow.css' layer(base);
-@import '@radix-ui/colors/yellow-dark.css' layer(base);
-@import '@radix-ui/colors/lime.css' layer(base);
-@import '@radix-ui/colors/lime-dark.css' layer(base);
-@import '@radix-ui/colors/mint.css' layer(base);
-@import '@radix-ui/colors/mint-dark.css' layer(base);
-@import '@radix-ui/colors/sky.css' layer(base);
-@import '@radix-ui/colors/sky-dark.css' layer(base);
-@import '@radix-ui/colors/tomato.css' layer(base);
-@import '@radix-ui/colors/tomato-dark.css' layer(base);
-@import '@radix-ui/colors/gray.css' layer(base);
-@import '@radix-ui/colors/gray-dark.css' layer(base);
-@import '@radix-ui/colors/mauve.css' layer(base);
-@import '@radix-ui/colors/mauve-dark.css' layer(base);
-@import '@radix-ui/colors/slate.css' layer(base);
-@import '@radix-ui/colors/slate-dark.css' layer(base);
-@import '@radix-ui/colors/slate-alpha.css' layer(base);
-@import '@radix-ui/colors/slate-dark-alpha.css' layer(base);
-
 @import 'tailwindcss/theme' layer(theme);
 
 @import 'tailwindcss/preflight' layer(base);
@@ -88,37 +24,7 @@
 
 @layer base {
   #spark-app {
-    --tomato-contrast: #fff;
-    --red-contrast: #fff;
-    --ruby-contrast: #fff;
-    --crimson-contrast: #fff;
-    --pink-contrast: #fff;
-    --plum-contrast: #fff;
-    --purple-contrast: #fff;
-    --violet-contrast: #fff;
-    --iris-contrast: #fff;
-    --indigo-contrast: #fff;
-    --blue-contrast: #fff;
-    --cyan-contrast: #fff;
-    --teal-contrast: #fff;
-    --jade-contrast: #fff;
-    --green-contrast: #fff;
-    --grass-contrast: #fff;
-    --bronze-contrast: #fff;
-    --gold-contrast: #fff;
-    --brown-contrast: #fff;
-    --orange-contrast: #fff;
-    --amber-contrast: #000;
-    --yellow-contrast: #000;
-    --lime-contrast: #000;
-    --mint-contrast: #000;
-    --sky-contrast: #000;
-    --gray-contrast: #fff;
-    --mauve-contrast: #fff;
-    --slate-contrast: #fff;
-    --sage-contrast: #fff;
-    --olive-contrast: #fff;
-    --sand-contrast: #fff;
+
 
     /**
    * Spacing scale
@@ -179,62 +85,62 @@
     --radius-2xl: calc(16px * var(--radius-factor) * var(--size-scale));
     --radius-full: 9999px;
 
-    /* Neutral colors */
-    --color-neutral-1: var(--slate-1);
-    --color-neutral-2: var(--slate-2);
-    --color-neutral-3: var(--slate-3);
-    --color-neutral-4: var(--slate-4);
-    --color-neutral-5: var(--slate-5);
-    --color-neutral-6: var(--slate-6);
-    --color-neutral-7: var(--slate-7);
-    --color-neutral-8: var(--slate-8);
-    --color-neutral-9: var(--slate-9);
-    --color-neutral-10: var(--slate-10);
-    --color-neutral-11: var(--slate-11);
-    --color-neutral-12: var(--slate-12);
-    --color-neutral-a1: var(--slate-a1);
-    --color-neutral-a2: var(--slate-a2);
-    --color-neutral-a3: var(--slate-a3);
-    --color-neutral-a4: var(--slate-a4);
-    --color-neutral-a5: var(--slate-a5);
-    --color-neutral-a6: var(--slate-a6);
-    --color-neutral-a7: var(--slate-a7);
-    --color-neutral-a8: var(--slate-a8);
-    --color-neutral-a9: var(--slate-a9);
-    --color-neutral-a10: var(--slate-a10);
-    --color-neutral-a11: var(--slate-a11);
-    --color-neutral-a12: var(--slate-a12);
-    --color-neutral-contrast: var(--slate-contrast);
+    /* Neutral colors - grayscale scale */
+    --color-neutral-1: #ffffff;
+    --color-neutral-2: #fafafa;
+    --color-neutral-3: #f5f5f5;
+    --color-neutral-4: #f0f0f0;
+    --color-neutral-5: #ebebeb;
+    --color-neutral-6: #e6e6e6;
+    --color-neutral-7: #d9d9d9;
+    --color-neutral-8: #bfbfbf;
+    --color-neutral-9: #8c8c8c;
+    --color-neutral-10: #595959;
+    --color-neutral-11: #404040;
+    --color-neutral-12: #262626;
+    --color-neutral-a1: rgba(0, 0, 0, 0.05);
+    --color-neutral-a2: rgba(0, 0, 0, 0.08);
+    --color-neutral-a3: rgba(0, 0, 0, 0.11);
+    --color-neutral-a4: rgba(0, 0, 0, 0.14);
+    --color-neutral-a5: rgba(0, 0, 0, 0.18);
+    --color-neutral-a6: rgba(0, 0, 0, 0.22);
+    --color-neutral-a7: rgba(0, 0, 0, 0.26);
+    --color-neutral-a8: rgba(0, 0, 0, 0.31);
+    --color-neutral-a9: rgba(0, 0, 0, 0.39);
+    --color-neutral-a10: rgba(0, 0, 0, 0.47);
+    --color-neutral-a11: rgba(0, 0, 0, 0.55);
+    --color-neutral-a12: rgba(0, 0, 0, 0.64);
+    --color-neutral-contrast: #ffffff;
 
-    /* Accent colors */
-    --color-accent-1: var(--blue-1);
-    --color-accent-2: var(--blue-2);
-    --color-accent-3: var(--blue-3);
-    --color-accent-4: var(--blue-4);
-    --color-accent-5: var(--blue-5);
-    --color-accent-6: var(--blue-6);
-    --color-accent-7: var(--blue-7);
-    --color-accent-8: var(--blue-8);
-    --color-accent-9: var(--blue-9);
-    --color-accent-10: var(--blue-10);
-    --color-accent-11: var(--blue-11);
-    --color-accent-12: var(--blue-12);
-    --color-accent-contrast: var(--blue-contrast);
+    /* Accent colors - blue scale */
+    --color-accent-1: #f0f9ff;
+    --color-accent-2: #e0f2fe;
+    --color-accent-3: #bae6fd;
+    --color-accent-4: #7dd3fc;
+    --color-accent-5: #38bdf8;
+    --color-accent-6: #0ea5e9;
+    --color-accent-7: #0284c7;
+    --color-accent-8: #0369a1;
+    --color-accent-9: #075985;
+    --color-accent-10: #0c4a6e;
+    --color-accent-11: #082f49;
+    --color-accent-12: #0f172a;
+    --color-accent-contrast: #ffffff;
 
-    /* Secondary accent colors */
-    --color-accent-secondary-1: var(--violet-1);
-    --color-accent-secondary-2: var(--violet-2);
-    --color-accent-secondary-3: var(--violet-3);
-    --color-accent-secondary-4: var(--violet-4);
-    --color-accent-secondary-5: var(--violet-5);
-    --color-accent-secondary-6: var(--violet-6);
-    --color-accent-secondary-7: var(--violet-7);
-    --color-accent-secondary-8: var(--violet-8);
-    --color-accent-secondary-9: var(--violet-9);
-    --color-accent-secondary-10: var(--violet-10);
-    --color-accent-secondary-11: var(--violet-11);
-    --color-accent-secondary-12: var(--violet-12);
-    --color-accent-secondary-contrast: var(--violet-contrast);
+    /* Secondary accent colors - violet/purple scale */
+    --color-accent-secondary-1: #faf5ff;
+    --color-accent-secondary-2: #f3e8ff;
+    --color-accent-secondary-3: #e9d5ff;
+    --color-accent-secondary-4: #d8b4fe;
+    --color-accent-secondary-5: #c084fc;
+    --color-accent-secondary-6: #a855f7;
+    --color-accent-secondary-7: #9333ea;
+    --color-accent-secondary-8: #7c3aed;
+    --color-accent-secondary-9: #6d28d9;
+    --color-accent-secondary-10: #5b21b6;
+    --color-accent-secondary-11: #4c1d95;
+    --color-accent-secondary-12: #2e1065;
+    --color-accent-secondary-contrast: #ffffff;
 
     /* Foreground colors */
     --color-fg: var(--color-neutral-12);
