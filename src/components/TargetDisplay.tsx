@@ -9,18 +9,26 @@ interface TargetDisplayProps {
   category: GameCategory
   timeRemaining?: number
   onClick?: () => void
+  /** Current point multiplier from combo system */
+  multiplier?: number
 }
 
-export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick }: TargetDisplayProps) => {
+export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier }: TargetDisplayProps) => {
+  // Determine if multiplier is active (greater than 1)
+  const hasActiveMultiplier = multiplier && multiplier > 1
+
   return (
     <Card data-testid="target-display" className="bg-transparent text-foreground mx-auto cursor-pointer hover:scale-105 transition-transform"
       onClick={onClick}
       style={{
         padding: `calc(0.5rem * var(--spacing-scale, 1))`,
         // Subtle background for better visibility without obstruction
-        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-        border: '2px solid rgba(255, 255, 255, 0.95)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.2)',
+        // Add golden glow when multiplier is active
+        backgroundColor: hasActiveMultiplier ? 'rgba(255, 251, 235, 0.95)' : 'rgba(255, 255, 255, 0.85)',
+        border: hasActiveMultiplier ? '2px solid rgba(251, 191, 36, 0.8)' : '2px solid rgba(255, 255, 255, 0.95)',
+        boxShadow: hasActiveMultiplier
+          ? '0 4px 12px rgba(251, 191, 36, 0.3), 0 0 20px rgba(251, 191, 36, 0.2)'
+          : '0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.2)',
         backdropFilter: 'blur(8px)',
         borderRadius: '12px',
         maxWidth: 'fit-content',
@@ -28,6 +36,21 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         pointerEvents: onClick ? 'auto' : 'none' // Enable clicks when handler is provided
       }}>
       <div className="text-center">
+        {/* Multiplier Badge - shown when combo multiplier is active */}
+        {hasActiveMultiplier && (
+          <Badge variant="default" className="mb-1 font-bold animate-pulse"
+            style={{
+              fontSize: `calc(0.65rem * var(--font-scale, 1))`,
+              padding: `calc(0.2rem * var(--spacing-scale, 1)) calc(0.4rem * var(--spacing-scale, 1))`,
+              backgroundColor: 'rgba(251, 191, 36, 0.9)',
+              color: 'rgb(120, 53, 15)',
+              border: '1px solid rgba(217, 119, 6, 0.5)',
+              fontWeight: '700'
+            }}>
+            🔥 {multiplier}x Points!
+          </Badge>
+        )}
+
         <Badge variant="secondary" className="mb-1 font-semibold"
           style={{
             fontSize: `calc(0.7rem * var(--font-scale, 1))`,
