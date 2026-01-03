@@ -10,12 +10,20 @@ import type {
   FairyTransformObject,
   GameObject,
   GameState,
+  MilestoneEvent,
   PlayerSide,
   UseGameLogicOptions,
   WormObject,
 } from "../types/game";
 // Constants
-import { COMBO_LEVELS } from "../lib/constants/combo-levels";
+import {
+  COMBO_LEVELS,
+  getStreakMultiplier,
+} from "../lib/constants/combo-levels";
+import {
+  calculateDynamicSpeed,
+  checkMilestone,
+} from "../lib/constants/engagement-system";
 import {
   clamp,
   COLLISION_MIN_SEPARATION,
@@ -36,7 +44,7 @@ import {
   WORM_RECURRING_INTERVAL,
   WORM_SIZE,
 } from "../lib/constants/game-config";
-import { CORRECT_MESSAGES } from "../lib/constants/messages";
+import { CORRECT_MESSAGES, getStreakMessage } from "../lib/constants/messages";
 
 // Re-export for backward compatibility
 export { GAME_CATEGORIES } from "../lib/constants/game-categories";
@@ -47,6 +55,7 @@ export type {
   GameCategory,
   GameObject,
   GameState,
+  MilestoneEvent,
   PlayerSide,
   WormObject,
 } from "../types/game";
@@ -63,6 +72,7 @@ import { GAME_CATEGORIES } from "../lib/constants/game-categories";
  * - Audio feedback and visual effects
  * - Multi-touch input handling
  * - Performance optimization with 60fps target
+ * - Engagement system (combos, milestones, dynamic difficulty)
  *
  * @param options - Configuration options
  * @param options.fallSpeedMultiplier - Multiplier for fall speed (default: 1.0)
@@ -95,9 +105,15 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     winner: false,
     targetChangeTime: Date.now() + 10000,
     streak: 0,
+    multiplier: 1.0,
+    lastMilestone: 0,
   }));
   const [comboCelebration, setComboCelebration] =
     useState<ComboCelebration | null>(null);
+
+  // Milestone celebration state
+  const [currentMilestone, setCurrentMilestone] =
+    useState<MilestoneEvent | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   // Track target count in continuous mode for level cycling
@@ -836,7 +852,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         if (prev.length === 0) return prev;
 
         const screenHeight = viewportRef.current.height;
-        const speedMultiplier = 1.2;
+
+        // Dynamic speed based on progress - creates exciting difficulty curve
+        // Speed increases as player gets closer to winning
+        const currentProgress = gameStateRef.current.progress;
+        const dynamicSpeedMultiplier = calculateDynamicSpeed(currentProgress);
+        const speedMultiplier = 1.2 * dynamicSpeedMultiplier;
 
         // Pre-allocate array to reduce reallocation overhead (performance optimization)
         const updated: GameObject[] = new Array(prev.length);
@@ -982,8 +1003,17 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           if (isCorrect) {
             // Correct tap: visual feedback only (no audio to avoid sentence repetition)
 
-            // Create achievement popup at tap location
+            const nextStreak = prev.streak + 1;
+            newState.streak = nextStreak;
+
+            // Calculate multiplier from streak for enhanced feedback
+            const currentMultiplier = getStreakMultiplier(nextStreak);
+            newState.multiplier = currentMultiplier;
+
+            // Create achievement popup - use streak-specific message if available
+            const streakMsg = getStreakMessage(nextStreak);
             const randomMsg =
+              streakMsg ||
               CORRECT_MESSAGES[
                 Math.floor(Math.random() * CORRECT_MESSAGES.length)
               ];
@@ -1000,9 +1030,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
               },
             ]);
 
-            const nextStreak = prev.streak + 1;
-            newState.streak = nextStreak;
-
+            // Check for combo celebration with enhanced data
             const comboLevel = COMBO_LEVELS.find(
               (level) => level.streak === nextStreak
             );
@@ -1012,17 +1040,48 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
                 streak: nextStreak,
                 title: comboLevel.title,
                 description: comboLevel.description,
+                emoji: comboLevel.emoji,
+                specialEffect: comboLevel.specialEffect,
               };
               setComboCelebration(comboData);
               eventTracker.trackEvent({
                 type: "info",
                 category: "combo",
-                message: `Combo streak reached ${comboData.streak}`,
-                data: { ...comboData },
+                message: `Combo streak reached ${comboData.streak} (${currentMultiplier}x multiplier)`,
+                data: { ...comboData, multiplier: currentMultiplier },
               });
             }
 
-            newState.progress = Math.min(prev.progress + 20, 100);
+            // Calculate points with multiplier applied (base 20 points)
+            const basePoints = 20;
+            const earnedPoints = Math.round(basePoints * currentMultiplier);
+            const previousProgress = prev.progress;
+            newState.progress = Math.min(prev.progress + earnedPoints, 100);
+
+            // Check for milestone celebrations
+            const milestone = checkMilestone(
+              previousProgress,
+              newState.progress
+            );
+            if (milestone && (prev.lastMilestone || 0) < milestone.progress) {
+              newState.lastMilestone = milestone.progress;
+
+              // Trigger milestone celebration
+              setCurrentMilestone({
+                progress: milestone.progress,
+                title: milestone.title,
+                message: milestone.message,
+                emoji: milestone.emoji,
+                triggeredAt: Date.now(),
+              });
+
+              eventTracker.trackEvent({
+                type: "info",
+                category: "milestone",
+                message: `Milestone reached: ${milestone.progress}%`,
+                data: { ...milestone },
+              });
+            }
 
             // Check for winner or continuous mode
             if (newState.progress >= 100) {
@@ -1033,6 +1092,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
                 // Reset progress and continue playing
                 newState.progress = 0;
                 newState.winner = false;
+                newState.lastMilestone = 0; // Reset milestone tracking for new round
 
                 // Check if we should advance to next level (every 5 targets)
                 if (continuousModeTargetCount.current >= 5) {
@@ -1761,6 +1821,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
   }, [currentCategory, spawnImmediateTargets]);
 
+  // Clear milestone celebration
+  const clearMilestone = useCallback(() => {
+    setCurrentMilestone(null);
+  }, []);
+
   return {
     gameObjects,
     worms,
@@ -1786,5 +1851,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     showHighScoreWindow,
     lastCompletionTime,
     closeHighScoreWindow: () => setShowHighScoreWindow(false),
+    // New engagement system exports
+    currentMilestone,
+    clearMilestone,
+    currentMultiplier: gameState.multiplier || 1.0,
   };
 };

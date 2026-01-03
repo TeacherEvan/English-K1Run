@@ -24,6 +24,9 @@ const FireworksDisplay = lazy(() =>
 const WormLoadingScreen = lazy(() =>
   import('./components/WormLoadingScreen').then(m => ({ default: m.WormLoadingScreen }))
 )
+const MilestoneCelebration = lazy(() =>
+  import('./components/MilestoneCelebration').then(m => ({ default: m.MilestoneCelebration }))
+)
 
 // Lazy load debug components to improve initial load time (dev only)
 const EmojiRotationMonitor = lazy(() =>
@@ -33,6 +36,7 @@ const EmojiRotationMonitor = lazy(() =>
 // Hooks - essential for app functionality
 import { useDisplayAdjustment } from './hooks/use-display-adjustment'
 import { GAME_CATEGORIES, useGameLogic } from './hooks/use-game-logic'
+import { PROGRESS_MILESTONES } from './lib/constants/engagement-system'
 
 // Utilities
 import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
@@ -139,7 +143,10 @@ function App() {
     resetGame,
     changeTargetToVisibleEmoji,
     achievements,
-    clearAchievement
+    clearAchievement,
+    currentMilestone,
+    clearMilestone,
+    currentMultiplier
   } = useGameLogic({
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode
@@ -330,6 +337,7 @@ function App() {
               category={currentCategory}
               timeRemaining={currentCategory.requiresSequence ? undefined : timeRemaining}
               onClick={currentCategory.requiresSequence ? undefined : changeTargetToVisibleEmoji}
+              multiplier={currentMultiplier > 1 ? currentMultiplier : undefined}
             />
           </div>
         )}
@@ -352,6 +360,16 @@ function App() {
             />
           </Suspense>
         ))}
+
+        {/* Milestone Celebration - Full screen overlay for progress milestones */}
+        {currentMilestone && (
+          <Suspense fallback={null}>
+            <MilestoneCelebration
+              milestone={PROGRESS_MILESTONES.find(m => m.progress === currentMilestone.progress) || PROGRESS_MILESTONES[0]}
+              onDismiss={clearMilestone}
+            />
+          </Suspense>
+        )}
 
         {/* Full Screen Game Area */}
         <CategoryErrorBoundary
