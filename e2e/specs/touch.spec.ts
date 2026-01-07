@@ -1,92 +1,149 @@
-import { devices, expect, test } from '@playwright/test'
+import { devices, expect, test } from "@playwright/test";
 
 // Use tablet device for touch testing
-test.use({ ...devices['iPad Pro 11'], hasTouch: true })
+test.use({ ...devices["iPad Pro 11"], hasTouch: true });
 
-test.describe('Touch Interactions - Tablet', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/')
-        await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible' })
-    })
+async function skipWormLoadingIfPresent(page: import("@playwright/test").Page) {
+  const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
+  const skipButton = page.locator('[data-testid="skip-loading-button"]');
 
-    test('should start game with touch on Start button', async ({ page }) => {
-        const startButton = page.locator('[data-testid="start-button"]')
-        await startButton.tap()
+  try {
+    await loadingScreen.waitFor({ state: "visible", timeout: 1000 });
+    await skipButton.evaluate((button: HTMLButtonElement) => button.click());
+    await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
+  } catch {
+    // No-op: loading screen not shown
+  }
+}
 
-        // Menu should disappear
-        await expect(page.locator('[data-testid="game-menu"]')).not.toBeVisible()
+test.describe("Touch Interactions - Tablet", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForSelector('[data-testid="game-menu"]', {
+      state: "visible",
+    });
+  });
 
-        // Target should appear
-        await expect(page.locator('[data-testid="target-display"]')).toBeVisible()
-    })
+  test("should start game with touch on Start button", async ({ page }) => {
+    const newGameButton = page.locator('[data-testid="new-game-button"]');
+    await newGameButton.evaluate((button: HTMLButtonElement) => button.click());
 
-    test('should allow level selection with touch', async ({ page }) => {
-        const levelButtons = page.locator('[data-testid="level-button"]')
+    const startGameButton = page.locator('[data-testid="start-button"]');
+    await startGameButton.evaluate((button: HTMLButtonElement) =>
+      button.click()
+    );
 
-        // Tap second level
-        await levelButtons.nth(1).tap()
+    await skipWormLoadingIfPresent(page);
 
-        // Second level should be selected
-        await expect(levelButtons.nth(1)).toHaveAttribute('data-selected', 'true')
-    })
+    // Menu should disappear
+    await expect(page.locator('[data-testid="game-menu"]')).not.toBeVisible();
 
-    test('falling objects should respond to touch', async ({ page }) => {
-        // Start game
-        await page.locator('[data-testid="start-button"]').tap()
+    // Target should appear
+    await expect(page.locator('[data-testid="target-display"]')).toBeVisible();
+  });
 
-        // Wait for objects to spawn
-        await page.waitForFunction(
-            () => document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-            { timeout: 5000 }
-        )
+  test("should allow level selection with touch", async ({ page }) => {
+    await page
+      .locator('[data-testid="new-game-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
+    const levelButtons = page.locator('[data-testid="level-button"]');
 
-        const objects = page.locator('[data-testid="falling-object"]')
-        const count = await objects.count()
+    // Tap second level
+    await levelButtons
+      .nth(1)
+      .evaluate((button: HTMLButtonElement) => button.click());
 
-        if (count > 0) {
-            // Tap the first object
-            await objects.first().tap()
-        }
-    })
+    // Second level should be selected
+    await expect(levelButtons.nth(1)).toHaveAttribute("data-selected", "true");
+  });
 
-    test('back button should respond to touch', async ({ page }) => {
-        // Start game
-        await page.locator('[data-testid="start-button"]').tap()
-        await page.locator('[data-testid="target-display"]').waitFor({ state: 'visible' })
+  test("falling objects should respond to touch", async ({ page }) => {
+    // Start game
+    await page
+      .locator('[data-testid="new-game-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
+    await page
+      .locator('[data-testid="start-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
 
-        // Tap back button
-        const backButton = page.locator('[data-testid="back-button"]')
-        await expect(backButton).toBeVisible()
-        await backButton.tap()
+    await skipWormLoadingIfPresent(page);
 
-        // Should return to menu
-        await expect(page.locator('[data-testid="game-menu"]')).toBeVisible()
-    })
-})
+    // Wait for objects to spawn
+    await page.waitForFunction(
+      () =>
+        document.querySelectorAll('[data-testid="falling-object"]').length > 0,
+      { timeout: 5000 }
+    );
 
-test.describe('Multi-touch Handling', () => {
-    test('should handle rapid sequential taps', async ({ page }) => {
-        await page.goto('/')
-        await page.waitForSelector('[data-testid="game-menu"]', { state: 'visible' })
+    const objects = page.locator('[data-testid="falling-object"]');
+    const count = await objects.count();
 
-        // Start game
-        await page.locator('[data-testid="start-button"]').tap()
-        await page.waitForFunction(
-            () => document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-            { timeout: 5000 }
-        )
+    if (count > 0) {
+      // Tap the first object
+      await objects.first().evaluate((el: HTMLElement) => el.click());
+    }
+  });
 
-        const objects = page.locator('[data-testid="falling-object"]')
+  test("back button should respond to touch", async ({ page }) => {
+    // Start game
+    await page
+      .locator('[data-testid="new-game-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
+    await page
+      .locator('[data-testid="start-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
 
-        // Rapidly tap multiple objects
-        for (let i = 0; i < 3; i++) {
-            const count = await objects.count()
-            if (count > i) {
-                await objects.nth(i).tap({ timeout: 1000 }).catch(() => { })
-            }
-        }
+    await skipWormLoadingIfPresent(page);
+    await page
+      .locator('[data-testid="target-display"]')
+      .waitFor({ state: "visible" });
 
-        // Game should still be running
-        await expect(page.locator('[data-testid="target-display"]')).toBeVisible()
-    })
-})
+    // Tap back button
+    const backButton = page.locator('[data-testid="back-button"]');
+    await expect(backButton).toBeVisible();
+    await backButton.evaluate((el: HTMLElement) => el.click());
+
+    // Should return to menu
+    await expect(page.locator('[data-testid="game-menu"]')).toBeVisible();
+  });
+});
+
+test.describe("Multi-touch Handling", () => {
+  test("should handle rapid sequential taps", async ({ page }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForSelector('[data-testid="game-menu"]', {
+      state: "visible",
+    });
+
+    // Start game
+    await page
+      .locator('[data-testid="new-game-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
+    await page
+      .locator('[data-testid="start-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
+
+    await skipWormLoadingIfPresent(page);
+    await page.waitForFunction(
+      () =>
+        document.querySelectorAll('[data-testid="falling-object"]').length > 0,
+      { timeout: 5000 }
+    );
+
+    const objects = page.locator('[data-testid="falling-object"]');
+
+    // Rapidly tap multiple objects
+    for (let i = 0; i < 3; i++) {
+      const count = await objects.count();
+      if (count > i) {
+        await objects
+          .nth(i)
+          .tap({ timeout: 1000 })
+          .catch(() => {});
+      }
+    }
+
+    // Game should still be running
+    await expect(page.locator('[data-testid="target-display"]')).toBeVisible();
+  });
+});

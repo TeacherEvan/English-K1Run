@@ -81,7 +81,10 @@ export const GameMenu = memo(({
   // Main Homescreen View
   if (view === 'main') {
     return (
-      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
+      <div
+        className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300"
+        data-testid="game-menu"
+      >
         <Card className="w-full max-w-4xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl backdrop-blur-md">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
@@ -91,7 +94,10 @@ export const GameMenu = memo(({
                 🐢
               </div>
               <div>
-                <h1 className="text-5xl font-bold text-primary mb-2 tracking-tight">
+                <h1
+                  className="text-5xl font-bold text-primary mb-2 tracking-tight"
+                  data-testid="game-title"
+                >
                   Kindergarten Race
                 </h1>
                 <h2 className="text-3xl font-semibold text-primary/80 font-thai">
@@ -127,6 +133,7 @@ export const GameMenu = memo(({
                 size="lg"
                 className="h-20 text-2xl font-bold shadow-lg hover:scale-105 transition-all duration-200 gap-4"
                 onClick={() => setView('levels')}
+                data-testid="new-game-button"
               >
                 <Play className="w-8 h-8 fill-current" />
                 <div className="flex flex-col items-start">
@@ -137,7 +144,12 @@ export const GameMenu = memo(({
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="lg" className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/10">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/10"
+                    data-testid="settings-button"
+                  >
                     <Settings className="w-6 h-6" />
                     <div className="flex flex-col items-start">
                       <span>Settings</span>
@@ -188,7 +200,12 @@ export const GameMenu = memo(({
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="lg" className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/10">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/10"
+                    data-testid="credits-button"
+                  >
                     <Info className="w-6 h-6" />
                     <div className="flex flex-col items-start">
                       <span>Credits</span>
@@ -227,6 +244,7 @@ export const GameMenu = memo(({
                 size="lg"
                 className="h-16 text-xl font-semibold justify-start px-8 gap-4 mt-4"
                 onClick={handleExit}
+                data-testid="exit-button"
               >
                 <LogOut className="w-6 h-6" />
                 <div className="flex flex-col items-start">
@@ -273,7 +291,10 @@ export const GameMenu = memo(({
 
   // Level Selection View
   return (
-    <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300">
+    <div
+      className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300"
+      data-testid="level-select-menu"
+    >
       <Card className="w-full max-w-5xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col">
         <div className="flex items-center justify-between mb-8">
           <Button
@@ -281,6 +302,7 @@ export const GameMenu = memo(({
             size="lg"
             onClick={() => setView('main')}
             className="gap-2 text-xl"
+            data-testid="back-to-menu-button"
           >
             <ArrowLeft className="w-6 h-6" />
             Back / กลับ
@@ -310,6 +332,8 @@ export const GameMenu = memo(({
                         : 'hover:border-primary/50'
                         }`}
                       onClick={() => onSelectLevel(index)}
+                      data-testid="level-button"
+                      data-selected={selectedLevel === index}
                     >
                       <span className="text-4xl mb-1">
                         {index === 0 ? '🍎' :
@@ -337,6 +361,7 @@ export const GameMenu = memo(({
             size="lg"
             className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform"
             onClick={onStartGame}
+            data-testid="start-button"
           >
             START GAME / เริ่มเกม
           </Button>

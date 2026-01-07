@@ -32,6 +32,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
   const [readyToContinue, setReadyToContinue] = useState(false)
   const splashSrc = '/welcome-splash.png'
+  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
   // Text content for each audio phase with fallback support
   // Phases 1-2: Show English + Thai text overlays during English audio playback
@@ -71,6 +72,11 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   }, [onComplete])
 
   useEffect(() => {
+    if (isE2E) {
+      // Deterministic bypass for Playwright (avoids audio + user-input gating)
+      setTimeout(onComplete, 0)
+      return
+    }
     // Preload welcome audio to avoid first-play jank (metadata only)
     void preloadResources([
       { url: '/sounds/welcome_association.wav', type: 'audio', priority: 'high' },
@@ -133,7 +139,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       cancelled = true
       soundManager.stopAllAudio()
     }
-  }, [])
+  }, [isE2E, onComplete])
 
   useEffect(() => {
     // Keyboard accessibility: Escape skips anytime; Space/Enter continues after audio
@@ -160,6 +166,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     <div
       className={`fixed inset-0 z-100 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
         }`}
+      data-testid="welcome-screen"
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
       }}
@@ -168,6 +175,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         src={splashSrc}
         alt="Welcome"
         className="absolute inset-0 w-full h-full object-cover"
+        data-testid="welcome-screen-splash"
         onClick={() => {
           if (readyToContinue) {
             startTransition(() => setFadeOut(true))
