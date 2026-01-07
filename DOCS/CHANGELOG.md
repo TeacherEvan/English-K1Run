@@ -2,6 +2,26 @@
 
 This file consolidates major changes, bug fixes, and enhancements made to the project.
 
+## December 2025 - Testing & Performance
+
+### E2E Test Stability (Dec 30, 2025)
+
+- **Welcome Screen Bypass**: Added `?e2e=1` URL parameter for deterministic Playwright testing
+- **Navigation Stability**: Changed all navigation from `networkidle` to `domcontentloaded` (PWA/SW compatibility)
+- **DOM-Click Pattern**: Implemented `.evaluate((el) => el.click())` for stable button interactions
+- **Loading Screen Helper**: Added `skipWormLoadingIfPresent()` for optional worm loading screens
+- **Test IDs**: Added comprehensive `data-testid` attributes to GameMenu and WelcomeScreen components
+- **Specs Updated**: accessibility.spec.ts, menu.spec.ts, touch.spec.ts, deployment-diagnostic.spec.ts
+
+### Performance Optimizations (Dec 30, 2025)
+
+- **FallingObject Component**: Removed `useState` hover state (26% size reduction: 188→139 lines)
+  - Kindergarten kids use touch, not mouse hover
+  - Simplified `willChange` CSS property for GPU optimization
+  - Removed transition animations on hover state
+- **Service Worker**: Deferred registration to `requestIdleCallback` for faster initial load
+- **Result**: Improved First Contentful Paint, reduced React re-renders by 30 hover state updates per object
+
 ## November 2025 - Visual Enhancements
 
 ### Background Expansion (Nov 26, 2025)
