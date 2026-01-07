@@ -30,16 +30,17 @@ Comprehensive stability improvements for Playwright E2E tests, addressing Welcom
 **File**: `src/components/WelcomeScreen.tsx`
 
 ```tsx
-const isE2E = new URLSearchParams(window.location.search).has('e2e')
+const isE2E = new URLSearchParams(window.location.search).has("e2e");
 
 if (isE2E) {
   // Skip audio sequence, continue immediately
-  handleContinue()
-  return null
+  handleContinue();
+  return null;
 }
 ```
 
 **Benefits**:
+
 - Zero-latency bypass for test environments
 - Production code unaffected (only triggers with explicit URL parameter)
 - Maintains audio testing capability when needed (omit parameter)
@@ -47,16 +48,19 @@ if (isE2E) {
 ### 2. Navigation Strategy Change
 
 **Before** (Unstable):
+
 ```typescript
-await page.goto('/', { waitUntil: 'networkidle' }) // Hangs indefinitely
+await page.goto("/", { waitUntil: "networkidle" }); // Hangs indefinitely
 ```
 
 **After** (Stable):
+
 ```typescript
-await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded' })
+await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
 ```
 
 **Rationale**:
+
 - `domcontentloaded`: DOM ready for interaction (sufficient for React apps)
 - `networkidle`: Waits for 500ms of no network activity (incompatible with PWA/WebSockets)
 
@@ -66,16 +70,17 @@ await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded' })
 
 ```typescript
 async function clickButton(testId: string) {
-  const button = this.page.getByTestId(testId)
-  await button.waitFor({ state: 'visible' })
-  
+  const button = this.page.getByTestId(testId);
+  await button.waitFor({ state: "visible" });
+
   // DOM-click (stable) instead of .click() (flaky)
-  await button.evaluate((el: HTMLElement) => el.click())
-  await this.page.waitForTimeout(500) // Allow React re-render
+  await button.evaluate((el: HTMLElement) => el.click());
+  await this.page.waitForTimeout(500); // Allow React re-render
 }
 ```
 
 **Benefits**:
+
 - Direct DOM manipulation bypasses Playwright's action chain
 - Immune to "Element detached" errors during React updates
 - 500ms buffer allows state transitions to complete
@@ -101,6 +106,7 @@ async skipWormLoadingIfPresent() {
 ## Files Modified
 
 ### Test Specs (4 files)
+
 1. `e2e/specs/accessibility.spec.ts`
    - Added `?e2e=1` navigation
    - Updated button testids (homescreen flow)
@@ -121,6 +127,7 @@ async skipWormLoadingIfPresent() {
    - Formatting/linting fixes only
 
 ### Source Components (2 files)
+
 1. `src/components/WelcomeScreen.tsx`
    - Added `?e2e=1` bypass logic
    - Added `data-testid` attributes
@@ -134,6 +141,7 @@ async skipWormLoadingIfPresent() {
      - `start-button`
 
 ### Test Fixtures (1 file)
+
 1. `e2e/fixtures/game.fixture.ts`
    - Updated `navigateToGame()` to use `?e2e=1`
    - Implemented `clickButton()` with DOM-click pattern
@@ -142,49 +150,57 @@ async skipWormLoadingIfPresent() {
 ## Testing Strategy
 
 ### Navigation Pattern (All Specs)
+
 ```typescript
 test.beforeEach(async ({ page }) => {
-  await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded' })
-  await page.getByTestId('game-menu').waitFor({ state: 'visible' })
-})
+  await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("game-menu").waitFor({ state: "visible" });
+});
 ```
 
 ### Button Interaction Pattern
+
 ```typescript
 // ✅ Stable (DOM-click)
-const button = page.getByTestId('start-button')
-await button.evaluate((el) => el.click())
+const button = page.getByTestId("start-button");
+await button.evaluate((el) => el.click());
 
 // ❌ Flaky (Playwright action)
-await button.click() // Can cause "Element detached" errors
+await button.click(); // Can cause "Element detached" errors
 ```
 
 ### Level Selection Flow (Multi-Step)
+
 ```typescript
-test('level selection flow', async ({ page }) => {
+test("level selection flow", async ({ page }) => {
   // Step 1: Click New Game (reveals level select)
-  await page.getByTestId('new-game-button').evaluate(el => el.click())
-  
+  await page.getByTestId("new-game-button").evaluate((el) => el.click());
+
   // Step 2: Wait for level buttons
-  await page.getByTestId('level-button').first().waitFor()
-  
+  await page.getByTestId("level-button").first().waitFor();
+
   // Step 3: Select level
-  await page.getByTestId('level-button').first().evaluate(el => el.click())
-  
+  await page
+    .getByTestId("level-button")
+    .first()
+    .evaluate((el) => el.click());
+
   // Step 4: Start game
-  await page.getByTestId('start-button').evaluate(el => el.click())
-  await page.waitForTimeout(500) // Allow transition
-})
+  await page.getByTestId("start-button").evaluate((el) => el.click());
+  await page.waitForTimeout(500); // Allow transition
+});
 ```
 
 ## Performance Impact
 
 ### Before (Unstable)
+
 - ⏱️ Test duration: 15-30s per spec (timeouts)
 - ❌ Success rate: 60% (Welcome Screen blocks 40%)
 - 🔄 Retry count: 2-3 per test
 
 ### After (Stable)
+
 - ⏱️ Test duration: 3-8s per spec
 - ✅ Success rate: 95%+ (deterministic navigation)
 - 🔄 Retry count: 0-1 per test

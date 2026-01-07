@@ -7,6 +7,7 @@ An engaging educational racing game where students identify falling objects to a
 ## ✨ What's New (December 2025)
 
 ### 🧪 E2E Testing Stability (NEW - Dec 30)
+
 - **Welcome Screen Bypass**: `?e2e=1` URL parameter for deterministic Playwright tests
 - **Navigation Stability**: Changed all specs to use `domcontentloaded` (PWA/service worker compatible)
 - **DOM-Click Pattern**: Implemented `.evaluate(el => el.click())` for stable button interactions
@@ -14,6 +15,7 @@ An engaging educational racing game where students identify falling objects to a
 - **Documentation**: See [E2E Testing Improvements](./E2E_TESTING_IMPROVEMENTS_DEC2025.md)
 
 ### ⚡ Performance Optimizations (NEW - Dec 30)
+
 - **FallingObject Component**: Removed `useState` hover state (26% size reduction, -49 lines)
   - Kindergarten kids use touch, not mouse hover
   - Eliminated 30 unnecessary re-renders per falling object
@@ -21,6 +23,7 @@ An engaging educational racing game where students identify falling objects to a
 - **GPU Optimization**: Simplified `willChange` CSS property for better compositor performance
 
 ### 🎉 Welcome Screen & Continuous Mode (Dec 23)
+
 - **Welcome screen** with Sangsom Kindergarten branding and animated sun logo
 - **4-phase audio sequence** (English + Thai) with user interaction gate
 - **Continuous Play Mode** checkbox at level selection for uninterrupted gameplay
@@ -28,30 +31,35 @@ An engaging educational racing game where students identify falling objects to a
 - **Seamless experience** for extended practice sessions
 
 ### 🚀 React 19 Concurrent Features (Dec 5)
+
 - **useTransition integration** for smooth non-urgent updates
-- **Async transitions** for better perceived performance  
+- **Async transitions** for better perceived performance
 - **Optimistic UI patterns** prevent blocking during heavy operations
 - **Production profiler** tracks component render times
 
 ### 🔧 Production-Grade Utilities (Dec 5)
+
 - **Performance monitoring** with automatic slowest render detection
 - **Progressive image loading** with blur-up effect (40-60% faster perceived load)
 - **Smart error recovery** with automatic retry for transient failures
 - **Comprehensive testing** with 30 unit tests + E2E coverage
 
 ### 🎨 Premium UX Enhancements
+
 - **Spring-based animations** for natural, premium feel
 - **Shimmer loading effects** reduce perceived wait time by 40%
 - **GPU-accelerated transforms** for 60fps on tablets/QBoard displays
 - **Reduced motion support** for accessibility (WCAG 2.1 AA compliant)
 
 ### 📱 Progressive Web App (PWA)
+
 - **Offline gameplay** - works without internet after first load
 - **Intelligent caching** - 80% faster repeat visits
 - **Install to home screen** - native app-like experience
 - **Background updates** - always fresh content
 
 ### ♿ Accessibility Features
+
 - **Full keyboard navigation** with focus indicators
 - **Screen reader support** with comprehensive ARIA labels
 - **Motion sensitivity support** respects prefers-reduced-motion
@@ -135,18 +143,21 @@ The game works as a Progressive Web App with full offline support:
 #### PWA Installation (iOS/Android)
 
 **iPhone/iPad:**
+
 1. Open game in Safari
 2. Tap Share button
 3. Tap "Add to Home Screen"
 4. Game now launches like native app
 
 **Android:**
+
 1. Open game in Chrome
 2. Tap menu (3 dots)
 3. Tap "Add to Home Screen" or "Install app"
 4. Game appears in app drawer
 
 **Desktop (Chrome/Edge):**
+
 1. Look for install icon in address bar
 2. Click "Install Kindergarten Race"
 3. Launches in standalone window

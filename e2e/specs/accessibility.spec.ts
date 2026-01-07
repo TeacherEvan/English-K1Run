@@ -147,7 +147,8 @@ test.describe("Keyboard Navigation", () => {
 
     try {
       await loadingScreen.waitFor({ state: "visible", timeout: 1000 });
-      await skipButton.evaluate((button: HTMLButtonElement) => button.click());
+      await skipButton.waitFor({ state: "visible", timeout: 1000 });
+      await skipButton.click();
       await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
     } catch {
       // No-op: loading screen not shown
