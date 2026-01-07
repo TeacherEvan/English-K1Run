@@ -64,6 +64,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }
   } as const
 
+  // Phase to display when no audio phase has started yet (initial state)
+  const INITIAL_PHASE_INDEX = 1 as const
+
   const skip = useCallback(() => {
     // Stop any ongoing audio and dismiss quickly
     soundManager.stopAllAudio()
@@ -202,7 +205,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.3)',
-            fontFamily: currentPhase !== null ? phaseContent[currentPhase].fontFamily : 'system-ui, -apple-system, sans-serif',
+            fontFamily: currentPhase !== null ? phaseContent[currentPhase].fontFamily : phaseContent[INITIAL_PHASE_INDEX].fontFamily,
           }}
         >
           {currentPhase !== null && phaseContent[currentPhase].english && (
@@ -240,13 +243,13 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                 className="text-4xl md:text-5xl font-semibold mb-2"
                 style={{ color: '#1a1a1a' }}
               >
-                {phaseContent[1].english}
+                {phaseContent[INITIAL_PHASE_INDEX].english}
               </p>
               <p
                 className="text-4xl md:text-5xl font-semibold mb-2"
                 style={{ color: '#1a1a1a' }}
               >
-                {phaseContent[1].thai}
+                {phaseContent[INITIAL_PHASE_INDEX].thai}
               </p>
               <p
                 className="text-5xl md:text-6xl font-bold mb-4"
@@ -255,7 +258,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
                 }}
               >
-                {phaseContent[1].school}
+                {phaseContent[INITIAL_PHASE_INDEX].school}
               </p>
             </>
           )}
