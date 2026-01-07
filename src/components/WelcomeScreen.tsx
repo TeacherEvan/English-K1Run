@@ -64,6 +64,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }
   } as const
 
+  // Phase to display when no audio phase has started yet (initial state)
+  const INITIAL_PHASE_INDEX = 1 as const
+
   const skip = useCallback(() => {
     // Stop any ongoing audio and dismiss quickly
     soundManager.stopAllAudio()
@@ -186,65 +189,92 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         }}
       />
 
-      {/* Fallback text overlay - shows during each audio phase */}
-      {currentPhase !== null && (
+      {/* Text overlay - shows phase content or initial "Tap to start" message */}
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        style={{
+          background: 'rgba(0, 0, 0, 0.3)',
+          backdropFilter: 'blur(8px)',
+          animation: 'textFadeIn 0.3s ease-in',
+        }}
+      >
         <div
-          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+          className="px-8 py-6 rounded-2xl text-center"
           style={{
-            background: 'rgba(0, 0, 0, 0.3)',
-            backdropFilter: 'blur(8px)',
-            animation: 'textFadeIn 0.3s ease-in',
+            background: 'rgba(255, 255, 255, 0.95)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            fontFamily: currentPhase !== null ? phaseContent[currentPhase].fontFamily : phaseContent[INITIAL_PHASE_INDEX].fontFamily,
           }}
         >
-          <div
-            className="px-8 py-6 rounded-2xl text-center"
-            style={{
-              background: 'rgba(255, 255, 255, 0.95)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              fontFamily: phaseContent[currentPhase].fontFamily,
-            }}
-          >
-            {phaseContent[currentPhase].english && (
+          {currentPhase !== null && phaseContent[currentPhase].english && (
+            <p
+              className="text-4xl md:text-5xl font-semibold mb-2"
+              style={{ color: '#1a1a1a' }}
+            >
+              {phaseContent[currentPhase].english}
+            </p>
+          )}
+          {currentPhase !== null && phaseContent[currentPhase].thai && (
+            <p
+              className="text-4xl md:text-5xl font-semibold mb-2"
+              style={{ color: '#1a1a1a' }}
+            >
+              {phaseContent[currentPhase].thai}
+            </p>
+          )}
+          {currentPhase !== null && phaseContent[currentPhase].school && (
+            <p
+              className="text-5xl md:text-6xl font-bold"
+              style={{
+                color: '#f59e0b',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              {phaseContent[currentPhase].school}
+            </p>
+          )}
+
+          {/* Show initial content when phase is null (before audio starts) */}
+          {currentPhase === null && (
+            <>
               <p
                 className="text-4xl md:text-5xl font-semibold mb-2"
                 style={{ color: '#1a1a1a' }}
               >
-                {phaseContent[currentPhase].english}
+                {phaseContent[INITIAL_PHASE_INDEX].english}
               </p>
-            )}
-            {phaseContent[currentPhase].thai && (
               <p
                 className="text-4xl md:text-5xl font-semibold mb-2"
                 style={{ color: '#1a1a1a' }}
               >
-                {phaseContent[currentPhase].thai}
+                {phaseContent[INITIAL_PHASE_INDEX].thai}
               </p>
-            )}
-            {phaseContent[currentPhase].school && (
               <p
-                className="text-5xl md:text-6xl font-bold"
+                className="text-5xl md:text-6xl font-bold mb-4"
                 style={{
                   color: '#f59e0b',
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
                 }}
               >
-                {phaseContent[currentPhase].school}
+                {phaseContent[INITIAL_PHASE_INDEX].school}
               </p>
-            )}
+            </>
+          )}
 
-            {readyToContinue && (
-              <p
-                className="text-2xl md:text-3xl font-semibold mt-4"
-                style={{ color: '#1a1a1a' }}
-              >
-                Tap to continue
-              </p>
-            )}
-          </div>
+          {/* Always show tap instruction (either "Tap to start" or "Tap to continue") */}
+          <p
+            className="text-2xl md:text-3xl font-semibold mt-4"
+            style={{ 
+              color: '#1a1a1a',
+              animation: 'pulse 2s ease-in-out infinite'
+            }}
+          >
+            {readyToContinue ? 'Tap to continue' : 'Tap to start'}
+          </p>
         </div>
-      )}
+      </div>
 
       <style>{`
         @keyframes fadeIn {
@@ -260,6 +290,11 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         @keyframes textFadeIn {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
         }
       `}</style>
     </div >
