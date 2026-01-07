@@ -233,20 +233,20 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             </p>
           )}
 
-          {/* Show "Tap to start" message when phase is null (initial state) */}
+          {/* Show initial content when phase is null (before audio starts) */}
           {currentPhase === null && (
             <>
               <p
                 className="text-4xl md:text-5xl font-semibold mb-2"
                 style={{ color: '#1a1a1a' }}
               >
-                In association with
+                {phaseContent[1].english}
               </p>
               <p
                 className="text-4xl md:text-5xl font-semibold mb-2"
                 style={{ color: '#1a1a1a' }}
               >
-                ร่วมกับ
+                {phaseContent[1].thai}
               </p>
               <p
                 className="text-5xl md:text-6xl font-bold mb-4"
@@ -255,7 +255,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
                 }}
               >
-                SANGSOM Kindergarten
+                {phaseContent[1].school}
               </p>
             </>
           )}
