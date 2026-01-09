@@ -31,6 +31,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
   const [readyToContinue, setReadyToContinue] = useState(false)
+  const [audioStarted, setAudioStarted] = useState(false)
   const splashSrc = '/welcome-splash.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
@@ -74,13 +75,83 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     setTimeout(onComplete, 350)
   }, [onComplete])
 
+  // Function to play sequential audio - called AFTER user interaction
+  const playSequentialAudio = useCallback(async () => {
+    let cancelled = false
+
+    try {
+      // Phase 1: English (female voice)
+      if (!cancelled) setCurrentPhase(1)
+      await soundManager.playSound('welcome_association')
+
+      // Wait for first audio to complete (~3 seconds)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
+      // Phase 2: English (female voice)
+      if (!cancelled) setCurrentPhase(2)
+      await soundManager.playSound('welcome_learning')
+
+      // Wait for second audio to complete (~3 seconds)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
+      // Phase 3: Thai translation of phase 1 (male voice)
+      if (!cancelled) setCurrentPhase(3)
+      await soundManager.playSound('welcome_association_thai')
+
+      // Wait for third audio to complete (~3 seconds)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
+      // Phase 4: Thai translation of phase 2 (male voice)
+      if (!cancelled) setCurrentPhase(4)
+      await soundManager.playSound('welcome_learning_thai')
+
+      // Wait for fourth audio to complete (~3 seconds)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      
+      // Finished audio sequence; wait for user tap/click to continue
+      if (!cancelled) {
+        setReadyToContinue(true)
+      }
+    } catch (err) {
+      if (import.meta.env.DEV) {
+        console.log('[WelcomeScreen] Audio playback error:', err)
+      }
+      // Fallback: allow user to continue even if audio fails
+      setTimeout(() => {
+        if (!cancelled) setReadyToContinue(true)
+      }, 1000) // Shorter timeout since audio already failed
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Handle initial tap to start audio sequence
+  const handleInitialTap = useCallback(() => {
+    if (!audioStarted) {
+      setAudioStarted(true)
+      // Start audio sequence after user gesture
+      void playSequentialAudio()
+    } else if (readyToContinue) {
+      // Audio finished, proceed to game
+      startTransition(() => setFadeOut(true))
+      setTimeout(onComplete, 500)
+    } else {
+      // Skip audio sequence
+      skip()
+    }
+  }, [audioStarted, readyToContinue, playSequentialAudio, onComplete, skip])
+
   useEffect(() => {
     if (isE2E) {
       // Deterministic bypass for Playwright (avoids audio + user-input gating)
       setTimeout(onComplete, 0)
       return
     }
+    
     // Preload welcome audio to avoid first-play jank (metadata only)
+    // This happens in background without requiring user gesture
     void preloadResources([
       { url: '/sounds/welcome_association.wav', type: 'audio', priority: 'high' },
       { url: '/sounds/welcome_learning.wav', type: 'audio', priority: 'high' },
@@ -88,64 +159,13 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       { url: '/sounds/welcome_learning_thai.wav', type: 'audio', priority: 'high' },
     ])
 
-    let cancelled = false
-
-    const playSequentialAudio = async () => {
-      try {
-        // Phase 1: English (female voice)
-        if (!cancelled) setCurrentPhase(1)
-        await soundManager.playSound('welcome_association')
-
-        // Wait for first audio to complete (~3 seconds)
-        await new Promise(resolve => setTimeout(resolve, 3000))
-
-        // Phase 2: English (female voice)
-        if (!cancelled) setCurrentPhase(2)
-        await soundManager.playSound('welcome_learning')
-
-        // Wait for second audio to complete (~3 seconds)
-        await new Promise(resolve => setTimeout(resolve, 3000))
-
-        // Phase 3: Thai translation of phase 1 (male voice)
-        if (!cancelled) setCurrentPhase(3)
-        await soundManager.playSound('welcome_association_thai')
-
-        // Wait for third audio to complete (~3 seconds)
-        await new Promise(resolve => setTimeout(resolve, 3000))
-
-        // Phase 4: Thai translation of phase 2 (male voice)
-        if (!cancelled) setCurrentPhase(4)
-        await soundManager.playSound('welcome_learning_thai')
-
-        // Wait for fourth audio to complete (~3 seconds)
-        await new Promise(resolve => setTimeout(resolve, 3000))
-        if (!cancelled) {
-          setReadyToContinue(true)
-        }
-        // Finished audio sequence; wait for user tap/click to continue
-        if (!cancelled) setReadyToContinue(true)
-      } catch (err) {
-        if (import.meta.env.DEV) {
-          console.log('[WelcomeScreen] Audio playback error:', err)
-        }
-        // Fallback: wait for user tap/click even if audio fails
-        // Text overlays will still be visible during fallback
-        setTimeout(() => {
-          if (!cancelled) setReadyToContinue(true)
-        }, 9000)
-      }
-    }
-
-    playSequentialAudio()
-
     return () => {
-      cancelled = true
       soundManager.stopAllAudio()
     }
   }, [isE2E, onComplete])
 
   useEffect(() => {
-    // Keyboard accessibility: Escape skips anytime; Space/Enter continues after audio
+    // Keyboard accessibility: Escape skips anytime; Space/Enter starts/continues
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
@@ -153,17 +173,16 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         return
       }
 
-      if ((e.key === ' ' || e.key === 'Enter') && readyToContinue) {
+      if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault()
-        startTransition(() => setFadeOut(true))
-        setTimeout(onComplete, 500)
+        handleInitialTap()
       }
     }
     window.addEventListener('keydown', handleKey)
     return () => {
       window.removeEventListener('keydown', handleKey)
     }
-  }, [onComplete, skip, readyToContinue])
+  }, [skip, handleInitialTap])
 
   return (
     <div
@@ -177,16 +196,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       <img
         src={splashSrc}
         alt="Welcome"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
         data-testid="welcome-screen-splash"
-        onClick={() => {
-          if (readyToContinue) {
-            startTransition(() => setFadeOut(true))
-            setTimeout(onComplete, 500)
-            return
-          }
-          skip()
-        }}
+        onClick={handleInitialTap}
       />
 
       {/* Text overlay - shows phase content or initial "Tap to start" message */}
@@ -263,7 +275,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             </>
           )}
 
-          {/* Always show tap instruction (either "Tap to start" or "Tap to continue") */}
+          {/* Always show tap instruction with appropriate message */}
           <p
             className="text-2xl md:text-3xl font-semibold mt-4"
             style={{ 
@@ -271,7 +283,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
               animation: 'pulse 2s ease-in-out infinite'
             }}
           >
-            {readyToContinue ? 'Tap to continue' : 'Tap to start'}
+            {readyToContinue ? 'Tap to continue' : audioStarted ? 'Playing...' : 'Tap to start'}
           </p>
         </div>
       </div>
