@@ -1,4 +1,4 @@
-import { memo, startTransition, useCallback, useEffect, useState } from 'react'
+import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react'
 import { preloadResources } from '../lib/resource-preloader'
 import { soundManager } from '../lib/sound-manager'
 
@@ -32,6 +32,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
   const [readyToContinue, setReadyToContinue] = useState(false)
   const [audioStarted, setAudioStarted] = useState(false)
+  const cancelledRef = useRef(false)
   const splashSrc = '/welcome-splash.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
@@ -77,39 +78,37 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
   // Function to play sequential audio - called AFTER user interaction
   const playSequentialAudio = useCallback(async () => {
-    let cancelled = false
-
     try {
       // Phase 1: English (female voice)
-      if (!cancelled) setCurrentPhase(1)
+      if (!cancelledRef.current) setCurrentPhase(1)
       await soundManager.playSound('welcome_association')
 
       // Wait for first audio to complete (~3 seconds)
       await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Phase 2: English (female voice)
-      if (!cancelled) setCurrentPhase(2)
+      if (!cancelledRef.current) setCurrentPhase(2)
       await soundManager.playSound('welcome_learning')
 
       // Wait for second audio to complete (~3 seconds)
       await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Phase 3: Thai translation of phase 1 (male voice)
-      if (!cancelled) setCurrentPhase(3)
+      if (!cancelledRef.current) setCurrentPhase(3)
       await soundManager.playSound('welcome_association_thai')
 
       // Wait for third audio to complete (~3 seconds)
       await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Phase 4: Thai translation of phase 2 (male voice)
-      if (!cancelled) setCurrentPhase(4)
+      if (!cancelledRef.current) setCurrentPhase(4)
       await soundManager.playSound('welcome_learning_thai')
 
       // Wait for fourth audio to complete (~3 seconds)
       await new Promise(resolve => setTimeout(resolve, 3000))
       
       // Finished audio sequence; wait for user tap/click to continue
-      if (!cancelled) {
+      if (!cancelledRef.current) {
         setReadyToContinue(true)
       }
     } catch (err) {
@@ -118,12 +117,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
       // Fallback: allow user to continue even if audio fails
       setTimeout(() => {
-        if (!cancelled) setReadyToContinue(true)
+        if (!cancelledRef.current) setReadyToContinue(true)
       }, 1000) // Shorter timeout since audio already failed
-    }
-
-    return () => {
-      cancelled = true
     }
   }, [])
 
@@ -160,6 +155,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     ])
 
     return () => {
+      cancelledRef.current = true
       soundManager.stopAllAudio()
     }
   }, [isE2E, onComplete])
