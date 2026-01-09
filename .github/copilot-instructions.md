@@ -71,6 +71,25 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 | `src/lib/constants/game-config.ts`     | Tuning constants (spawn rates, speeds, etc.)       |
 | `src/lib/constants/game-categories.ts` | Educational categories with emoji items            |
 
+### Modular Subsystems (Jan 2026)
+
+| Directory        | Purpose                               | Import                                               |
+| ---------------- | ------------------------------------- | ---------------------------------------------------- |
+| `src/lib/audio/` | Audio system (loader, player, speech) | `import { audioPlayer } from './lib/audio'`          |
+| `src/lib/game/`  | Game logic (collision, worm manager)  | `import { processLaneCollisions } from './lib/game'` |
+
+**Audio Modules** (`src/lib/audio/`):
+
+- `types.ts` - Shared type definitions
+- `audio-loader.ts` - Lazy audio loading & caching
+- `audio-player.ts` - Web Audio & HTML Audio playback
+- `speech-synthesizer.ts` - Text-to-speech wrapper
+
+**Game Modules** (`src/lib/game/`):
+
+- `collision-detection.ts` - Physics-based collision resolution
+- `worm-manager.ts` - Worm creation, movement, lifecycle
+
 **Never instantiate new instances** of singletons—they auto-initialize on import.
 
 ## Developer Workflows
