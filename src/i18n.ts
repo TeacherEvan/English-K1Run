@@ -1,6 +1,6 @@
-import { DEFAULT_LANGUAGE } from "@/lib/constants/language-config";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { DEFAULT_LANGUAGE } from "./lib/constants/language-config";
 
 // Import locale files
 import enTranslations from "./locales/en.json";

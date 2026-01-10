@@ -1,9 +1,8 @@
-
-import i18n from '@/i18n'
-import { DEFAULT_LANGUAGE, isSupportedLanguage, SupportedLanguage } from '@/lib/constants/language-config'
-import { eventTracker } from '@/lib/event-tracker'
-import { soundManager } from '@/lib/sound-manager'
 import { ReactNode, useEffect, useState } from 'react'
+import i18n from '../i18n'
+import { DEFAULT_LANGUAGE, isSupportedLanguage, SupportedLanguage } from '../lib/constants/language-config'
+import { eventTracker } from '../lib/event-tracker'
+import { soundManager } from '../lib/sound-manager'
 import { LanguageContext } from './language'
 
 interface LanguageProviderProps {
