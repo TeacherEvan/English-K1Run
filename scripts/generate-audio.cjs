@@ -55,11 +55,13 @@ loadDotEnvIfPresent();
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
 
 // Multi-language voice IDs (from src/lib/constants/language-config.ts)
+// Thai male voice changed to "Daniel" - softer, warmer narrator voice
 const VOICE_IDS = {
   en: process.env.ELEVENLABS_VOICE_ID || "zmcVlqmyk3Jpn5AVYcAL",
   fr: process.env.ELEVENLABS_VOICE_ID_FR || "EXAVITQu4EsNXjluf0k5",
   ja: process.env.ELEVENLABS_VOICE_ID_JA || "z9f4UheRPK2ZesPXd14b",
-  th: process.env.ELEVENLABS_VOICE_ID_TH || "BZlaCzXKMq7g5K1RdF0T",
+  // Changed from BZlaCzXKMq7g5K1RdF0T to Daniel (onwK4e9ZLuTAKqWW03F9) - softer, warmer
+  th: process.env.ELEVENLABS_VOICE_ID_TH || "onwK4e9ZLuTAKqWW03F9",
   "zh-CN": process.env.ELEVENLABS_VOICE_ID_ZH_CN || "cjVigY5qzO86Huf0OWal",
   "zh-HK": process.env.ELEVENLABS_VOICE_ID_ZH_HK || "wVcwzhXu7f0K5a1WoqaJ",
 };
@@ -93,10 +95,24 @@ if (!ELEVENLABS_API_KEY) {
 }
 
 // Voice settings optimized for clear child-friendly pronunciation
+// Adjusted for softer, warmer tone (Morgan Freeman-like quality)
+// - Lower stability (0.35) creates very warm, gentle speech
+// - Higher similarity_boost (0.9) maintains clearer pronunciation
+// - style (0.1) subtle expressiveness, not dramatic
+// - speaking_rate reduced via SSML for slower pace
 const VOICE_SETTINGS = {
-  stability: 0.75,
-  similarity_boost: 0.75,
-  style: 0.0,
+  stability: 0.35, // Very low for maximum warmth and gentle tone
+  similarity_boost: 0.9, // High for clearer, crisper pronunciation
+  style: 0.1, // Minimal style for calm, soothing delivery
+  use_speaker_boost: true, // Enhanced clarity for children
+};
+
+// Alternative softer voice settings for welcome messages
+// Even warmer and slower for a comforting, grandfather-like quality
+const VOICE_SETTINGS_SOFT = {
+  stability: 0.3, // Maximum warmth - very gentle delivery
+  similarity_boost: 0.85, // Good pronunciation retention
+  style: 0.05, // Almost no style exaggeration - calm and steady
   use_speaker_boost: true,
 };
 

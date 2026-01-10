@@ -1,17 +1,24 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
 
-// Critical path components only - eager load
+// Critical path components only - eager load for gameplay responsiveness
 import { FallingObject } from './components/FallingObject'
-import { GameMenu } from './components/GameMenu'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { PlayerArea } from './components/PlayerArea'
-import { Stopwatch } from './components/Stopwatch'
 import { TargetDisplay } from './components/TargetDisplay'
-import { WelcomeScreen } from './components/Welcome'
 import { Worm } from './components/Worm'
 
 // Lazy load non-critical UI components for better initial load performance
+// These are only shown at specific stages, not during core gameplay
+const GameMenu = lazy(() =>
+  import('./components/GameMenu').then(m => ({ default: m.GameMenu }))
+)
+const WelcomeScreen = lazy(() =>
+  import('./components/Welcome').then(m => ({ default: m.WelcomeScreen }))
+)
+const Stopwatch = lazy(() =>
+  import('./components/Stopwatch').then(m => ({ default: m.Stopwatch }))
+)
 const AchievementDisplay = lazy(() =>
   import('./components/AchievementDisplay').then(m => ({ default: m.AchievementDisplay }))
 )
@@ -296,7 +303,11 @@ function App() {
 
   // Show welcome screen on first load (after all hooks)
   if (showWelcome) {
-    return <WelcomeScreen onComplete={handleWelcomeComplete} />
+    return (
+      <Suspense fallback={<LoadingSkeleton variant="welcome" />}>
+        <WelcomeScreen onComplete={handleWelcomeComplete} />
+      </Suspense>
+    )
   }
 
   // Show loading screen between level select and gameplay (after all hooks)
@@ -344,11 +355,13 @@ function App() {
 
         {/* Stopwatch - Continuous Mode Only */}
         {gameState.gameStarted && !gameState.winner && continuousMode && (
-          <Stopwatch
-            isRunning={!gameState.winner}
-            bestTime={bestTime}
-            onRunComplete={handleContinuousRunComplete}
-          />
+          <Suspense fallback={null}>
+            <Stopwatch
+              isRunning={!gameState.winner}
+              bestTime={bestTime}
+              onRunComplete={handleContinuousRunComplete}
+            />
+          </Suspense>
         )}
 
         {/* Achievement Displays - Lazy loaded */}
@@ -410,18 +423,20 @@ function App() {
           </div>
         </CategoryErrorBoundary>
 
-        {/* Game Menu Overlay */}
-        <GameMenu
-          onStartGame={handleStartGame}
-          onSelectLevel={setSelectedLevel}
-          selectedLevel={selectedLevel}
-          levels={levelNames}
-          gameStarted={gameState.gameStarted}
-          winner={gameState.winner}
-          continuousMode={continuousMode}
-          onToggleContinuousMode={handleToggleContinuousMode}
-          bestTime={bestTime}
-        />
+        {/* Game Menu Overlay - Lazy loaded */}
+        <Suspense fallback={<LoadingSkeleton variant="menu" />}>
+          <GameMenu
+            onStartGame={handleStartGame}
+            onSelectLevel={setSelectedLevel}
+            selectedLevel={selectedLevel}
+            levels={levelNames}
+            gameStarted={gameState.gameStarted}
+            winner={gameState.winner}
+            continuousMode={continuousMode}
+            onToggleContinuousMode={handleToggleContinuousMode}
+            bestTime={bestTime}
+          />
+        </Suspense>
 
         {/* Fireworks Display - Lazy loaded only when winner */}
         {gameState.winner && (

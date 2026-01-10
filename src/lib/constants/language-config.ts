@@ -53,7 +53,7 @@ export const LANGUAGE_CONFIGS: Record<SupportedLanguage, LanguageConfig> = {
     code: "th",
     name: "Thai",
     nativeName: "ไทย",
-    elevenLabsVoiceId: "BZlaCzXKMq7g5K1RdF0T", // Native Thai speaker
+    elevenLabsVoiceId: "onwK4e9ZLuTAKqWW03F9", // Daniel - softer, warmer voice
     languageCode: "th",
     voiceName: "Thai",
     fallbackLocale: "th-TH",
