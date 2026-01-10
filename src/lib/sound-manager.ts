@@ -1,6 +1,9 @@
 // Sound Manager - Enhanced audio system that supports wav and mp3 assets and speech-like cues
 
-import { SENTENCE_TEMPLATES } from "./constants/sentence-templates";
+import { speechSynthesizer } from "./audio/speech-synthesizer";
+import type { SupportedLanguage } from "./constants/language-config";
+import { getLanguageConfig } from "./constants/language-config";
+import { getSentenceTemplate } from "./constants/sentence-templates";
 import { eventTracker } from "./event-tracker";
 
 const rawAudioFiles = import.meta.glob("../../sounds/*.{wav,mp3}", {
@@ -272,6 +275,7 @@ class SoundManager {
   private preferHTMLAudio = false;
   private loadedPriorities = new Set<AudioPriority>(); // Track which priority levels have been loaded
   private preloadInProgress = false; // Prevent concurrent preloading
+  private currentLanguage: SupportedLanguage = "en"; // Track current language
 
   constructor() {
     this.detectMobile();
@@ -1129,7 +1133,10 @@ class SoundManager {
 
       // PRIORITY 1 (optional): Look up sentence template for educational context
       if (useSentenceTemplate) {
-        const sentence = SENTENCE_TEMPLATES[normalizedPhrase];
+        const sentence = getSentenceTemplate(
+          normalizedPhrase,
+          this.currentLanguage
+        );
 
         if (sentence) {
           // We have a sentence template, speak the full sentence FIRST
@@ -1314,6 +1321,49 @@ class SoundManager {
     } catch (error) {
       console.error("[SoundManager] Custom speech synthesis error:", error);
     }
+  }
+
+  /**
+   * Set current language for audio playback and speech synthesis
+   * @param langCode - Language code (e.g., 'en', 'fr', 'ja', 'th', 'zh-CN', 'zh-HK')
+   */
+  setLanguage(langCode: SupportedLanguage): void {
+    if (this.currentLanguage === langCode) return;
+
+    this.currentLanguage = langCode;
+
+    // Update speech synthesizer language
+    try {
+      speechSynthesizer.setLanguage(langCode);
+    } catch (error) {
+      console.warn(
+        "[SoundManager] Failed to set speech synthesizer language:",
+        error
+      );
+    }
+
+    // Clear relevant caches to force reload with new language if needed
+    // Keep buffer cache as it's language-agnostic
+    this.candidatesCache.clear();
+
+    if (import.meta.env.DEV) {
+      console.log(`[SoundManager] Language changed to: ${langCode}`);
+    }
+  }
+
+  /**
+   * Get current language setting
+   */
+  getLanguage(): SupportedLanguage {
+    return this.currentLanguage;
+  }
+
+  /**
+   * Get voice ID for current language from ElevenLabs config
+   */
+  getLanguageVoiceId(): string {
+    const config = getLanguageConfig(this.currentLanguage);
+    return config.elevenLabsVoiceId;
   }
 }
 

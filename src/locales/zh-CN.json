@@ -1,0 +1,49 @@
+{
+  "game": {
+    "title": "乌龟比赛",
+    "startGame": "开始游戏",
+    "settings": "设置",
+    "resume": "继续",
+    "quit": "退出游戏",
+    "exit": "退出",
+    "language": "语言",
+    "selectLanguage": "选择语言",
+    "volume": "音量"
+  },
+  "menu": {
+    "welcome": "欢迎来到乌龟比赛!",
+    "instructions": "点击掉落的物体来帮助你的乌龟赢得比赛!",
+    "tapToStart": "点击开始",
+    "pressEnter": "按 ENTER 开始",
+    "pressSpace": "按 SPACE 开始"
+  },
+  "categories": {
+    "fruits": "水果和蔬菜",
+    "counting": "计数游戏",
+    "alphabet": "字母挑战",
+    "shapes": "形状和颜色",
+    "animals": "动物和自然",
+    "things": "移动的东西",
+    "weather": "天气奇观"
+  },
+  "messages": {
+    "gameWon": "你赢了!做得很好!",
+    "gameOver": "游戏结束",
+    "score": "分数",
+    "perfect": "完美!"
+  },
+  "welcome": {
+    "association": "与...合作",
+    "associationThai": "ร่วมกับ",
+    "learning": "通过游戏学习",
+    "learningThai": "เรียนรู้ผ่านการเล่น",
+    "forEveryone": "为大家！"
+  },
+  "accessibility": {
+    "volumeControl": "音量控制",
+    "languageSelection": "语言选择",
+    "gameBoard": "游戏板",
+    "score": "当前分数",
+    "targetObject": "目标对象"
+  }
+}

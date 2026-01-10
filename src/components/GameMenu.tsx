@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog"
+import { LanguageSelector } from './ui/language-selector'
 
 interface GameMenuProps {
   onStartGame: () => void
@@ -168,6 +169,18 @@ export const GameMenu = memo(({
                     </DialogDescription>
                   </DialogHeader>
                   <div className="py-6 space-y-6">
+                    <div className="flex flex-col gap-4 p-4 rounded-lg border bg-card/50">
+                      <div>
+                        <h4 className="font-medium leading-none mb-3">Language</h4>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Select gameplay language and voiceovers
+                        </p>
+                        <LanguageSelector
+                          showLabel={false}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
                     <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
                       <div className="space-y-1">
                         <h4 className="font-medium leading-none">Continuous Mode</h4>

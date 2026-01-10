@@ -1,0 +1,49 @@
+{
+  "game": {
+    "title": "烏龜比賽",
+    "startGame": "開始遊戲",
+    "settings": "設定",
+    "resume": "繼續",
+    "quit": "退出遊戲",
+    "exit": "退出",
+    "language": "語言",
+    "selectLanguage": "選擇語言",
+    "volume": "音量"
+  },
+  "menu": {
+    "welcome": "歡迎來到烏龜比賽!",
+    "instructions": "點擊掉落的物體來幫助你的烏龜贏得比賽!",
+    "tapToStart": "點擊開始",
+    "pressEnter": "按 ENTER 開始",
+    "pressSpace": "按 SPACE 開始"
+  },
+  "categories": {
+    "fruits": "水果和蔬菜",
+    "counting": "計數遊戲",
+    "alphabet": "字母挑戰",
+    "shapes": "形狀和顏色",
+    "animals": "動物和自然",
+    "things": "移動的東西",
+    "weather": "天氣奇蹟"
+  },
+  "messages": {
+    "gameWon": "你贏了!做得很好!",
+    "gameOver": "遊戲結束",
+    "score": "分數",
+    "perfect": "完美!"
+  },
+  "welcome": {
+    "association": "與...合作",
+    "associationThai": "ร่วมกับ",
+    "learning": "通過遊戲學習",
+    "learningThai": "เรียนรู้ผ่านการเล่น",
+    "forEveryone": "為大家！"
+  },
+  "accessibility": {
+    "volumeControl": "音量控制",
+    "languageSelection": "語言選擇",
+    "gameBoard": "遊戲板",
+    "score": "當前分數",
+    "targetObject": "目標對象"
+  }
+}

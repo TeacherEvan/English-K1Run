@@ -1,0 +1,49 @@
+{
+  "game": {
+    "title": "Turtle Race",
+    "startGame": "Start Game",
+    "settings": "Settings",
+    "resume": "Resume",
+    "quit": "Quit Game",
+    "exit": "Exit",
+    "language": "Language",
+    "selectLanguage": "Select Language",
+    "volume": "Volume"
+  },
+  "menu": {
+    "welcome": "Welcome to Turtle Race!",
+    "instructions": "Tap the falling objects to help your turtle win!",
+    "tapToStart": "Tap to start",
+    "pressEnter": "Press ENTER to start",
+    "pressSpace": "Press SPACE to start"
+  },
+  "categories": {
+    "fruits": "Fruits & Vegetables",
+    "counting": "Counting Fun",
+    "alphabet": "Alphabet Challenge",
+    "shapes": "Shapes & Colors",
+    "animals": "Animals & Nature",
+    "things": "Things That Go",
+    "weather": "Weather Wonders"
+  },
+  "messages": {
+    "gameWon": "You win! Great job!",
+    "gameOver": "Game Over",
+    "score": "Score",
+    "perfect": "Perfect!"
+  },
+  "welcome": {
+    "association": "In association with",
+    "associationThai": "ร่วมกับ",
+    "learning": "Learning through games",
+    "learningThai": "เรียนรู้ผ่านการเล่น",
+    "forEveryone": "for everyone!"
+  },
+  "accessibility": {
+    "volumeControl": "Volume Control",
+    "languageSelection": "Language Selection",
+    "gameBoard": "Game Board",
+    "score": "Current Score",
+    "targetObject": "Target Object"
+  }
+}

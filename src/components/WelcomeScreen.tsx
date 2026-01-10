@@ -1,4 +1,5 @@
 import { memo, startTransition, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { preloadResources } from '../lib/resource-preloader'
 import { soundManager } from '../lib/sound-manager'
 
@@ -28,26 +29,25 @@ type AudioPhase = 1 | 2 | 3 | 4 | null
  * @component
  */
 export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
+  const { t } = useTranslation()
   const [fadeOut, setFadeOut] = useState(false)
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
   const [readyToContinue, setReadyToContinue] = useState(false)
   const splashSrc = '/welcome-splash.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
-  // Text content for each audio phase with fallback support
-  // Phases 1-2: Show English + Thai text overlays during English audio playback
-  // Phases 3-4: Thai audio only; overlays disabled (empty strings below)
+  // Text content for each audio phase using i18n
   const phaseContent = {
     1: {
-      english: 'In association with',
-      thai: 'ร่วมกับ',
+      english: t('welcome.association'),
+      thai: t('welcome.associationThai'),
       school: 'SANGSOM Kindergarten',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     2: {
-      english: 'Learning through games',
-      thai: 'เรียนรู้ผ่านการเล่น',
-      school: 'for everyone!',
+      english: t('welcome.learning'),
+      thai: t('welcome.learningThai'),
+      school: t('welcome.forEveryone'),
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     3: {
@@ -266,7 +266,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           {/* Always show tap instruction (either "Tap to start" or "Tap to continue") */}
           <p
             className="text-2xl md:text-3xl font-semibold mt-4"
-            style={{ 
+            style={{
               color: '#1a1a1a',
               animation: 'pulse 2s ease-in-out infinite'
             }}

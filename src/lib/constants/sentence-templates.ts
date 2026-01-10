@@ -1,172 +1,198 @@
+import type { SupportedLanguage } from "./language-config";
+import { DEFAULT_LANGUAGE } from "./language-config";
+
 /**
  * Educational sentence templates for audio pronunciation
- * Each item in the game can have a contextual sentence to help with learning
+ * Currently contains English templates with infrastructure for multi-language expansion
+ *
+ * TODO: Add translations for all items to French, Japanese, Thai, Mandarin, Cantonese
+ * For now, non-English languages will fall back to English via getSentenceTemplate()
  */
-export const SENTENCE_TEMPLATES: Record<string, string> = {
-    // Fruits & Vegetables
-    'apple': 'I eat a red apple',
-    'banana': 'The banana is yellow and sweet',
-    'grapes': 'I love purple grapes',
-    'strawberry': 'The strawberry is red and juicy',
-    'carrot': 'The rabbit eats a crunchy carrot',
-    'cucumber': 'The cucumber is green and fresh',
-    'watermelon': 'The watermelon is big and sweet',
-    'broccoli': 'Eat your green broccoli',
-    'orange': 'The orange is round and juicy',
-    'lemon': 'The lemon is yellow and sour',
-    'peach': 'The peach is soft and sweet',
-    'cherry': 'The cherry is red and small',
-    'kiwi': 'The kiwi is fuzzy and green',
+const ENGLISH_SENTENCE_TEMPLATES: Record<string, string> = {
+  // Fruits & Vegetables
+  apple: "I eat a red apple",
+  banana: "The banana is yellow and sweet",
+  grapes: "I love purple grapes",
+  strawberry: "The strawberry is red and juicy",
+  carrot: "The carrot is crunchy and orange",
+  cucumber: "The cucumber is cool and green",
+  watermelon: "The watermelon is big and juicy",
+  broccoli: "I eat healthy broccoli",
+  orange: "The orange is round and juicy",
+  lemon: "The lemon is sour and yellow",
+  peach: "The peach is soft and sweet",
+  cherry: "The cherry is small and red",
+  kiwi: "The kiwi is fuzzy and green",
 
-    // Counting
-    'one': 'I see one star',
-    '1': 'I see one star',
-    'two': 'I have two hands',
-    '2': 'I have two hands',
-    'three': 'Three little birds',
-    '3': 'Three little birds',
-    'four': 'Four wheels on a car',
-    '4': 'Four wheels on a car',
-    'five': 'Give me five',
-    '5': 'Give me five',
-    'six': 'Six legs on a bug',
-    '6': 'Six legs on a bug',
-    'seven': 'Seven colors in a rainbow',
-    '7': 'Seven colors in a rainbow',
-    'eight': 'Eight legs on a spider',
-    '8': 'Eight legs on a spider',
-    'nine': 'Nine planets in space',
-    '9': 'Nine planets in space',
-    'ten': 'I can count to ten',
-    '10': 'I can count to ten',
-    'eleven': 'I can count to eleven',
-    '11': 'I can count to eleven',
-    'twelve': 'Twelve months in a year',
-    '12': 'Twelve months in a year',
-    'thirteen': 'Thirteen is a lucky number',
-    '13': 'Thirteen is a lucky number',
-    'fourteen': 'I am learning to count to fourteen',
-    '14': 'I am learning to count to fourteen',
-    'fifteen': 'Fifteen minutes to play',
-    '15': 'Fifteen minutes to play',
+  // Counting (1-15)
+  "1": "One",
+  "2": "Two",
+  "3": "Three",
+  "4": "Four",
+  "5": "Five",
+  "6": "Six",
+  "7": "Seven",
+  "8": "Eight",
+  "9": "Nine",
+  "10": "Ten",
+  "11": "Eleven",
+  "12": "Twelve",
+  "13": "Thirteen",
+  "14": "Fourteen",
+  "15": "Fifteen",
 
-    // Shapes & Colors
-    'blue': 'The sky is blue',
-    'red': 'The apple is red',
-    // 'orange' used from Fruits section above (orange fruit is primary)
-    'green': 'The grass is green',
-    'yellow': 'The sun is yellow',
-    'brown': 'The bear is brown',
-    'black': 'The night is black',
-    'purple': 'The grapes are purple',
-    'white': 'The snow is white',
-    'triangle': 'The triangle has three sides',
-    'star': 'The star shines bright',
-    'diamond': 'The diamond sparkles',
-    'circle': 'The ball is a circle',
+  // Shapes & Colors
+  circle: "The circle is round",
+  square: "The square has four sides",
+  diamond: "The diamond is shiny",
+  triangle: "The triangle has three sides",
+  star: "The star shines bright",
+  oval: "The oval is like an egg",
+  rectangle: "The rectangle is long",
+  pentagon: "The pentagon has five sides",
+  hexagon: "The hexagon has six sides",
+  blue: "The sky is blue",
+  red: "The apple is red",
+  // Note: 'orange' color uses the fruit definition from above
+  green: "The grass is green",
+  purple: "The grapes are purple",
+  white: "The snow is white",
+  black: "The night is black",
+  brown: "The tree is brown",
+  pink: "The flower is pink",
+  yellow: "The sun is yellow",
 
-    // Animals & Nature
-    'dog': 'The dog wags its tail',
-    'cat': 'The cat purrs softly',
-    'fox': 'The fox is quick and clever',
-    'turtle': 'The turtle moves slowly',
-    'butterfly': 'The butterfly flies in the garden',
-    'owl': 'The owl hoots at night',
-    'tree': 'The tree grows tall',
-    'flower': 'The flower smells sweet',
-    'elephant': 'The elephant has a long trunk',
-    'lion': 'The lion roars loudly',
-    'rabbit': 'The rabbit hops around',
-    'giraffe': 'The giraffe has a long neck',
-    'penguin': 'The penguin waddles on ice',
+  // Animals & Nature
+  dog: "The dog says woof",
+  cat: "The cat says meow",
+  fox: "The fox is clever",
+  turtle: "The turtle moves slowly",
+  butterfly: "The butterfly is beautiful",
+  owl: "The owl says hoot",
+  ant: "The ant is small and strong",
+  duck: "The duck says quack",
+  elephant: "The elephant is big",
+  fish: "The fish swims in water",
+  giraffe: "The giraffe has a long neck",
+  penguin: "The penguin waddles on ice",
 
-    // Things That Go
-    'car': 'The car drives on the road',
-    'bus': 'The yellow bus takes us to school',
-    'fire truck': 'The fire truck has a loud siren',
-    'airplane': 'The airplane flies in the sky',
-    'rocket': 'The rocket goes to space',
-    'bicycle': 'I ride my bicycle to the park',
-    'helicopter': 'The helicopter goes up and down',
-    'boat': 'The boat floats on the water',
-    'train': 'The train goes on the tracks',
-    'taxi': 'The taxi takes people places',
-    'van': 'The van carries our family',
-    'scooter': 'I ride my scooter fast',
-    'motorcycle': 'The motorcycle goes zoom',
+  // Things That Go
+  car: "The car drives on the road",
+  bus: "The yellow bus takes us to school",
+  "fire truck": "The fire truck has a loud siren",
+  airplane: "The airplane flies in the sky",
+  rocket: "The rocket goes to space",
+  bicycle: "I ride my bicycle to the park",
+  helicopter: "The helicopter goes up and down",
+  boat: "The boat floats on the water",
+  train: "The train goes on the tracks",
+  taxi: "The taxi takes people places",
+  van: "The van carries our family",
+  scooter: "I ride my scooter fast",
+  motorcycle: "The motorcycle goes zoom",
 
-    // Weather Wonders
-    'sunny': 'It is sunny today',
-    'cloudy': 'The sky is cloudy',
-    'rainy': 'It is rainy outside',
-    'stormy': 'The weather is stormy',
-    'snowy': 'It is snowy and cold',
-    'rainbow': 'I see a beautiful rainbow',
-    'tornado': 'The tornado spins around',
-    'windy': 'It is very windy today',
-    'moon': 'The moon shines at night',
-    // 'star' used from Shapes section above (star shape is primary)
-    'sun': 'The sun gives us light',
-    'foggy': 'The morning is foggy',
-    'lightning': 'The lightning flashes bright',
+  // Weather Wonders
+  sunny: "It is sunny today",
+  cloudy: "The sky is cloudy",
+  rainy: "It is rainy outside",
+  stormy: "The weather is stormy",
+  snowy: "It is snowy and cold",
+  rainbow: "I see a beautiful rainbow",
+  tornado: "The tornado spins around",
+  windy: "It is very windy today",
+  moon: "The moon shines at night",
+  sun: "The sun gives us light",
+  foggy: "The morning is foggy",
+  lightning: "The lightning flashes bright",
 
-    // Feelings & Actions
-    'happy': 'I feel happy and smile',
-    'sad': 'When I am sad I might cry',
-    'angry': 'Take a breath when you feel angry',
-    'sleepy': 'I am sleepy and yawn',
-    'hug': 'Give me a big hug',
-    'clap': 'Clap your hands together',
-    'dance': 'Let\'s dance to the music',
-    'flip': 'Watch me flip and spin',
-    'smile': 'I smile when I am happy',
-    'laugh': 'I laugh at funny jokes',
-    'think': 'I think before I speak',
-    'celebrate': 'Let\'s celebrate together',
-    'wave': 'I wave hello to my friends',
+  // Feelings & Actions
+  happy: "I feel happy and smile",
+  sad: "When I am sad I might cry",
+  angry: "Take a breath when you feel angry",
+  sleepy: "I am sleepy and yawn",
+  hug: "Give me a big hug",
+  clap: "Clap your hands together",
+  dance: "Let's dance to the music",
+  flip: "Watch me flip and spin",
+  smile: "I smile when I am happy",
+  laugh: "I laugh at funny jokes",
+  think: "I think before I speak",
+  celebrate: "Let's celebrate together",
+  wave: "I wave hello to my friends",
 
-    // Body Parts
-    // Note: The sentences below intentionally use plural forms ("eyes", "ears", "feet", "legs") for anatomical accuracy,
-    // even though the game items are named in the singular ("eye", "ear", "foot", "leg").
-    // This is because humans typically reference these body parts in pairs.
-    'eye': 'I see with my eyes',
-    'ear': 'I hear with my ears',
-    'nose': 'I smell with my nose',
-    'mouth': 'I talk with my mouth',
-    'tongue': 'My tongue tastes food',
-    'hand': 'I wave my hand hello',
-    'foot': 'I walk with my feet',
-    'leg': 'I jump with my legs',
-    'tooth': 'I brush my teeth',
-    'arm': 'I swing my arms',
-    'brain': 'My brain helps me think',
-    'heart': 'My heart beats in my chest',
+  // Body Parts
+  eye: "I see with my eyes",
+  ear: "I hear with my ears",
+  nose: "I smell with my nose",
+  mouth: "I talk with my mouth",
+  tongue: "My tongue tastes food",
+  hand: "I wave my hand hello",
+  foot: "I walk with my feet",
+  leg: "I jump with my legs",
+  tooth: "I brush my teeth",
+  arm: "I swing my arms",
+  brain: "My brain helps me think",
+  heart: "My heart beats in my chest",
 
-    // Alphabet (letters A-Z) - Using simple, common words for kindergarten
-    'a': 'A is for Apple',
-    'b': 'B is for Ball',
-    'c': 'C is for Cat',
-    'd': 'D is for Dog',
-    'e': 'E is for Elephant',
-    'f': 'F is for Fish',
-    'g': 'G is for Giraffe',
-    'h': 'H is for House',
-    'i': 'I is for Ice cream',
-    'j': 'J is for Juice',
-    'k': 'K is for Kite',
-    'l': 'L is for Lion',
-    'm': 'M is for Moon',
-    'n': 'N is for Nest',
-    'o': 'O is for Orange',
-    'p': 'P is for Penguin',
-    'q': 'Q is for Queen',
-    'r': 'R is for Rainbow',
-    's': 'S is for Star',
-    't': 'T is for Tree',
-    'u': 'U is for Umbrella',
-    'v': 'V is for Van',
-    'w': 'W is for Watermelon',
-    'x': 'X is for X-ray',
-    'y': 'Y is for Yellow',
-    'z': 'Z is for Zebra',
+  // Alphabet (letters A-Z)
+  a: "A is for Apple",
+  b: "B is for Ball",
+  c: "C is for Cat",
+  d: "D is for Dog",
+  e: "E is for Elephant",
+  f: "F is for Fish",
+  g: "G is for Giraffe",
+  h: "H is for House",
+  i: "I is for Ice cream",
+  j: "J is for Juice",
+  k: "K is for Kite",
+  l: "L is for Lion",
+  m: "M is for Moon",
+  n: "N is for Nest",
+  o: "O is for Orange",
+  p: "P is for Penguin",
+  q: "Q is for Queen",
+  r: "R is for Rainbow",
+  s: "S is for Star",
+  t: "T is for Tree",
+  u: "U is for Umbrella",
+  v: "V is for Van",
+  w: "W is for Watermelon",
+  x: "X is for X-ray",
+  y: "Y is for Yellow",
+  z: "Z is for Zebra",
+};
+
+/**
+ * Get sentence template for a phrase in the specified language
+ *
+ * Currently returns English for all languages.
+ * TODO: Implement full multi-language support with translation records
+ *
+ * @param phrase - The item name (e.g., 'apple', 'banana')
+ * @param _language - Target language code (currently unused, defaults to English)
+ * @returns Localized sentence or undefined if phrase not found
+ */
+export function getSentenceTemplate(
+  phrase: string,
+  _language: SupportedLanguage = DEFAULT_LANGUAGE
+): string | undefined {
+  const normalizedPhrase = phrase.toLowerCase().trim();
+  // TODO: Add language-specific lookup when translations are ready
+  // For now, return English for all languages
+  return ENGLISH_SENTENCE_TEMPLATES[normalizedPhrase];
 }
+
+/**
+ * Check if a sentence template exists for a phrase
+ */
+export function hasSentenceTemplate(phrase: string): boolean {
+  const normalizedPhrase = phrase.toLowerCase().trim();
+  return normalizedPhrase in ENGLISH_SENTENCE_TEMPLATES;
+}
+
+/**
+ * Legacy export for backward compatibility
+ * @deprecated Use getSentenceTemplate(phrase, language) instead
+ */
+export const SENTENCE_TEMPLATES = ENGLISH_SENTENCE_TEMPLATES;

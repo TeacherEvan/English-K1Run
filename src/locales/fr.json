@@ -1,0 +1,49 @@
+{
+  "game": {
+    "title": "Course de Tortue",
+    "startGame": "Commencer le jeu",
+    "settings": "Paramètres",
+    "resume": "Reprendre",
+    "quit": "Quitter le jeu",
+    "exit": "Quitter",
+    "language": "Langue",
+    "selectLanguage": "Sélectionner la langue",
+    "volume": "Volume"
+  },
+  "menu": {
+    "welcome": "Bienvenue à Course de Tortue!",
+    "instructions": "Tapotez les objets qui tombent pour aider votre tortue à gagner!",
+    "tapToStart": "Appuyez pour commencer",
+    "pressEnter": "Appuyez sur ENTRÉE pour commencer",
+    "pressSpace": "Appuyez sur ESPACE pour commencer"
+  },
+  "categories": {
+    "fruits": "Fruits et Légumes",
+    "counting": "Jeu de Comptage",
+    "alphabet": "Défi Alphabet",
+    "shapes": "Formes et Couleurs",
+    "animals": "Animaux et Nature",
+    "things": "Choses en Mouvement",
+    "weather": "Merveilles Météorologiques"
+  },
+  "messages": {
+    "gameWon": "Vous gagnez! Excellent travail!",
+    "gameOver": "Fin du Jeu",
+    "score": "Score",
+    "perfect": "Parfait!"
+  },
+  "welcome": {
+    "association": "En association avec",
+    "associationThai": "ร่วมกับ",
+    "learning": "Apprendre par le jeu",
+    "learningThai": "เรียนรู้ผ่านการเล่น",
+    "forEveryone": "pour tous!"
+  },
+  "accessibility": {
+    "volumeControl": "Contrôle du Volume",
+    "languageSelection": "Sélection de la Langue",
+    "gameBoard": "Plateau de Jeu",
+    "score": "Score Actuel",
+    "targetObject": "Objet Cible"
+  }
+}

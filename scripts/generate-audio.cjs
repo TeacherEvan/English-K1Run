@@ -2,7 +2,18 @@
 
 /**
  * ElevenLabs Audio Generator for Kindergarten Race Game
- * Generates all required audio files with consistent voice
+ * Generates all required audio files with multi-language support
+ *
+ * MULTI-LANGUAGE SUPPORT:
+ * - Use eleven_multilingual_v2 model for all 6 languages
+ * - Pass language_code parameter with each TTS request
+ * - Voice IDs configured in src/lib/constants/language-config.ts
+ * - Generates audio files with language suffix: {name}_{lang}.wav
+ *
+ * USAGE:
+ *   node generate-audio.cjs --language en     # English only
+ *   node generate-audio.cjs --language all    # All 6 languages
+ *   node generate-audio.cjs --language fr,ja  # Specific languages
  */
 
 // TODO: [OPTIMIZATION] Consider moving audio generation to a separate microservice for scalability
@@ -42,11 +53,29 @@ loadDotEnvIfPresent();
 
 // Configuration
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "zmcVlqmyk3Jpn5AVYcAL";
-const VOICE_ID_THAI =
-  process.env.ELEVENLABS_VOICE_ID_THAI ||
-  process.env.ELEVENLABS_VOICE_ID_MALE ||
-  "";
+
+// Multi-language voice IDs (from src/lib/constants/language-config.ts)
+const VOICE_IDS = {
+  en: process.env.ELEVENLABS_VOICE_ID || "zmcVlqmyk3Jpn5AVYcAL",
+  fr: process.env.ELEVENLABS_VOICE_ID_FR || "EXAVITQu4EsNXjluf0k5",
+  ja: process.env.ELEVENLABS_VOICE_ID_JA || "z9f4UheRPK2ZesPXd14b",
+  th: process.env.ELEVENLABS_VOICE_ID_TH || "BZlaCzXKMq7g5K1RdF0T",
+  "zh-CN": process.env.ELEVENLABS_VOICE_ID_ZH_CN || "cjVigY5qzO86Huf0OWal",
+  "zh-HK": process.env.ELEVENLABS_VOICE_ID_ZH_HK || "wVcwzhXu7f0K5a1WoqaJ",
+};
+
+const LANGUAGE_CODES = {
+  en: "en",
+  fr: "fr",
+  ja: "ja",
+  th: "th",
+  "zh-CN": "zh",
+  "zh-HK": "zh",
+};
+
+const VOICE_ID = VOICE_IDS.en; // Legacy fallback
+const VOICE_ID_THAI = VOICE_IDS.th; // Legacy compatibility
+
 const WELCOME_ASSOCIATION_THAI_TEXT =
   process.env.WELCOME_ASSOCIATION_THAI_TEXT || "";
 const WELCOME_LEARNING_THAI_TEXT = process.env.WELCOME_LEARNING_THAI_TEXT || "";
@@ -342,8 +371,17 @@ const PHRASE_TEXT_MAPPING = {
 
 /**
  * Generate audio using ElevenLabs API
+ * @param {string} text - Text to synthesize
+ * @param {string} outputPath - Output file path
+ * @param {string} languageCode - ISO language code (en, fr, ja, th, zh)
+ * @param {string} voiceId - ElevenLabs voice ID for this language
  */
-function generateAudio(text, outputPath) {
+function generateAudio(
+  text,
+  outputPath,
+  languageCode = "en",
+  voiceId = VOICE_ID
+) {
   return new Promise((resolve, reject) => {
     // Check if there's a custom text mapping first
     let speechText = PHRASE_TEXT_MAPPING[text] || text;
@@ -368,14 +406,15 @@ function generateAudio(text, outputPath) {
 
     const postData = JSON.stringify({
       text: speechText,
-      model_id: "eleven_turbo_v2_5",
+      model_id: "eleven_multilingual_v2",
       voice_settings: VOICE_SETTINGS,
+      language_code: languageCode || "en", // Add language code for multilingual model
     });
 
     const isThaiWelcome =
       text === "welcome_association_thai" || text === "welcome_learning_thai";
     const voiceIdToUse =
-      isThaiWelcome && VOICE_ID_THAI ? VOICE_ID_THAI : VOICE_ID;
+      voiceId || (isThaiWelcome && VOICE_ID_THAI ? VOICE_ID_THAI : VOICE_ID);
 
     const options = {
       hostname: "api.elevenlabs.io",

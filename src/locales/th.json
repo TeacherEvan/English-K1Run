@@ -1,0 +1,49 @@
+{
+  "game": {
+    "title": "การแข่งเต่า",
+    "startGame": "เริ่มเกม",
+    "settings": "ตั้งค่า",
+    "resume": "ดำเนินการต่อ",
+    "quit": "ออกจากเกม",
+    "exit": "ออก",
+    "language": "ภาษา",
+    "selectLanguage": "เลือกภาษา",
+    "volume": "ระดับเสียง"
+  },
+  "menu": {
+    "welcome": "ยินดีต้อนรับสู่การแข่งเต่า!",
+    "instructions": "แตะวัตถุที่ตกลงมาเพื่อช่วยให้เต่าของคุณชนะ!",
+    "tapToStart": "แตะเพื่อเริ่มต้น",
+    "pressEnter": "กด ENTER เพื่อเริ่มต้น",
+    "pressSpace": "กด SPACE เพื่อเริ่มต้น"
+  },
+  "categories": {
+    "fruits": "ผลไม้และผัก",
+    "counting": "เกมการนับ",
+    "alphabet": "ท้าทายตัวอักษร",
+    "shapes": "รูปร่างและสี",
+    "animals": "สัตว์และธรรมชาติ",
+    "things": "สิ่งที่เคลื่อนไหว",
+    "weather": "ปรากฏการณ์ลมฟ้าอากาศ"
+  },
+  "messages": {
+    "gameWon": "คุณชนะ! ทำได้ดีมากขอบคุณ!",
+    "gameOver": "สิ้นสุดเกม",
+    "score": "คะแนน",
+    "perfect": "สมบูรณ์แบบ!"
+  },
+  "welcome": {
+    "association": "ร่วมกับ",
+    "associationThai": "ร่วมกับ",
+    "learning": "เรียนรู้ผ่านการเล่น",
+    "learningThai": "เรียนรู้ผ่านการเล่น",
+    "forEveryone": "สำหรับทุกคน!"
+  },
+  "accessibility": {
+    "volumeControl": "ควบคุมระดับเสียง",
+    "languageSelection": "การเลือกภาษา",
+    "gameBoard": "บอร์ดเกม",
+    "score": "คะแนนปัจจุบัน",
+    "targetObject": "วัตถุเป้าหมาย"
+  }
+}

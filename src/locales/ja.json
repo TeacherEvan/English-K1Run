@@ -1,0 +1,49 @@
+{
+  "game": {
+    "title": "カメレース",
+    "startGame": "ゲームを始める",
+    "settings": "設定",
+    "resume": "再開",
+    "quit": "ゲーム終了",
+    "exit": "終了",
+    "language": "言語",
+    "selectLanguage": "言語を選択",
+    "volume": "音量"
+  },
+  "menu": {
+    "welcome": "カメレースへようこそ!",
+    "instructions": "落ちてくるオブジェクトをタップして、あなたのカメが勝つのを手伝ってください!",
+    "tapToStart": "タップして開始",
+    "pressEnter": "ENTERキーを押して開始",
+    "pressSpace": "SPACEキーを押して開始"
+  },
+  "categories": {
+    "fruits": "果物と野菜",
+    "counting": "数え方ゲーム",
+    "alphabet": "アルファベットチャレンジ",
+    "shapes": "形と色",
+    "animals": "動物と自然",
+    "things": "動く乗り物",
+    "weather": "天気のふしぎ"
+  },
+  "messages": {
+    "gameWon": "あなたが勝ちました!素晴らしい!",
+    "gameOver": "ゲーム終了",
+    "score": "スコア",
+    "perfect": "完璧です!"
+  },
+  "welcome": {
+    "association": "提携して",
+    "associationThai": "ร่วมกับ",
+    "learning": "ゲームを通じて学ぶ",
+    "learningThai": "เรียนรู้ผ่านการเล่น",
+    "forEveryone": "みんなのために！"
+  },
+  "accessibility": {
+    "volumeControl": "音量コントロール",
+    "languageSelection": "言語選択",
+    "gameBoard": "ゲームボード",
+    "score": "現在のスコア",
+    "targetObject": "ターゲットオブジェクト"
+  }
+}

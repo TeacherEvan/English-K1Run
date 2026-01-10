@@ -13,6 +13,7 @@
  * @module audio/speech-synthesizer
  */
 
+import type { SupportedLanguage } from "@/lib/constants/language-config";
 import type { SpeechOptions } from "./types";
 
 /**
@@ -22,6 +23,7 @@ import type { SpeechOptions } from "./types";
 export class SpeechSynthesizer {
   private speechAvailable: boolean | null = null;
   private defaultVolume = 0.6;
+  private currentLanguage: SupportedLanguage = "en";
 
   constructor() {
     this.checkAvailability();
@@ -91,20 +93,51 @@ export class SpeechSynthesizer {
   }
 
   /**
-   * Get preferred English voice
+   * Get preferred voice for a specific language
+   * @param langCode - Language code (e.g., 'en', 'fr', 'ja', 'th', 'zh-CN')
    */
-  getPreferredVoice(): SpeechSynthesisVoice | null {
+  getPreferredVoice(langCode?: SupportedLanguage): SpeechSynthesisVoice | null {
     const voices = this.getVoices();
     if (voices.length === 0) return null;
 
-    // Prefer English voices
-    const englishVoices = voices.filter((v) => v.lang.startsWith("en"));
-    if (englishVoices.length > 0) {
-      // Prefer US English, then any English
-      const usVoice = englishVoices.find((v) => v.lang === "en-US");
-      return usVoice || englishVoices[0];
+    const targetLang = langCode || this.currentLanguage;
+
+    // Map language codes to speech synthesis language prefixes
+    const langPrefixMap: Record<SupportedLanguage, string[]> = {
+      en: ["en"],
+      fr: ["fr"],
+      ja: ["ja"],
+      th: ["th"],
+      "zh-CN": ["zh-CN", "zh"],
+      "zh-HK": ["zh-HK", "zh"],
+    };
+
+    const langPrefixes = langPrefixMap[targetLang];
+    if (!langPrefixes) {
+      // Fallback to English if language not found
+      return this.getPreferredVoice("en");
     }
 
+    // Filter voices by language
+    const langVoices = voices.filter((v) =>
+      langPrefixes.some((prefix) => v.lang.startsWith(prefix))
+    );
+
+    if (langVoices.length > 0) {
+      // Return first matching voice
+      return langVoices[0];
+    }
+
+    // If no exact match, try to find any voice for the base language
+    const basePrefix = langPrefixes[0];
+    const baseVoices = voices.filter((v) =>
+      v.lang.startsWith(basePrefix.substring(0, 2))
+    );
+    if (baseVoices.length > 0) {
+      return baseVoices[0];
+    }
+
+    // Last resort: return first available voice
     return voices[0];
   }
 
@@ -126,7 +159,7 @@ export class SpeechSynthesizer {
    */
   speak(
     text: string,
-    options?: SpeechOptions,
+    options?: SpeechOptions & { langCode?: SupportedLanguage },
     cancelPrevious = false
   ): boolean {
     if (!this.canUseSpeech() || !text.trim()) return false;
@@ -140,14 +173,15 @@ export class SpeechSynthesizer {
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
+      const langCode = options?.langCode || this.currentLanguage;
 
       // Apply options
       utterance.pitch = options?.pitch ?? 1.0;
       utterance.rate = options?.rate ?? 1.0;
       utterance.volume = options?.volume ?? this.defaultVolume;
 
-      // Try to set preferred voice
-      const voice = this.getPreferredVoice();
+      // Try to set preferred voice for the language
+      const voice = this.getPreferredVoice(langCode);
       if (voice) {
         utterance.voice = voice;
       }
@@ -155,7 +189,7 @@ export class SpeechSynthesizer {
       synth.speak(utterance);
 
       if (import.meta.env.DEV) {
-        console.log(`[SpeechSynthesizer] Speaking: "${text}"`);
+        console.log(`[SpeechSynthesizer] Speaking (${langCode}): "${text}"`);
       }
 
       return true;
@@ -168,7 +202,10 @@ export class SpeechSynthesizer {
   /**
    * Speak with promise that resolves when done
    */
-  speakAsync(text: string, options?: SpeechOptions): Promise<boolean> {
+  speakAsync(
+    text: string,
+    options?: SpeechOptions & { langCode?: SupportedLanguage }
+  ): Promise<boolean> {
     return new Promise((resolve) => {
       if (!this.canUseSpeech() || !text.trim()) {
         resolve(false);
@@ -183,12 +220,13 @@ export class SpeechSynthesizer {
         }
 
         const utterance = new SpeechSynthesisUtterance(text);
+        const langCode = options?.langCode || this.currentLanguage;
 
         utterance.pitch = options?.pitch ?? 1.0;
         utterance.rate = options?.rate ?? 1.0;
         utterance.volume = options?.volume ?? this.defaultVolume;
 
-        const voice = this.getPreferredVoice();
+        const voice = this.getPreferredVoice(langCode);
         if (voice) {
           utterance.voice = voice;
         }
@@ -215,6 +253,20 @@ export class SpeechSynthesizer {
    */
   isAvailable(): boolean | null {
     return this.speechAvailable;
+  }
+
+  /**
+   * Set current language for speech synthesis
+   */
+  setLanguage(langCode: SupportedLanguage): void {
+    this.currentLanguage = langCode;
+  }
+
+  /**
+   * Get current language setting
+   */
+  getLanguage(): SupportedLanguage {
+    return this.currentLanguage;
   }
 }
 
