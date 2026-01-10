@@ -68,14 +68,14 @@ export const SPAWN_ABOVE_SCREEN = 200;
 /** Initial number of worms spawned at game start (reduced from 3 to 1 for gentler difficulty) */
 export const WORM_INITIAL_COUNT = 1;
 
-/** Interval for progressive worm spawning during gameplay (milliseconds) */
-export const WORM_PROGRESSIVE_SPAWN_INTERVAL = 3000;
+/** Interval for progressive worm spawning during gameplay (milliseconds) - doubled to reduce spawn rate by 50% */
+export const WORM_PROGRESSIVE_SPAWN_INTERVAL = 6000;
 
 /** Number of worms spawned in recurring intervals (reduced by 50% for gentler difficulty) */
 export const WORM_RECURRING_COUNT = 1;
 
-/** Recurring worm spawn interval (every 30 seconds) */
-export const WORM_RECURRING_INTERVAL = 30000;
+/** Recurring worm spawn interval (doubled from 30s to 60s to reduce spawn rate by 50%) */
+export const WORM_RECURRING_INTERVAL = 60000;
 
 /** Worm size in pixels */
 export const WORM_SIZE = 60;

@@ -89,30 +89,32 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     let audioStarted = false
 
     // Start audio playback - tries immediately, retries on user interaction
+    // playSound now properly waits for audio completion, eliminating overlap
     const startAudioSequence = async () => {
       if (audioStarted || cancelled) return
       audioStarted = true
 
       try {
-        // Phase 1: English
+        // Phase 1: English - playSound waits for completion
         if (!cancelled) setCurrentPhase(1)
         await soundManager.playSound('welcome_association')
-        await new Promise(resolve => setTimeout(resolve, 2500))
+        // Small gap between phrases for natural pacing
+        await new Promise(resolve => setTimeout(resolve, 300))
 
         // Phase 2: English
         if (!cancelled) setCurrentPhase(2)
         await soundManager.playSound('welcome_learning')
-        await new Promise(resolve => setTimeout(resolve, 2500))
+        await new Promise(resolve => setTimeout(resolve, 300))
 
         // Phase 3: Thai
         if (!cancelled) setCurrentPhase(3)
         await soundManager.playSound('welcome_association_thai')
-        await new Promise(resolve => setTimeout(resolve, 2500))
+        await new Promise(resolve => setTimeout(resolve, 300))
 
         // Phase 4: Thai
         if (!cancelled) setCurrentPhase(4)
         await soundManager.playSound('welcome_learning_thai')
-        await new Promise(resolve => setTimeout(resolve, 2500))
+        await new Promise(resolve => setTimeout(resolve, 300))
 
         if (!cancelled) setReadyToContinue(true)
       } catch (err) {

@@ -898,10 +898,63 @@ class SoundManager {
     // Track this source and auto-cleanup when it ends
     if (soundKey) {
       this.activeSources.set(soundKey, source);
-      source.onended = () => {
-        this.activeSources.delete(soundKey);
-      };
     }
+  }
+
+  /**
+   * Start audio buffer playback and return a promise that resolves when playback ends
+   * @returns Promise that resolves when audio finishes playing
+   */
+  private startBufferAsync(
+    buffer: AudioBuffer,
+    delaySeconds = 0,
+    soundKey?: string,
+    playbackRate = 1.0,
+    volumeOverride?: number
+  ): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.audioContext) {
+        resolve();
+        return;
+      }
+
+      // Stop any previous instance of this sound
+      if (soundKey && this.activeSources.has(soundKey)) {
+        try {
+          const prevSource = this.activeSources.get(soundKey)!;
+          prevSource.stop();
+          this.activeSources.delete(soundKey);
+        } catch {
+          // Ignore errors from stopping already-stopped sources
+        }
+      }
+
+      const source = this.audioContext.createBufferSource();
+      const gainNode = this.audioContext.createGain();
+
+      source.buffer = buffer;
+      source.playbackRate.value = playbackRate;
+      gainNode.gain.value = volumeOverride ?? this.volume;
+
+      source.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+
+      const startTime =
+        this.audioContext.currentTime + Math.max(0, delaySeconds);
+      source.start(startTime);
+
+      // Track this source and resolve when it ends
+      if (soundKey) {
+        this.activeSources.set(soundKey, source);
+      }
+
+      source.onended = () => {
+        if (soundKey) {
+          this.activeSources.delete(soundKey);
+        }
+        resolve();
+      };
+    });
   }
 
   async ensureInitialized() {
@@ -925,6 +978,17 @@ class SoundManager {
    */
   async preloadAudioByPriority(priority: AudioPriority): Promise<void> {
     if (this.preloadInProgress || this.loadedPriorities.has(priority)) {
+      return;
+    }
+
+    // Ensure AudioContext is ready before attempting to decode audio buffers
+    await this.ensureInitialized();
+    if (!this.audioContext) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[SoundManager] Cannot preload ${AudioPriority[priority]} - AudioContext not available`
+        );
+      }
       return;
     }
 
@@ -1045,7 +1109,13 @@ class SoundManager {
     }
   }
 
-  async playSound(soundName: string, playbackRate = 0.9) {
+  /**
+   * Play a sound effect and wait for it to complete
+   * @param soundName - Name of the sound to play
+   * @param playbackRate - Playback speed (default 0.9 for slightly slower)
+   * @returns Promise that resolves when audio finishes playing
+   */
+  async playSound(soundName: string, playbackRate = 0.9): Promise<void> {
     if (!this.isEnabled) return;
 
     try {
@@ -1083,8 +1153,11 @@ class SoundManager {
         return;
       }
 
-      this.startBuffer(buffer, 0, soundName, playbackRate);
-      console.log(`[SoundManager] Playing sound: "${soundName}"`);
+      // Use startBufferAsync to wait for audio to complete before returning
+      await this.startBufferAsync(buffer, 0, soundName, playbackRate);
+      if (import.meta.env.DEV) {
+        console.log(`[SoundManager] Finished playing sound: "${soundName}"`);
+      }
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
     }
