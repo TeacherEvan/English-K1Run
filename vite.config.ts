@@ -67,9 +67,16 @@ export default defineConfig({
         manualChunks(id) {
           // Create vendor chunk for node_modules with intelligent splitting
           if (id.includes("node_modules")) {
-            // Consolidate all React-related packages into a single chunk for stability
-            // React 19 is sensitive to internal module splitting
-            if (id.includes("react") || id.includes("scheduler")) {
+            // CRITICAL FIX: Keep ALL React packages together in ONE chunk
+            // React 19 requires react, react-dom, scheduler, and jsx-runtime to be in the same chunk
+            // Splitting them causes "useLayoutEffect of undefined" errors
+            if (
+              id.includes("react") ||
+              id.includes("scheduler") ||
+              id.includes("react-dom") ||
+              id.includes("jsx-runtime") ||
+              id.includes("react-error-boundary")
+            ) {
               return "vendor-react";
             }
 
@@ -91,11 +98,6 @@ export default defineConfig({
             // Animation libraries
             if (id.includes("framer-motion")) {
               return "vendor-animation";
-            }
-
-            // Error boundary and other critical libs
-            if (id.includes("react-error-boundary")) {
-              return "vendor-react-utils";
             }
 
             // Other node_modules - minimal catch-all
