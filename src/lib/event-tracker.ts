@@ -107,7 +107,20 @@ class EventTracker {
   }
 
   /**
-   * Track an event with automatic timestamping and ID generation
+   * Track an event with automatic timestamping and ID generation.
+   * 
+   * This is the core internal method for recording all application events.
+   * It automatically enriches events with:
+   * - Unique ID (timestamp + random string)
+   * - Current timestamp
+   * - User agent information
+   * - Current URL
+   * 
+   * Events are stored in a circular buffer (max 500 events).
+   * In development mode, errors are automatically logged to console.
+   * 
+   * @param event - Event data without auto-generated fields (id, timestamp, userAgent, url)
+   * @private
    */
   private trackEvent(
     event: Omit<GameEvent, "id" | "timestamp" | "userAgent" | "url">
