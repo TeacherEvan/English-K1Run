@@ -91,34 +91,7 @@ class EventTracker {
   }
 
   /**
-   * Start performance monitoring - call when gameplay starts
-   * Uses requestAnimationFrame to measure frame rate
-   */
-  startPerformanceMonitoring() {
-    if (this.isPerformanceMonitoringActive) return;
-    this.isPerformanceMonitoringActive = true;
-
-    let frameCount = 0;
-    let lastTime = performance.now();
-
-    const measureFrameRate = () => {
-      if (!this.isPerformanceMonitoringActive) return; // Stop if disabled
-
-      frameCount++;
-      const currentTime = performance.now();
-
-      if (currentTime - lastTime >= 1000) {
-        this.performanceMetrics.frameRate = frameCount;
-        frameCount = 0;
-        lastTime = currentTime;
-
-        // Track low frame rate as warning (only in dev to reduce overhead)
-        if (import.meta.env.DEV && this.performanceMetrics.frameRate < 30) {
-          this.trackEvent({
-            type: "warning",
-            category: "performance",
-            message: "Low frame rate detected",
-            data: { frameRate: this.delegated to performanceTracker
+   * Start performance monitoring - delegated to performanceTracker
    * @deprecated Use performanceTracker.startPerformanceMonitoring() directly
    */
   startPerformanceMonitoring() {
@@ -130,7 +103,47 @@ class EventTracker {
    * @deprecated Use performanceTracker.stopPerformanceMonitoring() directly
    */
   stopPerformanceMonitoring() {
-    performanceTracker.stopPerformanceMonitoring()event.category}: ${event.message}`,
+    performanceTracker.stopPerformanceMonitoring();
+  }
+
+  /**
+   * Track an event with automatic timestamping and ID generation.
+   * 
+   * This is the core internal method for recording all application events.
+   * It automatically enriches events with:
+   * - Unique ID (timestamp + random string)
+   * - Current timestamp
+   * - User agent information
+   * - Current URL
+   * 
+   * Events are stored in a circular buffer (max 500 events).
+   * In development mode, errors are automatically logged to console.
+   * 
+   * @param event - Event data without auto-generated fields (id, timestamp, userAgent, url)
+   * @private
+   */
+  private trackEvent(
+    event: Omit<GameEvent, "id" | "timestamp" | "userAgent" | "url">
+  ) {
+    const fullEvent: GameEvent = {
+      ...event,
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+    };
+
+    this.events.push(fullEvent);
+
+    // Keep events under max limit
+    if (this.events.length > this.maxEvents) {
+      this.events = this.events.slice(-this.maxEvents);
+    }
+
+    // Log in dev mode
+    if (import.meta.env.DEV && event.type === "error") {
+      console.error(
+        `[EventTracker] ${event.category}: ${event.message}`,
         event.data
       );
     }
@@ -247,15 +260,16 @@ class EventTracker {
   // Get recent events (for diagnostics)
   getRecentEvents(limit: number = 10): GameEvent[] {
     return this.events.slice(-limit).sort((a, b) => b.timestamp - a.timestamp);
-  } {
+  }
+
+  // Get performance metrics - delegated to performanceTracker
+  getPerformanceMetrics() {
     return performanceTracker.getPerformanceMetrics();
   }
 
   // Reset performance metrics - delegated
   resetPerformanceMetrics() {
-    performanceTracker.resetPerformanceMetrics()
-    this.performanceMetrics.objectSpawnRate = 0;
-    this.performanceMetrics.touchLatency = 0;
+    performanceTracker.resetPerformanceMetrics();
   }
 
   // Export events for debugging
