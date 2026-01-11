@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { eventTracker } from "../lib/event-tracker";
-import { playSoundEffect } from "../lib/sound-manager";
+import { playSoundEffect, prefetchAudioKeys } from "../lib/sound-manager";
 import { multiTouchHandler } from "../lib/touch-handler";
 import { calculateSafeSpawnPosition } from "../lib/utils/spawn-position";
 // Types
@@ -323,6 +323,19 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     }
   }, [gameState.gameStarted, gameState.currentTarget]);
 
+  useEffect(() => {
+    if (!gameState.gameStarted) return;
+
+    // Background prefetch for the next category while the current one is played.
+    // This reduces stalls on slower networks when advancing levels.
+    const nextLevel = clampLevel(gameState.level + 1);
+    const nextCategory = GAME_CATEGORIES[nextLevel];
+    if (!nextCategory) return;
+
+    const keys = nextCategory.items.map((item) => item.name);
+    void prefetchAudioKeys(keys);
+  }, [clampLevel, gameState.gameStarted, gameState.level]);
+
   const generateRandomTarget = useCallback(
     (levelOverride?: number) => {
       const levelIndex = clampLevel(levelOverride ?? gameState.level);
@@ -424,7 +437,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           });
 
           const newObject: GameObject = {
-            id: `immediate-target-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+            id: `immediate-target-${Date.now()}-${i}-${Math.random()
+              .toString(36)
+              .slice(2, 8)}`,
             type: targetItem.name,
             emoji: targetItem.emoji,
             x: spawnX,
@@ -655,7 +670,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
             });
 
             const newObject: GameObject = {
-              id: `target-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+              id: `target-${Date.now()}-${i}-${Math.random()
+                .toString(36)
+                .slice(2, 8)}`,
               type: item.name,
               emoji: item.emoji,
               x: spawnX,
@@ -1307,7 +1324,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
           setFairyTransforms((prevFairies) => [
             ...prevFairies,
             {
-              id: `fairy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              id: `fairy-${Date.now()}-${Math.random()
+                .toString(36)
+                .slice(2, 8)}`,
               x: worm.x,
               y: worm.y,
               createdAt: Date.now(),

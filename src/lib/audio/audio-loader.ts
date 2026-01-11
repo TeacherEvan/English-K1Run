@@ -83,13 +83,16 @@ for (const [path, loader] of Object.entries(rawAudioFiles)) {
 // Debug logging in development
 if (import.meta.env.DEV) {
   console.log(
-    `[AudioLoader] Registered ${audioLoaderIndex.size} audio aliases from ${Object.keys(rawAudioFiles).length} files`
+    `[AudioLoader] Registered ${audioLoaderIndex.size} audio aliases from ${
+      Object.keys(rawAudioFiles).length
+    } files`
   );
 }
 
 /** Audio files by priority for progressive loading */
 export const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
   [AudioPriority.CRITICAL]: [
+    "welcome",
     "welcome_association",
     "welcome_learning",
     "welcome_association_thai",
@@ -421,8 +424,9 @@ export class AudioBufferLoader {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer =
-          await this.audioContext!.decodeAudioData(arrayBuffer);
+        const audioBuffer = await this.audioContext!.decodeAudioData(
+          arrayBuffer
+        );
         this.bufferCache.set(key, audioBuffer);
         this.loadingCache.delete(key);
         if (import.meta.env.DEV) {

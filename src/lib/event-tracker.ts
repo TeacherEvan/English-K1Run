@@ -1,14 +1,27 @@
 /**
- * Event tracking system for monitoring game errors and performance
+ * Event tracking system for monitoring game errors and lifecycle
  *
- * TODO: Split this module into smaller focused modules (see TODO.md Phase 1)
- * Current size: 617 lines - Target: <200 lines per module
- * Refactoring plan:
- * 1. Extract emoji tracking → emoji-tracker.ts
- * 2. Extract performance metrics → performance-tracker.ts
- * 3. Extract audio tracking → audio-event-tracker.ts
- * Impact: Better separation of concerns, easier testing
+ * Refactored Jan 2026: Split into focused modules for better maintainability.
+ * - Audio tracking → src/lib/event-tracking/audio-event-tracker.ts
+ * - Emoji tracking → src/lib/event-tracking/emoji-tracker.ts
+ * - Performance → src/lib/event-tracking/performance-tracker.ts
+ * 
+ * This file remains as the main facade for general event logging.
  */
+
+// Re-export subsystem types and singletons for backward compatibility
+export type {
+  AudioPlaybackEvent,
+  EmojiLifecycleEvent,
+  EmojiAppearanceStats,
+  PerformanceMetrics,
+} from "./event-tracking";
+
+export {
+  audioEventTracker,
+  emojiTracker,
+  performanceTracker,
+} from "./event-tracking";
 
 export interface GameEvent {
   id: string;
@@ -30,80 +43,13 @@ export interface GameEvent {
   url?: string;
 }
 
-export interface EmojiLifecycleEvent {
-  objectId: string;
-  emoji: string;
-  name: string;
-  phase: "spawned" | "rendered" | "visible" | "tapped" | "removed" | "missed";
-  timestamp: number;
-  position?: { x: number; y: number };
-  playerSide?: "left" | "right";
-  duration?: number; // Time since spawn
-  data?: Record<string, unknown>;
-}
-
-export interface PerformanceMetrics {
-  objectSpawnRate: number;
-  frameRate: number;
-  memoryUsage?: number;
-  touchLatency: number;
-}
-
-export interface AudioPlaybackEvent {
-  id: string;
-  timestamp: number;
-  audioKey: string;
-  targetName: string;
-  method: "wav" | "html-audio" | "speech-synthesis" | "fallback-tone";
-  success: boolean;
-  duration?: number;
-  error?: string;
-}
-
-export interface EmojiAppearanceStats {
-  emoji: string;
-  name: string;
-  lastAppearance: number;
-  appearanceCount: number;
-  timeSinceLastAppearance: number;
-  audioPlayed: boolean;
-  audioKey?: string;
-}
-
 class EventTracker {
   private events: GameEvent[] = [];
-  private maxEvents = 500; // Reduced from 1000 to 500 for better performance
-  private performanceMetrics: PerformanceMetrics = {
-    objectSpawnRate: 0,
-    frameRate: 0,
-    touchLatency: 0,
-  };
-  private spawnCount = 0;
-  private lastSpawnReset = Date.now();
-
-  // Emoji lifecycle tracking
-  private emojiLifecycles: Map<string, EmojiLifecycleEvent[]> = new Map();
-  private maxTrackedEmojis = 10; // Track first 10 emojis
-  private trackedEmojiCount = 0;
-  private isLifecycleTrackingEnabled = false;
-
-  // Audio playback tracking
-  private audioPlaybackEvents: AudioPlaybackEvent[] = [];
-  private maxAudioEvents = 100;
-
-  // Emoji appearance tracking for rotation monitoring
-  private emojiAppearances: Map<string, EmojiAppearanceStats> = new Map();
-  private rotationThreshold = 10000; // 10 seconds as requested
-
-  // Performance monitoring state
-  private isPerformanceMonitoringActive = false;
-  private performanceAnimationFrameId: number | null = null;
+  private maxEvents = 500;
 
   constructor() {
     // Set up global error handlers
     this.setupErrorHandlers();
-    // Note: Performance monitoring is now started/stopped with startPerformanceMonitoring/stopPerformanceMonitoring
-    // to avoid unnecessary background processing when not in gameplay
   }
 
   private setupErrorHandlers() {
@@ -164,56 +110,21 @@ class EventTracker {
             type: "warning",
             category: "performance",
             message: "Low frame rate detected",
-            data: { frameRate: this.performanceMetrics.frameRate },
-          });
-        }
-      }
-
-      this.performanceAnimationFrameId =
-        requestAnimationFrame(measureFrameRate);
-    };
-
-    this.performanceAnimationFrameId = requestAnimationFrame(measureFrameRate);
+            data: { frameRate: this.delegated to performanceTracker
+   * @deprecated Use performanceTracker.startPerformanceMonitoring() directly
+   */
+  startPerformanceMonitoring() {
+    const { performanceTracker } = require("./event-tracking");
+    performanceTracker.startPerformanceMonitoring();
   }
 
   /**
-   * Stop performance monitoring - call when gameplay ends
-   * Saves CPU cycles when not actively tracking
+   * Stop performance monitoring - delegated to performanceTracker
+   * @deprecated Use performanceTracker.stopPerformanceMonitoring() directly
    */
   stopPerformanceMonitoring() {
-    this.isPerformanceMonitoringActive = false;
-    if (this.performanceAnimationFrameId !== null) {
-      cancelAnimationFrame(this.performanceAnimationFrameId);
-      this.performanceAnimationFrameId = null;
-    }
-    this.performanceMetrics.frameRate = 0;
-  }
-
-  trackEvent(eventData: Partial<GameEvent>) {
-    const event: GameEvent = {
-      id: `event-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
-      timestamp: Date.now(),
-      type: eventData.type || "info",
-      category: eventData.category || "general",
-      message: eventData.message || "",
-      data: eventData.data,
-      stackTrace: eventData.stackTrace,
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-      ...eventData,
-    };
-
-    this.events.push(event);
-
-    // Keep only the most recent events
-    if (this.events.length > this.maxEvents) {
-      this.events = this.events.slice(-this.maxEvents);
-    }
-
-    // Only log to console in development mode to reduce overhead
-    if (import.meta.env.DEV) {
-      console.log(
-        `[${event.type.toUpperCase()}] ${event.category}: ${event.message}`,
+    const { performanceTracker } = require("./event-tracking");
+    performanceTracker.stopPerformanceMonitoring()event.category}: ${event.message}`,
         event.data
       );
     }
@@ -236,9 +147,10 @@ class EventTracker {
     objectType: string,
     position?: { x?: number; y?: number; count?: number }
   ) {
+    const { performanceTracker } = require("./event-tracking");
+
     // Batch track spawns to reduce overhead
     if (position?.count) {
-      // For batch spawns, just track the batch size
       this.trackEvent({
         type: "info",
         category: "game_object",
@@ -246,7 +158,6 @@ class EventTracker {
         data: { batchSize: position.count, objectType },
       });
     } else {
-      // Individual spawn tracking (less frequent)
       this.trackEvent({
         type: "info",
         category: "game_object",
@@ -255,26 +166,7 @@ class EventTracker {
       });
     }
 
-    this.spawnCount++;
-
-    // Calculate spawn rate per second and reset counter periodically
-    const now = Date.now();
-    if (now - this.lastSpawnReset >= 2000) {
-      // Check every 2 seconds instead of 1
-      this.performanceMetrics.objectSpawnRate = this.spawnCount / 2;
-      this.spawnCount = 0;
-      this.lastSpawnReset = now;
-
-      // Track high spawn rate as potential performance issue
-      if (this.performanceMetrics.objectSpawnRate > 8) {
-        this.trackEvent({
-          type: "warning",
-          category: "performance",
-          message: "High object spawn rate detected",
-          data: { spawnRate: this.performanceMetrics.objectSpawnRate },
-        });
-      }
-    }
+    performanceTracker.trackObjectSpawn();
   }
 
   trackObjectTap(
@@ -283,6 +175,8 @@ class EventTracker {
     playerSide: "left" | "right",
     latency: number
   ) {
+    const { performanceTracker } = require("./event-tracking");
+
     this.trackEvent({
       type: "user_action",
       category: "game_interaction",
@@ -290,7 +184,7 @@ class EventTracker {
       data: { objectId, correct, playerSide, latency },
     });
 
-    this.performanceMetrics.touchLatency = latency;
+    performanceTracker.trackTouchLatency(latency);
   }
 
   trackGameStateChange(
@@ -351,16 +245,15 @@ class EventTracker {
   // Get recent events (for diagnostics)
   getRecentEvents(limit: number = 10): GameEvent[] {
     return this.events.slice(-limit).sort((a, b) => b.timestamp - a.timestamp);
+  } {
+    const { performanceTracker } = require("./event-tracking");
+    return performanceTracker.getPerformanceMetrics();
   }
 
-  getPerformanceMetrics(): PerformanceMetrics {
-    return { ...this.performanceMetrics };
-  }
-
-  // Reset performance metrics
+  // Reset performance metrics - delegated
   resetPerformanceMetrics() {
-    this.spawnCount = 0;
-    this.lastSpawnReset = Date.now();
+    const { performanceTracker } = require("./event-tracking");
+    performanceTracker.resetPerformanceMetrics()
     this.performanceMetrics.objectSpawnRate = 0;
     this.performanceMetrics.touchLatency = 0;
   }
@@ -375,168 +268,68 @@ class EventTracker {
     this.events = [];
   }
 
-  // Emoji lifecycle tracking methods
+  // Emoji lifecycle tracking methods - delegated to emojiTracker
   enableLifecycleTracking(enable: boolean = true) {
-    this.isLifecycleTrackingEnabled = enable;
-    if (enable) {
-      this.trackedEmojiCount = 0;
-      this.emojiLifecycles.clear();
-      if (import.meta.env.DEV) {
-        console.log(
-          "[EmojiTracker] Lifecycle tracking enabled - will track first",
-          this.maxTrackedEmojis,
-          "emojis"
-        );
-      }
-    }
+    const { emojiTracker } = require("./event-tracking");
+    emojiTracker.enableLifecycleTracking(enable);
   }
 
   trackEmojiLifecycle(
-    event: Omit<EmojiLifecycleEvent, "timestamp" | "duration">
+    event: Omit<import("./event-tracking").EmojiLifecycleEvent, "timestamp" | "duration">
   ) {
-    if (!this.isLifecycleTrackingEnabled) return;
-
-    const { objectId, emoji, name, phase, position, playerSide, data } = event;
-
-    // Get or create lifecycle array for this object
-    if (!this.emojiLifecycles.has(objectId)) {
-      // Stop tracking if we've reached max
-      if (this.trackedEmojiCount >= this.maxTrackedEmojis) {
-        return;
-      }
-      this.emojiLifecycles.set(objectId, []);
-      this.trackedEmojiCount++;
-    }
-
-    const lifecycleEvents = this.emojiLifecycles.get(objectId)!;
-    const firstEvent = lifecycleEvents[0];
-    const duration = firstEvent ? Date.now() - firstEvent.timestamp : 0;
-
-    const lifecycleEvent: EmojiLifecycleEvent = {
-      objectId,
-      emoji,
-      name,
-      phase,
-      timestamp: Date.now(),
-      duration,
-      position,
-      playerSide,
-      data,
-    };
-
-    lifecycleEvents.push(lifecycleEvent);
+    const { emojiTracker } = require("./event-tracking");
+    const lifecycleEvent = emojiTracker.trackEmojiLifecycle(event);
 
     // Also log to general event tracker
-    this.trackEvent({
-      type: "lifecycle",
-      category: "emoji_lifecycle",
-      message: `Emoji ${phase}: ${emoji} ${name}`,
-      data: lifecycleEvent as unknown as Record<string, unknown>,
-    });
-
-    // Only log to console in development mode
-    if (import.meta.env.DEV) {
-      console.log(
-        `[EmojiTracker #${this.emojiLifecycles.size}/${this.maxTrackedEmojis}] ${phase.toUpperCase()}: ${emoji} ${name}`,
-        `(${duration}ms)`,
-        position
-          ? `at (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`
-          : "",
-        playerSide ? `[${playerSide}]` : "",
-        data || ""
-      );
+    if (lifecycleEvent) {
+      this.trackEvent({
+        type: "lifecycle",
+        category: "emoji_lifecycle",
+        message: `Emoji ${event.phase}: ${event.emoji} ${event.name}`,
+        data: lifecycleEvent as unknown as Record<string, unknown>,
+      });
     }
   }
 
-  getEmojiLifecycle(objectId: string): EmojiLifecycleEvent[] | undefined {
-    return this.emojiLifecycles.get(objectId);
+  getEmojiLifecycle(objectId: string) {
+    const { emojiTracker } = require("./event-tracking");
+    return emojiTracker.getEmojiLifecycle(objectId);
   }
 
-  getAllEmojiLifecycles(): Map<string, EmojiLifecycleEvent[]> {
-    return new Map(this.emojiLifecycles);
+  getAllEmojiLifecycles() {
+    const { emojiTracker } = require("./event-tracking");
+    return emojiTracker.getAllEmojiLifecycles();
   }
 
   getLifecycleStats() {
-    const stats = {
-      totalTracked: this.emojiLifecycles.size,
-      maxTracked: this.maxTrackedEmojis,
-      isEnabled: this.isLifecycleTrackingEnabled,
-      emojis: [] as Array<{
-        objectId: string;
-        emoji: string;
-        name: string;
-        spawnTime: number;
-        phases: string[];
-        totalDuration: number;
-        wasCompleted: boolean;
-      }>,
-    };
-
-    this.emojiLifecycles.forEach((events, objectId) => {
-      if (events.length === 0) return;
-
-      const firstEvent = events[0];
-      const lastEvent = events[events.length - 1];
-      const phases = events.map((e) => e.phase);
-
-      stats.emojis.push({
-        objectId,
-        emoji: firstEvent.emoji,
-        name: firstEvent.name,
-        spawnTime: firstEvent.timestamp,
-        phases,
-        totalDuration: lastEvent.timestamp - firstEvent.timestamp,
-        wasCompleted: phases.includes("tapped") || phases.includes("removed"),
-      });
-    });
-
-    return stats;
+    const { emojiTracker } = require("./event-tracking");
+    return emojiTracker.getLifecycleStats();
   }
 
   clearLifecycleTracking() {
-    this.emojiLifecycles.clear();
-    this.trackedEmojiCount = 0;
-    if (import.meta.env.DEV) {
-      console.log("[EmojiTracker] Lifecycle tracking cleared");
-    }
+    const { emojiTracker } = require("./event-tracking");
+    emojiTracker.clearLifecycleTracking();
   }
 
-  // Audio playback tracking methods
-  trackAudioPlayback(event: Omit<AudioPlaybackEvent, "id" | "timestamp">) {
-    const audioEvent: AudioPlaybackEvent = {
-      id: `audio-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
-      timestamp: Date.now(),
-      ...event,
-    };
-
-    this.audioPlaybackEvents.push(audioEvent);
-
-    // Keep only recent events
-    if (this.audioPlaybackEvents.length > this.maxAudioEvents) {
-      this.audioPlaybackEvents = this.audioPlaybackEvents.slice(
-        -this.maxAudioEvents
-      );
-    }
+  // Audio playback tracking methods - delegated to audioEventTracker
+  trackAudioPlayback(event: Omit<import("./event-tracking").AudioPlaybackEvent, "id" | "timestamp">) {
+    const { audioEventTracker } = require("./event-tracking");
+    const audioEvent = audioEventTracker.trackAudioPlayback(event);
 
     // Also track in general event system
     this.trackEvent({
       type: event.success ? "info" : "warning",
       category: "audio_playback",
-      message: `Audio ${event.success ? "played" : "failed"}: ${event.audioKey}`,
+      message: `Audio ${event.success ? "played" : "failed"}: ${
+        event.audioKey
+      }`,
       data: audioEvent as unknown as Record<string, unknown>,
     });
-
-    if (import.meta.env.DEV) {
-      console.log(
-        `[AudioTracker] ${event.success ? "✓" : "✗"} ${event.method}:`,
-        event.audioKey,
-        event.error || ""
-      );
-    }
   }
 
-  getAudioPlaybackHistory(limit = 20): AudioPlaybackEvent[] {
-    return this.audioPlaybackEvents.slice(-limit).reverse();
+  getAudioPlaybackHistory(limit = 20) {
+    const { audioEventTracker } = require("./event-tracking");
+    return audioEventTracker.getAudioPlaybackHistory(limit);
   }
 
   // Language selection tracking
@@ -554,144 +347,52 @@ class EventTracker {
 
     if (import.meta.env.DEV) {
       console.log(
-        `[EventTracker] Language changed: ${previousLanguage || "unknown"} → ${language}`
+        `[EventTracker] Language changed: ${
+          previousLanguage || "unknown"
+        } → ${language}`
       );
     }
   }
 
   getAudioPlaybackStats() {
-    const stats = {
-      totalAttempts: this.audioPlaybackEvents.length,
-      successful: this.audioPlaybackEvents.filter((e) => e.success).length,
-      failed: this.audioPlaybackEvents.filter((e) => !e.success).length,
-      byMethod: {} as Record<string, { success: number; failed: number }>,
-    };
-
-    this.audioPlaybackEvents.forEach((event) => {
-      if (!stats.byMethod[event.method]) {
-        stats.byMethod[event.method] = { success: 0, failed: 0 };
-      }
-      if (event.success) {
-        stats.byMethod[event.method].success++;
-      } else {
-        stats.byMethod[event.method].failed++;
-      }
-    });
-
-    return stats;
+    const { audioEventTracker } = require("./event-tracking");
+    return audioEventTracker.getAudioPlaybackStats();
   }
 
-  // Emoji appearance tracking for rotation monitoring
+  // Emoji appearance tracking for rotation monitoring - delegated to emojiTracker
   initializeEmojiTracking(levelItems: Array<{ emoji: string; name: string }>) {
-    this.emojiAppearances.clear();
-
-    // Initialize tracking for all emojis in the level
-    levelItems.forEach((item) => {
-      this.emojiAppearances.set(item.emoji, {
-        emoji: item.emoji,
-        name: item.name,
-        lastAppearance: 0,
-        appearanceCount: 0,
-        timeSinceLastAppearance: 0,
-        audioPlayed: false,
-      });
-    });
-
-    if (import.meta.env.DEV) {
-      console.log(
-        `[EmojiRotation] Initialized tracking for ${levelItems.length} emojis`
-      );
-    }
+    const { emojiTracker } = require("./event-tracking");
+    emojiTracker.initializeEmojiTracking(levelItems);
   }
 
   trackEmojiAppearance(emoji: string, audioKey?: string) {
-    const stats = this.emojiAppearances.get(emoji);
-    if (!stats) {
-      // Emoji not in current level - shouldn't happen but handle gracefully
-      console.warn(
-        `[EmojiRotation] Tracking appearance of unknown emoji: ${emoji}`
-      );
-      return;
-    }
-
-    const now = Date.now();
-    stats.lastAppearance = now;
-    stats.appearanceCount++;
-    stats.audioPlayed = !!audioKey;
-    stats.audioKey = audioKey;
-    stats.timeSinceLastAppearance = 0;
-
-    // OPTIMIZATION: Removed forEach loop that updated all emojis on every appearance
-    // Time since last appearance is now calculated on-demand in getEmojiRotationStats()
-    // This reduces O(n) work to O(1) per spawn, significant for levels with many items
-
-    if (import.meta.env.DEV) {
-      console.log(
-        `[EmojiRotation] ${emoji} appeared (count: ${stats.appearanceCount}, audio: ${audioKey || "none"})`
-      );
-    }
+    const { emojiTracker } = require("./event-tracking");
+    emojiTracker.trackEmojiAppearance(emoji, audioKey);
   }
 
-  getEmojiRotationStats(): EmojiAppearanceStats[] {
-    const now = Date.now();
-    const stats: EmojiAppearanceStats[] = [];
-
-    this.emojiAppearances.forEach((stat) => {
-      const timeSince =
-        stat.lastAppearance > 0 ? now - stat.lastAppearance : now; // Never appeared = time since level start
-
-      stats.push({
-        ...stat,
-        timeSinceLastAppearance: timeSince,
-      });
-    });
-
-    // Sort by time since last appearance (longest wait first)
-    return stats.sort(
-      (a, b) => b.timeSinceLastAppearance - a.timeSinceLastAppearance
-    );
+  getEmojiRotationStats() {
+    const { emojiTracker } = require("./event-tracking");
+    return emojiTracker.getEmojiRotationStats();
   }
 
-  getOverdueEmojis(): EmojiAppearanceStats[] {
-    const stats = this.getEmojiRotationStats();
-    return stats.filter(
-      (stat) => stat.timeSinceLastAppearance > this.rotationThreshold
-    );
+  getOverdueEmojis() {
+    const { emojiTracker } = require("./event-tracking");
+    return emojiTracker.getOverdueEmojis();
   }
 
-  checkRotationHealth(): {
-    healthy: boolean;
-    overdueCount: number;
-    maxWaitTime: number;
-  } {
-    const allStats = this.getEmojiRotationStats();
-    const overdue = allStats.filter(
-      (stat) => stat.timeSinceLastAppearance > this.rotationThreshold
-    );
-    const maxWaitTime =
-      allStats.length > 0 ? allStats[0].timeSinceLastAppearance : 0;
-
-    const healthy = overdue.length === 0;
-
-    if (!healthy && import.meta.env.DEV) {
-      console.warn(
-        `[EmojiRotation] ⚠️ ${overdue.length} emojis overdue (>${this.rotationThreshold}ms):`,
-        overdue.map(
-          (e) =>
-            `${e.emoji} ${e.name} (${(e.timeSinceLastAppearance / 1000).toFixed(1)}s)`
-        )
-      );
-    }
-
-    return { healthy, overdueCount: overdue.length, maxWaitTime };
+  checkRotationHealth() {
+    const { emojiTracker } = require("./event-tracking");
+    return emojiTracker.checkRotationHealth();
   }
 
   clearAudioTracking() {
-    this.audioPlaybackEvents = [];
+    const { audioEventTracker } = require("./event-tracking");
+    audioEventTracker.clearAudioTracking();
   }
 
   clearEmojiRotationTracking() {
-    this.emojiAppearances.clear();
+    const { emojiTracker } = require("./event-tracking");
+    emojiTracker.clearEmojiRotationTracking();
   }
 }
 

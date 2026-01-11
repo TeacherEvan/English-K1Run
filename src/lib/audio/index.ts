@@ -27,3 +27,12 @@ export { SpeechSynthesizer, speechSynthesizer } from "./speech-synthesizer";
 
 // Audio player
 export { AudioPlayer, audioPlayer } from "./audio-player";
+
+// Optional audio sprite + accessibility helpers
+export {
+  announceAudioDescription,
+  describeIfEnabled,
+  isAudioDescriptionsEnabled,
+  setAudioDescriptionsEnabled,
+} from "./audio-accessibility";
+export { AudioSpritePlayer, audioSpritePlayer } from "./audio-sprite";

@@ -23,7 +23,8 @@ export type AudioMethod =
   | "html-audio"
   | "speech-synthesis"
   | "fallback-tone"
-  | "web-audio";
+  | "web-audio"
+  | "audio-sprite";
 
 /** Result of an audio playback attempt */
 export interface AudioPlaybackResult {

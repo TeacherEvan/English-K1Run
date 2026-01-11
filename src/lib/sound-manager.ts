@@ -1,5 +1,7 @@
 // Sound Manager - Enhanced audio system that supports wav and mp3 assets and speech-like cues
 
+import { describeIfEnabled } from "./audio/audio-accessibility";
+import { audioSpritePlayer } from "./audio/audio-sprite";
 import { speechSynthesizer } from "./audio/speech-synthesizer";
 import type { SupportedLanguage } from "./constants/language-config";
 import { getLanguageConfig } from "./constants/language-config";
@@ -21,6 +23,7 @@ enum AudioPriority {
 // Define audio files by priority for progressive loading
 const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
   [AudioPriority.CRITICAL]: [
+    "welcome",
     "welcome_association",
     "welcome_learning",
     "welcome_association_thai",
@@ -244,7 +247,9 @@ for (const [path, loader] of Object.entries(rawAudioFiles)) {
 // Debug: Log registered audio files (helpful for Vercel debugging)
 if (import.meta.env.DEV) {
   console.log(
-    `[SoundManager] Registered ${audioLoaderIndex.size} audio aliases from ${Object.keys(rawAudioFiles).length} files`
+    `[SoundManager] Registered ${audioLoaderIndex.size} audio aliases from ${
+      Object.keys(rawAudioFiles).length
+    } files`
   );
   console.log(
     "[SoundManager] Sample Keys:",
@@ -276,9 +281,22 @@ class SoundManager {
   private loadedPriorities = new Set<AudioPriority>(); // Track which priority levels have been loaded
   private preloadInProgress = false; // Prevent concurrent preloading
   private currentLanguage: SupportedLanguage = "en"; // Track current language
+  private useAudioSprite = false;
 
   constructor() {
     this.detectMobile();
+
+    // Optional audio sprite feature-flag
+    this.useAudioSprite = import.meta.env.VITE_AUDIO_SPRITE_ENABLED === "1";
+    if (this.useAudioSprite) {
+      const spriteUrl =
+        import.meta.env.VITE_AUDIO_SPRITE_URL || "/audio-sprites/sprite.mp3";
+      const manifestUrl =
+        import.meta.env.VITE_AUDIO_SPRITE_MANIFEST_URL ||
+        "/audio-sprites/sprite.json";
+      audioSpritePlayer.configure({ spriteUrl, manifestUrl });
+    }
+
     void this.initializeAudioContext();
     this.setupUserInteractionListener();
     // Start loading critical audio immediately (welcome screen, essential UI sounds)
@@ -346,6 +364,13 @@ class SoundManager {
         );
       }
       this.prepareFallbackEffects();
+
+      // Share AudioContext with optional sprite player
+      try {
+        audioSpritePlayer.setAudioContext(this.audioContext);
+      } catch {
+        // ignore
+      }
     } catch (error) {
       console.error(
         "[SoundManager] Audio context initialization failed:",
@@ -540,8 +565,9 @@ class SoundManager {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer =
-          await this.audioContext!.decodeAudioData(arrayBuffer);
+        const audioBuffer = await this.audioContext!.decodeAudioData(
+          arrayBuffer
+        );
         this.bufferCache.set(key, audioBuffer);
         this.loadingCache.delete(key);
         if (import.meta.env.DEV) {
@@ -1123,6 +1149,20 @@ class SoundManager {
         console.log(`[SoundManager] playSound called: "${soundName}"`);
       }
 
+      // Audio sprite (optional): try to play from a single bundled file
+      if (this.useAudioSprite && audioSpritePlayer.isConfigured()) {
+        const candidates = this.resolveCandidates(soundName);
+        for (const candidate of candidates) {
+          const played = await audioSpritePlayer.playClip(candidate, {
+            playbackRate,
+            volume: this.volume,
+          });
+          if (played) {
+            return;
+          }
+        }
+      }
+
       // On Android, prefer HTMLAudio for better compatibility
       if (this.preferHTMLAudio) {
         const candidates = this.resolveCandidates(soundName);
@@ -1150,6 +1190,9 @@ class SoundManager {
         console.warn(
           `[SoundManager] Sound "${soundName}" not available, using fallback`
         );
+
+        // Optional accessibility: announce what would have played
+        describeIfEnabled(`Sound: ${soundName}`);
         return;
       }
 
@@ -1160,6 +1203,7 @@ class SoundManager {
       }
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
+      describeIfEnabled(`Sound failed: ${soundName}`);
     }
   }
 
@@ -1247,6 +1291,28 @@ class SoundManager {
         }
       }
 
+      // Try audio sprite first (optional)
+      if (this.useAudioSprite && audioSpritePlayer.isConfigured()) {
+        const candidates = this.resolveCandidates(trimmed);
+        for (const candidate of candidates) {
+          const played = await audioSpritePlayer.playClip(candidate, {
+            playbackRate: 1.0,
+            volume: volumeOverride ?? this.volume,
+          });
+          if (played) {
+            const duration = performance.now() - startTime;
+            eventTracker.trackAudioPlayback({
+              audioKey: candidate,
+              targetName: trimmed,
+              method: "audio-sprite",
+              success: true,
+              duration,
+            });
+            return;
+          }
+        }
+      }
+
       // Try exact phrase as audio file (PRIORITY 2 when using sentence template, PRIORITY 1 when not)
       if (await this.playVoiceClip(trimmed, 1.0, undefined, volumeOverride)) {
         const duration = performance.now() - startTime;
@@ -1321,6 +1387,7 @@ class SoundManager {
       }
 
       // No audio played successfully
+      describeIfEnabled(`Target: ${trimmed}`);
       eventTracker.trackAudioPlayback({
         audioKey: trimmed,
         targetName: trimmed,
@@ -1438,6 +1505,77 @@ class SoundManager {
     const config = getLanguageConfig(this.currentLanguage);
     return config.elevenLabsVoiceId;
   }
+
+  /**
+   * Prefetch (download + decode) a list of audio keys in the background.
+   * Intended for "Level 2 during Level 1" style progressive loading.
+   */
+  async prefetchAudioKeys(keys: string[]): Promise<void> {
+    if (!this.isEnabled || keys.length === 0) return;
+
+    if (typeof window === "undefined") return;
+
+    // Ensure context is available (we want decodeAudioData, not just URL resolution)
+    await this.ensureInitialized();
+    if (!this.audioContext) return;
+
+    const unique = Array.from(
+      new Set(keys.map((k) => k.trim()).filter(Boolean))
+    );
+
+    const work = async () => {
+      // Preload sprite in background if enabled
+      if (this.useAudioSprite && audioSpritePlayer.isConfigured()) {
+        await audioSpritePlayer.prefetch();
+      }
+
+      const promises: Promise<void>[] = [];
+      for (const key of unique) {
+        const candidates = this.resolveCandidates(key);
+        for (const candidate of candidates) {
+          if (
+            this.bufferCache.has(candidate) ||
+            this.loadingCache.has(candidate)
+          ) {
+            continue;
+          }
+
+          if (!audioLoaderIndex.has(candidate)) {
+            continue;
+          }
+
+          const p = this.loadFromIndex(candidate)
+            .then(() => {})
+            .catch(() => {});
+          promises.push(p);
+          break;
+        }
+      }
+
+      await Promise.allSettled(promises);
+    };
+
+    // Schedule during idle time when possible
+    if ("requestIdleCallback" in window) {
+      (
+        window as unknown as {
+          requestIdleCallback: (
+            cb: () => void,
+            opts?: { timeout: number }
+          ) => void;
+        }
+      ).requestIdleCallback(
+        () => {
+          void work();
+        },
+        { timeout: 1500 }
+      );
+    } else {
+      window.setTimeout(() => {
+        void work();
+      }, 250);
+    }
+  }
 }
 
 export const soundManager = new SoundManager();
@@ -1455,6 +1593,10 @@ export const playSoundEffect = {
   stopAll: () => soundManager.stopAllAudio(),
   // Single-word pronunciation removed - only full sentence announcements and celebration allowed
 };
+
+// Hook-friendly prefetch helper (does not change playSoundEffect surface)
+export const prefetchAudioKeys = (keys: string[]) =>
+  soundManager.prefetchAudioKeys(keys);
 
 // Export debug function for troubleshooting
 export const getAudioDebugInfo = () => soundManager.getDebugInfo();

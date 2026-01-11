@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "spriteUrl": "/audio-sprites/sprite.mp3",
+  "clips": {
+    "tap": { "start": 0.0, "end": 0.12, "description": "Tap sound" },
+    "success": { "start": 0.12, "end": 0.85, "description": "Success sound" },
+    "wrong": {
+      "start": 0.85,
+      "end": 1.35,
+      "description": "Wrong answer sound"
+    },
+    "win": { "start": 1.35, "end": 2.2, "description": "Win sound" },
+    "welcome": { "start": 2.2, "end": 7.2, "description": "Welcome music" }
+  }
+}
