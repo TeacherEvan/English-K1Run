@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-import { eventTracker, GameEvent, PerformanceMetrics } from '../lib/event-tracker'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from 'react'
+import { eventTracker, GameEvent, PerformanceMetrics } from '../lib/event-tracker'
 
 interface EventTrackerDebugProps {
   isVisible: boolean
@@ -53,7 +53,7 @@ export function EventTrackerDebug({ isVisible, onToggle }: EventTrackerDebugProp
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <CardHeader className="flex-shrink-0">
+        <CardHeader className="shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle>Event Tracker Debug</CardTitle>
             <div className="flex gap-2">
@@ -86,11 +86,11 @@ export function EventTrackerDebug({ isVisible, onToggle }: EventTrackerDebugProp
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="flex-1 overflow-hidden flex flex-col gap-4">
           {/* Performance Metrics */}
           {performanceMetrics && (
-            <div className="grid grid-cols-4 gap-4 flex-shrink-0">
+            <div className="grid grid-cols-4 gap-4 shrink-0">
               <Card>
                 <CardContent className="p-3">
                   <div className="text-sm font-medium">Frame Rate</div>
@@ -119,7 +119,7 @@ export function EventTrackerDebug({ isVisible, onToggle }: EventTrackerDebugProp
           )}
 
           {/* Filter Buttons */}
-          <div className="flex gap-2 flex-shrink-0">
+          <div className="flex gap-2 shrink-0">
             {(['all', 'error', 'warning', 'info', 'user_action'] as const).map(type => (
               <Button
                 key={type}
@@ -169,7 +169,7 @@ export function EventTrackerDebug({ isVisible, onToggle }: EventTrackerDebugProp
                 </div>
               </Card>
             ))}
-            
+
             {events.length === 0 && (
               <div className="text-center text-muted-foreground py-8">
                 No events found for the selected filter.

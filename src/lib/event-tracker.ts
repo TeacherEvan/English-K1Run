@@ -9,6 +9,10 @@
  * This file remains as the main facade for general event logging.
  */
 
+import { audioEventTracker } from "./event-tracking/audio-event-tracker";
+import { emojiTracker } from "./event-tracking/emoji-tracker";
+import { performanceTracker } from "./event-tracking/performance-tracker";
+
 // Re-export subsystem types and singletons for backward compatibility
 export type {
   AudioPlaybackEvent,
@@ -21,7 +25,7 @@ export {
   audioEventTracker,
   emojiTracker,
   performanceTracker,
-} from "./event-tracking";
+};
 
 export interface GameEvent {
   id: string;
@@ -43,6 +47,10 @@ export interface GameEvent {
   url?: string;
 }
 
+/**
+ * Main event tracker for general application events, errors, and lifecycle tracking.
+ * Delegates specialized tracking to focused subsystems.
+ */
 class EventTracker {
   private events: GameEvent[] = [];
   private maxEvents = 500;
@@ -114,7 +122,6 @@ class EventTracker {
    * @deprecated Use performanceTracker.startPerformanceMonitoring() directly
    */
   startPerformanceMonitoring() {
-    const { performanceTracker } = require("./event-tracking");
     performanceTracker.startPerformanceMonitoring();
   }
 
@@ -123,7 +130,6 @@ class EventTracker {
    * @deprecated Use performanceTracker.stopPerformanceMonitoring() directly
    */
   stopPerformanceMonitoring() {
-    const { performanceTracker } = require("./event-tracking");
     performanceTracker.stopPerformanceMonitoring()event.category}: ${event.message}`,
         event.data
       );
@@ -147,8 +153,6 @@ class EventTracker {
     objectType: string,
     position?: { x?: number; y?: number; count?: number }
   ) {
-    const { performanceTracker } = require("./event-tracking");
-
     // Batch track spawns to reduce overhead
     if (position?.count) {
       this.trackEvent({
@@ -175,8 +179,6 @@ class EventTracker {
     playerSide: "left" | "right",
     latency: number
   ) {
-    const { performanceTracker } = require("./event-tracking");
-
     this.trackEvent({
       type: "user_action",
       category: "game_interaction",
@@ -246,13 +248,11 @@ class EventTracker {
   getRecentEvents(limit: number = 10): GameEvent[] {
     return this.events.slice(-limit).sort((a, b) => b.timestamp - a.timestamp);
   } {
-    const { performanceTracker } = require("./event-tracking");
     return performanceTracker.getPerformanceMetrics();
   }
 
   // Reset performance metrics - delegated
   resetPerformanceMetrics() {
-    const { performanceTracker } = require("./event-tracking");
     performanceTracker.resetPerformanceMetrics()
     this.performanceMetrics.objectSpawnRate = 0;
     this.performanceMetrics.touchLatency = 0;
@@ -270,14 +270,12 @@ class EventTracker {
 
   // Emoji lifecycle tracking methods - delegated to emojiTracker
   enableLifecycleTracking(enable: boolean = true) {
-    const { emojiTracker } = require("./event-tracking");
     emojiTracker.enableLifecycleTracking(enable);
   }
 
   trackEmojiLifecycle(
     event: Omit<import("./event-tracking").EmojiLifecycleEvent, "timestamp" | "duration">
   ) {
-    const { emojiTracker } = require("./event-tracking");
     const lifecycleEvent = emojiTracker.trackEmojiLifecycle(event);
 
     // Also log to general event tracker
@@ -292,28 +290,23 @@ class EventTracker {
   }
 
   getEmojiLifecycle(objectId: string) {
-    const { emojiTracker } = require("./event-tracking");
     return emojiTracker.getEmojiLifecycle(objectId);
   }
 
   getAllEmojiLifecycles() {
-    const { emojiTracker } = require("./event-tracking");
     return emojiTracker.getAllEmojiLifecycles();
   }
 
   getLifecycleStats() {
-    const { emojiTracker } = require("./event-tracking");
     return emojiTracker.getLifecycleStats();
   }
 
   clearLifecycleTracking() {
-    const { emojiTracker } = require("./event-tracking");
     emojiTracker.clearLifecycleTracking();
   }
 
   // Audio playback tracking methods - delegated to audioEventTracker
   trackAudioPlayback(event: Omit<import("./event-tracking").AudioPlaybackEvent, "id" | "timestamp">) {
-    const { audioEventTracker } = require("./event-tracking");
     const audioEvent = audioEventTracker.trackAudioPlayback(event);
 
     // Also track in general event system
@@ -328,7 +321,6 @@ class EventTracker {
   }
 
   getAudioPlaybackHistory(limit = 20) {
-    const { audioEventTracker } = require("./event-tracking");
     return audioEventTracker.getAudioPlaybackHistory(limit);
   }
 
@@ -355,49 +347,44 @@ class EventTracker {
   }
 
   getAudioPlaybackStats() {
-    const { audioEventTracker } = require("./event-tracking");
     return audioEventTracker.getAudioPlaybackStats();
   }
 
   // Emoji appearance tracking for rotation monitoring - delegated to emojiTracker
   initializeEmojiTracking(levelItems: Array<{ emoji: string; name: string }>) {
-    const { emojiTracker } = require("./event-tracking");
     emojiTracker.initializeEmojiTracking(levelItems);
   }
 
   trackEmojiAppearance(emoji: string, audioKey?: string) {
-    const { emojiTracker } = require("./event-tracking");
     emojiTracker.trackEmojiAppearance(emoji, audioKey);
   }
 
   getEmojiRotationStats() {
-    const { emojiTracker } = require("./event-tracking");
     return emojiTracker.getEmojiRotationStats();
   }
 
   getOverdueEmojis() {
-    const { emojiTracker } = require("./event-tracking");
     return emojiTracker.getOverdueEmojis();
   }
 
   checkRotationHealth() {
-    const { emojiTracker } = require("./event-tracking");
     return emojiTracker.checkRotationHealth();
   }
 
   clearAudioTracking() {
-    const { audioEventTracker } = require("./event-tracking");
     audioEventTracker.clearAudioTracking();
   }
 
   clearEmojiRotationTracking() {
-    const { emojiTracker } = require("./event-tracking");
     emojiTracker.clearEmojiRotationTracking();
   }
 }
 
-// Create singleton instance
+// Create singleton instance and export for use throughout the application
 export const eventTracker = new EventTracker();
+
+// Force TypeScript to recognize the export
+export type { EventTracker };
 
 // Expose to global for debugging
 if (typeof window !== "undefined") {
