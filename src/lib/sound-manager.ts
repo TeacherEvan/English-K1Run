@@ -565,9 +565,8 @@ class SoundManager {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await this.audioContext!.decodeAudioData(
-          arrayBuffer
-        );
+        const audioBuffer =
+          await this.audioContext!.decodeAudioData(arrayBuffer);
         this.bufferCache.set(key, audioBuffer);
         this.loadingCache.delete(key);
         if (import.meta.env.DEV) {
@@ -1141,7 +1140,11 @@ class SoundManager {
    * @param playbackRate - Playback speed (default 0.9 for slightly slower)
    * @returns Promise that resolves when audio finishes playing
    */
-  async playSound(soundName: string, playbackRate = 0.9): Promise<void> {
+  async playSound(
+    soundName: string,
+    playbackRate = 0.9,
+    volumeOverride?: number
+  ): Promise<void> {
     if (!this.isEnabled) return;
 
     try {
@@ -1155,7 +1158,7 @@ class SoundManager {
         for (const candidate of candidates) {
           const played = await audioSpritePlayer.playClip(candidate, {
             playbackRate,
-            volume: this.volume,
+            volume: volumeOverride ?? this.volume,
           });
           if (played) {
             return;
@@ -1167,7 +1170,12 @@ class SoundManager {
       if (this.preferHTMLAudio) {
         const candidates = this.resolveCandidates(soundName);
         for (const candidate of candidates) {
-          const played = await this.playWithHtmlAudio(candidate, playbackRate);
+          const played = await this.playWithHtmlAudio(
+            candidate,
+            playbackRate,
+            undefined,
+            volumeOverride
+          );
           if (played) {
             console.log(`[SoundManager] Played with HTMLAudio: "${soundName}"`);
             return;
@@ -1197,7 +1205,13 @@ class SoundManager {
       }
 
       // Use startBufferAsync to wait for audio to complete before returning
-      await this.startBufferAsync(buffer, 0, soundName, playbackRate);
+      await this.startBufferAsync(
+        buffer,
+        0,
+        soundName,
+        playbackRate,
+        volumeOverride
+      );
       if (import.meta.env.DEV) {
         console.log(`[SoundManager] Finished playing sound: "${soundName}"`);
       }

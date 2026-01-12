@@ -32,6 +32,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
   const [readyToContinue, setReadyToContinue] = useState(false)
+  const [sequenceFinished, setSequenceFinished] = useState(false)
   const splashSrc = '/welcome-sangsom.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
@@ -74,58 +75,105 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   }, [onComplete])
 
   useEffect(() => {
+    // After narration ends, auto-advance so classes aren't stuck at the splash.
+    // Still allows tap/keys to skip earlier.
+    if (isE2E) return
+    if (!sequenceFinished) return
+    if (fadeOut) return
+
+    const timer = window.setTimeout(() => {
+      proceed()
+    }, 900)
+
+    return () => window.clearTimeout(timer)
+  }, [fadeOut, isE2E, proceed, sequenceFinished])
+
+  useEffect(() => {
     if (isE2E) {
-      // Deterministic bypass for Playwright (avoids audio + user-input gating)
+      // Deterministic bypass for Playwright
       setTimeout(onComplete, 0)
       return
     }
 
-    // Set ready to continue after brief delay - user can tap anytime
-    const quickReadyTimer = setTimeout(() => {
+    // Safety timer: If audio system fails or hangs, enable continue button after 3s
+    // and auto-advance after 15s. This prevents "Stuck on loading" issues.
+    const safetyBtnTimer = setTimeout(() => {
+      console.log("[WelcomeScreen] Safety timer: Enabling interaction fallback")
       setReadyToContinue(true)
-    }, 2000)
+    }, 3000)
+
+    const safetyEndTimer = setTimeout(() => {
+      if (!sequenceFinished) {
+        console.warn("[WelcomeScreen] Safety timer triggered - forcing sequence completion");
+        setSequenceFinished(true)
+        setReadyToContinue(true)
+      }
+    }, 15000)
 
     let cancelled = false
     let audioStarted = false
 
+    // Timeout wrapper for audio calls to prevent infinite hanging
+    const playWithTimeout = async (name: string, playbackRate: number, volume: number) => {
+      const timeout = new Promise<void>((_, reject) =>
+        setTimeout(() => reject(new Error('Audio timeout')), 4000)
+      )
+      try {
+        await Promise.race([
+          soundManager.playSound(name, playbackRate, volume),
+          timeout
+        ])
+      } catch (e) {
+        console.warn(`[WelcomeScreen] Audio ${name} timed out or failed:`, e)
+      }
+    }
+
     // Start audio playback - tries immediately, retries on user interaction
-    // playSound now properly waits for audio completion, eliminating overlap
     const startAudioSequence = async () => {
       if (audioStarted || cancelled) return
       audioStarted = true
 
       try {
-        // Phase 1: English - playSound waits for completion
+        console.log("[WelcomeScreen] Starting audio sequence...");
+        // Ensure nothing else is playing under the narration.
+        soundManager.stopAllAudio()
+
+        // Phase 1: English
         if (!cancelled) setCurrentPhase(1)
-        await soundManager.playSound('welcome_association')
-        // Small gap between phrases for natural pacing
+        await playWithTimeout('welcome_association', 0.9, 0.85)
         await new Promise(resolve => setTimeout(resolve, 300))
 
         // Phase 2: English
         if (!cancelled) setCurrentPhase(2)
-        await soundManager.playSound('welcome_learning')
+        await playWithTimeout('welcome_learning', 0.9, 0.85)
         await new Promise(resolve => setTimeout(resolve, 300))
 
-        // Phase 3: Thai
+        // Phase 3: Thai (Slowed)
         if (!cancelled) setCurrentPhase(3)
-        await soundManager.playSound('welcome_association_thai')
+        // Thai: slowed by 20% for clarity
+        await playWithTimeout('welcome_association_thai', 0.8, 0.95)
         await new Promise(resolve => setTimeout(resolve, 300))
 
-        // Phase 4: Thai
+        // Phase 4: Thai (Slowed)
         if (!cancelled) setCurrentPhase(4)
-        await soundManager.playSound('welcome_learning_thai')
-        await new Promise(resolve => setTimeout(resolve, 300))
+        // Thai: slowed by 20% for clarity
+        await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
 
-        if (!cancelled) setReadyToContinue(true)
-      } catch (err) {
-        if (import.meta.env.DEV) {
-          console.log('[WelcomeScreen] Audio error:', err)
+        if (!cancelled) {
+          console.log("[WelcomeScreen] Sequence finished normally")
+          setReadyToContinue(true)
+          setSequenceFinished(true)
         }
-        if (!cancelled) setReadyToContinue(true)
+      } catch (err) {
+        console.warn('[WelcomeScreen] Audio sequence failed:', err)
+        if (!cancelled) {
+          setReadyToContinue(true)
+          setSequenceFinished(true)
+        }
       }
     }
 
-    // Try to start audio immediately (may fail without user interaction)
+    // Try to start immediately
     startAudioSequence()
 
     // Fallback: Also trigger on first user interaction if audio hasn't started
@@ -136,14 +184,15 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }
 
     // Listen for user interaction to unlock audio
-    const events = ['click', 'touchstart', 'keydown']
+    const events = ['click', 'touchstart', 'keydown'] as const
     events.forEach(event => {
       document.addEventListener(event, handleInteraction, { once: true, passive: true })
     })
 
     return () => {
       cancelled = true
-      clearTimeout(quickReadyTimer)
+      clearTimeout(safetyBtnTimer)
+      clearTimeout(safetyEndTimer)
       soundManager.stopAllAudio()
       events.forEach(event => {
         document.removeEventListener(event, handleInteraction)
