@@ -3,13 +3,61 @@ import react from "@vitejs/plugin-react-swc";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: [
+        "favicon.ico",
+        "favicon.svg",
+        "apple-touch-icon.png",
+        "og-image.png",
+        "welcome-sangsom.png",
+        "backgrounds/**",
+      ],
+      manifest: {
+        name: "Kindergarten Race - Educational Game",
+        short_name: "K-Race",
+        description:
+          "An engaging educational racing game where students compete by identifying falling objects. Perfect for kindergarten students to learn pattern recognition while having fun!",
+        start_url: "/",
+        scope: "/",
+        display: "standalone",
+        orientation: "landscape",
+        theme_color: "#6366f1",
+        background_color: "#ffffff",
+        categories: ["education", "games", "kids"],
+        lang: "en-US",
+        dir: "ltr",
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,ttf,eot}"],
+        runtimeCaching: [
+          {
+            urlPattern: /\\.(?:wav|mp3|ogg)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "audio-cache-v2",
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: {
+                maxEntries: 250,
+                maxAgeSeconds: 90 * 24 * 60 * 60,
+                purgeOnQuotaError: true,
+              },
+            },
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),

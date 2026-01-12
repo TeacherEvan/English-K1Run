@@ -11,12 +11,40 @@ import "./main.css";
 
 // Defer non-critical initialization until after first paint
 if (typeof window !== 'undefined') {
-  // Use requestIdleCallback for service worker (non-blocking)
-  const initServiceWorker = () => import('./lib/service-worker-registration')
+  // Service worker registration (PWA) - non-blocking
+  const initServiceWorker = async () => {
+    if (!import.meta.env.PROD) return
+
+    try {
+      const { registerSW } = await import('virtual:pwa-register')
+
+      const updateSW = registerSW({
+        onNeedRefresh() {
+          // Keep this prompt simple for classroom usage
+          if (window.confirm('Update available. Reload now?')) {
+            updateSW(true)
+          }
+        },
+        onOfflineReady() {
+          console.log('[PWA] Ready to work offline')
+        },
+        onRegisterError(error) {
+          console.warn('[PWA] Service worker registration failed:', error)
+        },
+      })
+    } catch (error) {
+      console.warn('[PWA] Failed to initialize PWA registration:', error)
+    }
+  }
+
   if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(initServiceWorker)
+    window.requestIdleCallback(() => {
+      void initServiceWorker()
+    })
   } else {
-    setTimeout(initServiceWorker, 1000)
+    setTimeout(() => {
+      void initServiceWorker()
+    }, 1000)
   }
 }
 
