@@ -2,30 +2,26 @@
  * Event tracking system for monitoring game errors and lifecycle
  *
  * Refactored Jan 2026: Split into focused modules for better maintainability.
- * - Audio tracking → src/lib/event-tracking/audio-event-tracker.ts
- * - Emoji tracking → src/lib/event-tracking/emoji-tracker.ts
- * - Performance → src/lib/event-tracking/performance-tracker.ts
- * 
+ * - Audio metrics → src/lib/event-metrics/audio-event-tracker.ts
+ * - Emoji metrics → src/lib/event-metrics/emoji-tracker.ts
+ * - Performance → src/lib/event-metrics/performance-tracker.ts
+ *
  * This file remains as the main facade for general event logging.
  */
 
-import { audioEventTracker } from "./event-tracking/audio-event-tracker";
-import { emojiTracker } from "./event-tracking/emoji-tracker";
-import { performanceTracker } from "./event-tracking/performance-tracker";
+import { audioEventTracker } from "./event-metrics/audio-event-tracker";
+import { emojiTracker } from "./event-metrics/emoji-tracker";
+import { performanceTracker } from "./event-metrics/performance-tracker";
 
 // Re-export subsystem types and singletons for backward compatibility
 export type {
   AudioPlaybackEvent,
-  EmojiLifecycleEvent,
   EmojiAppearanceStats,
+  EmojiLifecycleEvent,
   PerformanceMetrics,
-} from "./event-tracking";
+} from "./event-metrics";
 
-export {
-  audioEventTracker,
-  emojiTracker,
-  performanceTracker,
-};
+export { audioEventTracker, emojiTracker, performanceTracker };
 
 export interface GameEvent {
   id: string;
@@ -108,17 +104,17 @@ class EventTracker {
 
   /**
    * Track an event with automatic timestamping and ID generation.
-   * 
+   *
    * This is the core internal method for recording all application events.
    * It automatically enriches events with:
    * - Unique ID (timestamp + random string)
    * - Current timestamp
    * - User agent information
    * - Current URL
-   * 
+   *
    * Events are stored in a circular buffer (max 500 events).
    * In development mode, errors are automatically logged to console.
-   * 
+   *
    * @param event - Event data without auto-generated fields (id, timestamp, userAgent, url)
    * @private
    */
@@ -288,7 +284,10 @@ class EventTracker {
   }
 
   trackEmojiLifecycle(
-    event: Omit<import("./event-tracking").EmojiLifecycleEvent, "timestamp" | "duration">
+    event: Omit<
+      import("./event-metrics").EmojiLifecycleEvent,
+      "timestamp" | "duration"
+    >
   ) {
     const lifecycleEvent = emojiTracker.trackEmojiLifecycle(event);
 
@@ -320,7 +319,12 @@ class EventTracker {
   }
 
   // Audio playback tracking methods - delegated to audioEventTracker
-  trackAudioPlayback(event: Omit<import("./event-tracking").AudioPlaybackEvent, "id" | "timestamp">) {
+  trackAudioPlayback(
+    event: Omit<
+      import("./event-metrics").AudioPlaybackEvent,
+      "id" | "timestamp"
+    >
+  ) {
     const audioEvent = audioEventTracker.trackAudioPlayback(event);
 
     // Also track in general event system

@@ -1,9 +1,9 @@
 /**
- * Event Tracking System - Barrel Export
+ * Event Metrics System - Barrel Export
  *
  * Centralized exports for all event tracking subsystems.
  *
- * @module event-tracking
+ * @module event-metrics
  */
 
 // Audio tracking

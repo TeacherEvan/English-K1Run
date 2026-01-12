@@ -40,6 +40,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,ttf,eot}"],
+        // Increase limit to 10MB for large background images
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /\\.(?:wav|mp3|ogg)$/i,
