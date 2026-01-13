@@ -1,10 +1,11 @@
-import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, startTransition, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { LanguageContext } from '../context/language'
 import { soundManager } from '../lib/sound-manager'
+import { Button } from './ui/button'
 
 interface WelcomeScreenProps {
   onComplete: () => void
 }
-
 
 export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
@@ -12,6 +13,10 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [sequenceFinished, setSequenceFinished] = useState(false)
   const audioStartedRef = useRef(false)
   const startAudioSequenceRef = useRef<(() => void) | null>(null)
+
+  const languageContext = useContext(LanguageContext)
+  const { language, setLanguage } = languageContext || { language: 'en', setLanguage: () => { } }
+
   const splashSrc = '/welcome-sangsom.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
@@ -64,7 +69,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     // Timeout wrapper for audio calls to prevent infinite hanging
     const playWithTimeout = async (name: string, playbackRate: number, volume: number) => {
       const timeout = new Promise<void>((_, reject) =>
-        setTimeout(() => reject(new Error('Audio timeout')), 4000)
+        setTimeout(() => reject(new Error('Audio timeout')), 8000)
       )
       try {
         await Promise.race([
@@ -177,6 +182,44 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         data-testid="welcome-screen-splash"
         onClick={handlePrimaryAction}
       />
+
+      {/* Interactive Overlay */}
+      <div className="absolute inset-0 flex flex-col justify-end pointer-events-none pb-[12vh] px-8">
+
+        {/* Start Game Button - Centered */}
+        <div className="flex justify-center w-full pointer-events-auto mb-4">
+          <Button
+            onClick={handlePrimaryAction}
+            className="text-2xl md:text-3xl font-bold px-12 py-8 rounded-full bg-[#7CC444] hover:bg-[#6ab335] text-white border-4 border-white shadow-xl transition-transform hover:scale-105 active:scale-95 uppercase tracking-wide"
+          >
+            Start Game ▶
+          </Button>
+        </div>
+
+        {/* Language Toggles - Bottom Right */}
+        <div className="absolute bottom-6 right-6 flex gap-3 pointer-events-auto">
+          <Button
+            variant="outline"
+            onClick={(e) => { e.stopPropagation(); setLanguage('en'); }}
+            className={`w-14 h-14 rounded-xl text-xl font-bold border-2 transition-colors ${language === 'en'
+                ? 'bg-[#E36C2F] text-white border-white'
+                : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
+              }`}
+          >
+            EN
+          </Button>
+          <Button
+            variant="outline"
+            onClick={(e) => { e.stopPropagation(); setLanguage('th'); }}
+            className={`w-14 h-14 rounded-xl text-xl font-bold border-2 transition-colors ${language === 'th'
+                ? 'bg-[#E36C2F] text-white border-white'
+                : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
+              }`}
+          >
+            TH
+          </Button>
+        </div>
+      </div>
 
       <style>{`
         @keyframes fadeIn {

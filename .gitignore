@@ -112,3 +112,5 @@ storybook-static
 .sentryclirc
 e2e/test-results
 playwright-report
+
+.fake
