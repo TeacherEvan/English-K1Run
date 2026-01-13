@@ -22,10 +22,10 @@ export const LANGUAGE_CONFIGS: Record<SupportedLanguage, LanguageConfig> = {
     code: "en",
     name: "English",
     nativeName: "English",
-    elevenLabsVoiceId: "zmcVlqmyk3Jpn5AVYcAL", // Existing voice from codebase
+    elevenLabsVoiceId: "E4IXevHtHpKGh0bvrPPr", // Alice - default voice for English audio generation
     languageCode: "en",
-    voiceName: "English US",
-    fallbackLocale: "en-US",
+    voiceName: "Alice",
+    fallbackLocale: "en-GB",
     direction: "ltr",
   },
   fr: {

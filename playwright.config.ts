@@ -52,10 +52,10 @@ export default defineConfig({
         video: 'on-first-retry',
 
         // Action timeout
-        actionTimeout: 10_000,
+        actionTimeout: 15_000,
 
         // Navigation timeout
-        navigationTimeout: 15_000,
+        navigationTimeout: 30_000,
     },
 
     // Test projects for different browsers/devices

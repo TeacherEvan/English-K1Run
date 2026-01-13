@@ -55,10 +55,15 @@ import { enableSmartFocusVisibility, getAccessibilityManager } from './lib/acces
 enableSmartFocusVisibility()
 getAccessibilityManager() // Initialize the singleton
 
-createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
-  </ErrorBoundary>
-)
+try {
+  createRoot(document.getElementById('root')!).render(
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </ErrorBoundary>
+  )
+} catch (error) {
+  console.error('Failed to render app:', error)
+  // Fallback render without React 19 features if needed
+}

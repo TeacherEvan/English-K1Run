@@ -55,9 +55,10 @@ loadDotEnvIfPresent();
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
 
 // Multi-language voice IDs (from src/lib/constants/language-config.ts)
+// English uses "Alice" (E4IXevHtHpKGh0bvrPPr) - default voice for English audio generation
 // Thai male voice changed to "Daniel" - softer, warmer narrator voice
 const VOICE_IDS = {
-  en: process.env.ELEVENLABS_VOICE_ID || "zmcVlqmyk3Jpn5AVYcAL",
+  en: process.env.ELEVENLABS_VOICE_ID || "E4IXevHtHpKGh0bvrPPr", // Alice (default)
   fr: process.env.ELEVENLABS_VOICE_ID_FR || "EXAVITQu4EsNXjluf0k5",
   ja: process.env.ELEVENLABS_VOICE_ID_JA || "z9f4UheRPK2ZesPXd14b",
   // Changed from BZlaCzXKMq7g5K1RdF0T to Daniel (onwK4e9ZLuTAKqWW03F9) - softer, warmer

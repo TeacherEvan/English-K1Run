@@ -165,6 +165,7 @@ const buttonVariants = cva("base-classes", {
 - **Key Mapping**: `emoji_apple.wav` → keys `"apple"` and `"emoji_apple"`
 - **Context Lifecycle**: Starts `suspended`, auto-resumes on first user interaction
 - **Language Support**: Uses ElevenLabs voices via `sound-manager.setLanguage(code)`
+- **Default Voice**: Alice (ElevenLabs Voice ID: `E4IXevHtHpKGh0bvrPPr`) - used for English audio generation
 
 ```tsx
 // Playing audio on correct tap

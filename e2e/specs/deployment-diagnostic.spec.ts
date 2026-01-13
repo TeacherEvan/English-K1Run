@@ -56,7 +56,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
         timeout: 10000,
       });
       console.log("✅ Game menu loaded successfully");
-    } catch (e) {
+    } catch (_e) {
       console.log("❌ Game menu did not appear within timeout");
       // This might be expected if there are loading issues
     }
