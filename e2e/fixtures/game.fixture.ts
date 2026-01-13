@@ -43,10 +43,20 @@ export class GamePage {
 
   // Wait for game to be ready
   async waitForReady() {
-    await this.page.waitForSelector('[data-testid="game-menu"]', {
-      state: "visible",
-      timeout: 10_000,
-    });
+    try {
+      await this.page.waitForSelector('[data-testid="game-menu"]', {
+        state: "visible",
+        timeout: 10_000,
+      });
+    } catch (e) {
+      // Check for error fallback
+      const errorFallback = this.page.locator('[data-testid="error-fallback"]');
+      if (await errorFallback.isVisible()) {
+        const errorText = await errorFallback.innerText();
+        throw new Error(`Game crashed with error: ${errorText}`);
+      }
+      throw e;
+    }
   }
 
   // Trigger user interaction to enable audio/fullscreen

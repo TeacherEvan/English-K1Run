@@ -185,6 +185,7 @@ export const LoadingSkeleton = memo(({
         role="status"
         aria-live="polite"
         aria-label="Loading menu"
+        data-testid="loading-menu-skeleton"
       >
         <div className="text-center space-y-4">
           <div

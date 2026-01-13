@@ -95,7 +95,6 @@ export default defineConfig({
       "class-variance-authority",
       "clsx",
       "tailwind-merge",
-      "lucide-react",
     ],
     force: false,
     esbuildOptions: {
@@ -106,6 +105,7 @@ export default defineConfig({
       legalComments: "none",
       minify: true,
     },
+    exclude: [],
   },
   build: {
     sourcemap: false,
@@ -137,7 +137,6 @@ export default defineConfig({
 
             // UI utilities and styling - CONSOLIDATED to prevent circular deps
             if (
-              id.includes("lucide-react") ||
               id.includes("class-variance-authority") ||
               id.includes("clsx") ||
               id.includes("tailwind-merge")

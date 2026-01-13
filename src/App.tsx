@@ -14,7 +14,10 @@ const GameMenu = lazy(() =>
   import('./components/GameMenu').then(m => ({ default: m.GameMenu }))
 )
 const WelcomeScreen = lazy(() =>
-  import('./components/Welcome').then(m => ({ default: m.WelcomeScreen }))
+  import('./components/WelcomeScreen').then(m => ({ default: m.WelcomeScreen }))
+)
+const LanguageGate = lazy(() =>
+  import('./components/LanguageGate').then(m => ({ default: m.LanguageGate }))
 )
 const Stopwatch = lazy(() =>
   import('./components/Stopwatch').then(m => ({ default: m.Stopwatch }))
@@ -101,21 +104,20 @@ const requestFullscreen = () => {
 }
 
 function App() {
-  const {
-    displaySettings
-  } = useDisplayAdjustment()
+  console.log('DEBUG: App rendering, isE2E:', typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1');
+  const { displaySettings } = useDisplayAdjustment()
 
   // State declarations must come before hooks that use them
-  // Check if running in E2E test mode (bypass welcome screen)
-  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
+  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1'
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
   const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
-  const [showWelcome, setShowWelcome] = useState(!isE2E) // Show welcome screen on first load (skip in E2E mode)
   const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
-  const [debugVisible, setDebugVisible] = useState(false) // Debug overlays toggle (Ctrl+D / Cmd+D)
+  const [startupStep, setStartupStep] = useState<'welcome' | 'language' | 'menu'>(isE2E ? 'menu' : 'welcome')
+  const [debugVisible, setDebugVisible] = useState(false)
+
   const [bestTime, setBestTime] = useState(() => {
     if (typeof window === 'undefined') return 0
     try {
@@ -131,19 +133,16 @@ function App() {
     }
     return 0
   })
+
   const handleContinuousRunComplete = useCallback((time: number) => {
-    setBestTime(prev => {
-      if (time > prev) {
-        localStorage.setItem('continuousModeBestTime', time.toString())
-        return time
-      }
-      return prev
-    })
+    setBestTime(prev => (time > prev ? time : prev))
   }, [])
+
   // Initialize web vitals monitoring on mount
   useEffect(() => {
     initWebVitalsMonitoring()
   }, [])
+
   const {
     gameObjects,
     worms,
@@ -183,7 +182,11 @@ function App() {
 
   // Handle welcome screen completion
   const handleWelcomeComplete = useCallback(() => {
-    setShowWelcome(false)
+    setStartupStep('language')
+  }, [])
+
+  const handleLanguageContinue = useCallback(() => {
+    setStartupStep('menu')
   }, [])
 
   // Handle continuous mode toggle
@@ -308,11 +311,19 @@ function App() {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])
 
-  // Show welcome screen on first load (after all hooks)
-  if (showWelcome) {
+  // Startup gate flow: Welcome -> Language -> Menu
+  if (startupStep === 'welcome') {
     return (
       <Suspense fallback={<LoadingSkeleton variant="welcome" />}>
         <WelcomeScreen onComplete={handleWelcomeComplete} />
+      </Suspense>
+    )
+  }
+
+  if (startupStep === 'language') {
+    return (
+      <Suspense fallback={<LoadingSkeleton variant="menu" />}>
+        <LanguageGate onContinue={handleLanguageContinue} />
       </Suspense>
     )
   }
@@ -442,6 +453,7 @@ function App() {
             continuousMode={continuousMode}
             onToggleContinuousMode={handleToggleContinuousMode}
             bestTime={bestTime}
+            initialView="main"
           />
         </Suspense>
 

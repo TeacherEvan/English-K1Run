@@ -8,8 +8,19 @@ import { useLanguage } from '@/hooks/use-language'
 import { LANGUAGE_OPTIONS, SupportedLanguage } from '@/lib/constants/language-config'
 import { cn } from '@/lib/utils'
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { Check, ChevronDown } from 'lucide-react'
+// import { Check, ChevronDown } from 'lucide-react'
 import React, { useState } from 'react'
+
+const Check = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("lucide lucide-check", className)}>
+    <path d="M20 6 9 17l-5-5"/>
+  </svg>
+)
+const ChevronDown = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("lucide lucide-chevron-down", className)}>
+    <path d="m6 9 6 6 6-6"/>
+  </svg>
+)
 
 interface LanguageSelectorProps {
     className?: string

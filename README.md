@@ -59,6 +59,11 @@ npm run test:e2e:debug   # Debug E2E tests
 # Production
 npm run build            # Build for production
 npm run preview          # Preview production build
+
+# Dependencies
+npm run requirements     # Generate REQUIREMENTS.txt (all dependencies)
+npm run requirements:md  # Generate DEPENDENCIES.md (markdown format)
+npm run requirements:json # Generate requirements.json (JSON format)
 ```
 
 ## 🏗️ Architecture

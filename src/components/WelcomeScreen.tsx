@@ -1,4 +1,4 @@
-import { memo, startTransition, useCallback, useEffect, useState } from 'react'
+import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { soundManager } from '../lib/sound-manager'
 
@@ -33,6 +33,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [currentPhase, setCurrentPhase] = useState<AudioPhase>(null)
   const [readyToContinue, setReadyToContinue] = useState(false)
   const [sequenceFinished, setSequenceFinished] = useState(false)
+  const audioStartedRef = useRef(false)
+  const startAudioSequenceRef = useRef<(() => void) | null>(null)
   const splashSrc = '/welcome-sangsom.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
@@ -74,19 +76,20 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     setTimeout(onComplete, 350)
   }, [onComplete])
 
-  useEffect(() => {
-    // After narration ends, auto-advance so classes aren't stuck at the splash.
-    // Still allows tap/keys to skip earlier.
-    if (isE2E) return
-    if (!sequenceFinished) return
-    if (fadeOut) return
-
-    const timer = window.setTimeout(() => {
+  const handlePrimaryAction = useCallback(() => {
+    if (isE2E) {
       proceed()
-    }, 900)
+      return
+    }
 
-    return () => window.clearTimeout(timer)
-  }, [fadeOut, isE2E, proceed, sequenceFinished])
+    // First interaction should unlock and begin audio on browsers with autoplay blocking.
+    if (!readyToContinue) {
+      startAudioSequenceRef.current?.()
+      return
+    }
+
+    proceed()
+  }, [isE2E, proceed, readyToContinue])
 
   useEffect(() => {
     if (isE2E) {
@@ -111,7 +114,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }, 15000)
 
     let cancelled = false
-    let audioStarted = false
 
     // Timeout wrapper for audio calls to prevent infinite hanging
     const playWithTimeout = async (name: string, playbackRate: number, volume: number) => {
@@ -130,8 +132,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
     // Start audio playback - tries immediately, retries on user interaction
     const startAudioSequence = async () => {
-      if (audioStarted || cancelled) return
-      audioStarted = true
+      if (audioStartedRef.current || cancelled) return
+      audioStartedRef.current = true
 
       try {
         console.log("[WelcomeScreen] Starting audio sequence...");
@@ -173,13 +175,15 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
     }
 
-    // Try to start immediately
-    startAudioSequence()
+    // Expose starter for user interaction (autoplay policies require gesture)
+    startAudioSequenceRef.current = () => {
+      void startAudioSequence()
+    }
 
     // Fallback: Also trigger on first user interaction if audio hasn't started
     const handleInteraction = () => {
-      if (!audioStarted && !cancelled) {
-        startAudioSequence()
+      if (!audioStartedRef.current && !cancelled) {
+        void startAudioSequence()
       }
     }
 
@@ -194,6 +198,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       clearTimeout(safetyBtnTimer)
       clearTimeout(safetyEndTimer)
       soundManager.stopAllAudio()
+      startAudioSequenceRef.current = null
       events.forEach(event => {
         document.removeEventListener(event, handleInteraction)
       })
@@ -205,14 +210,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
         e.preventDefault()
-        proceed()
+        handlePrimaryAction()
       }
     }
     window.addEventListener('keydown', handleKey)
     return () => {
       window.removeEventListener('keydown', handleKey)
     }
-  }, [proceed])
+  }, [handlePrimaryAction])
 
   return (
     <div
@@ -228,7 +233,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         alt="Welcome"
         className="absolute inset-0 w-full h-full object-cover"
         data-testid="welcome-screen-splash"
-        onClick={proceed}
+        onClick={handlePrimaryAction}
       />
 
       {/* Text overlay - shows phase content or initial "Tap to start" message */}

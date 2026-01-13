@@ -4,65 +4,182 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
+
     <!-- Performance & Caching -->
     <meta name="cache-control" content="no-cache, no-store, must-revalidate" />
     <meta name="pragma" content="no-cache" />
     <meta name="expires" content="0" />
-    
+
     <!-- SEO & Description -->
-    <meta name="description" content="Kindergarten Race - An engaging educational racing game where students compete by identifying falling objects to advance their turtle characters. Perfect for pattern recognition and learning!" />
-    <meta name="keywords" content="kindergarten, educational game, learning game, pattern recognition, children game, tablet game" />
+    <meta name="description"
+        content="Kindergarten Race - An engaging educational racing game where students compete by identifying falling objects to advance their turtle characters. Perfect for pattern recognition and learning!" />
+    <meta name="keywords"
+        content="kindergarten, educational game, learning game, pattern recognition, children game, tablet game" />
     <meta name="author" content="Kindergarten Race Team" />
-    
+
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Kindergarten Race - Educational Game" />
-    <meta property="og:description" content="Fun educational racing game for kindergarten students. Tap falling objects to advance your turtle!" />
+    <meta property="og:description"
+        content="Fun educational racing game for kindergarten students. Tap falling objects to advance your turtle!" />
     <meta property="og:image" content="/og-image.png" />
-    
+
     <!-- PWA / Mobile -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="K-Race" />
     <meta name="theme-color" content="#3b82f6" />
-    
+
     <title>Kindergarten Race - Educational Game</title>
-    
+
+    <script>
+      // Polyfill for CJS modules that might be loaded in ESM context (fixes 'exports is not defined')
+      window.exports = window.exports || {};
+    </script>
+
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
-    
+
     <!-- Preconnect to external domains for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
+
     <!-- Font with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    
+
     <!-- DNS Prefetch for potential external resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    
+
     <!-- Preload critical assets -->
     <!-- Temporarily removed modulepreload to fix MIME type issues -->
+
+    <style>
+        /* Boot fallback overlay - shown if app doesn't load within 5 seconds */
+        #boot-fallback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 2rem;
+            text-align: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            z-index: 9999;
+            color: white;
+        }
+
+        #boot-fallback.show {
+            display: flex;
+        }
+
+        #boot-fallback h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        #boot-fallback p {
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        #boot-fallback ul {
+            text-align: left;
+            max-width: 500px;
+            margin-bottom: 2rem;
+        }
+
+        #boot-fallback li {
+            margin-bottom: 0.75rem;
+            opacity: 0.85;
+        }
+
+        #boot-fallback button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #boot-fallback button:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 
 <body>
     <div id="root"></div>
+
+    <!-- Boot fallback overlay for module loading issues -->
+    <div id="boot-fallback">
+        <h1>🔧 Game Loading Issue</h1>
+        <p>The game is having trouble loading. This usually happens due to browser extensions or strict security
+            settings.</p>
+        <ul>
+            <li>✓ Try disabling ad-blockers or privacy extensions temporarily</li>
+            <li>✓ Check if your browser is blocking scripts or modules</li>
+            <li>✓ Ensure you have a stable internet connection</li>
+            <li>✓ Try refreshing the page (F5 or Ctrl+R)</li>
+        </ul>
+        <button onclick="location.reload()">🔄 Reload Game</button>
+    </div>
+
+    <script>
+        // Boot detection - show fallback if app doesn't mount within 5 seconds
+        (function () {
+            var bootTimer = setTimeout(function () {
+                if (!window.__APP_BOOTED__) {
+                    console.warn('[Boot] App failed to mount within 5s, showing fallback');
+                    document.getElementById('boot-fallback').classList.add('show');
+                }
+            }, 5000);
+
+            // Also check if root is still empty after 3 seconds (quick detection)
+            setTimeout(function () {
+                var root = document.getElementById('root');
+                if (root && root.children.length === 0 && !window.__APP_BOOTED__) {
+                    console.warn('[Boot] Root empty after 3s, likely module load failure');
+                }
+            }, 3000);
+
+            // Cleanup if app boots successfully
+            window.addEventListener('__app_ready__', function () {
+                clearTimeout(bootTimer);
+                var overlay = document.getElementById('boot-fallback');
+                if (overlay) overlay.style.display = 'none';
+            });
+        })();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
-    
+
     <!-- No-JS Fallback -->
     <noscript>
-        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+        <div
+            style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
             <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #1f2937;">JavaScript Required</h1>
-            <p style="font-size: 1.125rem; color: #6b7280; max-width: 500px;">This game requires JavaScript to run. Please enable JavaScript in your browser settings and reload the page.</p>
+            <p style="font-size: 1.125rem; color: #6b7280; max-width: 500px;">This game requires JavaScript to run.
+                Please enable JavaScript in your browser settings and reload the page.</p>
         </div>
     </noscript>
 </body>

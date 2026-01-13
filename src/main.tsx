@@ -63,6 +63,10 @@ try {
       </LanguageProvider>
     </ErrorBoundary>
   )
+
+  // Signal successful app boot
+  window.__APP_BOOTED__ = true
+  window.dispatchEvent(new Event('__app_ready__'))
 } catch (error) {
   console.error('Failed to render app:', error)
   // Fallback render without React 19 features if needed

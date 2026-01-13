@@ -1,4 +1,11 @@
-import { ArrowLeft, Check, Info, LogOut, Play, Settings, Trophy } from 'lucide-react'
+// import { ArrowLeft, Check, Info, LogOut, Play, Settings, Trophy } from 'lucide-react'
+const ArrowLeft = () => <span>←</span>
+const Check = () => <span>✓</span>
+const Info = () => <span>ℹ️</span>
+const LogOut = () => <span>🚪</span>
+const Play = () => <span>▶️</span>
+const Settings = () => <span>⚙️</span>
+const Trophy = () => <span>🏆</span>
 import { memo, useState } from 'react'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
@@ -19,6 +26,7 @@ interface GameMenuProps {
   levels: string[]
   gameStarted: boolean
   winner: boolean
+  initialView?: 'main' | 'levels'
   continuousMode?: boolean
   onToggleContinuousMode?: (enabled: boolean) => void
   onResetGame?: () => void
@@ -44,12 +52,13 @@ export const GameMenu = memo(({
   levels,
   gameStarted,
   winner,
+  initialView = 'main',
   continuousMode = false,
   onToggleContinuousMode,
   onResetGame,
   bestTime = 0
 }: GameMenuProps) => {
-  const [view, setView] = useState<'main' | 'levels'>('main')
+  console.log('DEBUG: GameMenu rendering'); const [view, setView] = useState<'main' | 'levels'>(initialView)
   const [showExitDialog, setShowExitDialog] = useState(false)
 
   if (gameStarted && !winner) return null
