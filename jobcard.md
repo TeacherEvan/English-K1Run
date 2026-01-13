@@ -7,6 +7,28 @@ Repo: TeacherEvan/English-K1Run (branch: main)
 
 Complete TODO.md Quick Wins tasks and fix build errors.
 
+### Build System Recovery & UI Polish (January 14, 2026)
+
+#### Build Stability & Welcome Screen Overhaul ✅
+
+- **Issue Identified**: Project build was failing due to TypeScript configuration errors (`baseUrl`), circular type dependencies, and invalid Tailwind v4 usage. Additionally, the Welcome Screen text overlay was obscuring the partner graphics.
+
+- **Solution Implemented**:
+  - **TypeScript Config**: Updated `tsconfig.json` to handle TS 7.0 deprecations (`ignoreDeprecations: "6.0"`) and fixed `paths`.
+  - **Type Consolidation**: Centralized game types in `src/types/game.ts` to resolve import cycles.
+  - **Tailwind v4 Fixes**: Updated `LoadingSkeleton.tsx` and `ErrorFallback.tsx` to use valid v4 syntax (replaced `bg-gradient-*` with `bg-linear-*`).
+  - **UI Restoration**: Completely removed the text overlay from `WelcomeScreen.tsx` to prioritize the background image, while maintaining the audio sequence.
+  - **Linting Compliance**: Cleaned up `WelcomeScreen.tsx` to remove unused variables and logic.
+
+- **Files Modified**:
+  - [tsconfig.json](tsconfig.json)
+  - [src/types/game.ts](src/types/game.ts)
+  - [src/components/LoadingSkeleton.tsx](src/components/LoadingSkeleton.tsx)
+  - [src/ErrorFallback.tsx](src/ErrorFallback.tsx)
+  - [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
+
+- **Impact**: Restored a clean `npm run verify` build state and fulfilled the specific UI requirement to remove the "ugly display" on the welcome screen.
+
 ## Work Completed
 
 ### TTS Voice Quality Enhancement (January 13, 2026)
