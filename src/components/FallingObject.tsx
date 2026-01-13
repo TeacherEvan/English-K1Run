@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import { GameObject } from '../hooks/use-game-logic'
+import type { GameObject } from '../types/game'
 import { multiTouchHandler } from '../lib/touch-handler'
 
 interface FallingObjectProps {

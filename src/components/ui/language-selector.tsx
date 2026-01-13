@@ -5,7 +5,7 @@
  */
 
 import { useLanguage } from '@/hooks/use-language'
-import { LANGUAGE_OPTIONS, SupportedLanguage } from '@/lib/constants/language-config'
+import { LANGUAGE_OPTIONS, type SupportedLanguage } from '@/lib/constants/language-config'
 import { cn } from '@/lib/utils'
 import * as SelectPrimitive from '@radix-ui/react-select'
 // import { Check, ChevronDown } from 'lucide-react'
@@ -130,7 +130,7 @@ export const LanguageSelector = React.forwardRef<
                                         className={cn(
                                             'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none',
                                             'focus:bg-accent focus:text-accent-foreground',
-                                            'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+                                            'data-disabled:pointer-events-none data-disabled:opacity-50',
                                             'hover:bg-accent hover:text-accent-foreground',
                                             'transition-colors duration-150'
                                         )}

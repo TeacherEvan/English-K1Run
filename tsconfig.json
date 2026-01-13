@@ -29,11 +29,10 @@
     "noUncheckedSideEffectImports": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    /* Path aliases - silence TS deprecation diagnostics */
-    "baseUrl": ".",
+    /* Path aliases */
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     },
   },

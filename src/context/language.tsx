@@ -1,4 +1,4 @@
-import { SupportedLanguage } from '@/lib/constants/language-config'
+import type { SupportedLanguage } from '@/lib/constants/language-config'
 import { createContext } from 'react'
 
 export interface LanguageContextValue {

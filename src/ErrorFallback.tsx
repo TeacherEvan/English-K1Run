@@ -77,7 +77,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
   }
 
   return (
-    <div data-testid="error-fallback" className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-destructive/10 via-background to-destructive/5 p-4">
+    <div data-testid="error-fallback" className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-destructive/10 via-background to-destructive/5 p-4">
       <Card className="max-w-2xl w-full p-8 shadow-2xl border-destructive/20 animate-in fade-in zoom-in duration-500">
         {/* Error Icon */}
         <div className="mb-6 flex justify-center">

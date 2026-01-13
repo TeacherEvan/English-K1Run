@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import { WormObject } from '../hooks/use-game-logic'
+import type { WormObject } from '../types/game'
 import { multiTouchHandler } from '../lib/touch-handler'
 import './WormLoadingScreen.css'; // Reuse existing wiggle animation
 

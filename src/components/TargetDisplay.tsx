@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { GameCategory } from '../hooks/use-game-logic'
+import type { GameCategory } from '../types/game'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
 

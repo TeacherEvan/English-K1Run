@@ -34,7 +34,7 @@ export const LoadingSkeleton = memo(({
     return (
       <div
         className={cn(
-          "h-screen w-screen flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20 transition-all duration-500",
+          "h-screen w-screen flex items-center justify-center bg-linear-to-br from-primary/20 to-secondary/20 transition-all duration-500",
           className
         )}
         role="status"
@@ -122,14 +122,14 @@ export const LoadingSkeleton = memo(({
         aria-live="polite"
       >
         <div
-          className="w-64 h-20 rounded-2xl bg-gradient-to-br from-primary/40 to-secondary/40 relative overflow-hidden"
+          className="w-64 h-20 rounded-2xl bg-linear-to-br from-primary/40 to-secondary/40 relative overflow-hidden"
           style={{
             animation: 'pulse 1.5s ease-in-out infinite'
           }}
         >
           {/* Shimmer overlay effect */}
           <div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent"
             style={{
               animation: 'shimmerSlide 2s ease-in-out infinite',
               transform: 'translateX(-100%)'
@@ -144,7 +144,7 @@ export const LoadingSkeleton = memo(({
     return (
       <div
         className={cn(
-          "h-screen w-screen flex items-center justify-center bg-gradient-to-br from-blue-900/80 to-purple-900/80",
+          "h-screen w-screen flex items-center justify-center bg-linear-to-br from-blue-900/80 to-purple-900/80",
           className
         )}
         role="status"
@@ -213,7 +213,7 @@ export const LoadingSkeleton = memo(({
       <div className="h-full w-full animate-pulse" />
       {/* Shimmer gradient overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
         style={{
           animation: 'shimmerSlide 2s ease-in-out infinite',
           transform: 'translateX(-100%)'
