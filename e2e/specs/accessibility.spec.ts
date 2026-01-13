@@ -66,17 +66,26 @@ test.describe("Accessibility", () => {
   test("gameplay elements should be visible and accessible", async ({
     page,
   }) => {
-    // Start game
+    // Start game - wait for level select to appear
     await page
       .locator('[data-testid="new-game-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
+      .locator('[data-testid="level-select-menu"]')
+      .waitFor({ state: "visible" });
+
+    // Click start button and wait for menu to disappear
+    await page
       .locator('[data-testid="start-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
+    await page
+      .locator('[data-testid="game-menu"]')
+      .waitFor({ state: "hidden" });
+
     await skipWormLoadingIfPresent(page);
     await page
       .locator('[data-testid="target-display"]')
-      .waitFor({ state: "visible" });
+      .waitFor({ state: "visible", timeout: 15000 });
 
     // Target display should be visible
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible();

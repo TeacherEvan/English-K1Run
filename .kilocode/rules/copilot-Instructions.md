@@ -1,4 +1,4 @@
-﻿# Copilot Instructions for Kindergarten Race Game
+# Copilot Instructions for Kindergarten Race Game
 
 ## Project Overview
 
@@ -124,14 +124,7 @@ npm run install:android  # Use before build on ARM64/Android (--legacy-peer-deps
 
 - All page navigations use `waitUntil: 'domcontentloaded'` (PWA/service worker compatible)
 - Button clicks use `.evaluate(el => el.click())` pattern for stability
-- **Page Object Models** in `e2e/fixtures/game.fixture.ts`:
-  - `GamePage` - Main page wrapper with navigation helpers
-  - `GameMenuPage` - Menu interactions (level selection, settings)
-  - `GameplayPage` - Game interactions (tapping objects, progress tracking)
-  - `AudioMock` - Prevents actual audio playback in tests
-- **Custom Fixtures**: Extend Playwright's `test` with `gamePage` and `audioMock`
-- **Pattern**: Use `gamePage.menu.startGame()` instead of direct selectors
-- Tests organized in `e2e/specs/` by feature area (accessibility, gameplay, menu, touch)
+- Fixtures in `e2e/fixtures/game.fixture.ts` provide page object models
 
 ## Component Patterns
 
@@ -203,57 +196,16 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 **Add New Game Category**:
 
 1. Add to `GAME_CATEGORIES` in `src/lib/constants/game-categories.ts`
-2. Generate audio files using `scripts/generate-audio.cjs`:
-
-   ```bash
-   node scripts/generate-audio.cjs --language all  # All 6 languages
-   node scripts/generate-audio.cjs --language en   # English only
-   ```
-
-   - Requires `ELEVENLABS_API_KEY` in `.env`
-   - Voice IDs defined in `scripts/generate-audio.cjs` (synced with `language-config.ts`)
-   - Uses `eleven_multilingual_v2` model for all languages
-   - Outputs to `/sounds/{name}_{lang}.wav` format
-
+2. Add `.wav` files to `/sounds/` with matching names (use ElevenLabs scripts)
 3. Add sentence templates to `src/lib/constants/sentence-templates.ts` (all 6 languages)
 4. Update i18n files in `src/locales/*.json` if adding UI strings
-
-**Other Audio Scripts**:
-
-- `generate-missing-audio.cjs` - Detect and generate missing audio files
-- `optimize-audio.cjs` - Convert/optimize audio formats
-- `list-elevenlabs-voices.cjs` - List available ElevenLabs voices
 
 **Adjust Difficulty**: Modify constants in `src/lib/constants/game-config.ts`:
 
 - `MAX_ACTIVE_OBJECTS` (30), `SPAWN_COUNT` (8), `TARGET_GUARANTEE_COUNT` (2)
 - `WORM_INITIAL_COUNT` (3), `WORM_RECURRING_COUNT` (1), `WORM_RECURRING_INTERVAL` (15000ms)
 
-**Debug Performance**:
-
-- Set `debugVisible` in `App.tsx` to show FPS, event logs, CSS vars
-- **Performance Profiler** (`src/lib/performance-profiler.ts`):
-  - Tracks component render times (mount, update, nested-update phases)
-  - Configurable slow render threshold (default: 16.67ms for 60fps)
-  - Uses React `<Profiler>` component + Performance API
-  - Max 100 measurements stored (configurable)
-  - Access via `performanceProfiler.getMeasurements()`
-- **Event Tracker** (`src/lib/event-tracker.ts`):
-  - Singleton for global error/performance logging
-  - Max 500 events (auto-prunes oldest)
-  - Tracks: emoji lifecycle, object spawns, collisions, audio events
-  - Methods: `trackError()`, `trackEmojiLifecycle()`, `trackObjectSpawn()`
-  - View events in debug panel or console
-
-**Continuous Mode Implementation**:
-
-- Controlled by `continuousMode` prop passed to `useGameLogic` hook
-- When enabled: progress auto-resets at 100% instead of showing winner screen
-- High score tracking in `localStorage` key: `continuousModeHighScore`
-- Timer starts on game start, tracks completion time for each cycle
-- Toggle UI in `GameMenu.tsx` Settings dialog (checkbox before language selector)
-- State managed in `App.tsx` with localStorage persistence
-- Target pool refills automatically on each cycle for variety
+**Debug Performance**: Set `debugVisible` in `App.tsx` to show FPS, event logs, CSS vars.
 
 **Add New Language**:
 
@@ -270,15 +222,8 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 - **Percentage Coordinates**: Always use 5-95% range, never pixels
 - **Audio Init**: Requires user interaction; context starts `suspended`
 - **Singletons**: Never `new` the trackers—they init on import
-- **i18n Namespace**: Always use `t('namespace:key')` pattern for translations
-- **CJK Fonts**: Chinese/Japanese need specific font families from `language-config.ts`
-- **E2E Tests**: Use `?e2e=1` param to skip welcome screen for deterministic tests
 
 ## Key Documentation
 
-- `DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices (PWA, animations, accessibility)
-- `DOCS/MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling for QBoard displays
-- `DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md` - i18n architecture and ElevenLabs integration
-- `DOCS/E2E_TESTING_IMPROVEMENTS_DEC2025.md` - Playwright patterns and page object models
-- `DOCS/MODULARIZATION_REFACTORING_JAN2026.md` - Audio and game module organization
-- `DOCS/PWA_PERFORMANCE_OPTIMIZATION_JAN2026.md` - Service worker caching strategies
+- `DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices
+- `DOCS/MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling for QBoard

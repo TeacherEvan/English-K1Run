@@ -48,6 +48,7 @@ import { PROGRESS_MILESTONES } from './lib/constants/engagement-system'
 // Utilities
 import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
 import { eventTracker } from './lib/event-tracker'
+import { initWebVitalsMonitoring } from './lib/web-vitals-monitor'
 
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
@@ -105,11 +106,14 @@ function App() {
   } = useDisplayAdjustment()
 
   // State declarations must come before hooks that use them
+  // Check if running in E2E test mode (bypass welcome screen)
+  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
+
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
   const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
-  const [showWelcome, setShowWelcome] = useState(true) // Show welcome screen on first load
+  const [showWelcome, setShowWelcome] = useState(!isE2E) // Show welcome screen on first load (skip in E2E mode)
   const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
   const [debugVisible, setDebugVisible] = useState(false) // Debug overlays toggle (Ctrl+D / Cmd+D)
   const [bestTime, setBestTime] = useState(() => {
@@ -136,7 +140,10 @@ function App() {
       return prev
     })
   }, [])
-
+  // Initialize web vitals monitoring on mount
+  useEffect(() => {
+    initWebVitalsMonitoring()
+  }, [])
   const {
     gameObjects,
     worms,
