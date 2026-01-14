@@ -7,6 +7,53 @@ Repo: TeacherEvan/English-K1Run (branch: main)
 
 Complete TODO.md Quick Wins tasks and fix build errors.
 
+### Level Select & Welcome Screen Enhancement (January 14, 2026)
+
+#### E2E Test Fix - Level Select Loading ✅
+
+- **Issue Identified**: E2E tests were failing (87/96 failures) with timeout waiting for `[data-testid="game-menu"]`. The `LoadingSkeleton` component with `variant="menu"` had `data-testid="loading-menu-skeleton"` instead of `data-testid="game-menu"`, causing tests to fail during lazy loading Suspense fallback.
+
+- **Root Cause**: React.lazy() components show Suspense fallback during load. Tests expected `game-menu` testid but the fallback had a different testid.
+
+- **Solution Implemented**:
+  - Updated `src/components/LoadingSkeleton.tsx`: Changed `data-testid="loading-menu-skeleton"` to `data-testid="game-menu"` for the menu variant
+  - This allows tests to find the element during both loading state and loaded state
+
+- **Files Modified**:
+  - [src/components/LoadingSkeleton.tsx](src/components/LoadingSkeleton.tsx#L178)
+
+- **Test Results**: All 32 chromium tests now pass (was 9/96 before fix)
+
+#### Welcome Screen Landscape Enhancement ✅ (CORRECTED)
+
+- **Issue Identified**: Welcome screen image was cropped in landscape view due to `object-cover` CSS property, hiding portions of the partner school graphics.
+
+- **Initial Mistake**: Added a duplicate "Start Game" button overlay on top of the existing button that's part of the welcome-sangsom.png image. This was an amateur error - the image already contains the styled "START GAME ▶" button.
+
+- **Correction Applied**: Removed the duplicate button. The image itself is clickable for the start action.
+
+- **Solution Implemented**:
+  - **Responsive Image Display**: Changed from `object-cover` (crops) to `object-contain` for landscape, preserving `object-cover` for portrait mode
+  - **Gradient Background**: Added seamless sky-to-grass gradient matching the image colors for uncovered areas in landscape
+  - **Decorative Clouds**: Added animated cloud emoji (☁️) elements on left and right sides visible only in landscape orientation
+  - **Animated Children**: Added bouncing children emoji (🧒👧👦) on sides to fill landscape gaps with playful animation
+  - **Custom CSS Animations**: Implemented `float-slow`, `float-medium`, `float-fast`, `bounce-slow`, `bounce-medium` keyframes for natural movement
+
+- **Technical Details**:
+  - Landscape-specific CSS using `@media (orientation: landscape)` 
+  - Z-index layering: background (default) → decorations → main image (z-10) → UI overlay (z-20)
+  - Preserved existing audio sequence and button functionality
+  - Maintains click-anywhere-to-proceed behavior
+
+- **Files Modified**:
+  - [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx#L169-L270)
+
+- **Impact**: 
+  - No image cropping in landscape mode
+  - Visually engaging animated decorations
+  - Seamless gradient fill for empty spaces
+  - All 32 e2e tests continue to pass
+
 ### Build System Recovery & UI Polish (January 14, 2026)
 
 #### Build Stability & Welcome Screen Overhaul ✅

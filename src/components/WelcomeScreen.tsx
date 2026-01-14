@@ -173,28 +173,48 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       data-testid="welcome-screen"
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
+        // Gradient background matching image's sky/grass for landscape seamless extension
+        background: 'linear-gradient(to bottom, #87CEEB 0%, #A8D8EA 30%, #B8E6C1 60%, #6DBE4A 80%, #4A9E3A 100%)',
       }}
+      onClick={handlePrimaryAction}
     >
-      <img
-        src={splashSrc}
-        alt="Welcome"
-        className="absolute inset-0 w-full h-full object-cover"
-        data-testid="welcome-screen-splash"
-        onClick={handlePrimaryAction}
+      {/* Decorative clouds for landscape - left side */}
+      <div className="absolute left-0 top-0 h-full w-1/4 pointer-events-none overflow-hidden hidden landscape:block">
+        <div className="absolute top-[10%] left-[5%] text-6xl animate-float-slow opacity-90">☁️</div>
+        <div className="absolute top-[25%] left-[15%] text-5xl animate-float-medium opacity-80">☁️</div>
+        <div className="absolute top-[5%] left-[20%] text-4xl animate-float-fast opacity-70">☁️</div>
+        {/* Animated children silhouettes - left */}
+        <div className="absolute bottom-[15%] left-[10%] text-4xl animate-bounce-slow">🧒</div>
+        <div className="absolute bottom-[18%] left-[20%] text-3xl animate-bounce-medium">👧</div>
+      </div>
+
+      {/* Decorative clouds for landscape - right side */}
+      <div className="absolute right-0 top-0 h-full w-1/4 pointer-events-none overflow-hidden hidden landscape:block">
+        <div className="absolute top-[15%] right-[10%] text-5xl animate-float-medium opacity-85">☁️</div>
+        <div className="absolute top-[8%] right-[20%] text-6xl animate-float-slow opacity-90">☁️</div>
+        <div className="absolute top-[30%] right-[5%] text-4xl animate-float-fast opacity-75">☁️</div>
+        {/* Animated children silhouettes - right */}
+        <div className="absolute bottom-[20%] right-[15%] text-4xl animate-bounce-medium">👦</div>
+        <div className="absolute bottom-[12%] right-[8%] text-3xl animate-bounce-slow">🧒</div>
+      </div>
+
+      {/* Grass extension for landscape bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-[20%] pointer-events-none hidden landscape:block"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, #6DBE4A 30%, #4A9E3A 100%)',
+        }}
       />
 
-      {/* Interactive Overlay */}
-      <div className="absolute inset-0 flex flex-col justify-end pointer-events-none pb-[12vh] px-8">
+      {/* Main welcome image - uses contain to prevent cropping */}
+      <img
+        src={splashSrc}
+        alt="Welcome to Sangsom Kindergarten"
+        className="absolute inset-0 w-full h-full object-contain landscape:object-contain portrait:object-cover z-10"
+        data-testid="welcome-screen-splash"
+      />
 
-        {/* Start Game Button - Centered */}
-        <div className="flex justify-center w-full pointer-events-auto mb-4">
-          <Button
-            onClick={handlePrimaryAction}
-            className="text-2xl md:text-3xl font-bold px-12 py-8 rounded-full bg-[#7CC444] hover:bg-[#6ab335] text-white border-4 border-white shadow-xl transition-transform hover:scale-105 active:scale-95 uppercase tracking-wide"
-          >
-            Start Game ▶
-          </Button>
-        </div>
+      {/* Interactive Overlay - Language toggles only, Start Game is in the image */}
+      <div className="absolute inset-0 pointer-events-none z-20">
 
         {/* Language Toggles - Bottom Right */}
         <div className="absolute bottom-6 right-6 flex gap-3 pointer-events-auto">
@@ -231,6 +251,44 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           from { opacity: 1; }
           to { opacity: 0; }
         }
+
+        /* Custom animations for clouds and children */
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0) translateX(0); }
+          50% { transform: translateY(-15px) translateX(10px); }
+        }
+        @keyframes float-medium {
+          0%, 100% { transform: translateY(0) translateX(0); }
+          50% { transform: translateY(-10px) translateX(-8px); }
+        }
+        @keyframes float-fast {
+          0%, 100% { transform: translateY(0) translateX(0); }
+          50% { transform: translateY(-8px) translateX(5px); }
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes bounce-medium {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
+
+        .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+        .animate-float-medium { animation: float-medium 5s ease-in-out infinite; }
+        .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
+        .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
+        .animate-bounce-medium { animation: bounce-medium 2.5s ease-in-out infinite; }
+
+        /* Landscape media query */
+        @media (orientation: landscape) {
+          .landscape\\:block { display: block; }
+          .landscape\\:object-contain { object-fit: contain; }
+        }
+        @media (orientation: portrait) {
+          .portrait\\:object-cover { object-fit: cover; }
+        }
+        .hidden { display: none; }
       `}</style>
     </div >
   )
