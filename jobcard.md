@@ -9,6 +9,58 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 
 ### Level Select & Welcome Screen Enhancement (January 14, 2026)
 
+#### Level Select Layout Fix - Critical UI Bug ✅
+
+- **Issue Identified**: Level select screen had catastrophically broken layout with all category cards overlapping and text bleeding together ("& Vegtounting6Frames & Colo" unreadable mess). Cards were stacked on top of each other instead of in a proper grid.
+
+- **Root Cause**: Broken JSX structure in `GameMenu.tsx`. The grid container was:
+  - Wrapped in an unnecessary IIFE `{(() => { ... })()} `
+  - Incorrectly nested inside the header `<div>` containing back button and title
+  - Not properly positioned as a flex child to take available space
+  - Result: Grid collapsed and all 9 category buttons rendered in the same position
+
+- **Solution Implemented**:
+  - **Removed IIFE Wrapper**: Eliminated unnecessary `{(() => { ... })()}` closure around grid
+  - **Restructured JSX Hierarchy**: Moved grid out of header div to be a sibling element
+  - **Proper Flex Layout**: Made grid a direct child with `flex-1` class to fill available space
+  - **Moved Thai Translations**: Placed `thaiTranslations` array inside map function for cleaner scope
+  - **Final Structure**: header (back + title) → grid (flex-1, level cards) → footer (start button)
+
+- **Technical Details**:
+
+  ```tsx
+  // BEFORE (Broken):
+  <div> {/* header */}
+    <Button>Back</Button>
+    <h2>Select Level</h2>
+    {(() => {
+      const thaiTranslations = [...];
+      return <div className="grid">{levels.map(...)}</div>
+    })()}
+  </div>
+
+  // AFTER (Fixed):
+  <div> {/* header */}
+    <Button>Back</Button>
+    <h2>Select Level</h2>
+  </div>
+  <div className="grid ... flex-1"> {/* proper flex child */}
+    {levels.map((level, index) => {
+      const thaiTranslations = [...];
+      return <Button>...</Button>
+    })}
+  </div>
+  ```
+
+- **Files Modified**:
+  - [src/components/GameMenu.tsx](src/components/GameMenu.tsx#L317-L371)
+
+- **Impact**:
+  - ✅ Category cards now display in proper 2-4 column responsive grid
+  - ✅ No text overlap - each card cleanly shows emoji, English name, and Thai translation
+  - ✅ Proper spacing and hover effects functional
+  - ✅ Layout adapts to screen size (2 cols mobile, 3 cols tablet, 4 cols desktop)
+
 #### E2E Test Fix - Level Select Loading ✅
 
 - **Issue Identified**: E2E tests were failing (87/96 failures) with timeout waiting for `[data-testid="game-menu"]`. The `LoadingSkeleton` component with `variant="menu"` had `data-testid="loading-menu-skeleton"` instead of `data-testid="game-menu"`, causing tests to fail during lazy loading Suspense fallback.
@@ -40,7 +92,7 @@ Complete TODO.md Quick Wins tasks and fix build errors.
   - **Custom CSS Animations**: Implemented `float-slow`, `float-medium`, `float-fast`, `bounce-slow`, `bounce-medium` keyframes for natural movement
 
 - **Technical Details**:
-  - Landscape-specific CSS using `@media (orientation: landscape)` 
+  - Landscape-specific CSS using `@media (orientation: landscape)`
   - Z-index layering: background (default) → decorations → main image (z-10) → UI overlay (z-20)
   - Preserved existing audio sequence and button functionality
   - Maintains click-anywhere-to-proceed behavior
@@ -48,7 +100,7 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 - **Files Modified**:
   - [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx#L169-L270)
 
-- **Impact**: 
+- **Impact**:
   - No image cropping in landscape mode
   - Visually engaging animated decorations
   - Seamless gradient fill for empty spaces

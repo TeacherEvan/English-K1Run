@@ -15,6 +15,13 @@
 			"label": "Run Menu Tests",
 			"type": "shell",
 			"command": "npm run test:e2e -- -g \"Game Menu\""
+		},
+		{
+			"label": "Dev Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"problemMatcher": []
 		}
 	]
 }

@@ -330,7 +330,11 @@ export const GameMenu = memo(({
             Back / กลับ
           </Button>
           <h2 className="text-4xl font-bold text-primary">Select Level / เลือกระดับ</h2>
-          {(() => {
+        </div>
+
+        {/* Level Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto p-4 flex-1">
+          {levels.map((level, index) => {
             const thaiTranslations = [
               'ผลไม้และผัก',           // Fruits & Vegetables
               'สนุกกับการนับ',          // Counting Fun
@@ -343,39 +347,33 @@ export const GameMenu = memo(({
             ]
 
             return (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto p-4 flex-1">
-                {levels.map((level, index) => {
-                  return (
-                    <Button
-                      key={level}
-                      variant={selectedLevel === index ? "default" : "outline"}
-                      className={`h-32 text-xl font-bold flex flex-col gap-2 transition-all hover:scale-105 ${selectedLevel === index
-                        ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
-                        : 'hover:border-primary/50'
-                        }`}
-                      onClick={() => onSelectLevel(index)}
-                      data-testid="level-button"
-                      data-selected={selectedLevel === index}
-                    >
-                      <span className="text-4xl mb-1">
-                        {index === 0 ? '🍎' :
-                          index === 1 ? '1️⃣' :
-                            index === 2 ? '🅰️' :
-                              index === 3 ? '🎨' :
-                                index === 4 ? '🦁' :
-                                  index === 5 ? '🚗' :
-                                    index === 6 ? '🌤️' : '🎮'}
-                      </span>
-                      <div className="flex flex-col items-center">
-                        <span className="text-center px-2 leading-tight">{level}</span>
-                        <span className="text-xs text-gray-400 mt-1">{thaiTranslations[index] || ''}</span>
-                      </div>
-                    </Button>
-                  )
-                })}
-              </div>
+              <Button
+                key={level}
+                variant={selectedLevel === index ? "default" : "outline"}
+                className={`h-32 text-xl font-bold flex flex-col gap-2 transition-all hover:scale-105 ${selectedLevel === index
+                  ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
+                  : 'hover:border-primary/50'
+                  }`}
+                onClick={() => onSelectLevel(index)}
+                data-testid="level-button"
+                data-selected={selectedLevel === index}
+              >
+                <span className="text-4xl mb-1">
+                  {index === 0 ? '🍎' :
+                    index === 1 ? '1️⃣' :
+                      index === 2 ? '🅰️' :
+                        index === 3 ? '🎨' :
+                          index === 4 ? '🦁' :
+                            index === 5 ? '🚗' :
+                              index === 6 ? '🌤️' : '🎮'}
+                </span>
+                <div className="flex flex-col items-center">
+                  <span className="text-center px-2 leading-tight">{level}</span>
+                  <span className="text-xs text-gray-400 mt-1">{thaiTranslations[index] || ''}</span>
+                </div>
+              </Button>
             )
-          })()}
+          })}
         </div>
 
         <div className="mt-8 flex justify-center">

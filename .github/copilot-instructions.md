@@ -143,6 +143,14 @@ export const FallingObject = memo(({ id, emoji, x, y }: FallingObjectProps) => {
 });
 ```
 
+**GameMenu JSX Structure** - Critical layout requirements:
+
+- **Never wrap grid in IIFE**: Avoid `{(() => { return <div>...</div> })()}` patterns that break flex layout
+- **Proper flex children**: Level select grid must be a direct child with `flex-1` class
+- **Correct hierarchy**: `header div` → `grid div (flex-1)` → `footer div` as siblings, not nested
+- **Scope management**: Move data arrays (like `thaiTranslations`) inside map functions rather than closure wrappers
+- **Common mistake**: Nesting grid inside header div causes all cards to overlap
+
 **UI Primitives** (`src/components/ui/*`): Shadcn-style with CVA variants:
 
 ```tsx
