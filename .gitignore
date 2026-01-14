@@ -98,6 +98,11 @@ packages
 
 # Hot reload
 .vite
+
+# Playwright
+test-results/
+playwright-report/
+.playwright-mcp/
 .next
 .nuxt
 
