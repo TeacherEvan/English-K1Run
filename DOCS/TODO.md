@@ -22,6 +22,7 @@
 - [x] Welcome audio regenerated via ElevenLabs `eleven_turbo_v2_5` (`welcome_association`, `welcome_learning`)
 - [x] Add fallback copy if audio files missing (show text banner + optional skip) ✅ COMPLETED Dec 28, 2025
 - [x] Preload welcome audio during splash to avoid first-play delay ✅ ALREADY IMPLEMENTED (lines 53-57)
+- [x] Animated Visual Features: Sun beams, Rainbow arch, Wind streams, Leaf spawns ✅ COMPLETED Jan 15, 2026
 - [ ] QA on tablets/QBoard: verify Thai font stack and volume balance at 0.9x playback rate
 
 ### Phase 1: Code Organization 🟡
@@ -49,19 +50,19 @@
 
 #### Large Utility Refactoring
 
-- [ ] **sound-manager.ts** (900 lines) - Modularize responsibilities
-  - [ ] Extract audio loading logic → `audio-loader.ts`
-  - [ ] Extract audio playback logic → `audio-player.ts`
-  - [ ] Extract speech synthesis → `speech-synthesizer.ts`
+- [x] **sound-manager.ts** (900 lines) - Modularize responsibilities ✅ PHASE 1 COMPLETED Jan 2026
+  - [x] Extract audio loading logic → `audio-loader.ts`
+  - [x] Extract audio playback logic → `audio-player.ts`
+  - [x] Extract speech synthesis → `speech-synthesizer.ts`
   - [ ] Keep orchestration in main sound-manager
   - **Impact:** Easier to test, maintain, and extend
   - **Estimated Time:** 3-4 hours
   - **Risk:** Medium (core functionality, needs thorough testing)
 
-- [ ] **event-tracker.ts** (617 lines) - Split tracking concerns
-  - [ ] Extract emoji tracking → `emoji-tracker.ts`
-  - [ ] Extract performance metrics → `performance-tracker.ts`
-  - [ ] Extract audio tracking → `audio-event-tracker.ts`
+- [x] **event-tracker.ts** (617 lines) - Split tracking concerns ✅ PHASE 1 COMPLETED Jan 2026
+  - [x] Extract emoji tracking → `emoji-tracker.ts`
+  - [x] Extract performance metrics → `performance-tracker.ts`
+  - [x] Extract audio tracking → `audio-event-tracker.ts`
   - **Impact:** Better separation of concerns
   - **Estimated Time:** 2-3 hours
 

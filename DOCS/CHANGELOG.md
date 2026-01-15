@@ -2,6 +2,23 @@
 
 This file consolidates major changes, bug fixes, and enhancements made to the project.
 
+## January 2026 - Animation & UX Overhaul
+
+### Welcome Screen & UX (Jan 15, 2026)
+
+- **Animated Welcome Screen**: Implemented high-performance SVG/CSS animations (Sun Beams, Rainbow Arch, Wind Streams, Leaf Spawns) with full reduced-motion support.
+- **Comprehensive Settings System**: Added modular Settings dialog with language selection, continuous mode toggle, and resolution scaling.
+- **Level Select Fix**: Resolved critical JSX structure bug that caused category cards to overlap. Restored responsive grid layout.
+- **TTS Enhancement**: Integrated ElevenLabs "Alice" voice (British Female) for premium educational pronunciations with Web Speech API fallback.
+- **Automated Code Review**: Established recurring 5-minute automated linting and formatting system via PowerShell/Task Scheduler.
+
+### Modularization (Jan 9, 2026)
+
+- **Phase 1 Complete**: Extracted monolithic logic into modular subsystems:
+  - `src/lib/audio/`: Split into `audio-loader.ts`, `audio-player.ts`, `speech-synthesizer.ts`.
+  - `src/lib/game/`: Extracted `collision-detection.ts`, `worm-manager.ts`.
+- **Impact**: Reduced `use-game-logic.ts` and `sound-manager.ts` complexity, improved testability.
+
 ## December 2025 - Testing & Performance
 
 ### E2E Test Stability (Dec 30, 2025)
