@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState, useMemo } from 'react'
 import i18n from '../i18n'
-import { DEFAULT_LANGUAGE, isSupportedLanguage, type SupportedLanguage } from '../lib/constants/language-config'
+import { isSupportedLanguage, type SupportedLanguage } from '../lib/constants/language-config'
 import { eventTracker } from '../lib/event-tracker'
 import { soundManager } from '../lib/sound-manager'
 import { LanguageContext } from './language'
@@ -13,13 +13,15 @@ interface LanguageProviderProps {
  * Language Provider component
  * Manages global language state and persists selection to localStorage
  */
+import { useSettings } from './settings-context'
+
 export function LanguageProvider({ children }: LanguageProviderProps) {
-    const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-        // Initialize from localStorage during state initialization
-        if (typeof window === 'undefined') return DEFAULT_LANGUAGE
-        const stored = localStorage.getItem('k1-language')
-        return (stored && isSupportedLanguage(stored)) ? stored : DEFAULT_LANGUAGE
-    })
+    const { displayLanguage, setDisplayLanguage } = useSettings()
+    
+    // Use displayLanguage from settings as the source of truth
+    const language = useMemo(() => 
+        isSupportedLanguage(displayLanguage) ? displayLanguage as SupportedLanguage : 'en' as SupportedLanguage
+    , [displayLanguage])
 
     // Sync language to localStorage, i18n, and sound manager
     useEffect(() => {
@@ -32,7 +34,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     const setLanguage = (newLanguage: SupportedLanguage) => {
         if (isSupportedLanguage(newLanguage)) {
             const previousLanguage = language
-            setLanguageState(newLanguage)
+            setDisplayLanguage(newLanguage)
 
             // Track language change (anonymized - only language codes)
             eventTracker.trackLanguageChange(newLanguage, previousLanguage)

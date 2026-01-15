@@ -39,6 +39,42 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 
 - **Impact**: Continuous improvement of code quality with minimal developer intervention, ensuring all staged code meets project standards before commit.
 
+### Settings Feature & Agentic MCP Integration (January 15, 2026)
+
+#### Comprehensive Settings System ✅
+
+- **Issue Identified**: Users lacked a centralized way to manage preferences like language, themes, and accessibility, which is critical for diverse classroom environments.
+
+- **Solution Implemented**: Developed a modular settings system with global state management:
+  - **SettingsContext**: Centralized state for theme, high contrast, reduced motion, resolution scale, and dual-language settings.
+  - **SettingsDialog**: A tabbed interface (Language, Display, Accessibility) using Radix UI for a professional look and feel.
+  - **Dual-Language Support**: Separated Display Language from Gameplay Language to allow teachers to configure the UI in one language while students learn in another.
+  - **Theme Engine**: Implemented Light, Dark, and Colorful themes via CSS variables.
+  - **Accessibility Suite**: Added High Contrast and Reduced Motion toggles that reactively update the UI and gameplay physics.
+  - **Resolution Scaling**: Added manual overrides for UI scaling to support various display sizes (BenQ QBoard, tablets).
+
+- **Technical Details**:
+  - Used `localStorage` for persistent settings across sessions.
+  - Integrated with `useDisplayAdjustment` hook for dynamic scaling.
+  - Refactored `LanguageProvider` to synchronize with the new settings source of truth.
+  - Implemented Playwright E2E tests to verify persistence and UI reactivity.
+
+- **Files Created/Modified**:
+  - `src/context/settings-context.tsx` (New)
+  - `src/components/SettingsDialog.tsx` (New)
+  - `src/context/language-context.tsx`
+  - `src/hooks/use-display-adjustment.ts`
+  - `src/App.tsx`
+  - `src/styles/theme.css`
+  - `e2e/specs/settings-feature.spec.ts` (New)
+
+#### Agentic MCP Tool Integration ✅
+
+- **Goal**: Enhance Cline's agency within the project environment.
+- **Implementation**: Configured top 10 MCP tools in `cline_mcp_settings.json`:
+  - Memory, Fetch, Filesystem, GitHub, Sequential Thinking, Brave Search, Puppeteer, Google Maps, Slack, and SQLite.
+- **Impact**: Cline can now perform complex research, manage repositories, and automate browser-based tasks more effectively.
+
 ### Level Select & Welcome Screen Enhancement (January 14, 2026)
 
 #### Level Select Layout Fix - Critical UI Bug ✅

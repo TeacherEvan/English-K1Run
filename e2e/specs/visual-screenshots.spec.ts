@@ -95,7 +95,7 @@ test.describe("Visual Screenshots", () => {
         await page.click('[data-testid="skip-loading-button"]', {
           force: true,
         });
-      } catch (e) {
+      } catch (_) {
         console.log("Skip button not found or already skipped");
       }
 
