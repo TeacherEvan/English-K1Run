@@ -2,9 +2,6 @@ import { memo, startTransition, useCallback, useContext, useEffect, useRef, useS
 import { LanguageContext } from '../context/language'
 import { soundManager } from '../lib/sound-manager'
 import { Button } from './ui/button'
-import { SunBeams } from './Welcome/SunBeams'
-import { RainbowArch } from './Welcome/RainbowArch'
-import { WindStreams } from './Welcome/WindStreams'
 import './WelcomeScreen.css'
 
 interface WelcomeScreenProps {
@@ -195,58 +192,48 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }}
       onClick={handlePrimaryAction}
     >
-      {/* NEW: Rotating Sun Beams */}
-      {!isE2E && <SunBeams />}
-
-      {/* NEW: Progressive Rainbow Arch */}
-      {!isE2E && <RainbowArch />}
-
-      {/* NEW: Wind Streams */}
-      {!isE2E && <WindStreams />}
-
-      {/* NEW: Leaf Spawns */}
+      {/* Simple rotating sun beams behind the image */}
       {!isE2E && (
-        <div className="hidden landscape:block" aria-hidden="true">
-          <div className="welcome-leaf">🍂</div>
-          <div className="welcome-leaf">🍃</div>
-          <div className="welcome-leaf">🍂</div>
-          <div className="welcome-leaf">🍃</div>
-          <div className="welcome-leaf">🍂</div>
+        <div className="welcome-sun-beams" aria-hidden="true">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="30" fill="#FFD700" />
+            {[...Array(12)].map((_, i) => {
+              const angle = (i * 30) - 90;
+              const rad = angle * (Math.PI / 180);
+              const x1 = 100 + Math.cos(rad) * 35;
+              const y1 = 100 + Math.sin(rad) * 35;
+              const x2 = 100 + Math.cos(rad) * 60;
+              const y2 = 100 + Math.sin(rad) * 60;
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#FFD700"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+              );
+            })}
+          </svg>
         </div>
       )}
 
-      {/* Decorative clouds for landscape - left side (Enhanced) */}
-      <div className="absolute left-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
-        <div className="welcome-cloud opacity-90 w-32 h-16 top-[10%] left-[5%]" style={{ animationDelay: '0s' }}></div>
-        <div className="welcome-cloud opacity-80 w-24 h-12 top-[25%] left-[15%]" style={{ animationDelay: '5s' }}></div>
-        <div className="welcome-cloud opacity-70 w-20 h-10 top-[5%] left-[20%]" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      {/* Decorative clouds for landscape - right side (Enhanced) */}
-      <div className="absolute right-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
-        <div className="welcome-cloud opacity-85 w-28 h-14 top-[15%] right-[10%]" style={{ animationDelay: '3s' }}></div>
-        <div className="welcome-cloud opacity-90 w-36 h-18 top-[8%] right-[20%]" style={{ animationDelay: '7s' }}></div>
-        <div className="welcome-cloud opacity-75 w-24 h-12 top-[30%] right-[5%]" style={{ animationDelay: '1s' }}></div>
-      </div>
-
-      {/* Sunbeams Effect */}
-      <div className="welcome-sunbeams hidden landscape:block"></div>
-
-      {/* Anime Children Container */}
-      <div className="welcome-children-container hidden landscape:flex">
-        <div className="anime-child" style={{ animationDelay: '0s' }}>🚲</div>
-        <div className="anime-child" style={{ animationDelay: '0.2s', filter: 'hue-rotate(45deg)' }}>🏃</div>
-        <div className="anime-child" style={{ animationDelay: '0.4s' }}>🎈</div>
-        <div className="anime-child" style={{ animationDelay: '0.1s', filter: 'hue-rotate(90deg)' }}>🏃‍♀️</div>
-        <div className="anime-child" style={{ animationDelay: '0.3s' }}>🛴</div>
-      </div>
-
-      {/* Grass extension for landscape bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[20%] pointer-events-none hidden landscape:block"
-        style={{
-          background: 'linear-gradient(to bottom, transparent 0%, #6DBE4A 30%, #4A9E3A 100%)',
-        }}
-      />
+      {/* Simple drifting clouds */}
+      {!isE2E && (
+        <>
+          <div className="absolute left-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
+            <div className="welcome-cloud opacity-70 w-32 h-16" style={{ top: '10%', left: '5%', animationDelay: '0s' }}></div>
+            <div className="welcome-cloud opacity-60 w-24 h-12" style={{ top: '25%', left: '15%', animationDelay: '5s' }}></div>
+          </div>
+          <div className="absolute right-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
+            <div className="welcome-cloud opacity-65 w-28 h-14" style={{ top: '15%', right: '10%', animationDelay: '3s' }}></div>
+            <div className="welcome-cloud opacity-70 w-24 h-12" style={{ top: '30%', right: '5%', animationDelay: '1s' }}></div>
+          </div>
+        </>
+      )}
 
       {/* Main welcome image - uses contain to prevent cropping */}
       <img

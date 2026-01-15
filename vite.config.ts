@@ -98,19 +98,28 @@ export default defineConfig({
     ],
     force: false,
     esbuildOptions: {
-      target: "es2020",
+      target: "chrome87", // Chrome Android compatibility
       keepNames: false, // Better minification
       treeShaking: true,
       // Enable modern JS optimizations
       legalComments: "none",
       minify: true,
+      platform: "browser",
+      format: "esm",
     },
     exclude: [],
   },
   build: {
     sourcemap: false,
-    // Enable faster builds with modern targets
-    target: ["es2020", "edge88", "firefox78", "chrome87", "safari14"],
+    // Prioritize Chrome Android for classroom tablets
+    target: [
+      "chrome87",
+      "chrome90",
+      "es2020",
+      "edge88",
+      "firefox78",
+      "safari14",
+    ],
     rollupOptions: {
       external: [],
       output: {

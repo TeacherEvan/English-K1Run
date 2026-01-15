@@ -1,12 +1,20 @@
-/* Welcome Screen Animations - January 2026 */
-/* GPU-accelerated, accessible animations following MDN best practices */
+/* Welcome Screen Animations - Simplified */
+/* Just rotating sun beams and drifting clouds */
 
-:root {
-  --welcome-sun-rotation-duration: 60s;
-  --welcome-cloud-drift-duration: 35s;
-  --welcome-leaf-tumble-duration: 8s;
-  --welcome-rainbow-emerge-duration: 4s;
-  --welcome-animation-easing: ease-in-out;
+/* Disable all animations when prefers-reduced-motion is set */
+@media (prefers-reduced-motion: reduce) {
+  .welcome-sun-beams,
+  .welcome-cloud {
+    animation: none !important;
+  }
+
+  .welcome-sun-beams {
+    transform: translateX(-50%) rotate(0deg) !important;
+  }
+
+  .welcome-cloud {
+    transform: translateX(0) translateZ(0) !important;
+  }
 }
 
 /* ===== SUN BEAMS ROTATION ===== */
@@ -21,263 +29,46 @@
 
 .welcome-sun-beams {
   position: absolute;
-  top: 10%;
+  top: 15%;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   pointer-events: none;
-  z-index: 15;
-  animation: sun-beam-rotate var(--welcome-sun-rotation-duration) linear infinite;
+  z-index: 5;
+  animation: sun-beam-rotate 40s linear infinite;
   will-change: transform;
 }
 
 .welcome-sun-beams svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3));
+  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.2));
 }
 
-/* ===== CLOUD MOVEMENTS ===== */
+/* ===== CLOUD DRIFT ===== */
 @keyframes cloud-drift {
   0% {
-    transform: translateX(-10%) translateZ(0);
-    opacity: 0.7;
+    transform: translateX(-8%) translateZ(0);
   }
   50% {
-    transform: translateX(10%) translateZ(0);
-    opacity: 0.9;
+    transform: translateX(8%) translateZ(0);
   }
   100% {
-    transform: translateX(-10%) translateZ(0);
-    opacity: 0.7;
+    transform: translateX(-8%) translateZ(0);
   }
 }
 
 .welcome-cloud {
   position: absolute;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   border-radius: 50%;
-  animation: cloud-drift var(--welcome-cloud-drift-duration) var(--welcome-animation-easing) infinite;
-  will-change: transform, opacity;
-  filter: blur(2px);
-}
-
-/* Stagger cloud animations */
-.welcome-cloud:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.welcome-cloud:nth-child(2) {
-  animation-delay: 5s;
-}
-
-.welcome-cloud:nth-child(3) {
-  animation-delay: 2s;
-}
-
-.welcome-cloud:nth-child(4) {
-  animation-delay: 3s;
-}
-
-.welcome-cloud:nth-child(5) {
-  animation-delay: 7s;
-}
-
-.welcome-cloud:nth-child(6) {
-  animation-delay: 1s;
-}
-
-/* ===== WIND STREAMS ===== */
-@keyframes wind-flow {
-  0% {
-    stroke-dashoffset: 100;
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.6;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0.3;
-  }
-}
-
-.welcome-wind-stream {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 11;
-}
-
-.welcome-wind-stream path {
-  stroke: rgba(255, 255, 255, 0.4);
-  stroke-width: 2;
-  stroke-dasharray: 10 5;
-  fill: none;
-  animation: wind-flow 3s linear infinite;
-}
-
-/* ===== LEAF SPAWNS ===== */
-@keyframes leaf-tumble {
-  0% {
-    transform: translate(0, 0) rotate(0deg) translateZ(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(150vw, 30vh) rotate(720deg) translateZ(0);
-    opacity: 0;
-  }
-}
-
-.welcome-leaf {
-  position: absolute;
-  font-size: 24px;
-  pointer-events: none;
-  z-index: 14;
-  animation: leaf-tumble var(--welcome-leaf-tumble-duration) var(--welcome-animation-easing) infinite;
-  will-change: transform, opacity;
-}
-
-/* Stagger leaf animations */
-.welcome-leaf:nth-child(1) {
-  top: 20%;
-  left: -5%;
-  animation-delay: 0s;
-}
-
-.welcome-leaf:nth-child(2) {
-  top: 40%;
-  left: -5%;
-  animation-delay: 2s;
-}
-
-.welcome-leaf:nth-child(3) {
-  top: 60%;
-  left: -5%;
-  animation-delay: 4s;
-}
-
-.welcome-leaf:nth-child(4) {
-  top: 30%;
-  left: -5%;
-  animation-delay: 6s;
-}
-
-.welcome-leaf:nth-child(5) {
-  top: 50%;
-  left: -5%;
-  animation-delay: 1s;
-}
-
-/* ===== PROGRESSIVE RAINBOW ARCH ===== */
-@keyframes rainbow-emerge {
-  0% {
-    stroke-dashoffset: 1000;
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0.9;
-  }
-}
-
-.welcome-rainbow {
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 600px;
-  height: 200px;
-  pointer-events: none;
-  z-index: 12;
-}
-
-.welcome-rainbow svg {
-  width: 100%;
-  height: 100%;
-}
-
-.welcome-rainbow path {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  fill: none;
-  stroke-width: 8;
-  stroke-linecap: round;
-  animation: rainbow-emerge var(--welcome-rainbow-emerge-duration) ease-out forwards;
-  animation-delay: 4s;
-}
-
-/* ===== ACCESSIBILITY: REDUCED MOTION ===== */
-@media (prefers-reduced-motion: reduce) {
-  .welcome-sun-beams,
-  .welcome-cloud,
-  .welcome-wind-stream path,
-  .welcome-leaf,
-  .welcome-rainbow path {
-    animation: none !important;
-  }
-
-  /* Provide static, accessible alternatives */
-  .welcome-sun-beams {
-    transform: translateX(-50%) rotate(0deg);
-  }
-
-  .welcome-cloud {
-    opacity: 0.8;
-    transform: translateX(0) translateZ(0);
-  }
-
-  .welcome-rainbow path {
-    stroke-dashoffset: 0;
-    opacity: 0.9;
-  }
-
-  .welcome-leaf {
-    display: none; /* Hide leaves entirely for reduced motion */
-  }
-}
-
-/* ===== MOBILE OPTIMIZATIONS ===== */
-@media (orientation: portrait) and (max-width: 768px) {
-  /* Disable wind streams and leaves on mobile portrait for performance */
-  .welcome-wind-stream,
-  .welcome-leaf {
-    display: none;
-  }
-
-  /* Simplify sun beams */
-  .welcome-sun-beams {
-    width: 150px;
-    height: 150px;
-  }
-
-  /* Reduce cloud count (hide some) */
-  .welcome-cloud:nth-child(n+4) {
-    display: none;
-  }
-}
-
-/* ===== THEME SUPPORT ===== */
-.dark .welcome-sun-beams svg {
-  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.4));
-}
-
-.dark .welcome-cloud {
-  background: radial-gradient(ellipse at center, rgba(200, 200, 255, 0.3) 0%, rgba(200, 200, 255, 0.2) 50%, rgba(200, 200, 255, 0) 100%);
-}
-
-.dark .welcome-wind-stream path {
-  stroke: rgba(200, 200, 255, 0.3);
+  animation: cloud-drift 30s ease-in-out infinite;
+  will-change: transform;
+  filter: blur(1px);
 }
