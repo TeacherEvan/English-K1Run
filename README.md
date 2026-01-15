@@ -60,6 +60,9 @@ npm run test:e2e:debug   # Debug E2E tests
 npm run build            # Build for production
 npm run preview          # Preview production build
 
+# Code Quality
+code_review.ps1          # Automated code review (runs every 5 minutes via Task Scheduler)
+
 # Dependencies
 npm run requirements     # Generate REQUIREMENTS.txt (all dependencies)
 npm run requirements:md  # Generate DEPENDENCIES.md (markdown format)

@@ -1,11 +1,43 @@
 # Job Card
 
-Date: 2025-12-28
+Date: 2026-01-15
 Repo: TeacherEvan/English-K1Run (branch: main)
 
 ## Goal
 
 Complete TODO.md Quick Wins tasks and fix build errors.
+
+### Automated Code Review Timer Setup (January 15, 2026)
+
+#### Recurring 5-Minute Code Review System ✅
+
+- **Issue Identified**: Need for continuous code quality maintenance in collaborative development environment to catch linting/formatting issues early and minimize merge conflicts.
+
+- **Solution Implemented**: Created automated recurring code review system using Windows Task Scheduler and PowerShell script:
+  - **PowerShell Script** (`code_review.ps1`): Checks for staged files every 5 minutes, runs eslint --fix and prettier --write on .ts/.js files, stages changes, and commits with descriptive message
+  - **Scheduled Task**: "CodeReviewTimer" runs the script every 5 minutes indefinitely using schtasks command
+  - **Error Handling**: Try-catch blocks to prevent script failures from stopping execution
+  - **Selective Processing**: Only processes .ts and .js files to avoid unnecessary operations on other file types
+
+- **Technical Implementation**:
+  - Script navigates to project directory and uses git diff --cached --name-only to identify staged files
+  - Runs npx eslint --fix and npx prettier --write with error suppression
+  - Checks if files changed after linting using git diff --name-only
+  - Stages and commits changes if any modifications were made
+  - Commit message: "Automated code review: linting and formatting improvements"
+
+- **Files Created**:
+  - [code_review.ps1](code_review.ps1): PowerShell script for automated code review
+  - Scheduled Task: "CodeReviewTimer" configured via schtasks
+
+- **Benefits**:
+  - Ensures consistent code formatting across team contributions
+  - Catches linting issues before they reach main branch
+  - Reduces manual code review burden for style/formatting issues
+  - Maintains production-grade code quality automatically
+  - Prevents merge conflicts from inconsistent formatting
+
+- **Impact**: Continuous improvement of code quality with minimal developer intervention, ensuring all staged code meets project standards before commit.
 
 ### Level Select & Welcome Screen Enhancement (January 14, 2026)
 

@@ -314,10 +314,10 @@ export const GameMenu = memo(({
   // Level Selection View
   return (
     <div
-      className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300"
+      className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300"
       data-testid="level-select-menu"
     >
-      <Card className="w-full max-w-5xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col">
+      <Card className="w-full max-w-5xl mx-4 p-8 bg-card/90 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col">
         <div className="flex items-center justify-between mb-8">
           <Button
             variant="ghost"

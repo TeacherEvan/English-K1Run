@@ -83,7 +83,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
     // Start audio playback - tries immediately, retries on user interaction
     const startAudioSequence = async () => {
-      if (audioStartedRef.current || cancelled) return
+      // Prevent multiple starts or running if cancelled
+      if (audioStartedRef.current || cancelled || readyToContinue) return
       audioStartedRef.current = true
 
       try {
@@ -91,30 +92,42 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         // Ensure nothing else is playing under the narration.
         soundManager.stopAllAudio()
 
+        const checkActive = () => {
+          if (cancelled || readyToContinue) throw new Error('Sequence cancelled');
+        };
+
         // Phase 1: English
+        checkActive();
         await playWithTimeout('welcome_association', 0.9, 0.85)
-        await new Promise(resolve => setTimeout(resolve, 300))
 
         // Phase 2: English
-        await playWithTimeout('welcome_learning', 0.9, 0.85)
+        checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
+        checkActive();
+        await playWithTimeout('welcome_learning', 0.9, 0.85)
 
         // Phase 3: Thai (Slowed)
-        // Thai: slowed by 20% for clarity
-        await playWithTimeout('welcome_association_thai', 0.8, 0.95)
+        checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
+        checkActive();
+        await playWithTimeout('welcome_association_thai', 0.8, 0.95)
 
         // Phase 4: Thai (Slowed)
-        // Thai: slowed by 20% for clarity
+        checkActive();
+        await new Promise(resolve => setTimeout(resolve, 300))
+        checkActive();
         await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
 
-        if (!cancelled) {
+        if (!cancelled && !readyToContinue) {
           console.log("[WelcomeScreen] Sequence finished normally")
           setReadyToContinue(true)
           setSequenceFinished(true)
         }
       } catch (err) {
-        console.warn('[WelcomeScreen] Audio sequence failed:', err)
+        // Only log warning if it wasn't an intentional cancellation
+        if (err instanceof Error && err.message !== 'Sequence cancelled') {
+          console.warn('[WelcomeScreen] Audio sequence failed:', err)
+        }
         if (!cancelled) {
           setReadyToContinue(true)
           setSequenceFinished(true)
@@ -178,24 +191,30 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }}
       onClick={handlePrimaryAction}
     >
-      {/* Decorative clouds for landscape - left side */}
-      <div className="absolute left-0 top-0 h-full w-1/4 pointer-events-none overflow-hidden hidden landscape:block">
-        <div className="absolute top-[10%] left-[5%] text-6xl animate-float-slow opacity-90">☁️</div>
-        <div className="absolute top-[25%] left-[15%] text-5xl animate-float-medium opacity-80">☁️</div>
-        <div className="absolute top-[5%] left-[20%] text-4xl animate-float-fast opacity-70">☁️</div>
-        {/* Animated children silhouettes - left */}
-        <div className="absolute bottom-[15%] left-[10%] text-4xl animate-bounce-slow">🧒</div>
-        <div className="absolute bottom-[18%] left-[20%] text-3xl animate-bounce-medium">👧</div>
+      {/* Decorative clouds for landscape - left side (Enhanced) */}
+      <div className="absolute left-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
+        <div className="welcome-cloud opacity-90 w-32 h-16 top-[10%] left-[5%]" style={{ animationDelay: '0s' }}></div>
+        <div className="welcome-cloud opacity-80 w-24 h-12 top-[25%] left-[15%]" style={{ animationDelay: '5s' }}></div>
+        <div className="welcome-cloud opacity-70 w-20 h-10 top-[5%] left-[20%]" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Decorative clouds for landscape - right side */}
-      <div className="absolute right-0 top-0 h-full w-1/4 pointer-events-none overflow-hidden hidden landscape:block">
-        <div className="absolute top-[15%] right-[10%] text-5xl animate-float-medium opacity-85">☁️</div>
-        <div className="absolute top-[8%] right-[20%] text-6xl animate-float-slow opacity-90">☁️</div>
-        <div className="absolute top-[30%] right-[5%] text-4xl animate-float-fast opacity-75">☁️</div>
-        {/* Animated children silhouettes - right */}
-        <div className="absolute bottom-[20%] right-[15%] text-4xl animate-bounce-medium">👦</div>
-        <div className="absolute bottom-[12%] right-[8%] text-3xl animate-bounce-slow">🧒</div>
+      {/* Decorative clouds for landscape - right side (Enhanced) */}
+      <div className="absolute right-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
+        <div className="welcome-cloud opacity-85 w-28 h-14 top-[15%] right-[10%]" style={{ animationDelay: '3s' }}></div>
+        <div className="welcome-cloud opacity-90 w-36 h-18 top-[8%] right-[20%]" style={{ animationDelay: '7s' }}></div>
+        <div className="welcome-cloud opacity-75 w-24 h-12 top-[30%] right-[5%]" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      {/* Sunbeams Effect */}
+      <div className="welcome-sunbeams hidden landscape:block"></div>
+
+      {/* Anime Children Container */}
+      <div className="welcome-children-container hidden landscape:flex">
+        <div className="anime-child" style={{ animationDelay: '0s' }}>🚲</div>
+        <div className="anime-child" style={{ animationDelay: '0.2s', filter: 'hue-rotate(45deg)' }}>🏃</div>
+        <div className="anime-child" style={{ animationDelay: '0.4s' }}>🎈</div>
+        <div className="anime-child" style={{ animationDelay: '0.1s', filter: 'hue-rotate(90deg)' }}>🏃‍♀️</div>
+        <div className="anime-child" style={{ animationDelay: '0.3s' }}>🛴</div>
       </div>
 
       {/* Grass extension for landscape bottom */}
@@ -222,8 +241,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             variant="outline"
             onClick={(e) => { e.stopPropagation(); setLanguage('en'); }}
             className={`w-14 h-14 rounded-xl text-xl font-bold border-2 transition-colors ${language === 'en'
-                ? 'bg-[#E36C2F] text-white border-white'
-                : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
+              ? 'bg-[#E36C2F] text-white border-white'
+              : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
               }`}
           >
             EN
@@ -232,8 +251,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             variant="outline"
             onClick={(e) => { e.stopPropagation(); setLanguage('th'); }}
             className={`w-14 h-14 rounded-xl text-xl font-bold border-2 transition-colors ${language === 'th'
-                ? 'bg-[#E36C2F] text-white border-white'
-                : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
+              ? 'bg-[#E36C2F] text-white border-white'
+              : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
               }`}
           >
             TH
@@ -252,37 +271,18 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           to { opacity: 0; }
         }
 
-        /* Custom animations for clouds and children */
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-15px) translateX(10px); }
-        }
-        @keyframes float-medium {
-          0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-10px) translateX(-8px); }
-        }
-        @keyframes float-fast {
-          0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-8px) translateX(5px); }
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        @keyframes bounce-medium {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-12px); }
-        }
-
-        .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
-        .animate-float-medium { animation: float-medium 5s ease-in-out infinite; }
-        .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
-        .animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
-        .animate-bounce-medium { animation: bounce-medium 2.5s ease-in-out infinite; }
-
         /* Landscape media query */
         @media (orientation: landscape) {
           .landscape\\:block { display: block; }
+          .landscape\\:flex { display: flex; }
+          .landscape\\:object-contain { object-fit: contain; }
+          
+          /* Enhanced clouds for landscape */
+          .welcome-cloud {
+             background: radial-gradient(circle at 30% 30%, white, #f0f0f0);
+             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+          }
+        }
           .landscape\\:object-contain { object-fit: contain; }
         }
         @media (orientation: portrait) {
