@@ -33,10 +33,20 @@ export const LanguageGate = memo(({ onContinue }: LanguageGateProps) => {
 
     return (
         <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300"
+            className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in duration-300"
             data-testid="language-select"
         >
-            <Card className="w-full max-w-3xl mx-4 p-8 bg-card/85 border-4 border-primary/20 shadow-2xl backdrop-blur-md">
+            {/* Background Image reused from Welcome Screen for continuity */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="/welcome-sangsom.png"
+                    alt="Background"
+                    className="w-full h-full object-cover opacity-100" // Opacity to ensure visibility
+                />
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" /> {/* Overlay for readability */}
+            </div>
+
+            <Card className="w-full max-w-3xl mx-4 p-8 bg-card/90 border-4 border-primary/20 shadow-2xl backdrop-blur-md z-10">
                 <div className="flex flex-col items-center text-center gap-6">
                     <div className="text-7xl select-none">🌍</div>
 
