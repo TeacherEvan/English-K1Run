@@ -2,6 +2,10 @@ import { memo, startTransition, useCallback, useContext, useEffect, useRef, useS
 import { LanguageContext } from '../context/language'
 import { soundManager } from '../lib/sound-manager'
 import { Button } from './ui/button'
+import { SunBeams } from './Welcome/SunBeams'
+import { RainbowArch } from './Welcome/RainbowArch'
+import { WindStreams } from './Welcome/WindStreams'
+import './WelcomeScreen.css'
 
 interface WelcomeScreenProps {
   onComplete: () => void
@@ -191,6 +195,26 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }}
       onClick={handlePrimaryAction}
     >
+      {/* NEW: Rotating Sun Beams */}
+      {!isE2E && <SunBeams />}
+
+      {/* NEW: Progressive Rainbow Arch */}
+      {!isE2E && <RainbowArch />}
+
+      {/* NEW: Wind Streams */}
+      {!isE2E && <WindStreams />}
+
+      {/* NEW: Leaf Spawns */}
+      {!isE2E && (
+        <div className="hidden landscape:block" aria-hidden="true">
+          <div className="welcome-leaf">🍂</div>
+          <div className="welcome-leaf">🍃</div>
+          <div className="welcome-leaf">🍂</div>
+          <div className="welcome-leaf">🍃</div>
+          <div className="welcome-leaf">🍂</div>
+        </div>
+      )}
+
       {/* Decorative clouds for landscape - left side (Enhanced) */}
       <div className="absolute left-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
         <div className="welcome-cloud opacity-90 w-32 h-16 top-[10%] left-[5%]" style={{ animationDelay: '0s' }}></div>

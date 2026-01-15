@@ -1,6 +1,53 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Visual Screenshots", () => {
+  test("Capture welcome screen with animations", async ({ page }, testInfo) => {
+    // Test welcome screen animations (without e2e flag to see animations)
+    console.log("Testing welcome screen animations...");
+    
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[data-testid="welcome-screen"]', { timeout: 10000 });
+    
+    // Wait for initial render
+    await page.waitForTimeout(1000);
+    
+    // Capture initial state
+    const welcomeInitial = await page.screenshot({
+      path: testInfo.outputPath("welcome-screen-initial.png"),
+    });
+    await testInfo.attach("Welcome Screen - Initial", {
+      body: welcomeInitial,
+      contentType: "image/png",
+    });
+    
+    // Wait for rainbow animation to complete (4s delay + 4s animation)
+    await page.waitForTimeout(8500);
+    
+    const welcomeAnimated = await page.screenshot({
+      path: testInfo.outputPath("welcome-screen-animated.png"),
+    });
+    await testInfo.attach("Welcome Screen - With Animations", {
+      body: welcomeAnimated,
+      contentType: "image/png",
+    });
+    
+    // Test reduced motion
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForSelector('[data-testid="welcome-screen"]', { timeout: 10000 });
+    await page.waitForTimeout(1000);
+    
+    const welcomeReducedMotion = await page.screenshot({
+      path: testInfo.outputPath("welcome-screen-reduced-motion.png"),
+    });
+    await testInfo.attach("Welcome Screen - Reduced Motion", {
+      body: welcomeReducedMotion,
+      contentType: "image/png",
+    });
+    
+    console.log("Welcome screen animation tests completed.");
+  });
+
   test("Capture screenshots of menu, windows, and levels", async ({
     page,
   }, testInfo) => {

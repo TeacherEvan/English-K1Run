@@ -14,7 +14,8 @@ An educational racing game where kindergarten students (ages 4-6) learn pattern 
 - **Single-Player Mode**: Optimized for kindergarten classroom use
 - **Continuous Mode**: Auto-advancing levels for extended play sessions
 - **Touch-Optimized**: Designed for tablets and QBoard interactive displays
-- **Accessibility**: WCAG 2.1 AA compliant with customizable settings
+- **Animated Welcome Screen**: Rotating sun beams, drifting clouds, wind streams, tumbling leaves, and progressive rainbow arch (January 2026)
+- **Accessibility**: WCAG 2.3.3 AAA compliant with `prefers-reduced-motion` support
 - **Progressive Loading**: Smart audio preloading for smooth gameplay
 - **Offline Support**: PWA-enabled for classroom reliability
 
