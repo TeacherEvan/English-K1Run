@@ -4,13 +4,15 @@ test.describe("Visual Screenshots", () => {
   test("Capture welcome screen with animations", async ({ page }, testInfo) => {
     // Test welcome screen animations (without e2e flag to see animations)
     console.log("Testing welcome screen animations...");
-    
+
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.waitForSelector('[data-testid="welcome-screen"]', { timeout: 10000 });
-    
+    await page.waitForSelector('[data-testid="welcome-screen"]', {
+      timeout: 10000,
+    });
+
     // Wait for initial render
     await page.waitForTimeout(1000);
-    
+
     // Capture initial state
     const welcomeInitial = await page.screenshot({
       path: testInfo.outputPath("welcome-screen-initial.png"),
@@ -19,10 +21,10 @@ test.describe("Visual Screenshots", () => {
       body: welcomeInitial,
       contentType: "image/png",
     });
-    
+
     // Wait for rainbow animation to complete (4s delay + 4s animation)
     await page.waitForTimeout(8500);
-    
+
     const welcomeAnimated = await page.screenshot({
       path: testInfo.outputPath("welcome-screen-animated.png"),
     });
@@ -30,13 +32,15 @@ test.describe("Visual Screenshots", () => {
       body: welcomeAnimated,
       contentType: "image/png",
     });
-    
+
     // Test reduced motion
-    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForSelector('[data-testid="welcome-screen"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="welcome-screen"]', {
+      timeout: 10000,
+    });
     await page.waitForTimeout(1000);
-    
+
     const welcomeReducedMotion = await page.screenshot({
       path: testInfo.outputPath("welcome-screen-reduced-motion.png"),
     });
@@ -44,7 +48,7 @@ test.describe("Visual Screenshots", () => {
       body: welcomeReducedMotion,
       contentType: "image/png",
     });
-    
+
     console.log("Welcome screen animation tests completed.");
   });
 
@@ -56,6 +60,19 @@ test.describe("Visual Screenshots", () => {
 
     console.log("Navigating to app...");
     await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
+
+    // Inject CSS to disable background animations for stable testing
+    await page.addStyleTag({
+      content: `
+        .app-bg-animated {
+          animation: none !important;
+        }
+        * {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      `,
+    });
 
     // 1. Main Menu
     console.log("Waiting for Game Menu...");
@@ -72,9 +89,10 @@ test.describe("Visual Screenshots", () => {
 
     // 2. Settings Window
     console.log("Opening Settings...");
-    // Wait for potential animations to settle
+    // Wait for menu to be fully loaded
     await page.waitForTimeout(2000);
-    await page.click('[data-testid="settings-button"]', { force: true });
+    // Click settings button (animations disabled via reducedMotion config)
+    await page.click('[data-testid="settings-button"]');
     // Wait for dialog content
     await page.waitForSelector("text=Settings / การตั้งค่า");
     // Small delay for animation
@@ -94,7 +112,7 @@ test.describe("Visual Screenshots", () => {
 
     // 3. Level Select
     console.log("Going to Level Select...");
-    await page.click('[data-testid="new-game-button"]', { force: true });
+    await page.click('[data-testid="new-game-button"]');
     await page.waitForSelector('[data-testid="level-select-menu"]');
 
     const levelSelectScreenshot = await page.screenshot({
@@ -127,10 +145,10 @@ test.describe("Visual Screenshots", () => {
         .toLowerCase()}`;
 
       // Select level
-      await levelButtons.nth(i).click({ force: true });
+      await levelButtons.nth(i).click();
 
       // Click Start Game
-      await page.click('[data-testid="start-button"]', { force: true });
+      await page.click('[data-testid="start-button"]');
 
       // Handle Worm Loading Screen (Skip it)
       try {
@@ -138,9 +156,13 @@ test.describe("Visual Screenshots", () => {
         await page.waitForSelector('[data-testid="skip-loading-button"]', {
           timeout: 5000,
         });
-        // Click skip
-        await page.click('[data-testid="skip-loading-button"]', {
-          force: true,
+        // Click skip (removed force: true to ensure proper event handling)
+        await page.click('[data-testid="skip-loading-button"]');
+
+        // Wait for loading screen to be removed from DOM before proceeding
+        await page.waitForSelector('[data-testid="worm-loading-screen"]', {
+          state: "detached",
+          timeout: 5000,
         });
       } catch (_) {
         console.log("Skip button not found or already skipped");
@@ -163,13 +185,15 @@ test.describe("Visual Screenshots", () => {
       });
 
       // Go back
-      await page.click('[data-testid="back-button"]', { force: true });
+      await page.click('[data-testid="back-button"]');
 
       // We are now at Main Menu
       await page.waitForSelector('[data-testid="game-menu"]');
+      // Small delay to ensure menu is fully interactive
+      await page.waitForTimeout(300);
 
       // Go back to Level Select for next iteration
-      await page.click('[data-testid="new-game-button"]', { force: true });
+      await page.click('[data-testid="new-game-button"]');
       await page.waitForSelector('[data-testid="level-select-menu"]');
     }
 
