@@ -97,27 +97,39 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 
 ```bash
 # Development
-npm run dev              # Vite dev server on port 5173
+npm run dev              # Vite dev server (usually localhost:5173 or 5174)
 npm run verify           # lint + typecheck + build (run before commits)
-
-# Testing
-npm run test             # Vitest watch mode
-npm run test:run         # CI mode (single run)
-npm run test:ui          # Vitest UI
-npm run test:coverage    # Coverage report
-npm run test:e2e         # Playwright E2E tests
-npm run test:e2e:ui      # Playwright UI mode
-npm run test:e2e:debug   # Debug E2E tests
-
-# Production
-npm run build            # tsc -b --noCheck && vite build
-npm run preview          # Preview production build
-
-# Android/ARM64
-npm run install:android  # Use before build on ARM64/Android (--legacy-peer-deps)
 ```
 
-**Build Note**: Keep `--noCheck` flag due to React 19 type instabilities.  
+**Automated Code Review System**:
+
+- `code_review.ps1`: A PowerShell script that runs every 5 minutes (via Task Scheduler "CodeReviewTimer").
+- Automatically identifies staged `.ts`/`.js` files.
+- Runs `eslint --fix` and `prettier --write` before committing.
+- **NEVER** disable this script manually without project lead approval.
+
+# Testing
+
+npm run test # Vitest watch mode
+npm run test:run # CI mode (single run)
+npm run test:ui # Vitest UI
+npm run test:coverage # Coverage report
+npm run test:e2e # Playwright E2E tests
+npm run test:e2e:ui # Playwright UI mode
+npm run test:e2e:debug # Debug E2E tests
+
+# Production
+
+npm run build # tsc -b --noCheck && vite build
+npm run preview # Preview production build
+
+# Android/ARM64
+
+npm run install:android # Use before build on ARM64/Android (--legacy-peer-deps)
+
+````
+
+**Build Note**: Keep `--noCheck` flag due to React 19 type instabilities.
 **ARM64/Android**: Run `npm run install:android` first to avoid rollup errors.
 
 **E2E Testing**: Use `?e2e=1` URL parameter to bypass welcome screen for deterministic tests:
@@ -141,7 +153,7 @@ npm run install:android  # Use before build on ARM64/Android (--legacy-peer-deps
 export const FallingObject = memo(({ id, emoji, x, y }: FallingObjectProps) => {
   // ...
 });
-```
+````
 
 **GameMenu JSX Structure** - Critical layout requirements:
 
@@ -198,6 +210,13 @@ playSoundEffect.voice(); // pronunciation in current language
 - Font families: CJK languages use specific font stacks
 
 After audio completes, waits for user tap/Enter/Space. Fallback timer enables continue if audio fails.
+
+**Welcome Screen Visuals (Jan 2026)**:
+
+- **Animations**: High-performance SVG/CSS (Sun Beams, Rainbow Arch, Wind Streams, Leaf Spawns).
+- **Reduced Motion**: All animations disabled if `prefers-reduced-motion` is detected.
+- **Landscape Optimization**: Uses `object-contain` + background decorations (clouds, kids) to avoid cropping.
+- **E2E Mode**: Animations disabled when `?e2e=1` is present.
 
 ## Collision Detection
 
@@ -256,13 +275,13 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 
 **Continuous Mode Implementation**:
 
-- Controlled by `continuousMode` prop passed to `useGameLogic` hook
-- When enabled: progress auto-resets at 100% instead of showing winner screen
-- High score tracking in `localStorage` key: `continuousModeHighScore`
-- Timer starts on game start, tracks completion time for each cycle
-- Toggle UI in `GameMenu.tsx` Settings dialog (checkbox before language selector)
-- State managed in `App.tsx` with localStorage persistence
-- Target pool refills automatically on each cycle for variety
+- Controlled by `continuousMode` state in `SettingsContext`.
+- When enabled: progress auto-resets at 100% instead of showing winner screen.
+- High score tracking in `localStorage` key: `continuousModeHighScore`.
+- Timer starts on game start, tracks completion time for each cycle.
+- **Settings Dialog**: Managed in `src/components/SettingsDialog.tsx` (Tabs: Language, Display, Accessibility).
+- State managed via `SettingsProvider` (`src/context/settings-context.tsx`) with localStorage persistence.
+- Target pool refills automatically on each cycle for variety.
 
 **Add New Language**:
 
