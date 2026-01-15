@@ -7,7 +7,7 @@ function Card({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:border-primary/20",
+        "bg-card text-card-foreground flex flex-col rounded-xl border shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:border-primary/20",
         className
       )}
       {...props}
@@ -82,11 +82,6 @@ function CardFooter({ className, ...props }: ComponentProps<"div">) {
 }
 
 export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardAction,
-  CardDescription,
-  CardContent,
+  Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle
 }
+

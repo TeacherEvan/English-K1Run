@@ -312,13 +312,25 @@ export const GameMenu = memo(({
   }
 
   // Level Selection View
+  const thaiTranslations = [
+    'ผลไม้และผัก',           // Fruits & Vegetables
+    'สนุกกับการนับ',          // Counting Fun
+    'รูปร่างและสี',          // Shapes & Colors
+    'สัตว์และธรรมชาติ',       // Animals & Nature
+    'ยานพาหนะ',              // Things That Go
+    'สภาพอากาศ',             // Weather Wonders
+    'ความรู้สึกและการกระทำ',  // Feelings & Actions
+    'ส่วนต่างๆของร่างกาย'     // Body Parts
+  ]
+
   return (
     <div
       className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300"
       data-testid="level-select-menu"
     >
-      <Card className="w-full max-w-5xl mx-4 p-8 bg-card/90 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between mb-8">
+      <Card className="w-full max-w-5xl mx-4 bg-card/90 border-4 border-primary/20 shadow-2xl h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 pt-8 pb-4">
           <Button
             variant="ghost"
             size="lg"
@@ -333,50 +345,38 @@ export const GameMenu = memo(({
         </div>
 
         {/* Level Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto p-4 flex-1">
-          {levels.map((level, index) => {
-            const thaiTranslations = [
-              'ผลไม้และผัก',           // Fruits & Vegetables
-              'สนุกกับการนับ',          // Counting Fun
-              'รูปร่างและสี',          // Shapes & Colors
-              'สัตว์และธรรมชาติ',       // Animals & Nature
-              'ยานพาหนะ',              // Things That Go
-              'สภาพอากาศ',             // Weather Wonders
-              'ความรู้สึกและการกระทำ',  // Feelings & Actions
-              'ส่วนต่างๆของร่างกาย'     // Body Parts
-            ]
-
-            return (
-              <Button
-                key={level}
-                variant={selectedLevel === index ? "default" : "outline"}
-                className={`h-32 text-xl font-bold flex flex-col gap-2 transition-all hover:scale-105 ${selectedLevel === index
-                  ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
-                  : 'hover:border-primary/50'
-                  }`}
-                onClick={() => onSelectLevel(index)}
-                data-testid="level-button"
-                data-selected={selectedLevel === index}
-              >
-                <span className="text-4xl mb-1">
-                  {index === 0 ? '🍎' :
-                    index === 1 ? '1️⃣' :
-                      index === 2 ? '🅰️' :
-                        index === 3 ? '🎨' :
-                          index === 4 ? '🦁' :
-                            index === 5 ? '🚗' :
-                              index === 6 ? '🌤️' : '🎮'}
-                </span>
-                <div className="flex flex-col items-center">
-                  <span className="text-center px-2 leading-tight">{level}</span>
-                  <span className="text-xs text-gray-400 mt-1">{thaiTranslations[index] || ''}</span>
-                </div>
-              </Button>
-            )
-          })}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto px-8 py-4 flex-1">
+          {levels.map((level, index) => (
+            <Button
+              key={level}
+              variant={selectedLevel === index ? "default" : "outline"}
+              className={`h-32 text-xl font-bold flex flex-col gap-2 transition-all hover:scale-105 ${selectedLevel === index
+                ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
+                : 'hover:border-primary/50'
+                }`}
+              onClick={() => onSelectLevel(index)}
+              data-testid="level-button"
+              data-selected={selectedLevel === index}
+            >
+              <span className="text-4xl mb-1">
+                {index === 0 ? '🍎' :
+                  index === 1 ? '1️⃣' :
+                    index === 2 ? '🅰️' :
+                      index === 3 ? '🎨' :
+                        index === 4 ? '🦁' :
+                          index === 5 ? '🚗' :
+                            index === 6 ? '🌤️' : '🎮'}
+              </span>
+              <div className="flex flex-col items-center">
+                <span className="text-center px-2 leading-tight">{level}</span>
+                <span className="text-xs text-gray-400 mt-1">{thaiTranslations[index] || ''}</span>
+              </div>
+            </Button>
+          ))}
         </div>
 
-        <div className="mt-8 flex justify-center">
+        {/* Footer */}
+        <div className="px-8 pb-8 pt-4 flex justify-center">
           <Button
             size="lg"
             className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform"
