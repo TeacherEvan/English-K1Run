@@ -22,7 +22,22 @@ const fs = require("fs");
     await page.waitForSelector('[data-testid="level-select-menu"]', {
       timeout: 10000,
     });
-    await page.screenshot({ path: "test-results/6_final_level_select.png" });
+
+    // Actually verify what's on screen
+    const buttonCount = await page
+      .locator('[data-testid="level-button"]')
+      .count();
+    console.log("Level buttons found:", buttonCount);
+
+    const menuText = await page
+      .locator('[data-testid="level-select-menu"]')
+      .textContent();
+    console.log("Menu text preview:", menuText.substring(0, 200));
+
+    await page.screenshot({
+      path: "test-results/6_final_level_select.png",
+      fullPage: true,
+    });
 
     console.log("SUCCESS: All screens captured.");
   } catch (e) {
