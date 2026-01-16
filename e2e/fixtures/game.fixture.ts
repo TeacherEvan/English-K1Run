@@ -51,7 +51,7 @@ export class GamePage {
       });
 
       // Ensure the real GameMenu (not Suspense fallback) is mounted.
-      await this.page.locator('[data-testid="game-title"]').waitFor({
+      await this.page.locator('[data-testid="new-game-button"]').waitFor({
         state: "visible",
         timeout: 20_000,
       });
@@ -63,6 +63,26 @@ export class GamePage {
         throw new Error(`Game crashed with error: ${errorText}`);
       }
       throw e;
+    }
+  }
+
+  // Wait for page load state with enhanced error handling
+  async waitForPageLoad(timeout: number = 10000) {
+    await this.page.waitForLoadState("domcontentloaded", { timeout });
+    await this.page.waitForLoadState("networkidle", { timeout });
+  }
+
+  // Enhanced navigation with retry logic
+  async navigateWithRetry(url: string, maxRetries: number = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await this.page.goto(url, { waitUntil: "domcontentloaded" });
+        await this.waitForPageLoad();
+        return;
+      } catch (error) {
+        if (attempt === maxRetries) throw error;
+        await this.page.waitForTimeout(1000 * attempt); // Exponential backoff
+      }
     }
   }
 

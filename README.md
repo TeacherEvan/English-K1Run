@@ -202,6 +202,9 @@ npm run test:e2e:headed
 - ✅ Menu navigation (level selection, settings)
 - ✅ Touch interactions (multi-touch, QBoard compatibility)
 - ✅ Deployment diagnostics (production checks)
+- ✅ Cross-browser compatibility (Chromium, Firefox, WebKit, Edge)
+- ✅ Mobile/tablet responsiveness (iPad Pro 11, Pixel 7)
+- ✅ CI/CD integration with sharding and parallel execution
 
 ### Unit Tests (Vitest)
 
