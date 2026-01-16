@@ -9,6 +9,16 @@ import { getSentenceTemplate } from "./constants/sentence-templates";
 import { eventTracker } from "./event-tracker";
 import { LRUCache } from "./utils/lru-cache";
 
+declare global {
+  interface Window {
+    __audioDebug?: {
+      active: number;
+      peak: number;
+      lastSound?: string;
+    };
+  }
+}
+
 const rawAudioFiles = import.meta.glob("../../sounds/*.{wav,mp3}", {
   import: "default",
   query: "?url",
@@ -283,6 +293,8 @@ class SoundManager {
   private preloadInProgress = false; // Prevent concurrent preloading
   private currentLanguage: SupportedLanguage = "en"; // Track current language
   private useAudioSprite = false;
+  private activePlaybackCount = 0;
+  private peakPlaybackCount = 0;
 
   constructor() {
     this.detectMobile();
@@ -346,6 +358,34 @@ class SoundManager {
     document.addEventListener("click", handleInteraction, { once: true });
     document.addEventListener("touchstart", handleInteraction, { once: true });
     document.addEventListener("keydown", handleInteraction, { once: true });
+  }
+
+  private trackPlaybackStart(soundName: string) {
+    this.activePlaybackCount += 1;
+    this.peakPlaybackCount = Math.max(
+      this.peakPlaybackCount,
+      this.activePlaybackCount,
+    );
+
+    if (typeof window !== "undefined") {
+      window.__audioDebug = {
+        active: this.activePlaybackCount,
+        peak: this.peakPlaybackCount,
+        lastSound: soundName,
+      };
+    }
+  }
+
+  private trackPlaybackEnd(soundName?: string) {
+    this.activePlaybackCount = Math.max(0, this.activePlaybackCount - 1);
+
+    if (typeof window !== "undefined") {
+      window.__audioDebug = {
+        active: this.activePlaybackCount,
+        peak: this.peakPlaybackCount,
+        lastSound: soundName ?? window.__audioDebug?.lastSound,
+      };
+    }
   }
 
   private async initializeAudioContext() {
@@ -1133,6 +1173,15 @@ class SoundManager {
     if (import.meta.env.DEV) {
       console.log("[SoundManager] Stopped all active audio");
     }
+
+    this.activePlaybackCount = 0;
+    if (typeof window !== "undefined") {
+      window.__audioDebug = {
+        active: 0,
+        peak: this.peakPlaybackCount,
+        lastSound: window.__audioDebug?.lastSound,
+      };
+    }
   }
 
   /**
@@ -1147,6 +1196,8 @@ class SoundManager {
     volumeOverride?: number,
   ): Promise<void> {
     if (!this.isEnabled) return;
+
+    this.trackPlaybackStart(soundName);
 
     try {
       if (import.meta.env.DEV) {
@@ -1219,6 +1270,8 @@ class SoundManager {
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
       describeIfEnabled(`Sound failed: ${soundName}`);
+    } finally {
+      this.trackPlaybackEnd(soundName);
     }
   }
 

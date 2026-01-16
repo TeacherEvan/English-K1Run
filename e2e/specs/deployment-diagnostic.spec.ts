@@ -35,7 +35,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
         error.includes("vendor-misc") ||
         error.includes("Circular dependency") ||
         error.includes("Cannot read property") ||
-        error.includes("is not defined")
+        error.includes("is not defined"),
     );
 
     // Log all errors for debugging
@@ -86,7 +86,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
       (req) =>
         req.includes("vendor-") ||
         req.includes("app-") ||
-        req.includes("index-")
+        req.includes("index-"),
     );
 
     expect(bundleFailures).toHaveLength(0);
@@ -111,5 +111,48 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
 
     // Should have no failed CSS requests
     expect(failedRequests).toHaveLength(0);
+  });
+
+  test("welcome audio cues should not overlap", async ({ page }) => {
+    await page.goto("https://english-k1-run.vercel.app", {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+
+    await page.waitForSelector('[data-testid="welcome-screen"]', {
+      timeout: 10000,
+    });
+
+    await page.click('[data-testid="welcome-screen"]');
+
+    const hasAudioDebug = await page.evaluate(() => "__audioDebug" in window);
+    test.skip(
+      !hasAudioDebug,
+      "Audio debug counters not available on deployed build.",
+    );
+
+    await page.waitForFunction(
+      () =>
+        (window as unknown as { __audioDebug?: { active: number } })
+          .__audioDebug?.active !== undefined,
+      undefined,
+      { timeout: 10000 },
+    );
+
+    await page.waitForFunction(
+      () =>
+        (window as unknown as { __audioDebug?: { active: number } })
+          .__audioDebug?.active === 0,
+      undefined,
+      { timeout: 20000 },
+    );
+
+    const peak = await page.evaluate(() => {
+      const debug = (window as unknown as { __audioDebug?: { peak: number } })
+        .__audioDebug;
+      return debug?.peak ?? 0;
+    });
+
+    expect(peak).toBeLessThanOrEqual(1);
   });
 });
