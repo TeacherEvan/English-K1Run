@@ -128,8 +128,10 @@ export default defineConfig({
           if (normalizedId.includes("/node_modules/")) {
             // CRITICAL FIX: Group EVERYTHING related to the React framework into one chunk.
             // Must handle pnpm paths like: node_modules/.pnpm/react@x/node_modules/react/...
+            // IMPORTANT: Include i18next and react-i18next to prevent module loading order issues
+            // in Vite 7 where vendor-other might load before vendor-react
             const reactRuntimePattern =
-              /\/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(react|react-dom|scheduler|react-is|react-error-boundary|react-i18next|i18next|lucide-react)\//;
+              /\/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(react|react-dom|scheduler|react-is|react-error-boundary|react-i18next|i18next|lucide-react|i18next-browser-languagedetector)\//;
             const isReactRuntime =
               reactRuntimePattern.test(normalizedId) ||
               normalizedId.includes("/node_modules/react/jsx-runtime") ||

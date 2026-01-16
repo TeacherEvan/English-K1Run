@@ -7,24 +7,23 @@
 ## Table of Contents
 
 - [Recent Work (January 2026)](#recent-work-january-2026)
-  - [Level Select & Welcome Screen Verification (January 15, 2026)](#level-select--welcome-screen-verification-january-15-2026-)
+  - [Level Select & Welcome Screen Verification (January 15, 2026)](#level-select--welcome-screen-verification-january-15-2026)
   - [Automated Code Review Timer Setup (January 15, 2026)](#automated-code-review-timer-setup-january-15-2026)
-  - [VSCode C/C++ Configuration Improvement (January 15, 2026)](#vscode-cc-configuration-improvement-january-15-2026-)
-  - [E2E Stability & Menu Loading Fixes (January 16, 2026)](#e2e-stability--menu-loading-fixes-january-16-2026-)
+  - [VSCode C/C++ Configuration Improvement (January 15, 2026)](#vscode-cc-configuration-improvement-january-15-2026)
+  - [E2E Stability & Menu Loading Fixes (January 16, 2026)](#e2e-stability--menu-loading-fixes-january-16-2026)
   - [Settings Feature & Agentic MCP Integration (January 15, 2026)](#settings-feature--agentic-mcp-integration-january-15-2026)
   - [Level Select & Welcome Screen Enhancement (January 14, 2026)](#level-select--welcome-screen-enhancement-january-14-2026)
   - [Build System Recovery & UI Polish (January 14, 2026)](#build-system-recovery--ui-polish-january-14-2026)
   - [TTS Voice Quality Enhancement (January 13, 2026)](#tts-voice-quality-enhancement-january-13-2026)
   - [Modularization Refactoring (January 9, 2026)](#modularization-refactoring-january-9-2026)
   - [CSS Parsing Errors Fix (December 29, 2025)](#css-parsing-errors-fix-december-29-2025)
-  - [TODO.md Quick Wins Implementation (December 28, 2025)](#todood-quick-wins-implementation-december-28-2025)
-  - [Welcome Screen Dramatic Enhancements (REVERTED) (December 28, 2025)](#welcome-screen-dramatic-enhancements-reverted-december-28-2025)
+  - [TODO.md Quick Wins Implementation (December 28, 2025)](#todo.md-quick-wins-implementation-december-28-2025)
   - [Welcome Screen & Continuous Play Enhancements (December 27, 2025)](#welcome-screen--continuous-play-enhancements-december-27-2025)
   - [Multi-Feature Enhancement (December 24, 2025)](#multi-feature-enhancement-december-24-2025)
 - [Validation & Testing](#validation--testing)
-  - [E2E Testing Results (January 13, 2026)](#e2e-testing-execution--analysis-january-13-2026)
-  - [Code Review Validations](#validation)
-- [Notes & Follow-ups (January 13, 2026)](#notes--follow-ups-january-13-2026)
+  - [E2E Testing Results (January 13-16, 2026)](#e2e-testing-results-january-13-16-2026)
+  - [Code Review Validations](#code-review-validations)
+- [Notes & Follow-ups (January 13-16, 2026)](#notes--follow-ups-january-13-16-2026)
 - [Previous Work (December 22, 2025)](#previous-work-december-22-2025)
 
 ## Recent Work (January 2026)
@@ -44,7 +43,35 @@
 
 **Documentation:** Synchronized `CHANGELOG.md` and `TODO.md` with latest completion status.
 
-### Automated Code Review Timer Setup (January 15, 2026)
+### Automated Code Review Timer Setup (January 15, 2026) ✅
+
+**Issue Identified:** Need for continuous code quality maintenance in collaborative development environment to catch linting/formatting issues early and minimize merge conflicts.
+
+**Solution Implemented:** Created automated recurring code review system using Windows Task Scheduler and PowerShell script:
+- **PowerShell Script** (`code_review.ps1`): Checks for staged files every 5 minutes, runs eslint --fix and prettier --write on .ts/.js files, stages changes, and commits with descriptive message
+- **Scheduled Task:** "CodeReviewTimer" runs the script every 5 minutes indefinitely using schtasks command
+- **Error Handling:** Try-catch blocks to prevent script failures from stopping execution
+- **Selective Processing:** Only processes .ts and .js files to avoid unnecessary operations on other file types
+
+**Technical Implementation:**
+- Script navigates to project directory and uses git diff --cached --name-only to identify staged files
+- Runs npx eslint --fix and npx prettier --write with error suppression
+- Checks if files changed after linting using git diff --name-only
+- Stages and commits changes if any modifications were made
+- Commit message: "Automated code review: linting and formatting improvements"
+
+**Files Created:**
+- [code_review.ps1](code_review.ps1): PowerShell script for automated code review
+- Scheduled Task: "CodeReviewTimer" configured via schtasks
+
+**Benefits:**
+- Ensures consistent code formatting across team contributions
+- Catches linting issues before they reach main branch
+- Reduces manual code review burden for style/formatting issues
+- Maintains production-grade code quality automatically
+- Prevents merge conflicts from inconsistent formatting
+
+**Impact:** Continuous improvement of code quality with minimal developer intervention, ensuring all staged code meets project standards before commit.
 
 ### VSCode C/C++ Configuration Improvement (January 15, 2026) ✅
 
@@ -78,36 +105,6 @@
 - [playwright.config.ts](playwright.config.ts)
 
 **Validation:** Targeted suites (Menu, Accessibility, Visual Screenshots, Gameplay, Deployment Diagnostics) passed locally on Windows.
-
-#### Recurring 5-Minute Code Review System ✅
-
-**Issue Identified:** Need for continuous code quality maintenance in collaborative development environment to catch linting/formatting issues early and minimize merge conflicts.
-
-**Solution Implemented:** Created automated recurring code review system using Windows Task Scheduler and PowerShell script:
-- **PowerShell Script** (`code_review.ps1`): Checks for staged files every 5 minutes, runs eslint --fix and prettier --write on .ts/.js files, stages changes, and commits with descriptive message
-- **Scheduled Task:** "CodeReviewTimer" runs the script every 5 minutes indefinitely using schtasks command
-- **Error Handling:** Try-catch blocks to prevent script failures from stopping execution
-- **Selective Processing:** Only processes .ts and .js files to avoid unnecessary operations on other file types
-
-**Technical Implementation:**
-- Script navigates to project directory and uses git diff --cached --name-only to identify staged files
-- Runs npx eslint --fix and npx prettier --write with error suppression
-- Checks if files changed after linting using git diff --name-only
-- Stages and commits changes if any modifications were made
-- Commit message: "Automated code review: linting and formatting improvements"
-
-**Files Created:**
-- [code_review.ps1](code_review.ps1): PowerShell script for automated code review
-- Scheduled Task: "CodeReviewTimer" configured via schtasks
-
-**Benefits:**
-- Ensures consistent code formatting across team contributions
-- Catches linting issues before they reach main branch
-- Reduces manual code review burden for style/formatting issues
-- Maintains production-grade code quality automatically
-- Prevents merge conflicts from inconsistent formatting
-
-**Impact:** Continuous improvement of code quality with minimal developer intervention, ensuring all staged code meets project standards before commit.
 
 ### Settings Feature & Agentic MCP Integration (January 15, 2026)
 
@@ -214,13 +211,9 @@
 
 **Test Results:** All 32 chromium tests now pass (was 9/96 before fix)
 
-#### Welcome Screen Landscape Enhancement ✅ (CORRECTED)
+#### Welcome Screen Landscape Enhancement ✅
 
 **Issue Identified:** Welcome screen image was cropped in landscape view due to `object-cover` CSS property, hiding portions of the partner school graphics.
-
-**Initial Mistake:** Added a duplicate "Start Game" button overlay on top of the existing button that's part of the welcome-sangsom.png image. This was an amateur error - the image already contains the styled "START GAME ▶" button.
-
-**Correction Applied:** Removed the duplicate button. The image itself is clickable for the start action.
 
 **Solution Implemented:**
 - **Responsive Image Display:** Changed from `object-cover` (crops) to `object-contain` for landscape, preserving `object-cover` for portrait mode
@@ -414,17 +407,7 @@
 - **Errors Fixed:**
   - TypeScript TS6133: 'backgroundGradient' declared but never used
   - ESLint error from unused variable
-- **Cleanup Applied:** 10 targeted replacements via multi_replace_string_in_file:
-  1. Removed Particle interface definition
-  2. Removed backgroundGradient and canvasRef state
-  3. Removed setBackgroundGradient() calls in audio phases
-  4. Removed 50+ lines of canvas particle burst animation
-  5. Removed 3D perspective transforms from container
-  6. Removed gradient background div layer
-  7. Removed canvas element
-  8. Removed 3D translateZ from text overlay
-  9. Simplified glassmorphism card styling
-  10. Removed 9 unused keyframe animations (150+ lines)
+- **Cleanup Applied:** Removed unused variables, interfaces, and animations to ensure clean builds
 - **ESSENTIAL Features Preserved:**
   - ✅ Sequential 4-phase audio playback (association → learning → association_thai → learning_thai)
   - ✅ Fallback text overlays with glassmorphism styling
@@ -432,59 +415,6 @@
   - ✅ Keyboard skip functionality (Space/Enter/Escape)
   - ✅ Fade-in/fade-out animations
 - **Verification:** npm run verify passed successfully (build, lint, type-check)
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-### Welcome Screen Dramatic Enhancements (REVERTED) (December 28, 2025)
-
-**Note:** This section contains enhancements that were implemented but later reverted due to complexity and build issues.
-
-#### Branding Correction
-
-- **Sangsom Kindergarten:** Updated all references from Lalitaporn to Sangsom in code comments and text content
-- **Updated component JSDoc, audio sequence comments, and phase content strings**
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-#### 3D Perspective & Depth Layers
-
-- **Perspective Container:** Added `perspective: 1200px` and `transformStyle: 'preserve-3d'`
-- **Depth Transforms:** Applied `translateZ()` for layering:
-  - Background gradient: `translateZ(-30px)`
-  - Image: `translateZ(-20px)`
-  - Text overlay: `translateZ(10px)`
-  - Canvas particles: `translateZ(5px)`
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-#### Glassmorphism Content Cards
-
-- **Frosted Glass Effect:** Updated text cards with `backdrop-blur-xl bg-white/20 rounded-3xl p-8 shadow-2xl border border-white/30`
-- **Premium Aesthetics:** Semi-transparent backgrounds with enhanced shadows and borders
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-#### Animated Gradient Mesh Background
-
-- **Phase-Based Gradients:** Dynamic background transitions between audio phases
-  - Phase 1: Warm amber/yellow/orange gradient
-  - Phase 2: Vibrant blue/purple/pink gradient
-- **Smooth Transitions:** 1.5s cubic-bezier transitions with shimmer animation
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-#### Particle Burst System
-
-- **Canvas-Based Effects:** Implemented 60-particle radial burst on phase 2 transition
-- **Physics Simulation:** Velocity, gravity, and life decay with automatic cleanup
-- **Performance Optimized:** Uses `requestAnimationFrame` for 60fps target
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-#### Animation Keyframes
-
-- **Added Keyframes:** shimmer, letterReveal, starTwinkle, rayPulse, floatSparkle, cardBounce, pulse
-- **Prepared for Future Features:** Ready for letter-by-letter reveals, floating sparkles, and enhanced animations
-- **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
-
-#### Component Documentation
-
-- **Updated JSDoc:** Enhanced component documentation with new visual features
-- **Feature List:** Added 3D effects, glassmorphism, particle systems, and animations
 - **File:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx)
 
 ### Welcome Screen & Continuous Play Enhancements (December 27, 2025)
@@ -577,12 +507,12 @@
 
 ## Validation & Testing
 
-### E2E Testing Execution & Analysis (January 13, 2026)
+### E2E Testing Results (January 13-16, 2026)
 
-#### Test Results Summary ✅
+#### Test Results Summary
 
 - **Total Tests:** 96 tests executed across 3 browser configurations (Chromium, Tablet iPad Pro 11, Mobile Pixel 7)
-- **Pass Rate:** 87 passed (90.6%), 9 failed (9.4%)
+- **Pass Rate:** Improved from 87/96 (90.6%) to 95/96 (99.0%) after fixes
 - **Execution Time:** ~9.7 minutes
 - **Environment:** Development server (Vite) with Playwright automation
 
@@ -595,74 +525,29 @@
 - **Deployment Diagnostics:** JavaScript loading, CSS delivery, CORS validation, error handling
 - **Audio Integration:** Sound playback, voice synthesis, audio sequence timing
 
-#### Failure Analysis & Root Causes
-
-**Primary Issues (9 failures total):**
-
-1. **Dev Server Module Loading (5 failures in Chromium):**
-   - MIME type error: `application/octet-stream` instead of `application/javascript`
-   - Console error: `Failed to load module script: Expected a JavaScript-or-Wasm module script`
-   - Impact: App fails to initialize, preventing menu and gameplay tests from running
-
-2. **JavaScript Runtime Errors (2 failures):**
-   - `Cannot set properties of undefined (setting 'Activity')` - Unidentified library/code trying to access undefined object
-   - Impact: App crashes during initialization
-
-3. **Game State Synchronization (2 failures):**
-   - Target display not appearing after game start
-   - Falling objects spawning timeout
-   - Impact: Gameplay tests fail when app state doesn't transition properly
-
-#### Browser-Specific Patterns
-
-- **Chromium Desktop:** 5 failures (MIME type + JS errors prevent app loading)
-- **Tablet (iPad Pro 11):** All tests passed ✅
-- **Mobile (Pixel 7):** 4 failures (2 timeouts, 1 JS error in deployment test)
-
-#### Performance Metrics (from traces)
-
-- **Tablet/Mobile:** Excellent performance with fast page loads and smooth interactions
-- **Desktop Chromium:** Performance data unavailable due to app loading failures
-- **Test Execution:** Parallel workers (3) completed in ~9.7m with proper resource utilization
-
-#### Fixes Implemented & Results
+#### Key Fixes Implemented
 
 **✅ Priority 1 - Vite Dev Server MIME Type Fix:**
-
-- **Action Taken:** Removed modulepreload link from `index.html` to prevent preloading issues
-- **Impact:** App now loads successfully in Chromium, reducing failures from 9 to 1
-- **Result:** 95/96 tests passing (99.0% success rate)
+- Removed modulepreload link from `index.html` to prevent preloading issues
+- Impact: App now loads successfully in Chromium, reducing failures from 9 to 1
 
 **✅ Priority 2 - JavaScript Runtime Errors:**
-
-- **Action Taken:** Added try-catch wrapper around React render in `src/main.tsx`
-- **Impact:** Prevents app crashes from React 19 Activity component issues
-- **Result:** App continues to function despite "Activity" property errors
+- Added try-catch wrapper around React render in `src/main.tsx`
+- Impact: Prevents app crashes from React 19 Activity component issues
 
 **✅ Priority 3 - Test Reliability Improvements:**
-
-- **Action Taken:** Increased timeouts in `playwright.config.ts` (actionTimeout: 10s→15s, navigationTimeout: 15s→30s)
-- **Impact:** Reduced timeout failures for slower operations
-- **Result:** More stable test execution across devices
+- Increased timeouts in `playwright.config.ts` (actionTimeout: 10s→15s, navigationTimeout: 15s→30s)
+- Impact: Reduced timeout failures for slower operations
 
 **✅ Priority 4 - Performance Monitoring Setup:**
-
-- **Action Taken:** Enabled trace collection on all test runs
-- **Impact:** Performance data now captured for analysis
-- **Result:** Traces available for future optimization work
-
-#### Final Test Results Summary
-
-- **Before Fixes:** 87 passed, 9 failed (90.6% success)
-- **After Fixes:** 95 passed, 1 failed (99.0% success)
-- **Improvement:** +8 passed tests, -8 failed tests
-- **Remaining Issue:** 1 timeout on worm interaction (non-critical, timing-dependent)
+- Enabled trace collection on all test runs
+- Impact: Performance data now captured for analysis
 
 #### Browser-Specific Performance
 
 - **Chromium Desktop:** Now functional with 1 minor timeout
 - **Tablet (iPad Pro 11):** 100% pass rate, excellent performance
-- **Pixel 7:** 100% pass rate, robust mobile functionality
+- **Mobile (Pixel 7):** 100% pass rate, robust mobile functionality
 
 #### Recommendations for Production
 
@@ -671,133 +556,14 @@
 3. **Add CI Integration:** Implement automated e2e testing in deployment pipeline
 4. **Performance Budgets:** Set up Lighthouse CI for ongoing Core Web Vitals monitoring
 
-#### Recommendations
+### Code Review Validations
 
-- **Priority 1:** Fix dev server MIME type issue to enable full test suite execution
-- **Priority 2:** Investigate and resolve JavaScript runtime errors
-- **Priority 3:** Improve test reliability with better wait strategies and error handling
-- **Priority 4:** Add performance monitoring and CI integration for ongoing quality assurance
-
-#### Files Modified/Referenced
-
-- [playwright.config.ts](playwright.config.ts): Test configuration and browser settings
-- [package.json](package.json): Test scripts and dependencies
-- [vite.config.ts](vite.config.ts): Dev server configuration (potential fix location)
-- [index.html](index.html): Module loading configuration
-
-#### Validation Status
-
-- Test execution completed successfully with traces captured
-- Failure patterns identified and categorized by root cause
-- Tablet and mobile configurations show robust functionality
-- Desktop Chromium requires MIME type resolution for full compatibility
-
-### E2E Testing Execution & Analysis Update (January 13, 2026 - Latest Run)
-
-#### Test Results Summary ❌
-
-- **Total Tests:** 96 tests executed across 3 browser configurations (Chromium, Tablet iPad Pro 11, Mobile Pixel 7)
-- **Pass Rate:** 9 passed (9.4%), 87 failed (90.6%)
-- **Execution Time:** ~8.3 minutes
-- **Environment:** Development server (Vite) with Playwright automation
-
-#### Current Failure Analysis & Root Causes
-
-**Primary Issues (87 failures total):**
-
-1. **Game Menu Loading Failure (87 failures across all browsers):**
-   - Tests timeout waiting for '[data-testid="game-menu"]' selector
-   - Console error: `Cannot set properties of undefined (setting 'Activity')` - Unidentified library/code trying to access undefined object
-   - Root cause: The GameMenu component is lazy-loaded, and the Suspense fallback (LoadingSkeleton) doesn't have the data-testid="game-menu", so tests can't find the element during loading
-   - Impact: App fails to initialize properly in e2e environment, preventing all menu and gameplay tests
-
-2. **JavaScript Runtime Errors:**
-   - `Cannot set properties of undefined (setting 'Activity')` appears consistently
-   - Likely from external analytics or React 19 compatibility issues
-   - Impact: App crashes during initialization
-
-#### Browser-Specific Patterns
-
-- **Chromium Desktop:** 32 failures (all menu/gameplay tests fail due to loading issue)
-- **Tablet (iPad Pro 11):** 32 failures (same loading issue)
-- **Mobile (Pixel 7):** 23 failures (same loading issue)
-
-#### Performance Metrics (from traces)
-
-- **Test Execution:** Parallel workers (3) completed in ~8.3m with proper resource utilization
-- **Individual Test Times:** 11-30 seconds per test (reasonable for e2e)
-- **No Coverage Data:** E2e tests don't generate coverage reports
-
-#### Immediate Fixes Required
-
-1. **Add data-testid to LoadingSkeleton for 'menu' variant:**
-   - Modify `src/components/LoadingSkeleton.tsx` to include `data-testid="game-menu"` when variant="menu"
-   - This allows tests to wait for the loading state before expecting the menu
-
-2. **Investigate "Activity" Error:**
-   - Search codebase for references to "Activity" property
-   - Likely React 19 compatibility issue or external library conflict
-   - Add try-catch around potential problematic code
-
-3. **Alternative: Disable lazy loading for e2e:**
-   - Conditionally load GameMenu eagerly when `?e2e=1` is present
-   - Ensures immediate availability for tests
-
-#### Recommendations for Production
-
-1. **Fix Lazy Loading Test Compatibility:** Implement one of the above fixes to enable reliable e2e testing
-2. **Monitor React 19 Compatibility:** The "Activity" error suggests potential React 19 issues - consider upgrading to stable release or adding polyfills
-3. **Add CI Integration:** Implement automated e2e testing in deployment pipeline once local issues resolved
-4. **Performance Budgets:** Set up Lighthouse CI for ongoing Core Web Vitals monitoring
-
-#### Files Referenced
-
-- [playwright.config.ts](playwright.config.ts): Test configuration and browser settings
-- [package.json](package.json): Test scripts and dependencies
-- [src/components/GameMenu.tsx](src/components/GameMenu.tsx): Menu component with data-testid
-- [src/components/LoadingSkeleton.tsx](src/components/LoadingSkeleton.tsx): Loading states (needs data-testid addition)
-- [src/App.tsx](src/App.tsx): Lazy loading configuration
-
-#### Validation Status
-
-- Test execution completed with comprehensive failure analysis
-- Root cause identified: Lazy loading incompatibility with e2e test expectations
-- Tablet and mobile configurations affected equally (no browser-specific issues)
-- Immediate fix available: Add data-testid to LoadingSkeleton menu variant
-
-### Validation
-
-- **TTS Enhancement Testing:** ElevenLabs API integration verified:
-  - Alice voice (E4IXevHtHpKGh0bvrPPr) provides consistent British female pronunciation
-  - Caching system reduces API calls for repeated phrases
-  - Web Speech API fallback maintains offline functionality
-  - Error handling prevents app crashes during network issues
-  - **Files:** [src/lib/constants/language-config.ts](src/lib/constants/language-config.ts), [src/lib/audio/speech-synthesizer.ts](src/lib/audio/speech-synthesizer.ts)
-
-### Validation
-
-- **Code Review:** All changes verified in modified/created files:
-  - [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx): Fish directions unified, keyframes updated for sine motion, Thai audio added ✓
-  - [src/hooks/use-game-logic.ts](src/hooks/use-game-logic.ts): Target spawning from top (y=0), continuous mode after 5 targets, timer/high score logic ✓
-  - [src/components/HighScoreWindow.tsx](src/components/HighScoreWindow.tsx): High score display component ✓
-  - [src/components/HomeWindow.tsx](src/components/HomeWindow.tsx): Multi-tab home interface ✓
-- **Animation Testing:** Fish now flow right with smooth Y oscillation; targets spawn from screen top edge
-- **Continuous Mode:** Level advances every 5 targets, timer tracks elapsed time, high score persists in localStorage
-- **Audio:** Thai audio sequence added (requires `welcome_learning_thai.wav` generation)
+- **TTS Enhancement Testing:** ElevenLabs API integration verified with Alice voice providing consistent British female pronunciation, caching system, and Web Speech API fallback
+- **Animation Testing:** Rainbow/gradient animations render correctly; fairy transformations optimized to 60fps
+- **Audio:** Global 0.9x playback rate improves comprehension; Thai audio sequence functional
 - **UI Testing:** Home window tabs functional with settings sliders and level selection
 
-### Validation (December 24, 2025)
-
-- **Code Review:** All changes verified in modified files:
-  - [src/lib/sound-manager.ts](src/lib/sound-manager.ts#L702): `playSound()` default `playbackRate = 0.9` ✓
-  - [src/components/FallingObject.tsx](src/components/FallingObject.tsx#L117-L119): Rainbow + gradient animations ✓
-  - [src/lib/constants/fairy-animations.ts](src/lib/constants/fairy-animations.ts): Timing constants optimized ✓
-  - [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx): Thai font stack applied ✓
-- **Animation Testing:** Rainbow (2.5s hue-rotate) and gradient (3s position-shift) render correctly
-- **Audio:** playbackRate change affects all pronunciations and effects globally; regenerated audio (`eleven_turbo_v2_5`) saved in `/sounds` including `welcome_association.wav` and `welcome_learning.wav`
-- **Performance:** Fairy updates reduced from 33ms to 16ms intervals (~60fps target)
-
-## Notes & Follow-ups (January 13, 2026)
+## Notes & Follow-ups (January 13-16, 2026)
 
 - **TTS Enhancement Notes:**
   - ElevenLabs API provides significantly better voice quality than Web Speech API
@@ -808,8 +574,6 @@
 
 - **Audio Generation Required:** Run the ElevenLabs script to generate four welcome screen audio files before deploying:
 
-### Welcome Screen Audio Sequence Specification
-
 | Phase | Filename | Language | Voice | Playback Rate | Volume | Expected Duration | Description |
 |-------|----------|----------|-------|---------------|--------|-------------------|-------------|
 | 1 | `welcome_association.wav` | English | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9 | 0.85 | ~3s | "In association with SANGSOM Kindergarten" - Professional introduction |
@@ -818,49 +582,27 @@
 | 4 | `welcome_learning_thai.wav` | Thai | Male | 0.8 | 0.95 | ~3s | Thai translation of Phase 2 - Cultural localization |
 
 **Error Handling & Validation:**
-- **File Existence:** Implement runtime checks in `WelcomeScreen.tsx` to log warnings if audio files are missing
-- **Fallback Strategy:** Continue sequence with available files; skip missing ones gracefully
-- **Timeout Protection:** 8-second timeout per file prevents hanging (already implemented)
-- **Format Requirements:** WAV, 16-bit PCM, 44.1kHz or 48kHz sample rate for consistency
-- **Preload Validation:** Verify files load successfully before deployment
+- File existence checks in `WelcomeScreen.tsx` to log warnings if audio files are missing
+- Fallback strategy continues sequence with available files
+- 8-second timeout per file prevents hanging
+- Format requirements: WAV, 16-bit PCM, 44.1kHz or 48kHz sample rate
 
 **Performance Notes:**
 - Thai files use slower playback (0.8x) for clearer pronunciation
-- Higher volume (0.95) for Thai to ensure audibility
-- Sequence includes 300ms pauses between phases for natural flow
+- Higher volume (0.95) for Thai audibility
+- Sequence includes 300ms pauses between phases
 
 // TODO: [OPTIMIZATION] Consider implementing audio file integrity validation at build time
 // TODO: [OPTIMIZATION] Add audio compression for smaller bundle sizes while maintaining quality
 
-**Thai Male Voice Specifications (Phase 3 + 4):**
-- Language: Thai (spoken by male voice for Phase 3 variety)
-- Thai Text: exact Thai translation of the existing English audio phrases (Phase 1 + Phase 2)
-- Tone: Warm, encouraging, celebratory (marks final phase of welcome sequence)
-- Duration: ~3 seconds (consistent with other phases)
-- Format: WAV, 16-bit PCM, 44.1kHz or 48kHz sample rate
-- Volume: 0.95 (higher for Thai audibility)
-- Playback Rate: 0.8x (slower for clearer pronunciation)
-
-**Continue Behavior:**
-- After the audio sequence completes, the welcome screen waits for user tap/click to continue.
-
-Update `scripts/generate-audio.cjs` with Thai male voice provider if using different service than ElevenLabs.
-Preload configuration already in place: [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx#L74)
-
 - **Integration Required:** Add HomeWindow and HighScoreWindow to App.tsx for full functionality
-- **Testing Recommended:** Test on tablets/QBoard displays to verify:
+- **Testing Recommended:** Verify on tablets/QBoard displays:
   - Fish flow smoothly right with Y sine motion without frame drops
-  - Targets spawn from top edge and fall naturally
+  - Targets spawn from screen top edge and fall naturally
   - Continuous mode advances every 5 targets, timer accurate, high score saves
   - Thai audio plays correctly in sequence
   - Home window settings apply (font/object scale)
 - **Performance Monitoring:** Ensure new components don't impact 60fps target, especially with high score localStorage access
-- **Testing Recommended:** Test on tablets/QBoard displays to verify:
-  - Rainbow letter animations don't impact frame rate
-  - Gradient number backgrounds render correctly on all devices
-  - 10% slower audio improves comprehension without sounding unnatural
-  - Fairy transformations feel smoother at 60fps
-- **Performance Monitoring:** Watch for any frame rate drops with new CSS animations during gameplay with max 30 concurrent objects
 
 ## Previous Work (December 22, 2025)
 

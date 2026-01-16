@@ -318,35 +318,35 @@ export const GameMenu = memo(({
 
               {/* Credits (Small Link) */}
               <Dialog>
-                 <DialogTrigger asChild>
-                    <div className="text-center mt-2">
-                       <Button variant="link" size="sm" className="text-muted-foreground/60 h-auto p-0 text-xs">
-                          Credits / เครดิต
-                       </Button>
+                <DialogTrigger asChild>
+                  <div className="text-center mt-2">
+                    <Button variant="link" size="sm" className="text-muted-foreground/60 h-auto p-0 text-xs">
+                      Credits / เครดิต
+                    </Button>
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl flex items-center gap-2">
+                      <InfoIcon className="w-6 h-6" />
+                      Credits / เครดิต
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="py-8 text-center space-y-6">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground uppercase tracking-widest">Created By</p>
+                      <h3 className="text-2xl font-bold text-primary">TEACHER EVAN</h3>
                     </div>
-                 </DialogTrigger>
-                 <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                       <DialogTitle className="text-2xl flex items-center gap-2">
-                          <InfoIcon className="w-6 h-6" />
-                          Credits / เครดิต
-                       </DialogTitle>
-                    </DialogHeader>
-                    <div className="py-8 text-center space-y-6">
-                       <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground uppercase tracking-widest">Created By</p>
-                          <h3 className="text-2xl font-bold text-primary">TEACHER EVAN</h3>
-                       </div>
-                       <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground uppercase tracking-widest">In Association With</p>
-                          <h3 className="text-xl font-bold text-orange-500">SANGSOM KINDERGARTEN</h3>
-                       </div>
-                       <div className="p-4 bg-muted/50 rounded-xl">
-                          <p className="text-sm font-semibold mb-2">SPECIAL THANKS TO</p>
-                          <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
-                       </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground uppercase tracking-widest">In Association With</p>
+                      <h3 className="text-xl font-bold text-orange-500">SANGSOM KINDERGARTEN</h3>
                     </div>
-                 </DialogContent>
+                    <div className="p-4 bg-muted/50 rounded-xl">
+                      <p className="text-sm font-semibold mb-2">SPECIAL THANKS TO</p>
+                      <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
+                    </div>
+                  </div>
+                </DialogContent>
               </Dialog>
 
               {/* Exit Confirmation Dialog */}
@@ -427,8 +427,8 @@ export const GameMenu = memo(({
                 key={level}
                 variant={selectedLevel === index ? "default" : "outline"}
                 className={`h-40 xl:h-48 text-xl font-bold flex flex-col gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 whitespace-normal ${selectedLevel === index
-                    ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
-                    : 'hover:border-primary/50 hover:shadow-md bg-card'
+                  ? 'bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30'
+                  : 'hover:border-primary/50 hover:shadow-md bg-card'
                   }`}
                 onClick={() => onSelectLevel(index)}
                 data-testid="level-button"
