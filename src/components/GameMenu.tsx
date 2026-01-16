@@ -14,11 +14,16 @@ import { LanguageSelector } from './ui/language-selector'
 
 // --- SVG Icons Components (Replaces Lucide dependency to ensure zero-dependency) ---
 // Using clear, accessible SVG paths
-const IconProps = { className: "w-6 h-6", ariaHidden: true }
 
 const PlayIcon = ({ className = "w-6 h-6" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M8 5v14l11-7z" />
+  </svg>
+)
+
+const GridIcon = ({ className = "w-6 h-6" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
   </svg>
 )
 
@@ -202,37 +207,53 @@ export const GameMenu = memo(({
             </div>
 
             {/* Right Column: Menu Actions */}
-            <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
-              {/* START GAME Button */}
+            <div className="flex flex-col gap-3 w-full max-w-sm mx-auto">
+              {/* 1. START GAME Button */}
               <Button
                 size="lg"
-                className="h-24 text-2xl font-bold shadow-lg hover:scale-105 hover:shadow-primary/25 transition-all duration-200 gap-6 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1"
-                onClick={() => setView('levels')}
-                data-testid="new-game-button"
-                aria-label="Start New Game"
+                className="h-20 text-2xl font-bold shadow-lg hover:scale-105 hover:shadow-primary/25 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => onStartGame()}
+                data-testid="start-game-button"
+                aria-label="Start Game Immediately"
               >
-                <div className="p-3 bg-white/20 rounded-full">
-                  <PlayIcon className="w-8 h-8 fill-current" />
+                <div className="p-2 bg-white/20 rounded-full">
+                  <PlayIcon className="w-6 h-6 fill-current" />
                 </div>
-                <div className="flex flex-col items-start">
-                  <span>New Game</span>
-                  <span className="text-sm font-normal opacity-90 font-thai">เกมใหม่</span>
+                <div className="flex flex-col items-start leading-none">
+                  <span>Start Game</span>
+                  <span className="text-xs font-normal opacity-90 font-thai mt-1">เริ่มเกม</span>
                 </div>
               </Button>
 
-              {/* SETTINGS Button */}
+              {/* 2. LEVEL SELECT Button */}
+              <Button
+                variant="default"
+                size="lg"
+                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4"
+                onClick={() => setView('levels')}
+                data-testid="level-select-button"
+                aria-label="Go to Level Selection"
+              >
+                <GridIcon className="w-6 h-6" />
+                <div className="flex flex-col items-start leading-none">
+                  <span>Level Select</span>
+                  <span className="text-xs font-normal opacity-90 font-thai mt-1">เลือกระดับ</span>
+                </div>
+              </Button>
+
+              {/* 3. SETTINGS Button (includes Language) */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
                     size="lg"
-                    className="h-20 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/5 border-2"
+                    className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/5 border-2"
                     data-testid="settings-button"
                   >
                     <SettingsIcon className="w-6 h-6 text-primary" />
-                    <div className="flex flex-col items-start">
+                    <div className="flex flex-col items-start leading-none">
                       <span>Settings</span>
-                      <span className="text-xs font-normal opacity-70 font-thai">การตั้งค่า</span>
+                      <span className="text-xs font-normal opacity-70 font-thai mt-1">การตั้งค่า</span>
                     </div>
                   </Button>
                 </DialogTrigger>
@@ -280,60 +301,53 @@ export const GameMenu = memo(({
                 </DialogContent>
               </Dialog>
 
-              {/* CREDIT Button */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="h-20 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/5 border-2"
-                    data-testid="credits-button"
-                  >
-                    <InfoIcon className="w-6 h-6 text-blue-500" />
-                    <div className="flex flex-col items-start">
-                      <span>Credits</span>
-                      <span className="text-xs font-normal opacity-70 font-thai">เครดิต</span>
-                    </div>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl flex items-center gap-2">
-                      <InfoIcon className="w-6 h-6" />
-                      Credits / เครดิต
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="py-8 text-center space-y-6">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground uppercase tracking-widest">Created By</p>
-                      <h3 className="text-2xl font-bold text-primary">TEACHER EVAN</h3>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground uppercase tracking-widest">In Association With</p>
-                      <h3 className="text-xl font-bold text-orange-500">SANGSOM KINDERGARTEN</h3>
-                    </div>
-                    <div className="p-4 bg-muted/50 rounded-xl">
-                      <p className="text-sm font-semibold mb-2">SPECIAL THANKS TO</p>
-                      <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              {/* EXIT Button */}
+              {/* 4. EXIT Button */}
               <Button
                 variant="destructive"
                 size="lg"
-                className="h-16 text-xl font-semibold justify-start px-8 gap-4 mt-2"
+                className="h-14 text-lg font-semibold justify-start px-8 gap-4 mt-2"
                 onClick={handleExit}
                 data-testid="exit-button"
               >
-                <LogOutIcon className="w-6 h-6" />
-                <div className="flex flex-col items-start">
-                  <span>Exit Game</span>
-                  <span className="text-xs font-normal opacity-70 font-thai">ออกจากเกม</span>
+                <LogOutIcon className="w-5 h-5" />
+                <div className="flex flex-col items-start leading-none">
+                  <span>Exit</span>
+                  <span className="text-xs font-normal opacity-70 font-thai mt-0.5">ออก</span>
                 </div>
               </Button>
+
+              {/* Credits (Small Link) */}
+              <Dialog>
+                 <DialogTrigger asChild>
+                    <div className="text-center mt-2">
+                       <Button variant="link" size="sm" className="text-muted-foreground/60 h-auto p-0 text-xs">
+                          Credits / เครดิต
+                       </Button>
+                    </div>
+                 </DialogTrigger>
+                 <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                       <DialogTitle className="text-2xl flex items-center gap-2">
+                          <InfoIcon className="w-6 h-6" />
+                          Credits / เครดิต
+                       </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-8 text-center space-y-6">
+                       <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground uppercase tracking-widest">Created By</p>
+                          <h3 className="text-2xl font-bold text-primary">TEACHER EVAN</h3>
+                       </div>
+                       <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground uppercase tracking-widest">In Association With</p>
+                          <h3 className="text-xl font-bold text-orange-500">SANGSOM KINDERGARTEN</h3>
+                       </div>
+                       <div className="p-4 bg-muted/50 rounded-xl">
+                          <p className="text-sm font-semibold mb-2">SPECIAL THANKS TO</p>
+                          <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
+                       </div>
+                    </div>
+                 </DialogContent>
+              </Dialog>
 
               {/* Exit Confirmation Dialog */}
               <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>

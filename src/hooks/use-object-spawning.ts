@@ -1,19 +1,5 @@
 import { useCallback } from "react";
-import { eventTracker } from "../lib/event-tracker";
-import { calculateSafeSpawnPosition } from "../lib/utils/spawn-position";
 import type { GameObject, GameState, PlayerSide } from "../types/game";
-import {
-  clamp,
-  COLLISION_MIN_SEPARATION,
-  EMOJI_SIZE,
-  LANE_BOUNDS,
-  MAX_ACTIVE_OBJECTS,
-  MIN_DECOY_SLOTS,
-  ROTATION_THRESHOLD,
-  SPAWN_COUNT,
-  SPAWN_VERTICAL_GAP,
-  TARGET_GUARANTEE_COUNT,
-} from "../lib/constants/game-config";
 
 /**
  * Hook for managing object spawning logic
@@ -24,7 +10,8 @@ export const useObjectSpawning = (
 ) => {
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map());
-  const lastTargetSpawnTime = useRef(Date.now());
+  // Use 0 initially to satisfy linter purity rules; updated on first effect/usage
+  const lastTargetSpawnTime = useRef(0);
 
   // Cache stale emojis to avoid recalculating every spawn (performance optimization)
   const staleEmojisCache = useRef<{
