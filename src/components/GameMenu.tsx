@@ -320,7 +320,8 @@ export const GameMenu = memo(({
     'ยานพาหนะ',              // Things That Go
     'สภาพอากาศ',             // Weather Wonders
     'ความรู้สึกและการกระทำ',  // Feelings & Actions
-    'ส่วนต่างๆของร่างกาย'     // Body Parts
+    'ส่วนต่างๆของร่างกาย',     // Body Parts
+    'ความท้าทายด้วยตัวอักษร'    // Alphabet Challenge
   ]
 
   return (
@@ -361,11 +362,13 @@ export const GameMenu = memo(({
               <span className="text-4xl mb-1">
                 {index === 0 ? '🍎' :
                   index === 1 ? '1️⃣' :
-                    index === 2 ? '🅰️' :
-                      index === 3 ? '🎨' :
-                        index === 4 ? '🦁' :
-                          index === 5 ? '🚗' :
-                            index === 6 ? '🌤️' : '🎮'}
+                    index === 2 ? '�' :
+                      index === 3 ? '🦁' :
+                        index === 4 ? '🚗' :
+                          index === 5 ? '🌤️' :
+                            index === 6 ? '😄' :
+                              index === 7 ? '🖐️' :
+                                index === 8 ? '🅰️' : '🎮'}
               </span>
               <div className="flex flex-col items-center">
                 <span className="text-center px-2 leading-tight">{level}</span>

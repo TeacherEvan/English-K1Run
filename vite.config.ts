@@ -82,14 +82,6 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     watch: {
-      usePolling: true,
-      interval: 100,
-    },
-    hmr: {
-      overlay: true,
-      port: 5173,
-      host: "localhost",
-    },
   },
   optimizeDeps: {
     include: [
@@ -132,15 +124,18 @@ export default defineConfig({
         manualChunks(id) {
           // Create vendor chunk for node_modules with intelligent splitting
           if (id.includes("node_modules")) {
-            // CRITICAL FIX: Keep ALL React packages together in ONE chunk
-            // React 19 requires react, react-dom, scheduler, and jsx-runtime to be in the same chunk
-            // Splitting them causes "useLayoutEffect of undefined" errors
+            // CRITICAL FIX: Group EVERYTHING related to the React framework into one chunk
+            // This is critical for React 19 to avoid "Children of undefined" errors on Vercel
             if (
-              id.includes("react") ||
-              id.includes("scheduler") ||
-              id.includes("react-dom") ||
-              id.includes("jsx-runtime") ||
-              id.includes("react-error-boundary")
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/react-dom/") ||
+              id.includes("node_modules/scheduler/") ||
+              id.includes("node_modules/react-is/") ||
+              id.includes("node_modules/react/jsx-runtime") ||
+              id.includes("node_modules/react-error-boundary/") ||
+              id.includes("node_modules/react-i18next/") ||
+              id.includes("node_modules/i18next/") ||
+              id.includes("node_modules/lucide-react/")
             ) {
               return "vendor-react";
             }
