@@ -81,7 +81,7 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
     strictPort: false,
-    watch: {
+    watch: {},
   },
   optimizeDeps: {
     include: [
@@ -122,21 +122,20 @@ export default defineConfig({
       external: [],
       output: {
         manualChunks(id) {
+          const normalizedId = id.replace(/\\/g, "/");
+
           // Create vendor chunk for node_modules with intelligent splitting
-          if (id.includes("node_modules")) {
-            // CRITICAL FIX: Group EVERYTHING related to the React framework into one chunk
-            // This is critical for React 19 to avoid "Children of undefined" errors on Vercel
-            if (
-              id.includes("node_modules/react/") ||
-              id.includes("node_modules/react-dom/") ||
-              id.includes("node_modules/scheduler/") ||
-              id.includes("node_modules/react-is/") ||
-              id.includes("node_modules/react/jsx-runtime") ||
-              id.includes("node_modules/react-error-boundary/") ||
-              id.includes("node_modules/react-i18next/") ||
-              id.includes("node_modules/i18next/") ||
-              id.includes("node_modules/lucide-react/")
-            ) {
+          if (normalizedId.includes("/node_modules/")) {
+            // CRITICAL FIX: Group EVERYTHING related to the React framework into one chunk.
+            // Must handle pnpm paths like: node_modules/.pnpm/react@x/node_modules/react/...
+            const reactRuntimePattern =
+              /\/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(react|react-dom|scheduler|react-is|react-error-boundary|react-i18next|i18next|lucide-react)\//;
+            const isReactRuntime =
+              reactRuntimePattern.test(normalizedId) ||
+              normalizedId.includes("/node_modules/react/jsx-runtime") ||
+              normalizedId.includes("/node_modules/react/jsx-dev-runtime");
+
+            if (isReactRuntime) {
               return "vendor-react";
             }
 

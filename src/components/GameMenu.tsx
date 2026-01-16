@@ -362,7 +362,7 @@ export const GameMenu = memo(({
               <span className="text-4xl mb-1">
                 {index === 0 ? '🍎' :
                   index === 1 ? '1️⃣' :
-                    index === 2 ? '�' :
+                    index === 2 ? '🎨' :
                       index === 3 ? '🦁' :
                         index === 4 ? '🚗' :
                           index === 5 ? '🌤️' :
