@@ -181,3 +181,32 @@ Test duration: 30.7s (chromium), 34.0s (total with welcome screen test)
 2. ✅ Use `page.addStyleTag()` to disable animations at start of each test
 3. ✅ Wait for state transitions with `state: 'detached'` / `state: 'visible'`
 4. ✅ Review Playwright action logs when tests fail - they show exactly why elements aren't stable
+
+## E2E Test Suite Enhancement Plan (January 16, 2026)
+
+**Strategic Plan Developed**: Comprehensive enhancement plan to address automation, data management, and compatibility gaps.
+
+**Key Enhancements**:
+- Page Object Model for maintainability
+- Expanded cross-browser/device support
+- Improved test data management with fixtures
+- Scalability through sharding and CI/CD integration
+- Advanced reporting with Allure
+
+**Implementation Steps**:
+1. Stabilize current tests (global animation disable, proper waits)
+2. Implement Page Object Model (MenuPage, GameplayPage, etc.)
+3. Enhance test data management (comprehensive fixtures, data factories)
+4. Expand cross-browser and cross-device compatibility (Firefox, WebKit, more devices)
+5. Optimize for speed and scalability (sharding, parallel execution)
+6. Integrate CI/CD and advanced reporting (GitHub Actions, Allure)
+7. Update documentation (new patterns, best practices)
+
+**Expected Benefits**:
+- Reduced test flakiness and timeouts
+- Easier test maintenance and updates
+- Broader compatibility coverage
+- Faster test execution
+- Better visibility into test results
+
+**Next Phase**: Implementation in code mode.

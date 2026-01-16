@@ -24,7 +24,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : process.platform === "win32" ? 2 : undefined,
 
   // Reporter configuration
-  reporter: [["html", { open: "never" }], ["list"]],
+  reporter: [["html", { open: "never" }], ["list"], ["allure-playwright"]],
 
   // Global test timeout
   timeout: 30_000,
@@ -61,6 +61,24 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+
+    // Desktop Firefox
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+
+    // Desktop Safari
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
+
+    // Desktop Edge
+    {
+      name: "edge",
+      use: { ...devices["Desktop Edge"] },
     },
 
     // Tablet - iPad (primary target device for kindergarten)
