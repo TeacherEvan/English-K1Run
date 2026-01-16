@@ -45,8 +45,5 @@
     "gameBoard": "遊戲板",
     "score": "當前分數",
     "targetObject": "目標對象"
-  },
-  "languageGate": {
-    "nativeLanguageTip": "先用母語玩一兩個關卡，然後再嘗試其他語言！"
   }
 }

@@ -16,9 +16,6 @@ const GameMenu = lazy(() =>
 const WelcomeScreen = lazy(() =>
   import('./components/WelcomeScreen').then(m => ({ default: m.WelcomeScreen }))
 )
-const LanguageGate = lazy(() =>
-  import('./components/LanguageGate').then(m => ({ default: m.LanguageGate }))
-)
 const Stopwatch = lazy(() =>
   import('./components/Stopwatch').then(m => ({ default: m.Stopwatch }))
 )
@@ -118,7 +115,7 @@ function App() {
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())
   const [isLoading, setIsLoading] = useState(false) // Loading state between menu and gameplay
   const [continuousMode, setContinuousMode] = useState(false) // Continuous play mode
-  const [startupStep, setStartupStep] = useState<'welcome' | 'language' | 'menu'>(isE2E ? 'menu' : 'welcome')
+  const [startupStep, setStartupStep] = useState<'welcome' | 'menu'>(isE2E ? 'menu' : 'welcome')
   const [debugVisible, setDebugVisible] = useState(false)
 
   // Initialize web vitals monitoring on mount
@@ -169,10 +166,6 @@ function App() {
 
   // Handle welcome screen completion
   const handleWelcomeComplete = useCallback(() => {
-    setStartupStep('language')
-  }, [])
-
-  const handleLanguageContinue = useCallback(() => {
     setStartupStep('menu')
   }, [])
 
@@ -298,19 +291,11 @@ function App() {
     return () => clearInterval(interval)
   }, [gameState.gameStarted, gameState.winner, gameState.targetChangeTime, currentCategory.requiresSequence])
 
-  // Startup gate flow: Welcome -> Language -> Menu
+  // Startup gate flow: Welcome -> Menu
   if (startupStep === 'welcome') {
     return (
       <Suspense fallback={<LoadingSkeleton variant="welcome" />}>
         <WelcomeScreen onComplete={handleWelcomeComplete} />
-      </Suspense>
-    )
-  }
-
-  if (startupStep === 'language') {
-    return (
-      <Suspense fallback={<LoadingSkeleton variant="menu" />}>
-        <LanguageGate onContinue={handleLanguageContinue} />
       </Suspense>
     )
   }
