@@ -1,4 +1,5 @@
 import { memo, useMemo, useState } from 'react'
+import { useSettings } from '../context/settings-context'
 import { GAME_CATEGORIES } from '../lib/constants/game-categories'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
@@ -119,6 +120,8 @@ export const GameMenu = memo(({
   if (import.meta.env.DEV) {
     console.log('[GameMenu] rendering view:', initialView)
   }
+
+  const { resolutionScale, setResolutionScale } = useSettings()
 
   const [view, setView] = useState<'main' | 'levels'>(initialView)
   const [showExitDialog, setShowExitDialog] = useState(false)
@@ -278,6 +281,31 @@ export const GameMenu = memo(({
                           showLabel={false}
                           className="w-full"
                         />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card/50">
+                      <div>
+                        <h4 className="font-medium leading-none mb-2">Display Scale</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Adjust UI size for your screen
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { id: 'auto', label: 'Auto' },
+                          { id: 'small', label: 'Small' },
+                          { id: 'medium', label: 'Medium' },
+                          { id: 'large', label: 'Large' }
+                        ].map(option => (
+                          <Button
+                            key={option.id}
+                            variant={resolutionScale === option.id ? 'default' : 'outline'}
+                            onClick={() => setResolutionScale(option.id as typeof resolutionScale)}
+                            aria-pressed={resolutionScale === option.id}
+                          >
+                            {option.label}
+                          </Button>
+                        ))}
                       </div>
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
