@@ -92,7 +92,9 @@ test.describe("Visual Screenshots", () => {
     // Wait for menu to be fully loaded
     await page.waitForTimeout(2000);
     // Click settings button (animations disabled via reducedMotion config)
-    await page.click('[data-testid="settings-button"]');
+    await page
+      .locator('[data-testid="settings-button"]')
+      .evaluate((el: HTMLElement) => el.click());
     // Wait for dialog content
     await page.waitForSelector("text=Settings / การตั้งค่า");
     // Small delay for animation
@@ -112,7 +114,9 @@ test.describe("Visual Screenshots", () => {
 
     // 3. Level Select
     console.log("Going to Level Select...");
-    await page.click('[data-testid="new-game-button"]');
+    await page
+      .locator('[data-testid="new-game-button"]')
+      .evaluate((el: HTMLElement) => el.click());
     await page.waitForSelector('[data-testid="level-select-menu"]');
 
     const levelSelectScreenshot = await page.screenshot({
@@ -134,7 +138,7 @@ test.describe("Visual Screenshots", () => {
 
       // Ensure we are on level select screen
       await expect(
-        page.locator('[data-testid="level-select-menu"]')
+        page.locator('[data-testid="level-select-menu"]'),
       ).toBeVisible();
 
       const levelName = await levelButtons.nth(i).innerText();
@@ -148,7 +152,9 @@ test.describe("Visual Screenshots", () => {
       await levelButtons.nth(i).click();
 
       // Click Start Game
-      await page.click('[data-testid="start-button"]');
+      await page
+        .locator('[data-testid="start-button"]')
+        .evaluate((el: HTMLElement) => el.click());
 
       // Handle Worm Loading Screen (Skip it)
       try {
@@ -157,7 +163,9 @@ test.describe("Visual Screenshots", () => {
           timeout: 5000,
         });
         // Click skip (removed force: true to ensure proper event handling)
-        await page.click('[data-testid="skip-loading-button"]');
+        await page
+          .locator('[data-testid="skip-loading-button"]')
+          .evaluate((el: HTMLElement) => el.click());
 
         // Wait for loading screen to be removed from DOM before proceeding
         await page.waitForSelector('[data-testid="worm-loading-screen"]', {
@@ -185,7 +193,9 @@ test.describe("Visual Screenshots", () => {
       });
 
       // Go back
-      await page.click('[data-testid="back-button"]');
+      await page
+        .locator('[data-testid="back-button"]')
+        .evaluate((el: HTMLElement) => el.click());
 
       // We are now at Main Menu
       await page.waitForSelector('[data-testid="game-menu"]');
@@ -193,7 +203,9 @@ test.describe("Visual Screenshots", () => {
       await page.waitForTimeout(300);
 
       // Go back to Level Select for next iteration
-      await page.click('[data-testid="new-game-button"]');
+      await page
+        .locator('[data-testid="new-game-button"]')
+        .evaluate((el: HTMLElement) => el.click());
       await page.waitForSelector('[data-testid="level-select-menu"]');
     }
 

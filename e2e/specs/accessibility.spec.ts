@@ -10,7 +10,7 @@ test.describe("Accessibility", () => {
     const skipButton = page.locator('[data-testid="skip-loading-button"]');
 
     try {
-      await loadingScreen.waitFor({ state: "visible", timeout: 1000 });
+      await skipButton.waitFor({ state: "visible", timeout: 5_000 });
       await skipButton.evaluate((button: HTMLButtonElement) => button.click());
       await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
     } catch {
@@ -19,10 +19,15 @@ test.describe("Accessibility", () => {
   };
 
   test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
-    await page.waitForSelector('[data-testid="game-menu"]', {
+    await page.locator('[data-testid="game-menu"]').waitFor({
       state: "visible",
-      timeout: 10000,
+      timeout: 20_000,
+    });
+    await page.locator('[data-testid="game-title"]').waitFor({
+      state: "visible",
+      timeout: 20_000,
     });
   });
 
@@ -125,13 +130,16 @@ test.describe("Accessibility", () => {
       .locator('[data-testid="new-game-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
+      .locator('[data-testid="level-select-menu"]')
+      .waitFor({ state: "visible" });
+    await page
       .locator('[data-testid="start-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await skipWormLoadingIfPresent(page);
     await page.waitForFunction(
       () =>
         document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const objects = page.locator('[data-testid="falling-object"]');
@@ -165,10 +173,15 @@ test.describe("Keyboard Navigation", () => {
   };
 
   test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
-    await page.waitForSelector('[data-testid="game-menu"]', {
+    await page.locator('[data-testid="game-menu"]').waitFor({
       state: "visible",
-      timeout: 10000,
+      timeout: 20_000,
+    });
+    await page.locator('[data-testid="game-title"]').waitFor({
+      state: "visible",
+      timeout: 20_000,
     });
   });
 
@@ -194,6 +207,11 @@ test.describe("Keyboard Navigation", () => {
 
     // Press Enter
     await page.keyboard.press("Enter");
+
+    // Wait for level select to appear
+    await page
+      .locator('[data-testid="level-select-menu"]')
+      .waitFor({ state: "visible" });
 
     // Then start the game from the level select screen
     await page

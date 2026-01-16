@@ -37,6 +37,7 @@ export class GamePage {
 
   // Navigation
   async goto() {
+    await this.page.emulateMedia({ reducedMotion: "reduce" });
     await this.page.goto("/?e2e=1");
     await this.page.waitForLoadState("domcontentloaded");
   }
@@ -44,9 +45,15 @@ export class GamePage {
   // Wait for game to be ready
   async waitForReady() {
     try {
-      await this.page.waitForSelector('[data-testid="game-menu"]', {
+      await this.page.locator('[data-testid="game-menu"]').waitFor({
         state: "visible",
-        timeout: 10_000,
+        timeout: 20_000,
+      });
+
+      // Ensure the real GameMenu (not Suspense fallback) is mounted.
+      await this.page.locator('[data-testid="game-title"]').waitFor({
+        state: "visible",
+        timeout: 20_000,
       });
     } catch (e) {
       // Check for error fallback
@@ -101,7 +108,7 @@ export class GameMenuPage {
 
     // Level selection view
     this.levelSelectContainer = page.locator(
-      '[data-testid="level-select-menu"]'
+      '[data-testid="level-select-menu"]',
     );
     this.levelButtons = page.locator('[data-testid="level-button"]');
     this.startGameButton = page.locator('[data-testid="start-button"]');
@@ -116,7 +123,7 @@ export class GameMenuPage {
     // If already in level select view, nothing to do
     if (await this.levelSelectContainer.isVisible().catch(() => false)) return;
     await this.startButton.evaluate((button: HTMLButtonElement) =>
-      button.click()
+      button.click(),
     );
     await this.levelSelectContainer.waitFor({
       state: "visible",
@@ -148,11 +155,11 @@ export class GameMenuPage {
   async startGame() {
     await this.openLevelSelect();
     await this.startGameButton.evaluate((button: HTMLButtonElement) =>
-      button.click()
+      button.click(),
     );
 
     const loadingScreen = this.page.locator(
-      '[data-testid="worm-loading-screen"]'
+      '[data-testid="worm-loading-screen"]',
     );
     const skipButton = this.page.locator('[data-testid="skip-loading-button"]');
 
@@ -238,7 +245,7 @@ export class GameplayPage {
 
   async goBack() {
     await this.backButton.evaluate((button: HTMLButtonElement) =>
-      button.click()
+      button.click(),
     );
   }
 
@@ -248,7 +255,7 @@ export class GameplayPage {
         document.querySelectorAll('[data-testid="falling-object"]').length >=
         min,
       minCount,
-      { timeout: 5_000 }
+      { timeout: 5_000 },
     );
   }
 

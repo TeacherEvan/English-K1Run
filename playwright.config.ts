@@ -21,7 +21,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
 
   // Workers - limit parallelism on CI
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : process.platform === "win32" ? 2 : undefined,
 
   // Reporter configuration
   reporter: [["html", { open: "never" }], ["list"]],
@@ -53,9 +53,6 @@ export default defineConfig({
 
     // Navigation timeout
     navigationTimeout: 30_000,
-
-    // Reduce motion for stable E2E tests (avoids "not stable" errors from animations)
-    reducedMotion: "reduce",
   },
 
   // Test projects for different browsers/devices
