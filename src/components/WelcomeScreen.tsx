@@ -1,7 +1,5 @@
-import { memo, startTransition, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { LanguageContext } from '../context/language'
+import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react'
 import { soundManager } from '../lib/sound-manager'
-import { Button } from './ui/button'
 import './WelcomeScreen.css'
 
 interface WelcomeScreenProps {
@@ -12,13 +10,13 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [readyToContinue, setReadyToContinue] = useState(false)
   const [sequenceFinished, setSequenceFinished] = useState(false)
+  const [videoLoaded, setVideoLoaded] = useState(false)
   const audioStartedRef = useRef(false)
   const startAudioSequenceRef = useRef<(() => void) | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  const languageContext = useContext(LanguageContext)
-  const { language, setLanguage } = languageContext || { language: 'en', setLanguage: () => { } }
-
-  const splashSrc = '/welcome-sangsom.png'
+  const videoSrc = '/Sansom Video112-evan.mp4'
+  const fallbackImageSrc = '/welcome-sangsom.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
   // Proceed to menu - stop audio and transition out
@@ -187,87 +185,41 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       data-testid="welcome-screen"
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
-        // Gradient background matching image's sky/grass for landscape seamless extension
-        background: 'linear-gradient(to bottom, #87CEEB 0%, #A8D8EA 30%, #B8E6C1 60%, #6DBE4A 80%, #4A9E3A 100%)',
+        background: '#000',
       }}
       onClick={handlePrimaryAction}
     >
-      {/* Simple rotating sun beams behind the image */}
-      {!isE2E && (
-        <div className="welcome-sun-beams" aria-hidden="true">
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="100" cy="100" r="30" fill="#FFD700" />
-            {[...Array(12)].map((_, i) => {
-              const angle = (i * 30) - 90;
-              const rad = angle * (Math.PI / 180);
-              const x1 = 100 + Math.cos(rad) * 35;
-              const y1 = 100 + Math.sin(rad) * 35;
-              const x2 = 100 + Math.cos(rad) * 60;
-              const y2 = 100 + Math.sin(rad) * 60;
-              return (
-                <line
-                  key={i}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke="#FFD700"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-              );
-            })}
-          </svg>
-        </div>
-      )}
-
-      {/* Simple drifting clouds */}
-      {!isE2E && (
-        <>
-          <div className="absolute left-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
-            <div className="welcome-cloud opacity-70 w-32 h-16" style={{ top: '10%', left: '5%', animationDelay: '0s' }}></div>
-            <div className="welcome-cloud opacity-60 w-24 h-12" style={{ top: '25%', left: '15%', animationDelay: '5s' }}></div>
-          </div>
-          <div className="absolute right-0 top-0 h-full w-1/3 pointer-events-none overflow-hidden hidden landscape:block">
-            <div className="welcome-cloud opacity-65 w-28 h-14" style={{ top: '15%', right: '10%', animationDelay: '3s' }}></div>
-            <div className="welcome-cloud opacity-70 w-24 h-12" style={{ top: '30%', right: '5%', animationDelay: '1s' }}></div>
-          </div>
-        </>
-      )}
-
-      {/* Main welcome image - uses contain to prevent cropping */}
-      <img
-        src={splashSrc}
-        alt="Welcome to Sangsom Kindergarten"
-        className="absolute inset-0 w-full h-full object-contain landscape:object-contain portrait:object-cover z-10"
-        data-testid="welcome-screen-splash"
+      {/* Video Background - Full Screen with autoplay */}
+      <video
+        ref={videoRef}
+        className="welcome-video"
+        src={videoSrc}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        onCanPlay={() => setVideoLoaded(true)}
+        onError={() => setVideoLoaded(false)}
+        poster={fallbackImageSrc}
+        data-testid="welcome-video"
       />
 
-      {/* Interactive Overlay - Language toggles only, Start Game is in the image */}
-      <div className="absolute inset-0 pointer-events-none z-20">
+      {/* Fallback static image if video fails to load */}
+      {!videoLoaded && (
+        <img
+          src={fallbackImageSrc}
+          alt="Welcome to Sangsom Kindergarten"
+          className="absolute inset-0 w-full h-full object-cover z-5"
+          data-testid="welcome-screen-fallback"
+        />
+      )}
 
-        {/* Language Toggles - Bottom Right */}
-        <div className="absolute bottom-6 right-6 flex gap-3 pointer-events-auto">
-          <Button
-            variant="outline"
-            onClick={(e) => { e.stopPropagation(); setLanguage('en'); }}
-            className={`w-14 h-14 rounded-xl text-xl font-bold border-2 transition-colors ${language === 'en'
-              ? 'bg-[#E36C2F] text-white border-white'
-              : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
-              }`}
-          >
-            EN
-          </Button>
-          <Button
-            variant="outline"
-            onClick={(e) => { e.stopPropagation(); setLanguage('th'); }}
-            className={`w-14 h-14 rounded-xl text-xl font-bold border-2 transition-colors ${language === 'th'
-              ? 'bg-[#E36C2F] text-white border-white'
-              : 'bg-white/90 text-[#E36C2F] border-[#E36C2F]'
-              }`}
-          >
-            TH
-          </Button>
+      {/* Tap to continue overlay */}
+      <div className="welcome-tap-overlay">
+        <div className="welcome-tap-indicator">
+          <span className="welcome-tap-emoji">👆</span>
+          <span className="welcome-tap-text">Tap to continue</span>
         </div>
       </div>
 
@@ -281,25 +233,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           from { opacity: 1; }
           to { opacity: 0; }
         }
-
-        /* Landscape media query */
-        @media (orientation: landscape) {
-          .landscape\\:block { display: block; }
-          .landscape\\:flex { display: flex; }
-          .landscape\\:object-contain { object-fit: contain; }
-          
-          /* Enhanced clouds for landscape */
-          .welcome-cloud {
-             background: radial-gradient(circle at 30% 30%, white, #f0f0f0);
-             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-          }
-        }
-          .landscape\\:object-contain { object-fit: contain; }
-        }
-        @media (orientation: portrait) {
-          .portrait\\:object-cover { object-fit: cover; }
-        }
-        .hidden { display: none; }
       `}</style>
     </div >
   )

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useLanguage } from '@/hooks/use-language'
 import { LANGUAGE_OPTIONS, type SupportedLanguage } from '@/lib/constants/language-config'
 
+import './LanguageGate.css'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 import { LanguageSelector } from './ui/language-selector'
@@ -104,6 +105,15 @@ export const LanguageGate = memo(({ onContinue }: LanguageGateProps) => {
                         >
                             {t('common.continue', 'Continue')}
                         </Button>
+                    </div>
+
+                    {/* Pulsating Gold Native Language Tip */}
+                    <div className="native-language-tip">
+                        <span className="native-language-tip-emoji">⭐</span>
+                        <p className="native-language-tip-text">
+                            {t('languageGate.nativeLanguageTip', 'First play one or two levels in your native language before playing the other languages!')}
+                        </p>
+                        <span className="native-language-tip-emoji">⭐</span>
                     </div>
 
                     <p className="text-sm text-muted-foreground max-w-xl">

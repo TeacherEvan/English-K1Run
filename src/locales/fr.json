@@ -45,5 +45,8 @@
     "gameBoard": "Plateau de Jeu",
     "score": "Score Actuel",
     "targetObject": "Objet Cible"
+  },
+  "languageGate": {
+    "nativeLanguageTip": "Jouez d'abord un ou deux niveaux dans votre langue maternelle avant de jouer dans d'autres langues!"
   }
 }

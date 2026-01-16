@@ -1,74 +1,76 @@
-/* Welcome Screen Animations - Simplified */
-/* Just rotating sun beams and drifting clouds */
+/* Welcome Screen Styles - Video Background */
 
-/* Disable all animations when prefers-reduced-motion is set */
-@media (prefers-reduced-motion: reduce) {
-  .welcome-sun-beams,
-  .welcome-cloud {
-    animation: none !important;
-  }
-
-  .welcome-sun-beams {
-    transform: translateX(-50%) rotate(0deg) !important;
-  }
-
-  .welcome-cloud {
-    transform: translateX(0) translateZ(0) !important;
-  }
-}
-
-/* ===== SUN BEAMS ROTATION ===== */
-@keyframes sun-beam-rotate {
-  from {
-    transform: rotate(0deg) translateZ(0);
-  }
-  to {
-    transform: rotate(360deg) translateZ(0);
-  }
-}
-
-.welcome-sun-beams {
+/* ===== VIDEO BACKGROUND ===== */
+.welcome-video {
   position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 150px;
-  height: 150px;
-  pointer-events: none;
-  z-index: 5;
-  animation: sun-beam-rotate 40s linear infinite;
-  will-change: transform;
-}
-
-.welcome-sun-beams svg {
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.2));
+  object-fit: cover;
+  z-index: 1;
 }
 
-/* ===== CLOUD DRIFT ===== */
-@keyframes cloud-drift {
-  0% {
-    transform: translateX(-8%) translateZ(0);
+/* ===== TAP TO CONTINUE OVERLAY ===== */
+.welcome-tap-overlay {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.welcome-tap-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: tap-pulse 2s ease-in-out infinite;
+}
+
+.welcome-tap-emoji {
+  font-size: 3rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  animation: tap-bounce 1.5s ease-in-out infinite;
+}
+
+.welcome-tap-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 215, 0, 0.5);
+  letter-spacing: 0.05em;
+}
+
+@keyframes tap-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: translateX(-50%) scale(1);
   }
   50% {
-    transform: translateX(8%) translateZ(0);
-  }
-  100% {
-    transform: translateX(-8%) translateZ(0);
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
   }
 }
 
-.welcome-cloud {
-  position: absolute;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.8) 0%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  border-radius: 50%;
-  animation: cloud-drift 30s ease-in-out infinite;
-  will-change: transform;
-  filter: blur(1px);
+@keyframes tap-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Disable animations when prefers-reduced-motion is set */
+@media (prefers-reduced-motion: reduce) {
+  .welcome-tap-indicator,
+  .welcome-tap-emoji {
+    animation: none !important;
+  }
 }

@@ -45,5 +45,8 @@
     "gameBoard": "ゲームボード",
     "score": "現在のスコア",
     "targetObject": "ターゲットオブジェクト"
+  },
+  "languageGate": {
+    "nativeLanguageTip": "まず母国語で1つか2つのレベルをプレイしてから、他の言語に挑戦しましょう！"
   }
 }

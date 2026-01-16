@@ -45,5 +45,8 @@
     "gameBoard": "Game Board",
     "score": "Current Score",
     "targetObject": "Target Object"
+  },
+  "languageGate": {
+    "nativeLanguageTip": "First play one or two levels in your native language before playing the other languages!"
   }
 }
