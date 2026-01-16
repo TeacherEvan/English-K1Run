@@ -11,6 +11,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const [readyToContinue, setReadyToContinue] = useState(false)
   const [sequenceFinished, setSequenceFinished] = useState(false)
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const [showFallbackImage, setShowFallbackImage] = useState(false)
   const audioStartedRef = useRef(false)
   const startAudioSequenceRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -178,6 +179,11 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     }
   }, [handlePrimaryAction])
 
+  useEffect(() => {
+    if (!videoLoaded || isE2E) return
+    startAudioSequenceRef.current?.()
+  }, [isE2E, videoLoaded])
+
   return (
     <div
       className={`fixed inset-0 z-100 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
@@ -196,32 +202,25 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         src={videoSrc}
         autoPlay
         muted
-        loop
         playsInline
         preload="auto"
         onCanPlay={() => setVideoLoaded(true)}
+        onPlay={() => startAudioSequenceRef.current?.()}
+        onEnded={() => setShowFallbackImage(true)}
         onError={() => setVideoLoaded(false)}
         poster={fallbackImageSrc}
         data-testid="welcome-video"
       />
 
       {/* Fallback static image if video fails to load */}
-      {!videoLoaded && (
+      {(!videoLoaded || showFallbackImage) && (
         <img
           src={fallbackImageSrc}
           alt="Welcome to Sangsom Kindergarten"
-          className="absolute inset-0 w-full h-full object-cover z-5"
+          className={`absolute inset-0 w-full h-full object-cover z-5 ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
           data-testid="welcome-screen-fallback"
         />
       )}
-
-      {/* Tap to continue overlay */}
-      <div className="welcome-tap-overlay">
-        <div className="welcome-tap-indicator">
-          <span className="welcome-tap-emoji">👆</span>
-          <span className="welcome-tap-text">Tap to continue</span>
-        </div>
-      </div>
 
       <style>{`
         @keyframes fadeIn {

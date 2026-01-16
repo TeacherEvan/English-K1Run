@@ -37,6 +37,9 @@ const WormLoadingScreen = lazy(() =>
 const MilestoneCelebration = lazy(() =>
   import('./components/MilestoneCelebration').then(m => ({ default: m.MilestoneCelebration }))
 )
+const HighScoreWindow = lazy(() =>
+  import('./components/HighScoreWindow').then(m => ({ default: m.HighScoreWindow }))
+)
 
 // Lazy load debug components to improve initial load time (dev only)
 const EmojiRotationMonitor = lazy(() =>
@@ -118,26 +121,6 @@ function App() {
   const [startupStep, setStartupStep] = useState<'welcome' | 'language' | 'menu'>(isE2E ? 'menu' : 'welcome')
   const [debugVisible, setDebugVisible] = useState(false)
 
-  const [bestTime, setBestTime] = useState(() => {
-    if (typeof window === 'undefined') return 0
-    try {
-      const saved = window.localStorage.getItem('continuousModeBestTime')
-      if (saved != null) {
-        const parsed = parseInt(saved, 10)
-        if (!Number.isNaN(parsed)) {
-          return parsed
-        }
-      }
-    } catch {
-      // If localStorage is unavailable or throws, keep the default bestTime
-    }
-    return 0
-  })
-
-  const handleContinuousRunComplete = useCallback((time: number) => {
-    setBestTime(prev => (time > prev ? time : prev))
-  }, [])
-
   // Initialize web vitals monitoring on mount
   useEffect(() => {
     initWebVitalsMonitoring()
@@ -159,7 +142,11 @@ function App() {
     clearAchievement,
     currentMilestone,
     clearMilestone,
-    currentMultiplier
+    currentMultiplier,
+    continuousModeHighScore,
+    showHighScoreWindow,
+    lastCompletionTime,
+    closeHighScoreWindow
   } = useGameLogic({
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode
@@ -376,8 +363,7 @@ function App() {
           <Suspense fallback={null}>
             <Stopwatch
               isRunning={!gameState.winner}
-              bestTime={bestTime}
-              onRunComplete={handleContinuousRunComplete}
+              bestTime={continuousModeHighScore ?? 0}
             />
           </Suspense>
         )}
@@ -452,7 +438,7 @@ function App() {
             winner={gameState.winner}
             continuousMode={continuousMode}
             onToggleContinuousMode={handleToggleContinuousMode}
-            bestTime={bestTime}
+            bestTime={continuousModeHighScore ?? 0}
             initialView="main"
           />
         </Suspense>
@@ -472,6 +458,16 @@ function App() {
         {import.meta.env.DEV && debugVisible && (
           <Suspense fallback={null}>
             <EmojiRotationMonitor />
+          </Suspense>
+        )}
+
+        {showHighScoreWindow && (
+          <Suspense fallback={null}>
+            <HighScoreWindow
+              lastTime={lastCompletionTime}
+              highScore={continuousModeHighScore}
+              onClose={closeHighScoreWindow}
+            />
           </Suspense>
         )}
       </div>

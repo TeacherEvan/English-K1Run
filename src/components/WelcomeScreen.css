@@ -8,69 +8,35 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   z-index: 1;
 }
 
-/* ===== TAP TO CONTINUE OVERLAY ===== */
-.welcome-tap-overlay {
-  position: absolute;
-  bottom: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
-  pointer-events: none;
+.welcome-fallback-pop {
+  animation: fallback-pop 1.2s ease-out forwards;
+  clip-path: circle(0% at 50% 50%);
 }
 
-.welcome-tap-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  animation: tap-pulse 2s ease-in-out infinite;
-}
-
-.welcome-tap-emoji {
-  font-size: 3rem;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-  animation: tap-bounce 1.5s ease-in-out infinite;
-}
-
-.welcome-tap-text {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  text-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 215, 0, 0.5);
-  letter-spacing: 0.05em;
-}
-
-@keyframes tap-pulse {
-  0%,
-  100% {
-    opacity: 0.9;
-    transform: translateX(-50%) scale(1);
+@media (orientation: landscape) {
+  .welcome-video {
+    object-fit: contain;
+    background: linear-gradient(180deg, #7ec8ff 0%, #eaf5ff 45%, #b7e07a 100%);
   }
-  50% {
+}
+
+@keyframes fallback-pop {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+    transform: scale(0.98);
+    opacity: 0;
+  }
+  60% {
+    clip-path: circle(45% at 50% 50%);
     opacity: 1;
-    transform: translateX(-50%) scale(1.05);
   }
-}
-
-@keyframes tap-bounce {
-  0%,
   100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-/* Disable animations when prefers-reduced-motion is set */
-@media (prefers-reduced-motion: reduce) {
-  .welcome-tap-indicator,
-  .welcome-tap-emoji {
-    animation: none !important;
+    clip-path: circle(75% at 50% 50%);
+    transform: scale(1);
+    opacity: 1;
   }
 }
