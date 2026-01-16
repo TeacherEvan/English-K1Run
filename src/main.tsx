@@ -10,6 +10,13 @@ import './i18n'; // Initialize i18n
 // Import only main.css here; ensure all other CSS files are imported within main.css in the correct order.
 import "./main.css";
 
+// Handle stale asset preload errors after deployments (Vite)
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', () => {
+    window.location.reload()
+  })
+}
+
 // Defer non-critical initialization until after first paint
 if (typeof window !== 'undefined') {
   // Service worker registration (PWA) - non-blocking

@@ -123,9 +123,15 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           const normalizedId = id.replace(/\\/g, "/");
+          const useSingleVendorChunk = true;
 
           // Create vendor chunk for node_modules with intelligent splitting
           if (normalizedId.includes("/node_modules/")) {
+            // Simplify to a single vendor chunk to avoid runtime ordering issues
+            if (useSingleVendorChunk) {
+              return "vendor";
+            }
+
             // CRITICAL FIX: Group EVERYTHING related to the React framework into one chunk.
             // Must handle pnpm paths like: node_modules/.pnpm/react@x/node_modules/react/...
             // IMPORTANT: Include i18next and react-i18next to prevent module loading order issues

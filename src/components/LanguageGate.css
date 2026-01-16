@@ -1,4 +1,19 @@
-/* LanguageGate Styles - Pulsating Gold Native Language Tip */
+/* LanguageGate Styles - Pulsating Gold Native Language Tip
+ *
+ * Performance Optimizations:
+ * - GPU acceleration with will-change and transform: translateZ(0)
+ * - Simplified keyframes to reduce computational overhead
+ * - Backface visibility hidden for better rendering
+ *
+ * Accessibility:
+ * - Respects prefers-reduced-motion with appropriate fallbacks
+ * - Maintains visual appeal in static mode
+ *
+ * Best Practices:
+ * - Uses modern CSS with fallbacks for older browsers
+ * - Organized structure with clear sections
+ * - Responsive design for different screen sizes
+ */
 
 /* ===== PULSATING GOLD TIP ===== */
 .native-language-tip {
@@ -18,12 +33,20 @@
   border: 2px solid rgba(255, 215, 0, 0.4);
   animation: gold-pulse 2.5s ease-in-out infinite;
   max-width: 36rem;
+  /* Performance optimization: Use GPU acceleration for animations */
+  will-change: box-shadow, border-color, transform;
+  /* Ensure smooth rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .native-language-tip-emoji {
   font-size: 1.75rem;
   animation: star-twinkle 1.5s ease-in-out infinite;
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+  /* Performance optimization for filter animations */
+  will-change: filter, transform;
+  backface-visibility: hidden;
 }
 
 .native-language-tip-emoji:last-child {
@@ -49,6 +72,9 @@
   color: transparent;
   text-shadow: none;
   animation: gold-shimmer 3s linear infinite;
+  /* Performance optimization for background animations */
+  will-change: background-position;
+  backface-visibility: hidden;
 }
 
 /* Fallback for browsers that don't support background-clip: text */
@@ -87,17 +113,9 @@
     opacity: 0.8;
     transform: scale(1) rotate(0deg);
   }
-  25% {
+  50% {
     opacity: 1;
     transform: scale(1.2) rotate(5deg);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scale(1) rotate(0deg);
-  }
-  75% {
-    opacity: 1;
-    transform: scale(1.15) rotate(-5deg);
   }
 }
 
@@ -133,15 +151,25 @@
   .native-language-tip-emoji,
   .native-language-tip-text {
     animation: none !important;
+    /* Remove performance hints when animations are disabled */
+    will-change: auto !important;
+    backface-visibility: visible !important;
+    transform: none !important;
   }
 
   .native-language-tip {
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    transform: scale(1) !important;
+    /* Ensure consistent appearance without animations */
+    border-color: rgba(255, 215, 0, 0.6);
   }
 
   .native-language-tip-emoji {
     opacity: 1;
-    transform: scale(1) rotate(0deg) !important;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4));
+  }
+
+  .native-language-tip-text {
+    /* Fallback gradient position for static appearance */
+    background-position: 50% center;
   }
 }
