@@ -57,19 +57,24 @@ enableSmartFocusVisibility()
 getAccessibilityManager() // Initialize the singleton
 
 try {
-  createRoot(document.getElementById('root')!).render(
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <SettingsProvider>
-        <LanguageProvider>
-          <App />
-        </LanguageProvider>
-      </SettingsProvider>
-    </ErrorBoundary>
-  )
+  const rootElement = document.getElementById('root')
+  if (!rootElement) {
+    console.error('[Boot] Root element not found. App cannot mount.')
+  } else {
+    createRoot(rootElement).render(
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <SettingsProvider>
+          <LanguageProvider>
+            <App />
+          </LanguageProvider>
+        </SettingsProvider>
+      </ErrorBoundary>
+    )
 
-  // Signal successful app boot
-  window.__APP_BOOTED__ = true
-  window.dispatchEvent(new Event('__app_ready__'))
+    // Signal successful app boot
+    window.__APP_BOOTED__ = true
+    window.dispatchEvent(new Event('__app_ready__'))
+  }
 } catch (error) {
   console.error('Failed to render app:', error)
   // Fallback render without React 19 features if needed

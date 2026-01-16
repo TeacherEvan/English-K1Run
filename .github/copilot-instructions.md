@@ -144,6 +144,9 @@ npm run install:android # Use before build on ARM64/Android (--legacy-peer-deps)
 - **Custom Fixtures**: Extend Playwright's `test` with `gamePage` and `audioMock`
 - **Pattern**: Use `gamePage.menu.startGame()` instead of direct selectors
 - Tests organized in `e2e/specs/` by feature area (accessibility, gameplay, menu, touch)
+- **Stability Notes**:
+  - Menu loading skeleton uses `data-testid="menu-loading-skeleton"` (do not wait on `game-menu` alone when asserting readiness).
+  - Prefer waiting for `data-testid="game-title"` to confirm GameMenu has mounted.
 
 ## Component Patterns
 

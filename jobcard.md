@@ -27,6 +27,18 @@ Complete TODO.md Quick Wins tasks and fix build errors.
 - **Files Modified**: [.vscode/c_cpp_properties.json](.vscode/c_cpp_properties.json)
 - **Impact**: Eliminates PATH dependency issues and cleans up configuration warnings, improving development experience.
 
+### E2E Stability & Menu Loading Fixes (January 16, 2026) ✅
+
+- **Issue Identified**: Playwright suites intermittently timed out on `[data-testid="game-menu"]` and failed to interact with menu controls due to Suspense fallback collisions and actionability checks on animated elements.
+- **Root Cause**: The menu loading skeleton reused the `game-menu` test id, allowing tests to proceed before the real menu was mounted; some direct `page.click` calls were waiting for “stable” elements during animation.
+- **Solution Implemented**:
+  - Renamed menu skeleton test id to `menu-loading-skeleton`.
+  - Updated E2E readiness to wait for `game-title` (real menu mount) and expanded timeouts for slow devices.
+  - Switched visual screenshot interactions to `locator().evaluate(el => el.click())` for stability.
+  - Added reduced motion emulation in fixtures/tests and limited Playwright workers on Windows.
+- **Files Modified**: [src/components/LoadingSkeleton.tsx](src/components/LoadingSkeleton.tsx), [e2e/fixtures/game.fixture.ts](e2e/fixtures/game.fixture.ts), [e2e/specs/accessibility.spec.ts](e2e/specs/accessibility.spec.ts), [e2e/specs/visual-screenshots.spec.ts](e2e/specs/visual-screenshots.spec.ts), [playwright.config.ts](playwright.config.ts)
+- **Validation**: Targeted suites (Menu, Accessibility, Visual Screenshots, Gameplay, Deployment Diagnostics) passed locally on Windows.
+
 #### Recurring 5-Minute Code Review System ✅
 
 - **Issue Identified**: Need for continuous code quality maintenance in collaborative development environment to catch linting/formatting issues early and minimize merge conflicts.
