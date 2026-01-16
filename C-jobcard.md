@@ -164,7 +164,28 @@ Investigate root causes of failed statuses, perform diagnostic checks, and imple
   - Memory, Fetch, Filesystem, GitHub, Sequential Thinking, Brave Search, Puppeteer, Google Maps, Slack, and SQLite.
 - **Impact**: Cline can now perform complex research, manage repositories, and automate browser-based tasks more effectively.
 
-### E2E Test Suite Enhancement Plan (January 16, 2026)
+### E2E Test Fixes - Lazy Loading Compatibility (January 16, 2026)
+
+#### Root Cause Analysis & Fixes for Failing E2E Tests ✅
+
+- **Issue Identified**: E2E tests were failing with timeouts because the GameMenu component is lazy-loaded, and the test fixtures were waiting for elements that appear after lazy loading completes, but the loading skeleton didn't have the expected data-testids.
+
+- **Root Cause**: React.lazy() components show Suspense fallback during load. The LoadingSkeleton for 'menu' variant had `data-testid="game-menu"` but the fixture was waiting for 'game-title' which only exists in the actual GameMenu component. Tests would pass the wait for 'game-menu' (from loading skeleton) but timeout waiting for 'game-title' (not in loading skeleton).
+
+- **Solution Implemented**:
+  - Modified `e2e/fixtures/game.fixture.ts`: Changed `waitForReady()` to wait for `'[data-testid="new-game-button"]'` instead of `'[data-testid="game-title"]'`
+  - Modified `e2e/specs/accessibility.spec.ts`: Updated both beforeEach blocks to use the same wait strategy
+  - This ensures tests wait until the lazy-loaded GameMenu component is fully loaded before proceeding
+
+- **Files Modified**:
+  - `e2e/fixtures/game.fixture.ts`: Updated waitForReady method
+  - `e2e/specs/accessibility.spec.ts`: Updated both beforeEach blocks
+
+- **Impact**: Tests now properly wait for lazy loading to complete, preventing timeouts and ensuring reliable test execution.
+
+- **Test Results**: Menu-related tests now pass consistently, resolving the primary blocker for gameplay and accessibility tests.
+
+#### E2E Test Suite Enhancement Plan (January 16, 2026)
 
 #### Strategic Plan for E2E Test Suite Enhancement ✅
 

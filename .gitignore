@@ -119,3 +119,5 @@ e2e/test-results
 playwright-report
 
 .fake
+# Allure
+allure-results/

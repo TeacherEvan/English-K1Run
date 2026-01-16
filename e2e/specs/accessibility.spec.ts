@@ -25,7 +25,7 @@ test.describe("Accessibility", () => {
       state: "visible",
       timeout: 20_000,
     });
-    await page.locator('[data-testid="game-title"]').waitFor({
+    await page.locator('[data-testid="new-game-button"]').waitFor({
       state: "visible",
       timeout: 20_000,
     });
@@ -179,7 +179,7 @@ test.describe("Keyboard Navigation", () => {
       state: "visible",
       timeout: 20_000,
     });
-    await page.locator('[data-testid="game-title"]').waitFor({
+    await page.locator('[data-testid="new-game-button"]').waitFor({
       state: "visible",
       timeout: 20_000,
     });
