@@ -766,11 +766,31 @@ Complete TODO.md Quick Wins tasks and fix build errors.
   - Fallback system ensures app works offline or when API is unavailable
   - Monitor ElevenLabs usage costs and consider pre-generating common phrases if needed
 
-- **Audio Generation Required**: Run the ElevenLabs script to generate three welcome screen audio files before deploying:
-  1. `welcome_association.wav` - English female voice (Phase 1)
-  2. `welcome_learning.wav` - English female voice (Phase 2)
-  3. `welcome_association_thai.wav` - Thai male voice: translation of Phase 1 English (Phase 3)
-  4. `welcome_learning_thai.wav` - Thai male voice: translation of Phase 2 English (Phase 4)
+- **Audio Generation Required**: Run the ElevenLabs script to generate four welcome screen audio files before deploying:
+
+### Welcome Screen Audio Sequence Specification
+
+| Phase | Filename | Language | Voice | Playback Rate | Volume | Expected Duration | Description |
+|-------|----------|----------|-------|---------------|--------|-------------------|-------------|
+| 1 | `welcome_association.wav` | English | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9 | 0.85 | ~3s | "In association with SANGSOM Kindergarten" - Professional introduction |
+| 2 | `welcome_learning.wav` | English | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9 | 0.85 | ~3s | "Learning through games for everyone!" - Educational mission statement |
+| 3 | `welcome_association_thai.wav` | Thai | Male | 0.8 | 0.95 | ~3s | Thai translation of Phase 1 - Cultural localization |
+| 4 | `welcome_learning_thai.wav` | Thai | Male | 0.8 | 0.95 | ~3s | Thai translation of Phase 2 - Cultural localization |
+
+**Error Handling & Validation:**
+- **File Existence:** Implement runtime checks in `WelcomeScreen.tsx` to log warnings if audio files are missing
+- **Fallback Strategy:** Continue sequence with available files; skip missing ones gracefully
+- **Timeout Protection:** 8-second timeout per file prevents hanging (already implemented)
+- **Format Requirements:** WAV, 16-bit PCM, 44.1kHz or 48kHz sample rate for consistency
+- **Preload Validation:** Verify files load successfully before deployment
+
+**Performance Notes:**
+- Thai files use slower playback (0.8x) for clearer pronunciation
+- Higher volume (0.95) for Thai to ensure audibility
+- Sequence includes 300ms pauses between phases for natural flow
+
+// TODO: [OPTIMIZATION] Consider implementing audio file integrity validation at build time
+// TODO: [OPTIMIZATION] Add audio compression for smaller bundle sizes while maintaining quality
 
   **Thai Male Voice Specifications (Phase 3 + 4):**
   - Language: Thai (spoken by male voice for Phase 3 variety)
