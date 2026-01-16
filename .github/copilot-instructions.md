@@ -4,7 +4,7 @@
 
 Single-player educational game where kindergarten students (ages 4-6) tap falling emoji objects to advance their turtle character. Built with **React 19 + TypeScript + Vite 7**, optimized for tablets and QBoard interactive displays in classroom settings.
 
-**Tech Stack**: React 19.2, TypeScript 5.9, Vite 7.1.7, Tailwind CSS 4.1, Radix UI, CVA  
+**Tech Stack**: React 19.2, TypeScript 5.9, Vite 7.3, Tailwind CSS 4.1, Radix UI, CVA  
 **Node**: v20.18+ or v22.12+ (Vite 7 requirement)  
 **Deployment**: Vercel (primary), Docker/nginx, PWA-enabled  
 **i18n**: react-i18next with 6 languages (en, fr, ja, th, zh-CN, zh-HK)
@@ -65,7 +65,7 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 
 | File                                   | Purpose                                            |
 | -------------------------------------- | -------------------------------------------------- |
-| `src/hooks/use-game-logic.ts`          | **THE** game state (1860 lines) - all logic here   |
+| `src/hooks/use-game-logic.ts`          | **THE** game state (1878 lines) - all logic here   |
 | `src/lib/sound-manager.ts`             | Web Audio API singleton, lazy-init on first tap    |
 | `src/lib/touch-handler.ts`             | Multi-touch validation for QBoard (150ms debounce) |
 | `src/lib/event-tracker.ts`             | Global error/performance logging (max 500 events)  |
@@ -84,7 +84,10 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 - `types.ts` - Shared type definitions
 - `audio-loader.ts` - Lazy audio loading & caching
 - `audio-player.ts` - Web Audio & HTML Audio playback
-- `speech-synthesizer.ts` - Text-to-speech wrapper
+- `speech-synthesizer.ts` - Text-to-speech with language support
+- `audio-sprite.ts` - Audio sprite management
+- `audio-accessibility.ts` - Screen reader audio descriptions
+- `index.ts` - Module re-exports
 
 **Game Modules** (`src/lib/game/`):
 
@@ -108,26 +111,23 @@ npm run verify           # lint + typecheck + build (run before commits)
 - Runs `eslint --fix` and `prettier --write` before committing.
 - **NEVER** disable this script manually without project lead approval.
 
+```bash
 # Testing
-
-npm run test # Vitest watch mode
-npm run test:run # CI mode (single run)
-npm run test:ui # Vitest UI
-npm run test:coverage # Coverage report
-npm run test:e2e # Playwright E2E tests
-npm run test:e2e:ui # Playwright UI mode
-npm run test:e2e:debug # Debug E2E tests
+npm run test             # Vitest watch mode
+npm run test:run         # CI mode (single run)
+npm run test:ui          # Vitest UI
+npm run test:coverage    # Coverage report
+npm run test:e2e         # Playwright E2E tests
+npm run test:e2e:ui      # Playwright UI mode
+npm run test:e2e:debug   # Debug E2E tests
 
 # Production
-
-npm run build # tsc -b --noCheck && vite build
-npm run preview # Preview production build
+npm run build            # tsc -b --noCheck && vite build
+npm run preview          # Preview production build
 
 # Android/ARM64
-
-npm run install:android # Use before build on ARM64/Android (--legacy-peer-deps)
-
-````
+npm run install:android  # Use before build on ARM64/Android (--legacy-peer-deps)
+```
 
 **Build Note**: Keep `--noCheck` flag due to React 19 type instabilities.
 **ARM64/Android**: Run `npm run install:android` first to avoid rollup errors.
@@ -156,7 +156,7 @@ npm run install:android # Use before build on ARM64/Android (--legacy-peer-deps)
 export const FallingObject = memo(({ id, emoji, x, y }: FallingObjectProps) => {
   // ...
 });
-````
+```
 
 **GameMenu JSX Structure** - Critical layout requirements:
 
@@ -258,7 +258,7 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 **Adjust Difficulty**: Modify constants in `src/lib/constants/game-config.ts`:
 
 - `MAX_ACTIVE_OBJECTS` (30), `SPAWN_COUNT` (8), `TARGET_GUARANTEE_COUNT` (2)
-- `WORM_INITIAL_COUNT` (3), `WORM_RECURRING_COUNT` (1), `WORM_RECURRING_INTERVAL` (15000ms)
+- `WORM_INITIAL_COUNT` (1), `WORM_RECURRING_COUNT` (1), `WORM_RECURRING_INTERVAL` (60000ms)
 
 **Debug Performance**:
 
@@ -308,8 +308,7 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 ## Key Documentation
 
 - `DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices (PWA, animations, accessibility)
-- `DOCS/MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling for QBoard displays
 - `DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md` - i18n architecture and ElevenLabs integration
-- `DOCS/E2E_TESTING_IMPROVEMENTS_DEC2025.md` - Playwright patterns and page object models
-- `DOCS/MODULARIZATION_REFACTORING_JAN2026.md` - Audio and game module organization
-- `DOCS/PWA_PERFORMANCE_OPTIMIZATION_JAN2026.md` - Service worker caching strategies
+- `DOCS/E2E_TEST_FIXES_JAN2026.md` - Playwright patterns and page object models
+- `DOCS/BEST_PRACTICES.md` - Code style and conventions
+- `DOCS/SECURITY.md` - Security considerations
