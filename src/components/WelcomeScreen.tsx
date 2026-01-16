@@ -110,12 +110,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
-        await playWithTimeout('welcome_association_thai', 0.8, 0.95)
-
-        // Phase 4: Thai (Slowed)
-        checkActive();
-        await new Promise(resolve => setTimeout(resolve, 300))
-        checkActive();
         await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
 
         if (!cancelled && !readyToContinue) {
@@ -206,7 +200,10 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         preload="auto"
         onCanPlay={() => setVideoLoaded(true)}
         onPlay={() => startAudioSequenceRef.current?.()}
-        onEnded={() => setShowFallbackImage(true)}
+        onEnded={() => {
+          setShowFallbackImage(true)
+          setReadyToContinue(true)
+        }}
         onError={() => setVideoLoaded(false)}
         poster={fallbackImageSrc}
         data-testid="welcome-video"
@@ -214,12 +211,19 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
       {/* Fallback static image if video fails to load */}
       {(!videoLoaded || showFallbackImage) && (
-        <img
-          src={fallbackImageSrc}
-          alt="Welcome to Sangsom Kindergarten"
-          className={`absolute inset-0 w-full h-full object-cover z-5 ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
-          data-testid="welcome-screen-fallback"
-        />
+        <>
+          <img
+            src={fallbackImageSrc}
+            alt="Welcome to Sangsom Kindergarten"
+            className={`absolute inset-0 w-full h-full object-cover z-5 ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
+            data-testid="welcome-screen-fallback"
+          />
+          {showFallbackImage && (
+            <div className="welcome-image-overlay" aria-hidden="true">
+              <div className="welcome-image-text">Tap to continue</div>
+            </div>
+          )}
+        </>
       )}
 
       <style>{`

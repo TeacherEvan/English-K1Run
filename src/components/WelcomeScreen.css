@@ -17,6 +17,26 @@
   clip-path: circle(0% at 50% 50%);
 }
 
+.welcome-image-overlay {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  pointer-events: none;
+  animation: image-pulse 2s ease-in-out infinite;
+}
+
+.welcome-image-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 215, 0, 0.4);
+  letter-spacing: 0.04em;
+}
+
 @media (orientation: landscape) {
   .welcome-video {
     object-fit: contain;
@@ -38,5 +58,17 @@
     clip-path: circle(75% at 50% 50%);
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes image-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
   }
 }
