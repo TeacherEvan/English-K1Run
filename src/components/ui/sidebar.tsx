@@ -9,8 +9,8 @@
 // 4. Extract sheet animation logic to separate file
 
 import { Slot } from "@radix-ui/react-slot"
-import { VariantProps, cva } from "class-variance-authority"
-import { CSSProperties, ComponentProps, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { type VariantProps, cva } from "class-variance-authority"
+import { type CSSProperties, type ComponentProps, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 // import PanelLeftIcon from "lucide-react/dist/esm/icons/panel-left"
 const PanelLeftIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-panel-left"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /></svg>

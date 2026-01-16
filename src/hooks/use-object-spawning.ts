@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import type { GameObject, GameState, PlayerSide } from "../types/game";
 
 /**
@@ -6,7 +6,7 @@ import type { GameObject, GameState, PlayerSide } from "../types/game";
  * Extracted from use-game-logic.ts to reduce file size and improve maintainability
  */
 export const useObjectSpawning = (
-  gameStateRef: React.MutableRefObject<GameState>,
+  _gameStateRef: React.MutableRefObject<GameState>
 ) => {
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map());
@@ -38,7 +38,7 @@ export const useObjectSpawning = (
 
   // Refill target pool with shuffled items from current category
   const refillTargetPool = useCallback(
-    (levelIndex?: number) => {
+    (_levelIndex?: number) => {
       // This will need to be passed in or accessed differently
       // For now, placeholder - will be refactored in full implementation
       const category = { items: [] }; // TODO: Pass category as parameter
@@ -46,15 +46,15 @@ export const useObjectSpawning = (
 
       if (import.meta.env.DEV) {
         console.log(
-          `[TargetPool] Refilled with ${targetPool.current.length} items (shuffled)`,
+          `[TargetPool] Refilled with ${targetPool.current.length} items (shuffled)`
         );
       }
     },
-    [shuffleArray],
+    [shuffleArray]
   );
 
   // Generate random target from current category
-  const generateRandomTarget = useCallback((levelIndex?: number) => {
+  const generateRandomTarget = useCallback((_levelIndex?: number) => {
     // TODO: Implement full logic from use-game-logic.ts
     // Placeholder for now
     return { name: "apple", emoji: "🍎" };
@@ -76,11 +76,11 @@ export const useObjectSpawning = (
 
   // Process lane collision detection
   const processLane = useCallback(
-    (laneObjects: GameObject[], lane: PlayerSide) => {
+    (_laneObjects: GameObject[], _lane: PlayerSide) => {
       // TODO: Implement processLane logic
       // Extracted from use-game-logic.ts lines 811-863
     },
-    [],
+    []
   );
 
   // Update object positions and handle collisions

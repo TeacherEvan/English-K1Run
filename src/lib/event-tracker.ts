@@ -116,9 +116,9 @@ class EventTracker {
    * In development mode, errors are automatically logged to console.
    *
    * @param event - Event data without auto-generated fields (id, timestamp, userAgent, url)
-   * @private
+   * @public
    */
-  private trackEvent(
+  public trackEvent(
     event: Omit<GameEvent, "id" | "timestamp" | "userAgent" | "url">
   ) {
     const fullEvent: GameEvent = {

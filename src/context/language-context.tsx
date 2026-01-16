@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState, useMemo } from 'react'
+import { type ReactNode, useEffect, useMemo } from 'react'
 import i18n from '../i18n'
 import { isSupportedLanguage, type SupportedLanguage } from '../lib/constants/language-config'
 import { eventTracker } from '../lib/event-tracker'
@@ -17,11 +17,11 @@ import { useSettings } from './settings-context'
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
     const { displayLanguage, setDisplayLanguage } = useSettings()
-    
+
     // Use displayLanguage from settings as the source of truth
-    const language = useMemo(() => 
+    const language = useMemo(() =>
         isSupportedLanguage(displayLanguage) ? displayLanguage as SupportedLanguage : 'en' as SupportedLanguage
-    , [displayLanguage])
+        , [displayLanguage])
 
     // Sync language to localStorage, i18n, and sound manager
     useEffect(() => {

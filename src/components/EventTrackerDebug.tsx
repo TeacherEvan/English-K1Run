@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEffect, useState } from 'react'
-import { eventTracker, GameEvent, PerformanceMetrics } from '../lib/event-tracker'
+import { eventTracker, type GameEvent, type PerformanceMetrics } from '../lib/event-tracker'
 
 interface EventTrackerDebugProps {
   isVisible: boolean

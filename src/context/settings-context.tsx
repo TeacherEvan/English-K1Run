@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export type Theme = 'light' | 'dark' | 'colorful'
 export type ResolutionScale = 'auto' | 'small' | 'medium' | 'large'
@@ -50,19 +50,19 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
-    
+
     // Apply theme to document
     const root = document.documentElement
     root.classList.remove('light-theme', 'dark-theme', 'colorful-theme')
     root.classList.add(`${settings.theme}-theme`)
-    
+
     // Apply accessibility classes
     if (settings.highContrast) {
       root.classList.add('high-contrast')
     } else {
       root.classList.remove('high-contrast')
     }
-    
+
     if (settings.reducedMotion) {
       root.classList.add('reduced-motion')
     } else {

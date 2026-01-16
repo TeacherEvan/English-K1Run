@@ -7,7 +7,7 @@ import { Card } from "./components/ui/card"
 // import { AlertTriangleIcon, HomeIcon, RefreshCwIcon } from "lucide-react"
 
 interface ErrorFallbackProps {
-  error: Error
+  error: any
   resetErrorBoundary: () => void
 }
 

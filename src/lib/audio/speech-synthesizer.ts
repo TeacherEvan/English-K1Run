@@ -14,8 +14,8 @@
  */
 
 import type { SupportedLanguage } from "@/lib/constants/language-config";
-import type { SpeechOptions } from "./types";
 import { getLanguageConfig } from "@/lib/constants/language-config";
+import type { SpeechOptions } from "./types";
 
 /**
  * Speech Synthesizer class
@@ -107,7 +107,9 @@ export class SpeechSynthesizer {
     }
 
     try {
-      const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY;
+      const apiKey =
+        import.meta.env.VITE_ELEVENLABS_API_KEY ||
+        import.meta.env.ELEVENLABS_API_KEY;
       if (!apiKey) {
         this.elevenLabsAvailable = false;
         if (import.meta.env.DEV) {
@@ -117,14 +119,18 @@ export class SpeechSynthesizer {
       }
 
       // Test API connectivity with a simple request
-      this.testElevenLabsConnection(apiKey).then(available => {
-        this.elevenLabsAvailable = available;
-        if (import.meta.env.DEV) {
-          console.log(`[SpeechSynthesizer] ElevenLabs API ${available ? 'available' : 'unavailable'}`);
-        }
-      }).catch(() => {
-        this.elevenLabsAvailable = false;
-      });
+      this.testElevenLabsConnection(apiKey)
+        .then((available) => {
+          this.elevenLabsAvailable = available;
+          if (import.meta.env.DEV) {
+            console.log(
+              `[SpeechSynthesizer] ElevenLabs API ${available ? "available" : "unavailable"}`
+            );
+          }
+        })
+        .catch(() => {
+          this.elevenLabsAvailable = false;
+        });
 
       // Assume available initially
       this.elevenLabsAvailable = true;
@@ -138,11 +144,11 @@ export class SpeechSynthesizer {
    */
   private async testElevenLabsConnection(apiKey: string): Promise<boolean> {
     try {
-      const response = await fetch('https://api.elevenlabs.io/v1/voices', {
-        method: 'GET',
+      const response = await fetch("https://api.elevenlabs.io/v1/voices", {
+        method: "GET",
         headers: {
-          'Accept': 'application/json',
-          'xi-api-key': apiKey,
+          Accept: "application/json",
+          "xi-api-key": apiKey,
         },
       });
       return response.ok;
@@ -231,13 +237,14 @@ export class SpeechSynthesizer {
   ): boolean {
     if (!text.trim()) return false;
 
-    const _langCode = options?.langCode || this.currentLanguage;
-
     // Try ElevenLabs API first for better quality
     if (this.canUseElevenLabs()) {
       // Start ElevenLabs request asynchronously
-      this.speakWithElevenLabs(text, options, cancelPrevious).catch(error => {
-        console.warn("[SpeechSynthesizer] ElevenLabs failed, falling back to Web Speech:", error);
+      this.speakWithElevenLabs(text, options, cancelPrevious).catch((error) => {
+        console.warn(
+          "[SpeechSynthesizer] ElevenLabs failed, falling back to Web Speech:",
+          error
+        );
         // Fallback to Web Speech API
         this.speakWithWebSpeech(text, options, cancelPrevious);
       });
@@ -256,7 +263,9 @@ export class SpeechSynthesizer {
     options?: SpeechOptions & { langCode?: SupportedLanguage },
     _cancelPrevious = false
   ): Promise<void> {
-    const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY;
+    const apiKey =
+      import.meta.env.VITE_ELEVENLABS_API_KEY ||
+      import.meta.env.ELEVENLABS_API_KEY;
     if (!apiKey) {
       throw new Error("ElevenLabs API key not available");
     }
@@ -271,24 +280,27 @@ export class SpeechSynthesizer {
 
     if (!audioBuffer) {
       // Generate audio from ElevenLabs
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json',
-          'xi-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.8,
-            style: 0.0,
-            use_speaker_boost: true,
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": apiKey,
           },
-        }),
-      });
+          body: JSON.stringify({
+            text,
+            model_id: "eleven_monolingual_v1",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              style: 0.0,
+              use_speaker_boost: true,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`ElevenLabs API error: ${response.status}`);
@@ -315,7 +327,9 @@ export class SpeechSynthesizer {
       source.start();
 
       if (import.meta.env.DEV) {
-        console.log(`[SpeechSynthesizer] Playing ElevenLabs audio (${langCode}): "${text}"`);
+        console.log(
+          `[SpeechSynthesizer] Playing ElevenLabs audio (${_langCode}): "${text}"`
+        );
       }
     }
   }
@@ -355,12 +369,17 @@ export class SpeechSynthesizer {
       synth.speak(utterance);
 
       if (import.meta.env.DEV) {
-        console.log(`[SpeechSynthesizer] Speaking with Web Speech (${langCode}): "${text}"`);
+        console.log(
+          `[SpeechSynthesizer] Speaking with Web Speech (${langCode}): "${text}"`
+        );
       }
 
       return true;
     } catch (error) {
-      console.warn("[SpeechSynthesizer] Failed to speak with Web Speech:", error);
+      console.warn(
+        "[SpeechSynthesizer] Failed to speak with Web Speech:",
+        error
+      );
       return false;
     }
   }
@@ -378,17 +397,20 @@ export class SpeechSynthesizer {
         return;
       }
 
-      const _langCode = options?.langCode || this.currentLanguage;
-
       // Try ElevenLabs API first
       if (this.canUseElevenLabs()) {
-        this.speakWithElevenLabs(text, options).then(() => {
-          resolve(true);
-        }).catch((error) => {
-          console.warn("[SpeechSynthesizer] ElevenLabs failed in async mode:", error);
-          // Fall back to Web Speech API
-          this.fallbackToWebSpeech(text, options, resolve);
-        });
+        this.speakWithElevenLabs(text, options)
+          .then(() => {
+            resolve(true);
+          })
+          .catch((error) => {
+            console.warn(
+              "[SpeechSynthesizer] ElevenLabs failed in async mode:",
+              error
+            );
+            // Fall back to Web Speech API
+            this.fallbackToWebSpeech(text, options, resolve);
+          });
         return;
       }
 
@@ -402,7 +424,7 @@ export class SpeechSynthesizer {
    */
   private fallbackToWebSpeech(
     text: string,
-    options?: SpeechOptions & { langCode?: SupportedLanguage },
+    options: (SpeechOptions & { langCode?: SupportedLanguage }) | undefined,
     resolve: (value: boolean) => void
   ): void {
     if (!this.canUseSpeech()) {
