@@ -236,7 +236,7 @@ let preferredFormatOrder: string[] | null = null;
 const getPreferredFormatOrder = (): string[] => {
   if (preferredFormatOrder) return preferredFormatOrder;
 
-  if (typeof Audio === "undefined") {
+  if (typeof Audio === "undefined" || typeof document === "undefined") {
     preferredFormatOrder = ["ogg", "m4a", "aac", "mp3", "wav", "flac"];
     return preferredFormatOrder;
   }
