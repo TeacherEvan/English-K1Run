@@ -68,8 +68,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
     // Timeout wrapper for audio calls to prevent infinite hanging
     const playWithTimeout = async (name: string, playbackRate: number, volume: number) => {
+      let timedOut = false
       const timeout = new Promise<void>((_, reject) =>
-        setTimeout(() => reject(new Error('Audio timeout')), 8000)
+        setTimeout(() => {
+          timedOut = true
+          reject(new Error('Audio timeout'))
+        }, 8000)
       )
       try {
         await Promise.race([
@@ -78,6 +82,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         ])
       } catch (e) {
         console.warn(`[WelcomeScreen] Audio ${name} timed out or failed:`, e)
+        if (timedOut) {
+          soundManager.stopAllAudio()
+        }
       }
     }
 

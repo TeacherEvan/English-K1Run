@@ -92,12 +92,17 @@ export const GameMenuHome = memo(
                                 data-testid="start-game-button"
                                 aria-label="Start Game Immediately"
                             >
-                                <MenuActionButtonContent
-                                    icon={<PlayIcon className="w-6 h-6 fill-current" />}
-                                    iconWrapperClassName="p-2 bg-white/20 rounded-full"
-                                    title="Start Game"
-                                    subtitle="เริ่มเกม"
-                                />
+                                <span
+                                    className="flex items-center gap-4 w-full"
+                                    data-testid="new-game-button"
+                                >
+                                    <MenuActionButtonContent
+                                        icon={<PlayIcon className="w-6 h-6 fill-current" />}
+                                        iconWrapperClassName="p-2 bg-white/20 rounded-full"
+                                        title="Start Game"
+                                        subtitle="เริ่มเกม"
+                                    />
+                                </span>
                             </Button>
 
                             {/* 2. LEVEL SELECT Button */}
