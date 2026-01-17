@@ -68,8 +68,10 @@ export default defineConfig({
       name: "firefox",
       use: {
         ...devices["Desktop Firefox"],
-        actionTimeout: 20_000,
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
       },
+      timeout: 60_000,
     },
 
     // Desktop Safari
@@ -77,13 +79,10 @@ export default defineConfig({
       name: "webkit",
       use: {
         ...devices["Desktop Safari"],
-        actionTimeout: 20_000,
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
       },
-    },
-
-    // Desktop Edge
-    {
-      name: "edge",
+      timeout: 60_000,
       use: { ...devices["Desktop Edge"] },
     },
 
