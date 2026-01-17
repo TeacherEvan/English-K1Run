@@ -876,6 +876,36 @@ Investigate root causes of failed statuses, perform diagnostic checks, and imple
 - Tablet and mobile configurations affected equally (no browser-specific issues)
 - Immediate fix available: Add data-testid to LoadingSkeleton menu variant
 
+### HomeWindow Component Overhaul (January 17, 2026)
+
+#### Comprehensive Component Refactoring ✅
+
+- **Issue Identified**: HomeWindow component lacked accessibility, error handling, performance optimizations, and modern UX patterns, despite being a critical user entry point.
+
+- **Solution Implemented**: Complete overhaul following React 19 best practices and accessibility guidelines:
+  - **Accessibility Enhancements**: Added ARIA roles (tablist, tab, tabpanel), aria-selected, aria-controls, aria-labelledby for full screen reader support. Proper labels for form controls with aria-describedby and htmlFor.
+  - **Error Handling**: Wrapped component in ErrorBoundary, added try-catch blocks around prop function calls (onStartGame, onSettingsChange, onToggleContinuousMode) with console logging.
+  - **Performance Optimizations**: Extracted tab content into separate memoized components (LevelsTab, SettingsTab, CreditsTab). Used useCallback for event handlers to prevent unnecessary re-renders.
+  - **UX Improvements**: Added loading state for settings application, enhanced hover effects and transitions (scale-105, shadow-lg), bounce animation for home emoji, focus rings for keyboard navigation.
+  - **Maintainability**: Split monolithic component into focused sub-components with clear interfaces. Added descriptive naming (handleApplySettings vs handleSettingsChange).
+  - **Edge Cases**: Added check for empty levels array with user-friendly message. Proper TypeScript interfaces for component props.
+
+- **Technical Details**:
+  - **Accessibility**: Full WCAG compliance with keyboard navigation, screen reader support, and semantic HTML.
+  - **Error Resilience**: Graceful degradation with error boundaries and fallback UI.
+  - **Performance**: Reduced bundle size through component extraction, optimized re-renders with memo and useCallback.
+  - **UX Polish**: Premium feel with micro-interactions, loading feedback, and responsive design.
+
+- **Files Modified**:
+  - [src/components/HomeWindow.tsx](src/components/HomeWindow.tsx): Complete refactor with accessibility, error handling, and UX enhancements
+
+- **Impact**:
+  - ✅ Production-grade accessibility for inclusive user experience
+  - ✅ Robust error handling prevents app crashes from prop function failures
+  - ✅ Optimized performance with reduced re-renders and component splitting
+  - ✅ Enhanced UX with loading states, animations, and premium interactions
+  - ✅ Improved maintainability through modular architecture
+
 ## Notes / Follow-ups (January 13, 2026)
 
 - **TTS Enhancement Notes**:
