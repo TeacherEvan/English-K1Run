@@ -2,7 +2,7 @@
  * Accessibility Utilities - Production-grade A11y helpers
  *
  * Provides keyboard navigation, focus management, and ARIA support
- * following WCAG 2.1 AA guidelines and 2025 best practices.
+ * following WCAG 2.2 AA guidelines and 2025 best practices.
  *
  * @module accessibility-utils
  *
@@ -12,8 +12,9 @@
  * - Screen reader announcements
  * - Reduced motion detection
  * - Focus visible indicators
+ * - WCAG 2.2 compliance features (target size, focus not obscured)
  *
- * @see {@link https://www.w3.org/WAI/WCAG21/quickref/}
+ * @see {@link https://www.w3.org/TR/WCAG22/}
  * @see {@link https://web.dev/accessibility/}
  */
 
@@ -42,6 +43,21 @@ export const KeyboardKeys = {
 export type AriaLivePoliteness = "off" | "polite" | "assertive";
 
 /**
+ * Common focusable elements selector (WCAG 2.2 compliant)
+ * Cached to avoid repeated string concatenation
+ */
+const FOCUSABLE_ELEMENTS_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "textarea:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+  "details",
+  "summary",
+].join(", ");
+
+/**
  * Check if a keyboard event matches a specific key
  * Provides case-insensitive matching and handles legacy key codes
  *
@@ -60,7 +76,7 @@ export type AriaLivePoliteness = "off" | "polite" | "assertive";
  */
 export const isKeyPressed = (
   event: KeyboardEvent | React.KeyboardEvent,
-  targetKey: string
+  targetKey: string,
 ): boolean => {
   return (
     event.key === targetKey ||
@@ -91,7 +107,7 @@ export const areModifiersPressed = (
     alt?: boolean;
     shift?: boolean;
     meta?: boolean;
-  }
+  },
 ): boolean => {
   const checks: boolean[] = [];
 
@@ -129,21 +145,27 @@ export const areModifiersPressed = (
  * ```
  */
 export const createFocusTrap = (
-  containerElement: HTMLElement
+  containerElement: HTMLElement,
 ): (() => void) => {
-  const focusableElementsSelector = [
-    "a[href]",
-    "button:not([disabled])",
-    "textarea:not([disabled])",
-    "input:not([disabled])",
-    "select:not([disabled])",
-    '[tabindex]:not([tabindex="-1"])',
-  ].join(", ");
+  if (!containerElement) {
+    console.warn("[createFocusTrap] Container element is null or undefined");
+    return () => {};
+  }
 
   const getFocusableElements = (): HTMLElement[] => {
-    return Array.from(
-      containerElement.querySelectorAll<HTMLElement>(focusableElementsSelector)
-    );
+    try {
+      return Array.from(
+        containerElement.querySelectorAll<HTMLElement>(
+          FOCUSABLE_ELEMENTS_SELECTOR,
+        ),
+      );
+    } catch (error) {
+      console.warn(
+        "[createFocusTrap] Error querying focusable elements:",
+        error,
+      );
+      return [];
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -170,7 +192,11 @@ export const createFocusTrap = (
   // Focus first element on trap creation
   const focusableElements = getFocusableElements();
   if (focusableElements.length > 0) {
-    focusableElements[0].focus();
+    try {
+      focusableElements[0].focus();
+    } catch (error) {
+      console.warn("[createFocusTrap] Error focusing first element:", error);
+    }
   }
 
   containerElement.addEventListener("keydown", handleKeyDown);
@@ -201,23 +227,38 @@ export const createFocusTrap = (
 export const announceToScreenReader = (
   message: string,
   politeness: AriaLivePoliteness = "polite",
-  timeoutMs = 1000
+  timeoutMs = 1000,
 ): void => {
-  // Create temporary live region
-  const liveRegion = document.createElement("div");
-  liveRegion.setAttribute("role", "status");
-  liveRegion.setAttribute("aria-live", politeness);
-  liveRegion.setAttribute("aria-atomic", "true");
-  liveRegion.className = "sr-only"; // Visually hidden but accessible
-  liveRegion.textContent = message;
+  if (!message || typeof message !== "string") {
+    console.warn("[announceToScreenReader] Invalid message provided");
+    return;
+  }
 
-  // Add to DOM
-  document.body.appendChild(liveRegion);
+  try {
+    // Create temporary live region
+    const liveRegion = document.createElement("div");
+    liveRegion.setAttribute("role", "status");
+    liveRegion.setAttribute("aria-live", politeness);
+    liveRegion.setAttribute("aria-atomic", "true");
+    liveRegion.className = "sr-only"; // Visually hidden but accessible
+    liveRegion.textContent = message;
 
-  // Remove after timeout
-  setTimeout(() => {
-    document.body.removeChild(liveRegion);
-  }, timeoutMs);
+    // Add to DOM
+    if (document.body) {
+      document.body.appendChild(liveRegion);
+
+      // Remove after timeout
+      setTimeout(() => {
+        if (liveRegion.parentNode) {
+          liveRegion.parentNode.removeChild(liveRegion);
+        }
+      }, timeoutMs);
+    } else {
+      console.warn("[announceToScreenReader] document.body not available");
+    }
+  } catch (error) {
+    console.warn("[announceToScreenReader] Error announcing message:", error);
+  }
 };
 
 /**
@@ -304,20 +345,85 @@ export const userPrefersHighContrast = (): boolean => {
  * ```
  */
 export const getAllFocusableElements = (
-  container: HTMLElement
+  container: HTMLElement,
 ): HTMLElement[] => {
-  const selector = [
-    "a[href]",
-    "button:not([disabled])",
-    "textarea:not([disabled])",
-    "input:not([disabled])",
-    "select:not([disabled])",
-    '[tabindex]:not([tabindex="-1"])',
-    "details",
-    "summary",
-  ].join(", ");
+  if (!container) return [];
 
-  return Array.from(container.querySelectorAll<HTMLElement>(selector));
+  try {
+    return Array.from(
+      container.querySelectorAll<HTMLElement>(FOCUSABLE_ELEMENTS_SELECTOR),
+    );
+  } catch (error) {
+    console.warn("[getAllFocusableElements] Error querying elements:", error);
+    return [];
+  }
+};
+
+/**
+ * Check if an element meets the minimum target size requirement (WCAG 2.2)
+ * Ensures touch targets are at least 24x24 CSS pixels
+ *
+ * @param element - Element to check
+ * @param minSize - Minimum size in pixels (default: 24)
+ * @returns true if element meets size requirements
+ *
+ * @example
+ * ```typescript
+ * const isAccessible = checkTargetSize(buttonElement);
+ * if (!isAccessible) {
+ *   // Apply larger touch target
+ *   buttonElement.style.minWidth = '44px';
+ *   buttonElement.style.minHeight = '44px';
+ * }
+ * ```
+ */
+export const checkTargetSize = (
+  element: HTMLElement,
+  minSize = 24,
+): boolean => {
+  if (!element) return false;
+
+  try {
+    const rect = element.getBoundingClientRect();
+    return rect.width >= minSize && rect.height >= minSize;
+  } catch (error) {
+    console.warn("[checkTargetSize] Error checking element size:", error);
+    return false;
+  }
+};
+
+/**
+ * Check if the focused element is obscured (WCAG 2.2 Success Criterion 2.4.11)
+ * Ensures focus indicators are not hidden by other elements
+ *
+ * @param element - Element to check
+ * @returns true if focus is not obscured
+ *
+ * @example
+ * ```typescript
+ * const element = document.activeElement as HTMLElement;
+ * if (!isFocusObscured(element)) {
+ *   // Focus is visible, proceed
+ * } else {
+ *   // Adjust positioning or styling
+ * }
+ * ```
+ */
+export const isFocusObscured = (element: HTMLElement): boolean => {
+  if (!element) return false;
+
+  try {
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Check if center point is visible
+    const elementAtPoint = document.elementFromPoint(centerX, centerY);
+    return elementAtPoint === element || element.contains(elementAtPoint);
+  } catch (error) {
+    console.warn("[isFocusObscured] Error checking focus visibility:", error);
+    return false;
+  }
 };
 
 /**
@@ -339,7 +445,7 @@ export const getAllFocusableElements = (
  */
 export const moveFocusToAdjacentElement = (
   direction: "forward" | "backward",
-  container?: HTMLElement
+  container?: HTMLElement,
 ): void => {
   const focusContainer = container || document.body;
   const focusableElements = getAllFocusableElements(focusContainer);
@@ -347,7 +453,7 @@ export const moveFocusToAdjacentElement = (
   if (focusableElements.length === 0) return;
 
   const currentIndex = focusableElements.findIndex(
-    (el) => el === document.activeElement
+    (el) => el === document.activeElement,
   );
 
   if (currentIndex === -1) {
@@ -428,6 +534,7 @@ export const createAriaAttributes = (config: {
 /**
  * Enable/disable focus visible indicators based on input method
  * Shows focus rings only for keyboard navigation, not mouse clicks
+ * Enhanced with smooth transitions for premium UX
  *
  * @example
  * ```typescript
@@ -438,34 +545,63 @@ export const createAriaAttributes = (config: {
  * ```
  */
 export const enableSmartFocusVisibility = (): void => {
-  // Detect keyboard usage
-  const handleKeyDown = () => {
-    document.body.classList.add("using-keyboard");
-  };
+  try {
+    // Detect keyboard usage
+    const handleKeyDown = () => {
+      document.body.classList.add("using-keyboard");
+    };
 
-  // Detect mouse usage
-  const handleMouseDown = () => {
-    document.body.classList.remove("using-keyboard");
-  };
+    // Detect mouse usage
+    const handleMouseDown = () => {
+      document.body.classList.remove("using-keyboard");
+    };
 
-  document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleMouseDown);
 
-  // Add CSS for focus-visible
-  const style = document.createElement("style");
-  style.textContent = `
-    /* Hide focus rings by default */
-    *:focus {
-      outline: none;
+    // Add CSS for focus-visible with enhanced styling
+    const style = document.createElement("style");
+    style.id = "smart-focus-styles";
+    style.textContent = `
+      /* Hide focus rings by default */
+      *:focus {
+        outline: none;
+      }
+
+      /* Show focus rings only when using keyboard with smooth transitions */
+      body.using-keyboard *:focus {
+        outline: 2px solid hsl(var(--focus-ring-color, 59 100% 50%));
+        outline-offset: 2px;
+        border-radius: 4px;
+        transition: outline-color 0.2s ease, outline-width 0.2s ease;
+      }
+
+      /* Enhanced focus styles for better visibility */
+      body.using-keyboard button:focus,
+      body.using-keyboard input:focus,
+      body.using-keyboard textarea:focus,
+      body.using-keyboard select:focus {
+        box-shadow: 0 0 0 3px hsla(var(--focus-ring-color, 59 100% 50%), 0.3);
+      }
+    `;
+
+    // Remove existing styles to avoid duplicates
+    const existingStyle = document.getElementById("smart-focus-styles");
+    if (existingStyle) {
+      existingStyle.remove();
     }
 
-    /* Show focus rings only when using keyboard */
-    body.using-keyboard *:focus {
-      outline: 2px solid currentColor;
-      outline-offset: 2px;
+    if (document.head) {
+      document.head.appendChild(style);
+    } else {
+      console.warn("[enableSmartFocusVisibility] document.head not available");
     }
-  `;
-  document.head.appendChild(style);
+  } catch (error) {
+    console.warn(
+      "[enableSmartFocusVisibility] Error enabling focus visibility:",
+      error,
+    );
+  }
 };
 
 /**
@@ -571,7 +707,7 @@ export class AccessibilityManager {
     try {
       localStorage.setItem(
         "accessibility-preferences",
-        JSON.stringify(this.preferences)
+        JSON.stringify(this.preferences),
       );
     } catch (error) {
       console.warn("[AccessibilityManager] Failed to save preferences:", error);
@@ -584,7 +720,7 @@ export class AccessibilityManager {
     // Apply CSS custom properties
     root.style.setProperty(
       "--animation-speed",
-      this.preferences.animationSpeed.toString()
+      this.preferences.animationSpeed.toString(),
     );
     root.style.setProperty(
       "--focus-indicator-size",
@@ -592,7 +728,7 @@ export class AccessibilityManager {
         ? "1px"
         : this.preferences.focusIndicatorSize === "large"
           ? "4px"
-          : "2px"
+          : "2px",
     );
 
     // Apply class-based preferences
@@ -627,6 +763,9 @@ export class AccessibilityManager {
   }
 
   private applyAccessibilityCSS(): void {
+    // TODO: [OPTIMIZATION] Consider using CSS-in-JS library for better performance and SSR support
+    // TODO: [OPTIMIZATION] Implement lazy loading for accessibility styles to reduce initial bundle size
+
     const existingStyle = document.getElementById("accessibility-styles");
     if (existingStyle) {
       existingStyle.remove();
@@ -634,7 +773,24 @@ export class AccessibilityManager {
 
     const style = document.createElement("style");
     style.id = "accessibility-styles";
-    style.textContent = `
+    style.textContent = this.generateAccessibilityCSS();
+
+    try {
+      if (document.head) {
+        document.head.appendChild(style);
+      } else {
+        console.warn("[AccessibilityManager] document.head not available");
+      }
+    } catch (error) {
+      console.warn(
+        "[AccessibilityManager] Error applying accessibility CSS:",
+        error,
+      );
+    }
+  }
+
+  private generateAccessibilityCSS(): string {
+    return `
       /* Animation speed adjustments */
       * {
         animation-duration: calc(var(--animation-speed, 1) * 1s) !important;
@@ -685,13 +841,12 @@ export class AccessibilityManager {
         border: 0 !important;
       }
 
-      /* Focus indicator size */
+      /* Focus indicator size with smooth transitions */
       body.using-keyboard *:focus {
         outline-width: var(--focus-indicator-size, 2px) !important;
+        transition: outline-width 0.2s ease !important;
       }
     `;
-
-    document.head.appendChild(style);
   }
 }
 
@@ -743,16 +898,34 @@ export const accessibility = {
  * ```
  */
 export const createSkipToMainContentHandler = (
-  mainContentId: string
+  mainContentId: string,
 ): ((event: React.MouseEvent | MouseEvent) => void) => {
-  return (event: React.MouseEvent | MouseEvent) => {
-    event.preventDefault();
+  if (!mainContentId || typeof mainContentId !== "string") {
+    console.warn(
+      "[createSkipToMainContentHandler] Invalid mainContentId provided",
+    );
+    return () => {};
+  }
 
-    const mainContent = document.getElementById(mainContentId);
-    if (mainContent) {
-      mainContent.setAttribute("tabindex", "-1");
-      mainContent.focus();
-      mainContent.scrollIntoView({ behavior: "smooth", block: "start" });
+  return (event: React.MouseEvent | MouseEvent) => {
+    try {
+      event.preventDefault();
+
+      const mainContent = document.getElementById(mainContentId);
+      if (mainContent) {
+        mainContent.setAttribute("tabindex", "-1");
+        mainContent.focus();
+        mainContent.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        console.warn(
+          `[createSkipToMainContentHandler] Element with ID '${mainContentId}' not found`,
+        );
+      }
+    } catch (error) {
+      console.warn(
+        "[createSkipToMainContentHandler] Error handling skip link:",
+        error,
+      );
     }
   };
 };

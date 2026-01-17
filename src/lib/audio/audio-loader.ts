@@ -16,10 +16,13 @@
 import { AudioPriority, DIGIT_TO_WORD, NUMBER_WORD_TO_DIGIT } from "./types";
 
 // Dynamic import of audio files using Vite's glob import
-const rawAudioFiles = import.meta.glob("../../../sounds/*.{wav,mp3}", {
-  import: "default",
-  query: "?url",
-}) as Record<string, () => Promise<string>>;
+const rawAudioFiles = import.meta.glob(
+  "../../../sounds/*.{wav,mp3,ogg,m4a,aac,flac}",
+  {
+    import: "default",
+    query: "?url",
+  },
+) as Record<string, () => Promise<string>>;
 
 /** Normalize key for consistent audio file lookups */
 export const normalizeKey = (value: string): string =>
@@ -28,8 +31,10 @@ export const normalizeKey = (value: string): string =>
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_|_$/g, "");
 
-/** Map of normalized keys to audio loader functions */
-const audioLoaderIndex = new Map<string, () => Promise<string>>();
+type AudioLoaderByFormat = Map<string, () => Promise<string>>;
+
+/** Map of normalized keys to per-format audio loader functions */
+const audioLoaderIndex = new Map<string, AudioLoaderByFormat>();
 
 /** Cache of resolved URLs to avoid re-fetching */
 const resolvedUrlCache = new Map<string, string>();
@@ -37,46 +42,114 @@ const resolvedUrlCache = new Map<string, string>();
 /** Cache for resolveCandidates results */
 const candidatesCache = new Map<string, string[]>();
 
+const SUPPORTED_FORMATS = [
+  { ext: "ogg", mime: 'audio/ogg; codecs="opus"' },
+  { ext: "ogg", mime: 'audio/ogg; codecs="vorbis"' },
+  { ext: "m4a", mime: 'audio/mp4; codecs="mp4a.40.2"' },
+  { ext: "aac", mime: "audio/aac" },
+  { ext: "mp3", mime: "audio/mpeg" },
+  { ext: "wav", mime: "audio/wav" },
+  { ext: "flac", mime: "audio/flac" },
+];
+
+let preferredFormatOrder: string[] | null = null;
+
+const getPreferredFormatOrder = (): string[] => {
+  if (preferredFormatOrder) return preferredFormatOrder;
+
+  if (typeof Audio === "undefined" || typeof document === "undefined") {
+    preferredFormatOrder = ["ogg", "m4a", "aac", "mp3", "wav", "flac"];
+    return preferredFormatOrder;
+  }
+
+  const testAudio = document.createElement("audio");
+  const supported = new Set<string>();
+
+  for (const format of SUPPORTED_FORMATS) {
+    const result = testAudio.canPlayType(format.mime);
+    if (result === "probably" || result === "maybe") {
+      supported.add(format.ext);
+    }
+  }
+
+  preferredFormatOrder = ["ogg", "m4a", "aac", "mp3", "wav", "flac"].filter(
+    (ext) => supported.has(ext),
+  );
+
+  if (preferredFormatOrder.length === 0) {
+    preferredFormatOrder = ["mp3", "wav"];
+  }
+
+  return preferredFormatOrder;
+};
+
 /** Register an alias for an audio file */
 const registerAudioAlias = (
   key: string,
-  loader: () => Promise<string>
+  extension: string,
+  loader: () => Promise<string>,
 ): void => {
   if (!key) return;
-  if (!audioLoaderIndex.has(key)) {
-    audioLoaderIndex.set(key, loader);
+  const entry =
+    audioLoaderIndex.get(key) ?? new Map<string, () => Promise<string>>();
+  if (!entry.has(extension)) {
+    entry.set(extension, loader);
   }
+  audioLoaderIndex.set(key, entry);
 };
 
 // Initialize audio index from glob imports
 for (const [path, loader] of Object.entries(rawAudioFiles)) {
   const fileNameWithExt = path.split("/").pop() ?? "";
-  const fileName = fileNameWithExt.replace(/\.(wav|mp3)$/i, "");
+  const match = fileNameWithExt.match(/\.(wav|mp3|ogg|m4a|aac|flac)$/i);
+  const extension = match?.[1]?.toLowerCase();
+  const fileName = fileNameWithExt.replace(
+    /\.(wav|mp3|ogg|m4a|aac|flac)$/i,
+    "",
+  );
   const normalized = normalizeKey(fileName);
 
+  if (!extension) continue;
+
   // Register the exact filename (normalized)
-  registerAudioAlias(normalized, loader);
+  registerAudioAlias(normalized, extension, loader);
 
   // Handle emoji_ prefix: register both with and without prefix, plus space variant
   if (fileName.startsWith("emoji_")) {
     const withoutPrefix = fileName.slice(6); // "emoji_apple" → "apple"
-    registerAudioAlias(normalizeKey(withoutPrefix), loader);
+    registerAudioAlias(normalizeKey(withoutPrefix), extension, loader);
     // Also register space variant: "emoji_ice cream" → "ice cream"
-    registerAudioAlias(normalizeKey(withoutPrefix.replace(/_/g, " ")), loader);
+    registerAudioAlias(
+      normalizeKey(withoutPrefix.replace(/_/g, " ")),
+      extension,
+      loader,
+    );
   }
 
   // Number word/digit conversions
   if (DIGIT_TO_WORD[fileName]) {
-    registerAudioAlias(normalizeKey(DIGIT_TO_WORD[fileName]), loader);
+    registerAudioAlias(
+      normalizeKey(DIGIT_TO_WORD[fileName]),
+      extension,
+      loader,
+    );
   }
 
   if (NUMBER_WORD_TO_DIGIT[fileName]) {
-    registerAudioAlias(normalizeKey(NUMBER_WORD_TO_DIGIT[fileName]), loader);
+    registerAudioAlias(
+      normalizeKey(NUMBER_WORD_TO_DIGIT[fileName]),
+      extension,
+      loader,
+    );
   }
 
   // Register underscore-to-space variant for multi-word files
   if (fileName.includes("_") && !fileName.startsWith("emoji_")) {
-    registerAudioAlias(normalizeKey(fileName.replace(/_/g, " ")), loader);
+    registerAudioAlias(
+      normalizeKey(fileName.replace(/_/g, " ")),
+      extension,
+      loader,
+    );
   }
 }
 
@@ -85,7 +158,7 @@ if (import.meta.env.DEV) {
   console.log(
     `[AudioLoader] Registered ${audioLoaderIndex.size} audio aliases from ${
       Object.keys(rawAudioFiles).length
-    } files`
+    } files`,
   );
 }
 
@@ -253,7 +326,27 @@ export async function getAudioUrl(key: string): Promise<string | null> {
   }
 
   // Get loader
-  const loader = audioLoaderIndex.get(key);
+  const loaderEntry = audioLoaderIndex.get(key);
+  if (!loaderEntry) return null;
+
+  const preferredFormats = getPreferredFormatOrder();
+  let loader: (() => Promise<string>) | undefined;
+
+  for (const ext of preferredFormats) {
+    const candidate = loaderEntry.get(ext);
+    if (candidate) {
+      loader = candidate;
+      break;
+    }
+  }
+
+  if (!loader) {
+    const fallback = loaderEntry.values().next().value as
+      | (() => Promise<string>)
+      | undefined;
+    loader = fallback;
+  }
+
   if (!loader) return null;
 
   try {
@@ -305,7 +398,7 @@ export class AudioBufferLoader {
         { frequency: 523.25, duration: 0.15 },
         { frequency: 659.25, duration: 0.15 },
         { frequency: 783.99, duration: 0.3 },
-      ])
+      ]),
     );
 
     this.fallbackEffects.set("tap", this.createTone(800, 0.1, "square"));
@@ -316,7 +409,7 @@ export class AudioBufferLoader {
         { frequency: 400, duration: 0.15 },
         { frequency: 300, duration: 0.15 },
         { frequency: 200, duration: 0.2 },
-      ])
+      ]),
     );
 
     this.fallbackEffects.set(
@@ -326,14 +419,14 @@ export class AudioBufferLoader {
         { frequency: 659.25, duration: 0.2 },
         { frequency: 783.99, duration: 0.2 },
         { frequency: 1046.5, duration: 0.4 },
-      ])
+      ]),
     );
   }
 
   private createTone(
     frequency: number,
     duration: number,
-    type: OscillatorType = "sine"
+    type: OscillatorType = "sine",
   ): AudioBuffer {
     if (!this.audioContext) throw new Error("Audio context not available");
 
@@ -354,7 +447,7 @@ export class AudioBufferLoader {
           sample =
             2 *
               Math.abs(
-                2 * (frequency * time - Math.floor(frequency * time + 0.5))
+                2 * (frequency * time - Math.floor(frequency * time + 0.5)),
               ) -
             1;
           break;
@@ -371,7 +464,7 @@ export class AudioBufferLoader {
   }
 
   private createToneSequence(
-    notes: { frequency: number; duration: number }[]
+    notes: { frequency: number; duration: number }[],
   ): AudioBuffer {
     if (!this.audioContext) throw new Error("Audio context not available");
 
@@ -424,9 +517,8 @@ export class AudioBufferLoader {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await this.audioContext!.decodeAudioData(
-          arrayBuffer
-        );
+        const audioBuffer =
+          await this.audioContext!.decodeAudioData(arrayBuffer);
         this.bufferCache.set(key, audioBuffer);
         this.loadingCache.delete(key);
         if (import.meta.env.DEV) {
@@ -436,7 +528,7 @@ export class AudioBufferLoader {
       } catch (error) {
         console.error(
           `[AudioLoader] Failed to load audio "${key}" from ${url}:`,
-          error
+          error,
         );
         this.loadingCache.delete(key);
         return null;
@@ -449,7 +541,7 @@ export class AudioBufferLoader {
 
   async loadBufferForName(
     name: string,
-    allowFallback = true
+    allowFallback = true,
   ): Promise<AudioBuffer | null> {
     const candidates = resolveCandidates(name);
 

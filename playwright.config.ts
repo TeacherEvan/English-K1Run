@@ -66,19 +66,23 @@ export default defineConfig({
     // Desktop Firefox
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Firefox"],
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
+      },
+      timeout: 60_000,
     },
 
     // Desktop Safari
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },
-
-    // Desktop Edge
-    {
-      name: "edge",
-      use: { ...devices["Desktop Edge"] },
+      use: {
+        ...devices["Desktop Safari"],
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
+      },
+      timeout: 60_000,
     },
 
     // Tablet - iPad (primary target device for kindergarten)

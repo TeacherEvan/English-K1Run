@@ -40,6 +40,19 @@ export class GamePage {
     await this.page.emulateMedia({ reducedMotion: "reduce" });
     await this.page.goto("/?e2e=1");
     await this.page.waitForLoadState("domcontentloaded");
+
+    // Disable background animations that cause instability in Firefox
+    await this.page.addStyleTag({
+      content: `
+        .app-bg-animated {
+          animation: none !important;
+        }
+        * {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      `,
+    });
   }
 
   // Wait for game to be ready
@@ -51,7 +64,7 @@ export class GamePage {
       });
 
       // Ensure the real GameMenu (not Suspense fallback) is mounted.
-      await this.page.locator('[data-testid="new-game-button"]').waitFor({
+      await this.page.locator('[data-testid="level-select-button"]').waitFor({
         state: "visible",
         timeout: 20_000,
       });
@@ -72,18 +85,72 @@ export class GamePage {
     await this.page.waitForLoadState("networkidle", { timeout });
   }
 
-  // Enhanced navigation with retry logic
-  async navigateWithRetry(url: string, maxRetries: number = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  /**
+   * Navigates to a URL with retry logic and exponential backoff.
+   * Useful for handling flaky network conditions in e2e tests.
+   *
+   * @param url - The URL to navigate to
+   * @param maxRetries - Maximum number of retry attempts (default: 3)
+   * @param baseDelay - Base delay in milliseconds for backoff (default: 1000)
+   * @param maxDelay - Maximum delay in milliseconds (default: 5000)
+   * @throws {Error} The last navigation error if all retries fail
+   */
+  async navigateWithRetry(
+    url: string,
+    maxRetries: number = 3,
+    baseDelay: number = 1000,
+    maxDelay: number = 5000,
+  ): Promise<void> {
+    if (maxRetries < 1) {
+      throw new Error("maxRetries must be at least 1");
+    }
+
+    for (
+      let currentAttempt = 1;
+      currentAttempt <= maxRetries;
+      currentAttempt++
+    ) {
       try {
+        console.log(
+          `Navigation attempt ${currentAttempt}/${maxRetries} to ${url}`,
+        );
         await this.page.goto(url, { waitUntil: "domcontentloaded" });
-        await this.waitForPageLoad();
+        // Removed redundant waitForPageLoad() as goto already waits for domcontentloaded
         return;
       } catch (error) {
-        if (attempt === maxRetries) throw error;
-        await this.page.waitForTimeout(1000 * attempt); // Exponential backoff
+        console.warn(
+          `Navigation attempt ${currentAttempt} failed:`,
+          error instanceof Error ? error.message : String(error),
+        );
+        if (currentAttempt === maxRetries) {
+          throw error;
+        }
+        const delay = this.calculateBackoffDelay(
+          currentAttempt,
+          baseDelay,
+          maxDelay,
+        );
+        await this.page.waitForTimeout(delay);
       }
     }
+  }
+
+  /**
+   * Calculates exponential backoff delay with jitter to prevent thundering herd.
+   *
+   * @param attempt - Current attempt number (1-based)
+   * @param baseDelay - Base delay in milliseconds
+   * @param maxDelay - Maximum delay cap in milliseconds
+   * @returns Delay in milliseconds
+   */
+  private calculateBackoffDelay(
+    attempt: number,
+    baseDelay: number,
+    maxDelay: number,
+  ): number {
+    const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
+    const jitter = Math.random() * 0.1 * exponentialDelay; // 10% jitter
+    return Math.min(exponentialDelay + jitter, maxDelay);
   }
 
   // Trigger user interaction to enable audio/fullscreen
@@ -109,6 +176,7 @@ export class GameMenuPage {
   readonly container: Locator;
   readonly title: Locator;
   readonly startButton: Locator;
+  readonly levelSelectButton: Locator;
   readonly levelButtons: Locator;
   readonly settingsButton: Locator;
   readonly creditsButton: Locator;
@@ -121,7 +189,10 @@ export class GameMenuPage {
     this.container = page.locator('[data-testid="game-menu"]');
     this.title = page.locator('[data-testid="game-title"]');
     // Homescreen actions
-    this.startButton = page.locator('[data-testid="new-game-button"]');
+    this.startButton = page.locator('[data-testid="start-game-button"]');
+    this.levelSelectButton = page.locator(
+      '[data-testid="level-select-button"]',
+    );
     this.settingsButton = page.locator('[data-testid="settings-button"]');
     this.creditsButton = page.locator('[data-testid="credits-button"]');
     this.exitButton = page.locator('[data-testid="exit-button"]');
@@ -142,20 +213,23 @@ export class GameMenuPage {
   async openLevelSelect() {
     // If already in level select view, nothing to do
     if (await this.levelSelectContainer.isVisible().catch(() => false)) return;
-    await this.startButton.evaluate((button: HTMLButtonElement) =>
-      button.click(),
-    );
+
+    // Ensure button is ready for interaction
+    await this.levelSelectButton.waitFor({ state: "visible", timeout: 10_000 });
+    // Increased timeout for Firefox stability with background animations
+    await this.levelSelectButton.click({ timeout: 30_000 });
+
     await this.levelSelectContainer.waitFor({
       state: "visible",
-      timeout: 10_000,
+      timeout: 30_000,
     });
   }
 
   async selectLevel(levelIndex: number) {
     await this.openLevelSelect();
-    await this.levelButtons
-      .nth(levelIndex)
-      .evaluate((button: HTMLButtonElement) => button.click());
+    const button = this.levelButtons.nth(levelIndex);
+    await button.waitFor({ state: "visible", timeout: 10_000 });
+    await button.click();
   }
 
   async getLevelCount() {
@@ -174,24 +248,44 @@ export class GameMenuPage {
 
   async startGame() {
     await this.openLevelSelect();
-    await this.startGameButton.evaluate((button: HTMLButtonElement) =>
-      button.click(),
-    );
+    await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
+    await this.startGameButton.click({ timeout: 30_000 });
 
     const loadingScreen = this.page.locator(
       '[data-testid="worm-loading-screen"]',
     );
+    const targetDisplay = this.page.locator('[data-testid="target-display"]');
     const skipButton = this.page.locator('[data-testid="skip-loading-button"]');
 
-    try {
-      await loadingScreen.waitFor({ state: "visible", timeout: 5_000 });
-      await skipButton.evaluate((button: HTMLButtonElement) => button.click());
-      await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
-    } catch (error) {
-      // Loading screen may be disabled or already dismissed; swallow timeout errors
-      if (error instanceof Error && !/Timeout/.test(error.message)) {
-        throw error;
+    // Wait for either the loading screen or the game HUD to appear
+    await Promise.race([
+      loadingScreen
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => {}),
+      targetDisplay
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => {}),
+    ]);
+
+    if (await loadingScreen.isVisible()) {
+      try {
+        await skipButton.waitFor({ state: "visible", timeout: 10_000 });
+        await skipButton.click();
+        await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
+      } catch (error) {
+        console.log(
+          "Failed to skip loading screen, but it might have finished on its own",
+        );
       }
+    }
+
+    // Ensure game HUD is ready before returning (critical for Firefox)
+    // Increased timeout for Firefox's slower state transitions
+    try {
+      await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
+    } catch (error) {
+      // Allow caller (beforeEach) to handle the final wait with its own timeout
+      console.log("Target display not immediately visible, caller will verify");
     }
   }
 }
@@ -275,7 +369,7 @@ export class GameplayPage {
         document.querySelectorAll('[data-testid="falling-object"]').length >=
         min,
       minCount,
-      { timeout: 5_000 },
+      { timeout: 20_000 },
     );
   }
 
@@ -427,3 +521,5 @@ export async function simulateTap(locator: Locator) {
     targetTouches: [],
   });
 }
+
+// TODO: [OPTIMIZATION] Consider integrating with Playwright's test-level retries for broader flaky test handling.

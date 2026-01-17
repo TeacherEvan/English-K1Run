@@ -52,6 +52,7 @@ import { PROGRESS_MILESTONES } from './lib/constants/engagement-system'
 import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
 import { eventTracker } from './lib/event-tracker'
 import { initWebVitalsMonitoring } from './lib/web-vitals-monitor'
+import { useLazyBackgroundPreloader } from './lib/utils/background-preloader'
 
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
@@ -77,6 +78,10 @@ const pickRandomBackground = (exclude?: string) => {
 
 // Request fullscreen on any user interaction
 const requestFullscreen = () => {
+  // Disable fullscreen in E2E mode to prevent browser stability issues
+  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1';
+  if (isE2E) return;
+
   const elem = document.documentElement as HTMLElement & {
     mozRequestFullScreen?: () => Promise<void>;
     webkitRequestFullscreen?: () => Promise<void>;
@@ -107,8 +112,18 @@ function App() {
   console.log('DEBUG: App rendering, isE2E:', typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1');
   const { displaySettings } = useDisplayAdjustment()
 
+  // Lazy preload background images for Core Web Vitals optimization
+  useLazyBackgroundPreloader()
+
   // State declarations must come before hooks that use them
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1'
+
+  // Add E2E mode class for CSS overrides
+  useEffect(() => {
+    if (isE2E) {
+      document.documentElement.classList.add('e2e-mode')
+    }
+  }, [isE2E])
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
@@ -176,6 +191,9 @@ function App() {
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
+    // Disable aggressive fullscreen in E2E mode
+    if (isE2E) return;
+
     let fullscreenTriggered = false
 
     const triggerFullscreen = () => {

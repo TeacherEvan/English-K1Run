@@ -46,7 +46,7 @@ test.describe("Game Menu", () => {
 
   test("should have visible Start Race button", async ({ gamePage }) => {
     await expect(gamePage.menu.startButton).toBeVisible();
-    await expect(gamePage.menu.startButton).toContainText("New Game");
+    await expect(gamePage.menu.startButton).toContainText("Start Game");
   });
 
   test("should have visible Settings and Credits buttons", async ({
