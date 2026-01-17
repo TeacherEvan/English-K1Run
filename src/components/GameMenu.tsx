@@ -1,8 +1,9 @@
-import { lazy, memo, Suspense, useMemo, useState } from "react";
+import { lazy, memo, Suspense, useCallback, useMemo, useState } from "react";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
 import { formatBestTime } from "../lib/utils";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 const GameMenuHome = lazy(() => import("./game-menu/GameMenuHome").then(module => ({ default: module.GameMenuHome })));
 const GameMenuLevelSelect = lazy(() => import("./game-menu/GameMenuLevelSelect").then(module => ({ default: module.GameMenuLevelSelect })));
@@ -22,14 +23,15 @@ interface GameMenuProps {
 }
 
 /**
- * GameMenu - Overhauled Homescreen (Dec 2025)
- * 
+ * GameMenu - Overhauled Homescreen (Jan 2026)
+ *
  * Features:
  * - Responsive "Homescreen" layout
  * - Interactive Level Grid with Dynamic Icons
  * - SVGs for all UI elements
  * - Accessible Dialogs for Settings/Credits
  * - Mobile-first grid adaptations
+ * - Error boundaries for robust lazy loading
  */
 export const GameMenu = memo(({
   onStartGame,
@@ -52,6 +54,7 @@ export const GameMenu = memo(({
   // Memoize time formatting
   const formattedBestTime = useMemo(() => formatBestTime(bestTime), [bestTime])
 
+  // Memoize level icons computation for better performance
   const levelIcons = useMemo(() => {
     return levels.map((_, index) => {
       const emoji = GAME_CATEGORIES[index]?.items?.[0]?.emoji
@@ -59,33 +62,44 @@ export const GameMenu = memo(({
     })
   }, [levels])
 
+  // Memoize view transition handlers to prevent unnecessary re-renders
+  const handleShowLevels = useCallback(() => setView('levels'), [])
+  const handleBackToMain = useCallback(() => setView('main'), [])
+
   if (gameStarted && !winner) return null
 
-  // TODO: [OPTIMIZATION] Consider implementing error boundaries for lazy-loaded components to handle potential loading failures gracefully.
-
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      {view === 'main' ? (
-        <GameMenuHome
-          formattedBestTime={formattedBestTime}
-          continuousMode={continuousMode}
-          resolutionScale={resolutionScale}
-          setResolutionScale={setResolutionScale}
-          onStartGame={onStartGame}
-          onShowLevels={() => setView('levels')}
-          onToggleContinuousMode={onToggleContinuousMode}
-          onResetGame={onResetGame}
-        />
-      ) : (
-        <GameMenuLevelSelect
-          levels={levels}
-          selectedLevel={selectedLevel}
-          levelIcons={levelIcons}
-          onSelectLevel={onSelectLevel}
-          onStartGame={onStartGame}
-          onBack={() => setView('main')}
-        />
-      )}
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p>Loading game menu...</p>
+          </div>
+        </div>
+      }>
+        {view === 'main' ? (
+          <GameMenuHome
+            formattedBestTime={formattedBestTime}
+            continuousMode={continuousMode}
+            resolutionScale={resolutionScale}
+            setResolutionScale={setResolutionScale}
+            onStartGame={onStartGame}
+            onShowLevels={handleShowLevels}
+            onToggleContinuousMode={onToggleContinuousMode}
+            onResetGame={onResetGame}
+          />
+        ) : (
+          <GameMenuLevelSelect
+            levels={levels}
+            selectedLevel={selectedLevel}
+            levelIcons={levelIcons}
+            onSelectLevel={onSelectLevel}
+            onStartGame={onStartGame}
+            onBack={handleBackToMain}
+          />
+        )}
+      </Suspense>
+    </ErrorBoundary>
   )
 })

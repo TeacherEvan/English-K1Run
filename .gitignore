@@ -105,6 +105,7 @@ playwright-report/
 .playwright-mcp/
 .next
 .nuxt
+jobcard.md
 
 # Vite cache and build files
 vite.config.js.timestamp-*

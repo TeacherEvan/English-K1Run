@@ -44,23 +44,4 @@ const path = require("path");
       await browser.close();
     }
   }
-
-    const levelSelectPath = path.join(outputDir, "level-select.png");
-    await page.screenshot({ path: levelSelectPath, fullPage: true });
-    console.log(`Saved ${levelSelectPath}`);
-  } catch (error) {
-    console.error(
-      "Failed to capture Vercel screenshots. This may indicate a problem starting Playwright or navigating to the app.",
-      error
-    );
-    process.exitCode = 1;
-  } finally {
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (closeError) {
-        console.error("Failed to close Playwright browser cleanly.", closeError);
-      }
-    }
-  }
 })();
