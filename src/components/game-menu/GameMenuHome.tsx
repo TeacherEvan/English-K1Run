@@ -1,24 +1,13 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { GameMenuCreditsDialog } from "./GameMenuCreditsDialog";
+import { GameMenuExitDialog } from "./GameMenuExitDialog";
+import { GameMenuSettingsDialog } from "./GameMenuSettingsDialog";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "../ui/dialog";
-import { LanguageSelector } from "../ui/language-selector";
-import { DISPLAY_SCALE_OPTIONS } from "./constants";
-import {
-    CheckIcon,
     GridIcon,
-    InfoIcon,
-    LogOutIcon,
     PlayIcon,
-    SettingsIcon,
     TrophyIcon,
 } from "./icons";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
@@ -45,22 +34,6 @@ export const GameMenuHome = memo(
         onToggleContinuousMode,
         onResetGame,
     }: GameMenuHomeProps) => {
-        const [showExitDialog, setShowExitDialog] = useState(false);
-
-        const handleExit = () => {
-            setShowExitDialog(true);
-        };
-
-        const confirmExit = () => {
-            setShowExitDialog(false);
-            onResetGame?.();
-            try {
-                window.close();
-            } catch {
-                console.log("[GameMenu] window.close() blocked by browser");
-            }
-        };
-
         return (
             <div
                 className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300"
@@ -143,191 +116,16 @@ export const GameMenuHome = memo(
                                 />
                             </Button>
 
-                            {/* 3. SETTINGS Button (includes Language) */}
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="lg"
-                                        className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/5 border-2"
-                                        data-testid="settings-button"
-                                    >
-                                        <MenuActionButtonContent
-                                            icon={<SettingsIcon className="w-6 h-6 text-primary" />}
-                                            title="Settings"
-                                            subtitle="การตั้งค่า"
-                                            subtitleClassName="text-xs font-normal opacity-70 font-thai mt-1"
-                                        />
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-2xl flex items-center gap-2">
-                                            <SettingsIcon className="w-6 h-6" />
-                                            Settings / การตั้งค่า
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            Configure your game experience
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="py-6 space-y-6">
-                                        <div className="flex flex-col gap-4 p-4 rounded-lg border bg-card/50">
-                                            <div>
-                                                <h4 className="font-medium leading-none mb-3">
-                                                    Language
-                                                </h4>
-                                                <p className="text-sm text-muted-foreground mb-3">
-                                                    Select gameplay language and voiceovers
-                                                </p>
-                                                <LanguageSelector showLabel={false} className="w-full" />
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card/50">
-                                            <div>
-                                                <h4 className="font-medium leading-none mb-2">
-                                                    Display Scale
-                                                </h4>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Adjust UI size for your screen
-                                                </p>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {DISPLAY_SCALE_OPTIONS.map((option) => (
-                                                    <Button
-                                                        key={option.id}
-                                                        variant={
-                                                            resolutionScale === option.id
-                                                                ? "default"
-                                                                : "outline"
-                                                        }
-                                                        onClick={() =>
-                                                            setResolutionScale(option.id as ResolutionScale)
-                                                        }
-                                                        aria-pressed={resolutionScale === option.id}
-                                                    >
-                                                        {option.label}
-                                                    </Button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
-                                            <div className="space-y-1">
-                                                <h4 className="font-medium leading-none">
-                                                    Continuous Mode
-                                                </h4>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Play without winning/stopping
-                                                </p>
-                                            </div>
-                                            <Button
-                                                variant={continuousMode ? "default" : "outline"}
-                                                onClick={() =>
-                                                    onToggleContinuousMode?.(!continuousMode)
-                                                }
-                                                className={
-                                                    continuousMode ? "bg-green-600 hover:bg-green-700" : ""
-                                                }
-                                                aria-pressed={continuousMode}
-                                            >
-                                                {continuousMode ? (
-                                                    <CheckIcon className="w-4 h-4 mr-2" />
-                                                ) : null}
-                                                {continuousMode ? "On" : "Off"}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
+                            <GameMenuSettingsDialog
+                                resolutionScale={resolutionScale}
+                                setResolutionScale={setResolutionScale}
+                                continuousMode={continuousMode}
+                                onToggleContinuousMode={onToggleContinuousMode}
+                            />
 
-                            {/* 4. EXIT Button */}
-                            <Button
-                                variant="destructive"
-                                size="lg"
-                                className="h-14 text-lg font-semibold justify-start px-8 gap-4 mt-2"
-                                onClick={handleExit}
-                                data-testid="exit-button"
-                            >
-                                <MenuActionButtonContent
-                                    icon={<LogOutIcon className="w-5 h-5" />}
-                                    title="Exit"
-                                    subtitle="ออก"
-                                    subtitleClassName="text-xs font-normal opacity-70 font-thai mt-0.5"
-                                />
-                            </Button>
+                            <GameMenuExitDialog onResetGame={onResetGame} />
 
-                            {/* Credits (Small Link) */}
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <div className="text-center mt-2">
-                                        <Button
-                                            variant="link"
-                                            size="sm"
-                                            className="text-muted-foreground/60 h-auto p-0 text-xs"
-                                        >
-                                            Credits / เครดิต
-                                        </Button>
-                                    </div>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-lg">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-2xl flex items-center gap-2">
-                                            <InfoIcon className="w-6 h-6" />
-                                            Credits / เครดิต
-                                        </DialogTitle>
-                                    </DialogHeader>
-                                    <div className="py-8 text-center space-y-6">
-                                        <div className="space-y-2">
-                                            <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                                                Created By
-                                            </p>
-                                            <h3 className="text-2xl font-bold text-primary">
-                                                TEACHER EVAN
-                                            </h3>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                                                In Association With
-                                            </p>
-                                            <h3 className="text-xl font-bold text-orange-500">
-                                                SANGSOM KINDERGARTEN
-                                            </h3>
-                                        </div>
-                                        <div className="p-4 bg-muted/50 rounded-xl">
-                                            <p className="text-sm font-semibold mb-2">
-                                                SPECIAL THANKS TO
-                                            </p>
-                                            <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
-                                        </div>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-
-                            {/* Exit Confirmation Dialog */}
-                            <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-                                <DialogContent className="sm:max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-2xl flex items-center gap-2 text-destructive">
-                                            <LogOutIcon className="w-6 h-6" />
-                                            Exit Game / ออกจากเกม
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            Are you sure you want to exit? / คุณแน่ใจหรือไม่ว่าต้องการออก?
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="flex gap-4 justify-end mt-6">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setShowExitDialog(false)}
-                                            autoFocus
-                                        >
-                                            Cancel / ยกเลิก
-                                        </Button>
-                                        <Button variant="destructive" onClick={confirmExit}>
-                                            Exit / ออก
-                                        </Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
+                            <GameMenuCreditsDialog />
                         </div>
                     </div>
                 </Card>

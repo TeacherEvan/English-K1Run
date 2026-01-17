@@ -1,7 +1,7 @@
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 
 interface MenuActionButtonContentProps {
-    icon: React.ReactNode;
+    icon: ReactNode;
     title: string;
     subtitle: string;
     iconWrapperClassName?: string;

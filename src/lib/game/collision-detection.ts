@@ -161,7 +161,8 @@ export function applyWormObjectCollision(
         // Calculate pixel-based push
         const pushXPixel = directionX * pushStrength;
         const pushYPixel = directionY * pushStrength;
-
+        // for worm-object collisions if object counts exceed ~500, since the current approach is
+        // O(n×m) (n = worms, m = objects) and may not scale well without more efficient spatial indexing.
         // Apply push and convert back to percentage for X coordinate
         obj.x += (pushXPixel / viewportWidth) * 100;
         obj.y += pushYPixel;

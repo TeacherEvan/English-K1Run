@@ -68,8 +68,8 @@ export const GameMenuLevelSelect = memo(
                                     key={level}
                                     variant={selectedLevel === index ? "default" : "outline"}
                                     className={`h-40 xl:h-48 text-xl font-bold flex flex-col gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 whitespace-normal ${selectedLevel === index
-                                            ? "bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30"
-                                            : "hover:border-primary/50 hover:shadow-md bg-card"
+                                        ? "bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30"
+                                        : "hover:border-primary/50 hover:shadow-md bg-card"
                                         }`}
                                     onClick={() => onSelectLevel(index)}
                                     data-testid="level-button"
@@ -95,7 +95,7 @@ export const GameMenuLevelSelect = memo(
                     <div className="px-8 py-6 border-t bg-card/50 rounded-b-xl flex justify-center shrink-0">
                         <Button
                             size="lg"
-                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-gradient-to-r from-primary to-primary/80"
+                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-linear-to-r from-primary to-primary/80"
                             onClick={onStartGame}
                             data-testid="start-button"
                             aria-label="Start Game with Selected Level"
