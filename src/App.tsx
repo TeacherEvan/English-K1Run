@@ -110,6 +110,13 @@ function App() {
   // State declarations must come before hooks that use them
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1'
 
+  // Add E2E mode class for CSS overrides
+  useEffect(() => {
+    if (isE2E) {
+      document.documentElement.classList.add('e2e-mode')
+    }
+  }, [isE2E])
+
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
   const [backgroundClass, setBackgroundClass] = useState(() => pickRandomBackground())

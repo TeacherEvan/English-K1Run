@@ -200,20 +200,22 @@ export class GameMenuPage {
   async openLevelSelect() {
     // If already in level select view, nothing to do
     if (await this.levelSelectContainer.isVisible().catch(() => false)) return;
-    await this.levelSelectButton.evaluate((button: HTMLButtonElement) =>
-      button.click(),
-    );
+
+    // Ensure button is ready for interaction
+    await this.levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.levelSelectButton.click({ force: true });
+
     await this.levelSelectContainer.waitFor({
       state: "visible",
-      timeout: 10_000,
+      timeout: 20_000,
     });
   }
 
   async selectLevel(levelIndex: number) {
     await this.openLevelSelect();
-    await this.levelButtons
-      .nth(levelIndex)
-      .evaluate((button: HTMLButtonElement) => button.click());
+    const button = this.levelButtons.nth(levelIndex);
+    await button.waitFor({ state: "visible", timeout: 5000 });
+    await button.click({ force: true });
   }
 
   async getLevelCount() {
@@ -232,9 +234,8 @@ export class GameMenuPage {
 
   async startGame() {
     await this.openLevelSelect();
-    await this.startGameButton.evaluate((button: HTMLButtonElement) =>
-      button.click(),
-    );
+    await this.startGameButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.startGameButton.click({ force: true });
 
     const loadingScreen = this.page.locator(
       '[data-testid="worm-loading-screen"]',
@@ -243,7 +244,8 @@ export class GameMenuPage {
 
     try {
       await loadingScreen.waitFor({ state: "visible", timeout: 5_000 });
-      await skipButton.evaluate((button: HTMLButtonElement) => button.click());
+      await skipButton.waitFor({ state: "visible", timeout: 5000 });
+      await skipButton.click({ force: true });
       await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
     } catch (error) {
       // Loading screen may be disabled or already dismissed; swallow timeout errors

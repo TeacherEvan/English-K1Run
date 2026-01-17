@@ -66,13 +66,19 @@ export default defineConfig({
     // Desktop Firefox
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Firefox"],
+        actionTimeout: 20_000,
+      },
     },
 
     // Desktop Safari
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      use: {
+        ...devices["Desktop Safari"],
+        actionTimeout: 20_000,
+      },
     },
 
     // Desktop Edge

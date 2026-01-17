@@ -307,3 +307,11 @@
     }
   }
 }
+
+/* E2E Test Mode Overrides */
+.e2e-mode * {
+  animation: none !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+}
