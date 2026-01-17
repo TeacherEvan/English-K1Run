@@ -19,15 +19,15 @@
 
 ## Big Picture Architecture
 
-- **Single-player, touch-first classroom game**: Core state lives in `use-game-logic` in [`src/hooks/use-game-logic.ts`](../src/hooks/use-game-logic.ts); do not create parallel state in components.
+- **Single-player, touch-first classroom game**: Core state lives in `use-game-logic` in `src/hooks/use-game-logic.ts`(../src/hooks/use-game-logic.ts); do not create parallel state in components.
 - **Data flow**: UI events → `use-game-logic` actions (e.g., `handleObjectTap`, `startGame`) → state updates → render.
-- **Audio architecture**: Modularized under [`src/lib/audio/`](../src/lib/audio/) and re-exported from [`src/lib/audio/index.ts`](../src/lib/audio/index.ts). Use singletons; do not instantiate new ones.
+- **Audio architecture**: Modularized under `src/lib/audio/`(../src/lib/audio/) and re-exported from `src/lib/audio/index.ts`(../src/lib/audio/index.ts). Use singletons; do not instantiate new ones.
 
 ## Critical Conventions
 
-- **Coordinates**: Percentage-based only. X ranges 5–95% with `LANE_BOUNDS` in [`src/lib/constants/game-config.ts`](../src/lib/constants/game-config.ts). Never use pixel positions for gameplay objects.
-- **Touch handling**: Must route through `multiTouchHandler` in [`src/lib/touch-handler.ts`](../src/lib/touch-handler.ts). Do not attach raw `onClick` for gameplay objects.
-- **Sizing**: Uses CSS vars (`--font-scale`, `--object-scale`, `--spacing-scale`) set by [`src/hooks/use-display-adjustment.ts`](../src/hooks/use-display-adjustment.ts).
+- **Coordinates**: Percentage-based only. X ranges 5–95% with `LANE_BOUNDS` in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts). Never use pixel positions for gameplay objects.
+- **Touch handling**: Must route through `multiTouchHandler` in `src/lib/touch-handler.ts`(../src/lib/touch-handler.ts). Do not attach raw `onClick` for gameplay objects.
+- **Sizing**: Uses CSS vars (`--font-scale`, `--object-scale`, `--spacing-scale`) set by `src/hooks/use-display-adjustment.ts`(../src/hooks/use-display-adjustment.ts).
 
 ## Coding Standards
 
@@ -42,15 +42,15 @@
 
 ## UI Patterns
 
-- **Performance**: Frequently re-rendered components use `memo()` (example: [`src/components/FallingObject.tsx`](../src/components/FallingObject.tsx)).
-- **Layout**: Game menu layout keeps header, grid (`flex-1`), and footer as siblings; avoid wrappers that break layout in [`src/components/GameMenu.tsx`](../src/components/GameMenu.tsx).
-- **UI library**: Shadcn-style UI primitives and CVA variants live in [`src/components/ui/`](../src/components/ui/).
+- **Performance**: Frequently re-rendered components use `memo()` (example: `src/components/FallingObject.tsx'(../src/components/FallingObject.tsx)).
+- **Layout**: Game menu layout keeps header, grid (`flex-1`), and footer as siblings; avoid wrappers that break layout in `src/components/GameMenu.tsx`(../src/components/GameMenu.tsx).
+- **UI library**: Shadcn-style UI primitives and CVA variants live in `src/components/ui/`(../src/components/ui/).
 - **Styling**: Use CSS modules or styled-components for component-specific styles; theme variables for consistency.
 
 ## Audio, i18n, and Welcome Flow
 
-- **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in [`src/lib/sound-manager.ts`](../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
-- **Language config and voices**: [`src/lib/constants/language-config.ts`](../src/lib/constants/language-config.ts). Translations: [`src/locales/`](../src/locales/).
+- **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in `src/lib/sound-manager.ts`(../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
+- **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
 - **Welcome screen narration**: Four phases and respects reduced motion; e2e mode disables animations when `?e2e=1` is present.
 
 ## Gameplay Tuning and Continuous Mode
@@ -60,7 +60,7 @@
 
 ## Error Handling
 
-- **React errors**: Wrap components with `ErrorBoundary` (see [`src/components/ErrorBoundary.tsx`](../src/components/ErrorBoundary.tsx)).
+- **React errors**: Wrap components with `ErrorBoundary` (see `src/components/ErrorBoundary.tsx`(../src/components/ErrorBoundary.tsx)).
 - **Async operations**: Use try-catch blocks; handle promises with `.catch()`.
 - **Logging**: Use console.error for development; integrate with error reporting service in production.
 - **Fallbacks**: Provide user-friendly error messages; avoid crashes by graceful degradation.
@@ -82,9 +82,9 @@
 
 ## Testing Practices
 
-- **Unit tests**: Use Jest for hooks and utilities; cover critical logic in [`src/hooks/__tests__/`](../src/hooks/__tests__/).
+- **Unit tests**: Use Jest for hooks and utilities; cover critical logic in `src/hooks/__tests__/`](../src/hooks/**tests**/).
 - **Integration tests**: Test component interactions and state changes.
-- **E2E tests**: Use Playwright for full user flows; fixtures in [`e2e/fixtures/`](../e2e/fixtures/); specs in [`e2e/specs/`](../e2e/specs/).
+- **E2E tests**: Use Playwright for full user flows; fixtures in `e2e/fixtures/`(../e2e/fixtures/); specs in `e2e/specs/`(../e2e/specs/).
 - **Coverage**: Aim for 80%+ coverage; focus on error paths and edge cases.
 
 ## Security Guidelines
@@ -99,7 +99,7 @@
 
 - **Dev server**: `npm run dev`. Verification: `npm run verify` (lint + typecheck + build). Build uses `--noCheck` due to React 19 types.
 - **Automated formatting**: Runs via `code_review.ps1` every 5 minutes; do not disable it.
-- **E2E**: Use `?e2e=1` to skip the welcome screen. Page objects/fixtures are in [`e2e/fixtures/game.fixture.ts`](../e2e/fixtures/game.fixture.ts); prefer `gamePage.menu.startGame()` patterns. Tests live in [`e2e/specs/`](../e2e/specs/).
+- **E2E**: Use `?e2e=1` to skip the welcome screen. Page objects/fixtures are in `e2e/fixtures/game.fixture.ts`(../e2e/fixtures/game.fixture.ts); prefer `gamePage.menu.startGame()` patterns. Tests live in `e2e/specs/`(../e2e/specs/).
 
 ## Deployment Considerations
 
@@ -110,5 +110,5 @@
 
 ## Adding Content
 
-- **New categories**: Go in [`src/lib/constants/game-categories.ts`](../src/lib/constants/game-categories.ts).
-- **Sentence templates**: Live in [`src/lib/constants/sentence-templates.ts`](../src/lib/constants/sentence-templates.ts); audio generation scripts are in [`scripts/`](../scripts/).
+- **New categories**: Go in `src/lib/constants/game-categories.ts`(../src/lib/constants/game-categories.ts).
+- **Sentence templates**: Live in `src/lib/constants/sentence-templates.ts`(../src/lib/constants/sentence-templates.ts); audio generation scripts are in `scripts/`(../scripts/).

@@ -36,7 +36,7 @@ export const GameMenuHome = memo(
     }: GameMenuHomeProps) => {
         return (
             <div
-                className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300"
+                className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in duration-300 pointer-events-auto"
                 data-testid="game-menu"
             >
                 <Card className="w-full max-w-4xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl backdrop-blur-md">

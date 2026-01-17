@@ -24,7 +24,7 @@ export const GameMenuLevelSelect = memo(
     }: GameMenuLevelSelectProps) => {
         return (
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in slide-in-from-right-8 duration-300"
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in slide-in-from-right-8 duration-300 pointer-events-auto"
                 data-testid="level-select-menu"
                 role="dialog"
                 aria-label="Level Selection Menu"
@@ -95,7 +95,7 @@ export const GameMenuLevelSelect = memo(
                     <div className="px-8 py-6 border-t bg-card/50 rounded-b-xl flex justify-center shrink-0">
                         <Button
                             size="lg"
-                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-gradient-to-r from-primary to-primary/80"
+                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-linear-to-r from-primary to-primary/80"
                             onClick={onStartGame}
                             data-testid="start-button"
                             aria-label="Start Game with Selected Level"
