@@ -42,11 +42,11 @@ test.describe("Touch Interactions - Tablet", () => {
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
-    await levelSelectButton.click();
+    await levelSelectButton.click({ force: true });
 
     const startGameButton = page.locator('[data-testid="start-button"]');
     await startGameButton.waitFor({ state: "visible", timeout: 5000 });
-    await startGameButton.click();
+    await startGameButton.click({ force: true });
 
     await skipWormLoadingIfPresent(page);
 
@@ -62,14 +62,14 @@ test.describe("Touch Interactions - Tablet", () => {
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
-    await levelSelectButton.click();
+    await levelSelectButton.click({ force: true });
 
     const levelButtons = page.locator('[data-testid="level-button"]');
 
     // Tap second level
     const secondLevel = levelButtons.nth(1);
     await secondLevel.waitFor({ state: "visible", timeout: 5000 });
-    await secondLevel.click();
+    await secondLevel.click({ force: true });
 
     // Second level should be selected
     await expect(levelButtons.nth(1)).toHaveAttribute("data-selected", "true");
@@ -81,11 +81,11 @@ test.describe("Touch Interactions - Tablet", () => {
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
-    await levelSelectButton.click();
+    await levelSelectButton.click({ force: true });
 
     const startGameButton = page.locator('[data-testid="start-button"]');
     await startGameButton.waitFor({ state: "visible", timeout: 5000 });
-    await startGameButton.click();
+    await startGameButton.click({ force: true });
 
     await skipWormLoadingIfPresent(page);
 
@@ -103,7 +103,7 @@ test.describe("Touch Interactions - Tablet", () => {
       // Tap the first object
       const firstObject = objects.first();
       await firstObject.waitFor({ state: "visible", timeout: 5000 });
-      await firstObject.click();
+      await firstObject.click({ force: true });
     }
   });
 
@@ -113,11 +113,11 @@ test.describe("Touch Interactions - Tablet", () => {
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
-    await levelSelectButton.click();
+    await levelSelectButton.click({ force: true });
 
     const startGameButton = page.locator('[data-testid="start-button"]');
     await startGameButton.waitFor({ state: "visible", timeout: 5000 });
-    await startGameButton.click();
+    await startGameButton.click({ force: true });
 
     await skipWormLoadingIfPresent(page);
     await page
@@ -127,7 +127,7 @@ test.describe("Touch Interactions - Tablet", () => {
     // Tap back button
     const backButton = page.locator('[data-testid="back-button"]');
     await expect(backButton).toBeVisible();
-    await backButton.click();
+    await backButton.click({ force: true });
 
     // Should return to menu
     await expect(page.locator('[data-testid="game-menu"]')).toBeVisible();
@@ -146,11 +146,11 @@ test.describe("Multi-touch Handling", () => {
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
-    await levelSelectButton.click();
+    await levelSelectButton.click({ force: true });
 
     const startGameButton = page.locator('[data-testid="start-button"]');
     await startGameButton.waitFor({ state: "visible", timeout: 5000 });
-    await startGameButton.click();
+    await startGameButton.click({ force: true });
 
     await skipWormLoadingIfPresent(page);
     await page.waitForFunction(

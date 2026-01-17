@@ -2,7 +2,7 @@
   "$schema": "https://modelcontextprotocol.io/schemas/mcp-config/v1.json",
   "version": "1.0.0",
   "name": "English-K1Run MCP Configuration",
-  "description": "Configuration for MCP tools integrated into the English-K1Run educational game",
+  "description": "Server package metadata for MCP protocol. Editor-provided tools (e.g., mcp_memory_*, mcp_sequentialthi_*) are runtime-managed and not configured here.",
   "tools": [
     {
       "name": "@modelcontextprotocol/sdk",
