@@ -3,6 +3,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { ErrorBoundary } from './ErrorBoundary';
+import { errorReporter } from '../lib/error-reporter';
 
 interface HomeWindowProps {
     onStartGame: (levelIndex: number, continuousMode: boolean) => void;
@@ -39,8 +40,11 @@ const LevelsTab = memo(({
         try {
             onStartGame(index, continuousMode);
         } catch (error) {
-            console.error('Error starting game:', error);
-            // TODO: [OPTIMIZATION] Implement global error reporting system
+            errorReporter.reportError(
+                error instanceof Error ? error : new Error(String(error)),
+                'game-logic',
+                { levelIndex: index, continuousMode }
+            );
         }
     }, [onStartGame, continuousMode]);
 
@@ -48,7 +52,11 @@ const LevelsTab = memo(({
         try {
             onToggleContinuousMode?.(enabled);
         } catch (error) {
-            console.error('Error toggling continuous mode:', error);
+            errorReporter.reportError(
+                error instanceof Error ? error : new Error(String(error)),
+                'settings',
+                { continuousMode: enabled }
+            );
         }
     }, [onToggleContinuousMode]);
 
@@ -250,9 +258,12 @@ export const HomeWindow = memo(({
             // Add brief delay for UX feedback
             setTimeout(() => setIsApplyingSettings(false), 500);
         } catch (error) {
-            console.error('Error applying settings:', error);
+            errorReporter.reportError(
+                error instanceof Error ? error : new Error(String(error)),
+                'settings',
+                { fontScale, objectScale }
+            );
             setIsApplyingSettings(false);
-            // TODO: [OPTIMIZATION] Show user-friendly error message
         }
     }, [onSettingsChange, fontScale, objectScale]);
 
