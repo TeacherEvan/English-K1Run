@@ -77,6 +77,10 @@ const pickRandomBackground = (exclude?: string) => {
 
 // Request fullscreen on any user interaction
 const requestFullscreen = () => {
+  // Disable fullscreen in E2E mode to prevent browser stability issues
+  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1';
+  if (isE2E) return;
+
   const elem = document.documentElement as HTMLElement & {
     mozRequestFullScreen?: () => Promise<void>;
     webkitRequestFullscreen?: () => Promise<void>;
@@ -183,6 +187,9 @@ function App() {
 
   // Aggressive fullscreen trigger - multiple methods for maximum browser compatibility
   useEffect(() => {
+    // Disable aggressive fullscreen in E2E mode
+    if (isE2E) return;
+
     let fullscreenTriggered = false
 
     const triggerFullscreen = () => {

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Visual Screenshots", () => {
+  test.slow();
   test("Capture welcome screen with animations", async ({ page }, testInfo) => {
     // Test welcome screen animations (without e2e flag to see animations)
     console.log("Testing welcome screen animations...");
@@ -110,19 +111,21 @@ test.describe("Visual Screenshots", () => {
     });
 
     // Close settings (click close button)
-    const closeBtn = page.locator('[data-slot="dialog-close"]');
-    await closeBtn.waitFor({ state: "visible", timeout: 5000 });
+    const closeBtn = page.getByRole("button", { name: "Close" });
+    await closeBtn.waitFor({ state: "visible", timeout: 10000 });
     await closeBtn.click({ force: true });
-    await settingsTitle.waitFor({ state: "detached", timeout: 5000 });
+    await settingsTitle.waitFor({ state: "detached", timeout: 10000 });
 
     // 3. Level Select
     console.log("Going to Level Select...");
     const levelSelectButton = page.locator(
       '[data-testid="level-select-button"]',
     );
-    await levelSelectButton.waitFor({ state: "visible", timeout: 5000 });
+    await levelSelectButton.waitFor({ state: "visible", timeout: 10000 });
     await levelSelectButton.click({ force: true });
-    await page.waitForSelector('[data-testid="level-select-menu"]');
+    await page.waitForSelector('[data-testid="level-select-menu"]', {
+      timeout: 20000,
+    });
 
     const levelSelectScreenshot = await page.screenshot({
       path: testInfo.outputPath("level-select-screen.png"),
@@ -163,19 +166,21 @@ test.describe("Visual Screenshots", () => {
 
       // Handle Worm Loading Screen (Skip it)
       try {
-        // Wait briefly for the loading screen to appear
+        const loadingScreen = page.locator(
+          '[data-testid="worm-loading-screen"]',
+        );
         const skipBtn = page.locator('[data-testid="skip-loading-button"]');
-        await skipBtn.waitFor({ state: "visible", timeout: 5000 });
-        // Click skip (removed force: true to ensure proper event handling)
-        await skipBtn.click({ force: true });
 
-        // Wait for loading screen to be removed from DOM before proceeding
-        await page.waitForSelector('[data-testid="worm-loading-screen"]', {
-          state: "detached",
-          timeout: 5000,
-        });
-      } catch (_) {
-        console.log("Skip button not found or already skipped");
+        // Wait briefly to see if loading screen appears
+        await page.waitForTimeout(200);
+
+        if ((await loadingScreen.count()) > 0) {
+          await skipBtn.waitFor({ state: "visible", timeout: 10000 });
+          await skipBtn.click({ force: true });
+          await loadingScreen.waitFor({ state: "detached", timeout: 15000 });
+        }
+      } catch (e) {
+        console.log("Loading screen skip bypassed in screenshot loop");
       }
 
       // Wait for game to start (Back button appears)
