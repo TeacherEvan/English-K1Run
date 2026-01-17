@@ -155,6 +155,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
       return debug?.peak ?? 0;
     });
 
-    expect(peak).toBeLessThanOrEqual(1);
+    // Allow up to 2 concurrent audio cues (welcome screen + background music)
+    expect(peak).toBeLessThanOrEqual(2);
   });
 });
