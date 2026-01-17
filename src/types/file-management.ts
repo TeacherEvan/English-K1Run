@@ -3,9 +3,9 @@
  * Provides type safety for asset storage, metadata handling, and file operations.
  */
 
-export type AssetCategory = 'audio' | 'image' | 'video' | 'document' | 'other';
+export type AssetCategory = "audio" | "image" | "video" | "document" | "other";
 
-export type AssetPriority = 'critical' | 'common' | 'rare';
+export type AssetPriority = "critical" | "common" | "rare";
 
 export interface AssetMetadata {
   /** Unique identifier for the asset */
@@ -53,9 +53,9 @@ export interface AssetQuery {
   /** Filter by tags (AND logic) */
   tags?: string[];
   /** Sort field */
-  sortBy?: 'name' | 'size' | 'createdAt' | 'updatedAt';
+  sortBy?: "name" | "size" | "createdAt" | "updatedAt";
   /** Sort direction */
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   /** Pagination limit */
   limit?: number;
   /** Pagination offset */
@@ -93,10 +93,10 @@ export interface BulkOperationResult {
  * Events emitted by the file manager for reactive updates
  */
 export type FileManagerEvent =
-  | { type: 'asset-added'; asset: AssetFile }
-  | { type: 'asset-updated'; asset: AssetFile }
-  | { type: 'asset-deleted'; assetId: string }
-  | { type: 'bulk-operation-completed'; result: BulkOperationResult };
+  | { type: "asset-added"; asset: AssetFile }
+  | { type: "asset-updated"; asset: AssetFile }
+  | { type: "asset-deleted"; assetId: string }
+  | { type: "bulk-operation-completed"; result: BulkOperationResult };
 
 /**
  * Hook for subscribing to file manager events

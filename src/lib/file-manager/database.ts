@@ -3,8 +3,8 @@
  * Provides IndexedDB-based storage for game assets with versioning and error handling.
  */
 
-import Dexie, { type Table } from 'dexie';
-import type { AssetMetadata, AssetFile } from '../../types/file-management';
+import Dexie, { type Table } from "dexie";
+import type { AssetMetadata, AssetFile } from "../../types/file-management";
 
 /**
  * Database schema version and table definitions
@@ -14,28 +14,32 @@ export class AssetDatabase extends Dexie {
   assets!: Table<AssetMetadata & { blob: Blob }, string>;
 
   constructor() {
-    super('AssetDatabase');
+    super("AssetDatabase");
 
     this.version(1).stores({
-      assets: '&id, name, extension, mimeType, size, category, priority, tags, createdAt, updatedAt, checksum'
+      assets:
+        "&id, name, extension, mimeType, size, category, priority, tags, createdAt, updatedAt, checksum",
     });
 
     // Add indexes for efficient querying
     this.version(2).stores({
-      assets: '&id, name, extension, mimeType, size, category, priority, tags, createdAt, updatedAt, checksum, *tags'
+      assets:
+        "&id, name, extension, mimeType, size, category, priority, tags, createdAt, updatedAt, checksum, *tags",
     });
 
     // Handle database upgrade errors
-    this.on('versionchange', (event) => {
-      console.warn('[AssetDatabase] Version change detected:', event);
+    this.on("versionchange", (event) => {
+      console.warn("[AssetDatabase] Version change detected:", event);
     });
 
-    this.on('blocked', () => {
-      console.error('[AssetDatabase] Database blocked - another tab has it open');
+    this.on("blocked", () => {
+      console.error(
+        "[AssetDatabase] Database blocked - another tab has it open",
+      );
     });
 
-    this.on('ready', () => {
-      console.log('[AssetDatabase] Database ready');
+    this.on("ready", () => {
+      console.log("[AssetDatabase] Database ready");
     });
   }
 
@@ -45,10 +49,12 @@ export class AssetDatabase extends Dexie {
   async initialize(): Promise<void> {
     try {
       await this.open();
-      console.log('[AssetDatabase] Successfully opened database');
+      console.log("[AssetDatabase] Successfully opened database");
     } catch (error) {
-      console.error('[AssetDatabase] Failed to open database:', error);
-      throw new Error(`Database initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("[AssetDatabase] Failed to open database:", error);
+      throw new Error(
+        `Database initialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
@@ -58,9 +64,9 @@ export class AssetDatabase extends Dexie {
   async closeDatabase(): Promise<void> {
     try {
       await this.close();
-      console.log('[AssetDatabase] Database closed');
+      console.log("[AssetDatabase] Database closed");
     } catch (error) {
-      console.warn('[AssetDatabase] Error closing database:', error);
+      console.warn("[AssetDatabase] Error closing database:", error);
     }
   }
 
@@ -70,9 +76,9 @@ export class AssetDatabase extends Dexie {
   async clearAllData(): Promise<void> {
     try {
       await this.assets.clear();
-      console.log('[AssetDatabase] All data cleared');
+      console.log("[AssetDatabase] All data cleared");
     } catch (error) {
-      console.error('[AssetDatabase] Failed to clear data:', error);
+      console.error("[AssetDatabase] Failed to clear data:", error);
       throw error;
     }
   }
@@ -86,7 +92,7 @@ export class AssetDatabase extends Dexie {
       const totalSize = assets.reduce((sum, asset) => sum + asset.size, 0);
       return { count: assets.length, totalSize };
     } catch (error) {
-      console.error('[AssetDatabase] Failed to get stats:', error);
+      console.error("[AssetDatabase] Failed to get stats:", error);
       return { count: 0, totalSize: 0 };
     }
   }
@@ -109,7 +115,7 @@ export const assetDatabase = new AssetDatabase();
 
 // Initialize on module load
 assetDatabase.initialize().catch((error) => {
-  console.error('[AssetDatabase] Initialization failed:', error);
+  console.error("[AssetDatabase] Initialization failed:", error);
 });
 
 // Export for testing
