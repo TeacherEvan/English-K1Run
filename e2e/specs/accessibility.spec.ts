@@ -4,6 +4,37 @@ import { expect, Page, test } from "@playwright/test";
 // npm install -D @axe-core/playwright
 // import AxeBuilder from '@axe-core/playwright'
 
+/**
+ * Sets up the page for accessibility testing by emulating reduced motion preferences
+ * and navigating to the test environment with necessary waits.
+ */
+const waitForMenuReady = async (page: Page) => {
+  await page.locator('[data-testid="game-menu"]').waitFor({
+    state: "visible",
+    timeout: 20_000,
+  });
+
+  await page
+    .locator(
+      '[data-testid="start-game-button"], [data-testid="new-game-button"]',
+    )
+    .first()
+    .waitFor({ state: "visible", timeout: 20_000 });
+};
+
+const setupAccessibilityTestPage = async (page: Page) => {
+  // Emulate reduced motion for accessibility testing to ensure the app works without animations
+  const reducedMotion = process.env.REDUCED_MOTION || "reduce";
+  try {
+    await page.emulateMedia({ reducedMotion });
+  } catch (error) {
+    console.warn("Failed to emulate media for reduced motion:", error);
+  }
+
+  await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
+  await waitForMenuReady(page);
+};
+
 test.describe("Accessibility", () => {
   const skipWormLoadingIfPresent = async (page: Page) => {
     const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
@@ -21,14 +52,7 @@ test.describe("Accessibility", () => {
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
-    await page.locator('[data-testid="game-menu"]').waitFor({
-      state: "visible",
-      timeout: 20_000,
-    });
-    await page.locator('[data-testid="new-game-button"]').waitFor({
-      state: "visible",
-      timeout: 20_000,
-    });
+    await waitForMenuReady(page);
   });
 
   test("menu page should not have critical accessibility violations", async ({
@@ -41,9 +65,11 @@ test.describe("Accessibility", () => {
     await expect(page.locator('[data-testid="game-title"]')).toBeVisible();
 
     // Check buttons are accessible (homescreen)
-    const newGameButton = page.locator('[data-testid="new-game-button"]');
-    await expect(newGameButton).toBeVisible();
-    await expect(newGameButton).toBeEnabled();
+    const levelSelectButton = page.locator(
+      '[data-testid="level-select-button"]',
+    );
+    await expect(levelSelectButton).toBeVisible();
+    await expect(levelSelectButton).toBeEnabled();
 
     const settingsButton = page.locator('[data-testid="settings-button"]');
     await expect(settingsButton).toBeVisible();
@@ -58,7 +84,9 @@ test.describe("Accessibility", () => {
     await expect(exitButton).toBeEnabled();
 
     // Level buttons should be visible and accessible (level selection)
-    await newGameButton.evaluate((button: HTMLButtonElement) => button.click());
+    await levelSelectButton.evaluate((button: HTMLButtonElement) =>
+      button.click(),
+    );
     const levelButtons = page.locator('[data-testid="level-button"]');
     const count = await levelButtons.count();
     expect(count).toBeGreaterThan(0);
@@ -73,7 +101,7 @@ test.describe("Accessibility", () => {
   }) => {
     // Start game - wait for level select to appear
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
       .locator('[data-testid="level-select-menu"]')
@@ -127,7 +155,7 @@ test.describe("Accessibility", () => {
   }) => {
     // Start game
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
       .locator('[data-testid="level-select-menu"]')
@@ -175,14 +203,7 @@ test.describe("Keyboard Navigation", () => {
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
-    await page.locator('[data-testid="game-menu"]').waitFor({
-      state: "visible",
-      timeout: 20_000,
-    });
-    await page.locator('[data-testid="new-game-button"]').waitFor({
-      state: "visible",
-      timeout: 20_000,
-    });
+    await waitForMenuReady(page);
   });
 
   test("should be able to tab through menu buttons", async ({ page }) => {
@@ -202,8 +223,10 @@ test.describe("Keyboard Navigation", () => {
     page,
   }) => {
     // Focus on New Game button
-    const newGameButton = page.locator('[data-testid="new-game-button"]');
-    await newGameButton.focus();
+    const levelSelectButton = page.locator(
+      '[data-testid="level-select-button"]',
+    );
+    await levelSelectButton.focus();
 
     // Press Enter
     await page.keyboard.press("Enter");

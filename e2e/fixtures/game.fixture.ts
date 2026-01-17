@@ -51,7 +51,7 @@ export class GamePage {
       });
 
       // Ensure the real GameMenu (not Suspense fallback) is mounted.
-      await this.page.locator('[data-testid="new-game-button"]').waitFor({
+      await this.page.locator('[data-testid="start-game-button"]').waitFor({
         state: "visible",
         timeout: 20_000,
       });
@@ -109,6 +109,7 @@ export class GameMenuPage {
   readonly container: Locator;
   readonly title: Locator;
   readonly startButton: Locator;
+  readonly levelSelectButton: Locator;
   readonly levelButtons: Locator;
   readonly settingsButton: Locator;
   readonly creditsButton: Locator;
@@ -121,7 +122,10 @@ export class GameMenuPage {
     this.container = page.locator('[data-testid="game-menu"]');
     this.title = page.locator('[data-testid="game-title"]');
     // Homescreen actions
-    this.startButton = page.locator('[data-testid="new-game-button"]');
+    this.startButton = page.locator('[data-testid="start-game-button"]');
+    this.levelSelectButton = page.locator(
+      '[data-testid="level-select-button"]',
+    );
     this.settingsButton = page.locator('[data-testid="settings-button"]');
     this.creditsButton = page.locator('[data-testid="credits-button"]');
     this.exitButton = page.locator('[data-testid="exit-button"]');
@@ -142,7 +146,7 @@ export class GameMenuPage {
   async openLevelSelect() {
     // If already in level select view, nothing to do
     if (await this.levelSelectContainer.isVisible().catch(() => false)) return;
-    await this.startButton.evaluate((button: HTMLButtonElement) =>
+    await this.levelSelectButton.evaluate((button: HTMLButtonElement) =>
       button.click(),
     );
     await this.levelSelectContainer.waitFor({

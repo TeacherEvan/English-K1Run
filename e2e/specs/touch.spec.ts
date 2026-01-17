@@ -25,12 +25,13 @@ test.describe("Touch Interactions - Tablet", () => {
   });
 
   test("should start game with touch on Start button", async ({ page }) => {
-    const newGameButton = page.locator('[data-testid="new-game-button"]');
-    await newGameButton.evaluate((button: HTMLButtonElement) => button.click());
+    await page
+      .locator('[data-testid="level-select-button"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
 
     const startGameButton = page.locator('[data-testid="start-button"]');
     await startGameButton.evaluate((button: HTMLButtonElement) =>
-      button.click()
+      button.click(),
     );
 
     await skipWormLoadingIfPresent(page);
@@ -44,7 +45,7 @@ test.describe("Touch Interactions - Tablet", () => {
 
   test("should allow level selection with touch", async ({ page }) => {
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     const levelButtons = page.locator('[data-testid="level-button"]');
 
@@ -60,7 +61,7 @@ test.describe("Touch Interactions - Tablet", () => {
   test("falling objects should respond to touch", async ({ page }) => {
     // Start game
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
       .locator('[data-testid="start-button"]')
@@ -72,7 +73,7 @@ test.describe("Touch Interactions - Tablet", () => {
     await page.waitForFunction(
       () =>
         document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const objects = page.locator('[data-testid="falling-object"]');
@@ -87,7 +88,7 @@ test.describe("Touch Interactions - Tablet", () => {
   test("back button should respond to touch", async ({ page }) => {
     // Start game
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
       .locator('[data-testid="start-button"]')
@@ -117,7 +118,7 @@ test.describe("Multi-touch Handling", () => {
 
     // Start game
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page
       .locator('[data-testid="start-button"]')
@@ -127,7 +128,7 @@ test.describe("Multi-touch Handling", () => {
     await page.waitForFunction(
       () =>
         document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const objects = page.locator('[data-testid="falling-object"]');

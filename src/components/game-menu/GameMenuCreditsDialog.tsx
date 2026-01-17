@@ -18,6 +18,7 @@ export const GameMenuCreditsDialog = memo(() => {
                         variant="link"
                         size="sm"
                         className="text-muted-foreground/60 h-auto p-0 text-xs"
+                        data-testid="credits-button"
                     >
                         Credits / เครดิต
                     </Button>

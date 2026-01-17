@@ -55,8 +55,8 @@
 
 ## Gameplay Tuning and Continuous Mode
 
-- **Tuning constants**: Live in [`src/lib/constants/game-config.ts`](../src/lib/constants/game-config.ts).
-- **Continuous mode state**: In SettingsContext with persistence (localStorage key `continuousModeHighScore`); see [`src/context/settings-context.tsx`](../src/context/settings-context.tsx).
+- **Tuning constants**: Live in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts).
+- **Continuous mode state**: In SettingsContext with persistence (localStorage key `continuousModeHighScore`); see `src/context/settings-context.tsx`(../src/context/settings-context.tsx).
 
 ## Error Handling
 
@@ -82,7 +82,7 @@
 
 ## Testing Practices
 
-- **Unit tests**: Use Jest for hooks and utilities; cover critical logic in `src/hooks/__tests__/`](../src/hooks/**tests**/).
+- **Unit tests**: Use Jest for hooks and utilities; cover critical logic in `src/hooks/__tests__/`(../src/hooks/**tests**/).
 - **Integration tests**: Test component interactions and state changes.
 - **E2E tests**: Use Playwright for full user flows; fixtures in `e2e/fixtures/`(../e2e/fixtures/); specs in `e2e/specs/`(../e2e/specs/).
 - **Coverage**: Aim for 80%+ coverage; focus on error paths and edge cases.

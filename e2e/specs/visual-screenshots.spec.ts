@@ -115,7 +115,7 @@ test.describe("Visual Screenshots", () => {
     // 3. Level Select
     console.log("Going to Level Select...");
     await page
-      .locator('[data-testid="new-game-button"]')
+      .locator('[data-testid="level-select-button"]')
       .evaluate((el: HTMLElement) => el.click());
     await page.waitForSelector('[data-testid="level-select-menu"]');
 
@@ -204,7 +204,7 @@ test.describe("Visual Screenshots", () => {
 
       // Go back to Level Select for next iteration
       await page
-        .locator('[data-testid="new-game-button"]')
+        .locator('[data-testid="level-select-button"]')
         .evaluate((el: HTMLElement) => el.click());
       await page.waitForSelector('[data-testid="level-select-menu"]');
     }
