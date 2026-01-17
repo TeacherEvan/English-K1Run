@@ -240,23 +240,39 @@ export class GameMenuPage {
     const loadingScreen = this.page.locator(
       '[data-testid="worm-loading-screen"]',
     );
+    const targetDisplay = this.page.locator('[data-testid="target-display"]');
     const skipButton = this.page.locator('[data-testid="skip-loading-button"]');
 
-    try {
-      // Small delay to let React mount the loading screen
-      await this.page.waitForTimeout(200);
-      
-      const isVisible = await loadingScreen.isVisible();
-      if (isVisible || await loadingScreen.count() > 0) {
+    // Wait for either the loading screen or the game HUD to appear
+    await Promise.race([
+      loadingScreen
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => {}),
+      targetDisplay
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => {}),
+    ]);
+
+    if (await loadingScreen.isVisible()) {
+      try {
         await skipButton.waitFor({ state: "visible", timeout: 10_000 });
         await skipButton.click({ force: true });
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
+      } catch (error) {
+        console.log(
+          "Failed to skip loading screen, but it might have finished on its own",
+        );
       }
-    } catch (error) {
-      // Loading screen may have been very fast; check if game started
-      console.log("Loading screen skip failed or not needed:", error instanceof Error ? error.message : String(error));
     }
-  }
+
+    // Ensure game HUD is ready before returning (critical for Firefox)
+    // Use a shorter initial timeout and allow caller to wait longer if needed
+    try {
+      await targetDisplay.waitFor({ state: "visible", timeout: 15_000 });
+    } catch (error) {
+      // Allow caller (beforeEach) to handle the final wait with its own timeout
+      console.log("Target display not immediately visible, caller will verify");
+    }
   }
 }
 

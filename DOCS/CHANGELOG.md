@@ -242,6 +242,6 @@ For detailed technical documentation, see:
 
 - `README.md` - Setup and deployment guide
 - `.github/copilot-instructions.md` - Comprehensive development guide
-- `PERFORMANCE_OPTIMIZATION_OCT2025.md` - Detailed performance audit
+- `DOCS/ARCHIVE/PERFORMANCE_OPTIMIZATION_OCT2025_2026-01-17.md` - Detailed performance audit
 - `MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling system
 - `VERCEL_AUDIO_DEBUG.md` - Audio troubleshooting guide

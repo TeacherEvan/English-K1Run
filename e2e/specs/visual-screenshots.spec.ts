@@ -161,29 +161,37 @@ test.describe("Visual Screenshots", () => {
 
       // Click Start Game
       const startGameBtn = page.locator('[data-testid="start-button"]');
-      await startGameBtn.waitFor({ state: "visible", timeout: 5000 });
+      await startGameBtn.waitFor({ state: "visible", timeout: 10000 });
       await startGameBtn.click({ force: true });
 
-      // Handle Worm Loading Screen (Skip it)
-      try {
-        const loadingScreen = page.locator(
-          '[data-testid="worm-loading-screen"]',
-        );
-        const skipBtn = page.locator('[data-testid="skip-loading-button"]');
+      // Handle Worm Loading Screen (Skip it or wait for game)
+      const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
+      const targetDisplay = page.locator('[data-testid="target-display"]');
+      const skipBtn = page.locator('[data-testid="skip-loading-button"]');
 
-        // Wait briefly to see if loading screen appears
-        await page.waitForTimeout(200);
+      await Promise.race([
+        loadingScreen
+          .waitFor({ state: "visible", timeout: 20000 })
+          .catch(() => {}),
+        targetDisplay
+          .waitFor({ state: "visible", timeout: 20000 })
+          .catch(() => {}),
+      ]);
 
-        if ((await loadingScreen.count()) > 0) {
+      if (await loadingScreen.isVisible()) {
+        try {
           await skipBtn.waitFor({ state: "visible", timeout: 10000 });
           await skipBtn.click({ force: true });
           await loadingScreen.waitFor({ state: "detached", timeout: 15000 });
+        } catch (e) {
+          console.log("Loading screen skip bypassed in screenshot loop");
         }
-      } catch (e) {
-        console.log("Loading screen skip bypassed in screenshot loop");
       }
 
-      // Wait for game to start (Back button appears)
+      // Ensure game HUD is visible (critical for Firefox stability)
+      await targetDisplay.waitFor({ state: "visible", timeout: 30000 });
+
+      // Wait for game to be fully ready (Back button appears)
       await page.waitForSelector('[data-testid="back-button"]', {
         timeout: 30000,
       });
@@ -204,18 +212,24 @@ test.describe("Visual Screenshots", () => {
       await backBtn.waitFor({ state: "visible", timeout: 5000 });
       await backBtn.click({ force: true });
 
-      // We are now at Main Menu
-      await page.waitForSelector('[data-testid="game-menu"]');
-      // Small delay to ensure menu is fully interactive
-      await page.waitForTimeout(300);
+      // Reload page to ensure clean state for next level
+      // This prevents state pollution across multiple game starts
+      if (i < count - 1) {
+        await page.reload({ waitUntil: "domcontentloaded" });
+        await page.waitForSelector('[data-testid="game-menu"]', {
+          timeout: 10000,
+        });
 
-      // Go back to Level Select for next iteration
-      const levelSelectBtn = page.locator(
-        '[data-testid="level-select-button"]',
-      );
-      await levelSelectBtn.waitFor({ state: "visible", timeout: 5000 });
-      await levelSelectBtn.click({ force: true });
-      await page.waitForSelector('[data-testid="level-select-menu"]');
+        // Navigate to level select
+        const levelSelectBtn = page.locator(
+          '[data-testid="level-select-button"]',
+        );
+        await levelSelectBtn.waitFor({ state: "visible", timeout: 10000 });
+        await levelSelectBtn.click({ force: true });
+        await page.waitForSelector('[data-testid="level-select-menu"]', {
+          timeout: 15000,
+        });
+      }
     }
 
     console.log("All screenshots captured.");

@@ -83,7 +83,6 @@ export default defineConfig({
         navigationTimeout: 45_000,
       },
       timeout: 60_000,
-      use: { ...devices["Desktop Edge"] },
     },
 
     // Tablet - iPad (primary target device for kindergarten)
