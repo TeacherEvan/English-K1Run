@@ -51,7 +51,7 @@ export class GamePage {
       });
 
       // Ensure the real GameMenu (not Suspense fallback) is mounted.
-      await this.page.locator('[data-testid="start-game-button"]').waitFor({
+      await this.page.locator('[data-testid="level-select-button"]').waitFor({
         state: "visible",
         timeout: 20_000,
       });
@@ -72,18 +72,72 @@ export class GamePage {
     await this.page.waitForLoadState("networkidle", { timeout });
   }
 
-  // Enhanced navigation with retry logic
-  async navigateWithRetry(url: string, maxRetries: number = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  /**
+   * Navigates to a URL with retry logic and exponential backoff.
+   * Useful for handling flaky network conditions in e2e tests.
+   *
+   * @param url - The URL to navigate to
+   * @param maxRetries - Maximum number of retry attempts (default: 3)
+   * @param baseDelay - Base delay in milliseconds for backoff (default: 1000)
+   * @param maxDelay - Maximum delay in milliseconds (default: 5000)
+   * @throws {Error} The last navigation error if all retries fail
+   */
+  async navigateWithRetry(
+    url: string,
+    maxRetries: number = 3,
+    baseDelay: number = 1000,
+    maxDelay: number = 5000,
+  ): Promise<void> {
+    if (maxRetries < 1) {
+      throw new Error("maxRetries must be at least 1");
+    }
+
+    for (
+      let currentAttempt = 1;
+      currentAttempt <= maxRetries;
+      currentAttempt++
+    ) {
       try {
+        console.log(
+          `Navigation attempt ${currentAttempt}/${maxRetries} to ${url}`,
+        );
         await this.page.goto(url, { waitUntil: "domcontentloaded" });
-        await this.waitForPageLoad();
+        // Removed redundant waitForPageLoad() as goto already waits for domcontentloaded
         return;
       } catch (error) {
-        if (attempt === maxRetries) throw error;
-        await this.page.waitForTimeout(1000 * attempt); // Exponential backoff
+        console.warn(
+          `Navigation attempt ${currentAttempt} failed:`,
+          error instanceof Error ? error.message : String(error),
+        );
+        if (currentAttempt === maxRetries) {
+          throw error;
+        }
+        const delay = this.calculateBackoffDelay(
+          currentAttempt,
+          baseDelay,
+          maxDelay,
+        );
+        await this.page.waitForTimeout(delay);
       }
     }
+  }
+
+  /**
+   * Calculates exponential backoff delay with jitter to prevent thundering herd.
+   *
+   * @param attempt - Current attempt number (1-based)
+   * @param baseDelay - Base delay in milliseconds
+   * @param maxDelay - Maximum delay cap in milliseconds
+   * @returns Delay in milliseconds
+   */
+  private calculateBackoffDelay(
+    attempt: number,
+    baseDelay: number,
+    maxDelay: number,
+  ): number {
+    const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
+    const jitter = Math.random() * 0.1 * exponentialDelay; // 10% jitter
+    return Math.min(exponentialDelay + jitter, maxDelay);
   }
 
   // Trigger user interaction to enable audio/fullscreen
@@ -431,3 +485,5 @@ export async function simulateTap(locator: Locator) {
     targetTouches: [],
   });
 }
+
+// TODO: [OPTIMIZATION] Consider integrating with Playwright's test-level retries for broader flaky test handling.
