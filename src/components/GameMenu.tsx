@@ -1,12 +1,11 @@
-import { lazy, memo, Suspense, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
-import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
 import { formatBestTime } from "../lib/utils";
 import { ErrorBoundary } from "./ErrorBoundary";
-
-const GameMenuHome = lazy(() => import("./game-menu/GameMenuHome").then(module => ({ default: module.GameMenuHome })));
-const GameMenuLevelSelect = lazy(() => import("./game-menu/GameMenuLevelSelect").then(module => ({ default: module.GameMenuLevelSelect })));
+import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
+import { GameMenuHome } from "./game-menu/GameMenuHome";
+import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
 
 interface GameMenuProps {
   onStartGame: () => void
@@ -70,36 +69,27 @@ export const GameMenu = memo(({
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p>Loading game menu...</p>
-          </div>
-        </div>
-      }>
-        {view === 'main' ? (
-          <GameMenuHome
-            formattedBestTime={formattedBestTime}
-            continuousMode={continuousMode}
-            resolutionScale={resolutionScale}
-            setResolutionScale={setResolutionScale}
-            onStartGame={onStartGame}
-            onShowLevels={handleShowLevels}
-            onToggleContinuousMode={onToggleContinuousMode}
-            onResetGame={onResetGame}
-          />
-        ) : (
-          <GameMenuLevelSelect
-            levels={levels}
-            selectedLevel={selectedLevel}
-            levelIcons={levelIcons}
-            onSelectLevel={onSelectLevel}
-            onStartGame={onStartGame}
-            onBack={handleBackToMain}
-          />
-        )}
-      </Suspense>
+      {view === 'main' ? (
+        <GameMenuHome
+          formattedBestTime={formattedBestTime}
+          continuousMode={continuousMode}
+          resolutionScale={resolutionScale}
+          setResolutionScale={setResolutionScale}
+          onStartGame={onStartGame}
+          onShowLevels={handleShowLevels}
+          onToggleContinuousMode={onToggleContinuousMode}
+          onResetGame={onResetGame}
+        />
+      ) : (
+        <GameMenuLevelSelect
+          levels={levels}
+          selectedLevel={selectedLevel}
+          levelIcons={levelIcons}
+          onSelectLevel={onSelectLevel}
+          onStartGame={onStartGame}
+          onBack={handleBackToMain}
+        />
+      )}
     </ErrorBoundary>
   )
 })
