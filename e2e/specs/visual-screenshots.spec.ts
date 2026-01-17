@@ -36,7 +36,7 @@ test.describe("Visual Screenshots", () => {
 
     // Test reduced motion
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.reload();
+    await page.reload({ waitUntil: "networkidle", timeout: 45000 });
     await page.waitForSelector('[data-testid="welcome-screen"]', {
       timeout: 15000,
     });

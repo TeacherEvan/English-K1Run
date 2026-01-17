@@ -40,6 +40,19 @@ export class GamePage {
     await this.page.emulateMedia({ reducedMotion: "reduce" });
     await this.page.goto("/?e2e=1");
     await this.page.waitForLoadState("domcontentloaded");
+
+    // Disable background animations that cause instability in Firefox
+    await this.page.addStyleTag({
+      content: `
+        .app-bg-animated {
+          animation: none !important;
+        }
+        * {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      `,
+    });
   }
 
   // Wait for game to be ready
@@ -203,7 +216,8 @@ export class GameMenuPage {
 
     // Ensure button is ready for interaction
     await this.levelSelectButton.waitFor({ state: "visible", timeout: 10_000 });
-    await this.levelSelectButton.click({ force: true });
+    // Increased timeout for Firefox stability with background animations
+    await this.levelSelectButton.click({ timeout: 30_000 });
 
     await this.levelSelectContainer.waitFor({
       state: "visible",
@@ -215,7 +229,7 @@ export class GameMenuPage {
     await this.openLevelSelect();
     const button = this.levelButtons.nth(levelIndex);
     await button.waitFor({ state: "visible", timeout: 10_000 });
-    await button.click({ force: true });
+    await button.click();
   }
 
   async getLevelCount() {
@@ -235,7 +249,7 @@ export class GameMenuPage {
   async startGame() {
     await this.openLevelSelect();
     await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
-    await this.startGameButton.click({ force: true });
+    await this.startGameButton.click({ timeout: 30_000 });
 
     const loadingScreen = this.page.locator(
       '[data-testid="worm-loading-screen"]',
@@ -256,7 +270,7 @@ export class GameMenuPage {
     if (await loadingScreen.isVisible()) {
       try {
         await skipButton.waitFor({ state: "visible", timeout: 10_000 });
-        await skipButton.click({ force: true });
+        await skipButton.click();
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
       } catch (error) {
         console.log(
@@ -266,9 +280,9 @@ export class GameMenuPage {
     }
 
     // Ensure game HUD is ready before returning (critical for Firefox)
-    // Use a shorter initial timeout and allow caller to wait longer if needed
+    // Increased timeout for Firefox's slower state transitions
     try {
-      await targetDisplay.waitFor({ state: "visible", timeout: 15_000 });
+      await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
     } catch (error) {
       // Allow caller (beforeEach) to handle the final wait with its own timeout
       console.log("Target display not immediately visible, caller will verify");
