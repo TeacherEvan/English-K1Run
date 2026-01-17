@@ -52,6 +52,7 @@ import { PROGRESS_MILESTONES } from './lib/constants/engagement-system'
 import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
 import { eventTracker } from './lib/event-tracker'
 import { initWebVitalsMonitoring } from './lib/web-vitals-monitor'
+import { useLazyBackgroundPreloader } from './lib/utils/background-preloader'
 
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
@@ -110,6 +111,9 @@ const requestFullscreen = () => {
 function App() {
   console.log('DEBUG: App rendering, isE2E:', typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1');
   const { displaySettings } = useDisplayAdjustment()
+
+  // Lazy preload background images for Core Web Vitals optimization
+  useLazyBackgroundPreloader()
 
   // State declarations must come before hooks that use them
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1'
