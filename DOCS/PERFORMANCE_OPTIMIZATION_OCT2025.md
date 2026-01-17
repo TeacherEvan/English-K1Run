@@ -246,39 +246,25 @@ return () => {
 ---
 
 ### 8. Collision Detection Optimization ✅
-**Location**: `src/hooks/use-game-logic.ts` lines 423-448
+**Location**: `src/hooks/use-game-logic.ts` lines 423-448 (October 2025) + `src/lib/game/collision-detection.ts` (January 2026)
 
-**Changes**:
-```typescript
-const processLane = useCallback((laneObjects: GameObject[], lane: PlayerSide) => {
-  const [minX, maxX] = LANE_BOUNDS[lane]
-  const laneLength = laneObjects.length
+**Changes (October 2025)**:
+- Added early exits in collision loops
+- Reduced unnecessary calculations
 
-  // Early exit if no objects to process
-  if (laneLength === 0) return
-
-  for (let i = 0; i < laneLength; i++) {
-    // Early exit if only one object or current is last object
-    if (i === laneLength - 1) break
-    
-    for (let j = i + 1; j < laneLength; j++) {
-      // Early exit: objects far apart vertically
-      if (verticalGap > MIN_VERTICAL_GAP) continue
-      
-      // Early exit: objects far enough apart horizontally
-      if (horizontalGap >= COLLISION_MIN_SEPARATION || horizontalGap === 0) continue
-      
-      // ... collision resolution
-    }
-  }
-}, [])
-```
+**Additional Improvements (January 2026)**:
+- Moved collision detection to dedicated module `src/lib/game/collision-detection.ts`
+- Enhanced spatial coherence with Y-sorting optimization
+- Improved code readability and maintainability
+- Added comprehensive input validation
+- Added TODO for potential spatial partitioning
 
 **Impact**:
 - Early exits prevent unnecessary calculations
-- Reduced CPU usage in collision detection
-- Maintains same collision quality
-- Better performance with 10+ objects
+- Spatial coherence reduces O(n²) complexity
+- Better code organization and maintainability
+- Improved performance with 10+ objects
+- Future-proofed for scaling
 
 ---
 

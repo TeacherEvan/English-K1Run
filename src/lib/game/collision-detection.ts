@@ -23,131 +23,176 @@ import {
 } from "../constants/game-config";
 
 /**
- * Process collision detection for objects in a single lane
- * Uses sorted Y positions for spatial coherence optimization
+ * Process collision detection for objects in a single lane.
+ * Uses sorted Y positions for spatial coherence optimization to reduce unnecessary checks.
+ *
+ * @param laneObjects - Array of game objects in the lane
+ * @param lane - The player side ('left' or 'right') for lane-specific bounds
  */
 export function processLaneCollisions(
   laneObjects: GameObject[],
-  lane: PlayerSide
+  lane: PlayerSide,
 ): void {
-  const laneLength = laneObjects.length;
+  // Input validation
+  if (!laneObjects || laneObjects.length <= 1) {
+    return;
+  }
 
-  // Early exit if no objects to process
-  if (laneLength <= 1) return;
+  // Cache lane bounds for performance
+  const [minXBound, maxXBound] = LANE_BOUNDS[lane];
+  const minimumSeparationDistance = COLLISION_MIN_SEPARATION;
+  const maximumVerticalGapForCollisionCheck = MIN_VERTICAL_GAP;
 
-  // Cache lane bounds lookup (performance optimization)
-  const [minX, maxX] = LANE_BOUNDS[lane];
-  const minSep = COLLISION_MIN_SEPARATION;
-  const minVertGap = MIN_VERTICAL_GAP;
+  // Sort objects by Y position for spatial coherence optimization
+  // This allows early termination when vertical gaps exceed the threshold
+  const sortedObjects = laneObjects.slice().sort((a, b) => a.y - b.y);
 
-  // Sort objects by Y position once for better spatial coherence
-  // This allows us to break early when objects are too far apart vertically
-  const sorted = laneObjects.slice().sort((a, b) => a.y - b.y);
-
-  for (let i = 0; i < laneLength; i++) {
-    const current = sorted[i];
+  for (let i = 0; i < sortedObjects.length; i++) {
+    const currentObject = sortedObjects[i];
 
     // Skip collision detection for objects still spawning (y < 0)
-    // This prevents newly spawned emojis from pushing each other around
-    if (current.y < 0) continue;
+    if (currentObject.y < 0) {
+      continue;
+    }
 
-    // Clamp once before collision checks
-    current.x = clamp(current.x, minX, maxX);
+    // Clamp position to lane bounds before collision checks
+    currentObject.x = clamp(currentObject.x, minXBound, maxXBound);
 
-    // Only check objects below current (spatial coherence optimization)
-    for (let j = i + 1; j < laneLength; j++) {
-      const other = sorted[j];
+    // Check collisions only with objects below (spatial coherence)
+    for (let j = i + 1; j < sortedObjects.length; j++) {
+      const otherObject = sortedObjects[j];
 
-      // Skip collision with objects still spawning (y < 0)
-      if (other.y < 0) continue;
+      // Skip if other object is still spawning
+      if (otherObject.y < 0) {
+        continue;
+      }
 
-      // Early exit: since sorted by Y, if vertical gap too large, all remaining objects are also too far
-      const verticalGap = other.y - current.y; // Always positive since sorted
-      if (verticalGap > minVertGap) break;
+      // Early exit: if vertical gap is too large, no more collisions possible
+      const verticalGap = otherObject.y - currentObject.y;
+      if (verticalGap > maximumVerticalGapForCollisionCheck) {
+        break;
+      }
 
-      const horizontalGap = Math.abs(current.x - other.x);
+      const horizontalGap = Math.abs(currentObject.x - otherObject.x);
 
-      // Early exit: objects far enough apart horizontally or exactly overlapping
-      if (horizontalGap >= minSep || horizontalGap === 0) continue;
+      // Early exit: objects are either too far apart or exactly overlapping
+      if (horizontalGap >= minimumSeparationDistance || horizontalGap === 0) {
+        continue;
+      }
 
-      // Apply collision resolution
-      const overlap = (minSep - horizontalGap) / 2;
-      const direction = current.x < other.x ? -1 : 1;
+      // Calculate collision resolution
+      const overlap = (minimumSeparationDistance - horizontalGap) / 2;
+      const pushDirection = currentObject.x < otherObject.x ? -1 : 1;
 
-      current.x = clamp(current.x + overlap * direction, minX, maxX);
-      other.x = clamp(other.x - overlap * direction, minX, maxX);
+      // Apply equal push to both objects
+      currentObject.x = clamp(
+        currentObject.x + overlap * pushDirection,
+        minXBound,
+        maxXBound,
+      );
+      otherObject.x = clamp(
+        otherObject.x - overlap * pushDirection,
+        minXBound,
+        maxXBound,
+      );
     }
   }
 }
 
 /**
- * Apply worm-to-object collision physics
- * Pushes objects away from worms without affecting fall speed
+ * Apply worm-to-object collision physics.
+ * Pushes objects away from worms without affecting their fall speed.
+ *
+ * @param worms - Array of worm objects
+ * @param objects - Array of game objects
+ * @param viewportWidth - Current viewport width in pixels for coordinate conversion
  */
 export function applyWormObjectCollision(
   worms: WormObject[],
   objects: GameObject[],
-  viewportWidth: number
+  viewportWidth: number,
 ): void {
-  // Skip if no worms or objects
-  if (worms.length === 0 || objects.length === 0) return;
+  // Input validation
+  if (
+    !worms ||
+    !objects ||
+    worms.length === 0 ||
+    objects.length === 0 ||
+    viewportWidth <= 0
+  ) {
+    return;
+  }
 
-  // Collision radius in pixels
-  const wormRadiusPx = WORM_SIZE / 2;
-  const objectRadiusPx = EMOJI_SIZE / 2;
-  const collisionDistancePx = wormRadiusPx + objectRadiusPx;
+  // Pre-calculate collision radii
+  const wormCollisionRadius = WORM_SIZE / 2;
+  const objectCollisionRadius = EMOJI_SIZE / 2;
+  const totalCollisionDistance = wormCollisionRadius + objectCollisionRadius;
+  const pushStrengthMultiplier = 0.3; // Moderate push strength
 
-  // Check each worm against each object
   for (const worm of worms) {
-    if (!worm.alive) continue;
+    if (!worm.alive) {
+      continue;
+    }
 
-    // Convert worm X from percentage to pixels for distance calculation
-    const wormXPx = (worm.x / 100) * viewportWidth;
-    const wormYPx = worm.y;
+    // Convert worm position from percentage to pixels
+    const wormXPixel = (worm.x / 100) * viewportWidth;
+    const wormYPixel = worm.y;
 
     for (const obj of objects) {
-      // Convert object X from percentage to pixels
-      const objXPx = (obj.x / 100) * viewportWidth;
-      const objYPx = obj.y;
+      // Convert object position from percentage to pixels
+      const objXPixel = (obj.x / 100) * viewportWidth;
+      const objYPixel = obj.y;
 
-      // Calculate distance between worm and object centers
-      const dx = objXPx - wormXPx;
-      const dy = objYPx - wormYPx;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      // Calculate distance between centers
+      const deltaX = objXPixel - wormXPixel;
+      const deltaY = objYPixel - wormYPixel;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-      // Check if collision occurred
-      if (distance < collisionDistancePx && distance > 0) {
-        // Calculate bump force (push object away from worm)
-        const overlap = collisionDistancePx - distance;
-        const pushStrength = overlap * 0.3; // Moderate push strength
+      // Check for collision
+      if (distance < totalCollisionDistance && distance > 0) {
+        // Calculate push force based on overlap
+        const overlap = totalCollisionDistance - distance;
+        const pushStrength = overlap * pushStrengthMultiplier;
 
         // Normalize direction vector
-        const dirX = dx / distance;
-        const dirY = dy / distance;
+        const directionX = deltaX / distance;
+        const directionY = deltaY / distance;
 
-        // Apply push to object (convert back to percentage for X)
-        const pushXPx = dirX * pushStrength;
-        const pushYPx = dirY * pushStrength;
+        // Calculate pixel-based push
+        const pushXPixel = directionX * pushStrength;
+        const pushYPixel = directionY * pushStrength;
 
-        obj.x += (pushXPx / viewportWidth) * 100;
-        obj.y += pushYPx;
+        // Apply push and convert back to percentage for X coordinate
+        obj.x += (pushXPixel / viewportWidth) * 100;
+        obj.y += pushYPixel;
 
-        // Clamp object position to screen bounds
-        const [minX, maxX] = LANE_BOUNDS[obj.lane];
-        obj.x = clamp(obj.x, minX, maxX);
-        obj.y = Math.max(0, obj.y); // Don't push above screen
+        // Clamp to lane bounds and prevent pushing above screen
+        const [minXBound, maxXBound] = LANE_BOUNDS[obj.lane];
+        obj.x = clamp(obj.x, minXBound, maxXBound);
+        obj.y = Math.max(0, obj.y);
       }
     }
   }
+
+  // TODO: [OPTIMIZATION] Consider implementing spatial partitioning (e.g., quadtree)
+  // for worm-object collisions if object counts exceed ~500 to maintain O(n) performance.
 }
 
 /**
- * Partition objects by lane for efficient processing
+ * Partition objects by lane for efficient processing.
+ *
+ * @param objects - Array of game objects to partition
+ * @returns Object with 'left' and 'right' arrays of game objects
  */
 export function partitionByLane(objects: GameObject[]): {
   left: GameObject[];
   right: GameObject[];
 } {
+  // Input validation
+  if (!objects) {
+    return { left: [], right: [] };
+  }
+
   const left: GameObject[] = [];
   const right: GameObject[] = [];
 

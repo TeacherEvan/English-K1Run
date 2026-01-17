@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from 'react'
-import { useSettings } from '../context/settings-context'
+import { useSettings, type ResolutionScale } from '../context/settings-context'
 import { GAME_CATEGORIES } from '../lib/constants/game-categories'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
@@ -121,7 +121,13 @@ export const GameMenu = memo(({
     console.log('[GameMenu] rendering view:', initialView)
   }
 
-  const { resolutionScale, setResolutionScale } = useSettings()
+  // Extract current display resolution scale and updater from settings context
+  const {
+    resolutionScale,
+    setResolutionScale
+  } = useSettings()
+
+  // TODO: [OPTIMIZATION] Consider memoizing settings options array if scale options become dynamic
 
   const [view, setView] = useState<'main' | 'levels'>(initialView)
   const [showExitDialog, setShowExitDialog] = useState(false)
@@ -300,7 +306,7 @@ export const GameMenu = memo(({
                           <Button
                             key={option.id}
                             variant={resolutionScale === option.id ? 'default' : 'outline'}
-                            onClick={() => setResolutionScale(option.id as typeof resolutionScale)}
+                            onClick={() => updateDisplayScale(option.id as ResolutionScale)}
                             aria-pressed={resolutionScale === option.id}
                           >
                             {option.label}
