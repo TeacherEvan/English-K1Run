@@ -1,9 +1,11 @@
-import { memo, useMemo, useState } from "react";
+import { lazy, memo, Suspense, useMemo, useState } from "react";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
-import { GameMenuHome } from "./game-menu/GameMenuHome";
-import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
+import { formatBestTime } from "../lib/utils";
+
+const GameMenuHome = lazy(() => import("./game-menu/GameMenuHome").then(module => ({ default: module.GameMenuHome })));
+const GameMenuLevelSelect = lazy(() => import("./game-menu/GameMenuLevelSelect").then(module => ({ default: module.GameMenuLevelSelect })));
 
 interface GameMenuProps {
   onStartGame: () => void
@@ -42,24 +44,13 @@ export const GameMenu = memo(({
   onResetGame,
   bestTime = 0
 }: GameMenuProps) => {
-  // Debug log to trace render cycles
-  if (import.meta.env.DEV) {
-    console.log('[GameMenu] rendering view:', initialView)
-  }
-
   // Extract current display resolution scale and updater from settings context
   const { resolutionScale, setResolutionScale } = useSettings()
 
   const [view, setView] = useState<'main' | 'levels'>(initialView)
 
   // Memoize time formatting
-  const formattedBestTime = useMemo(() => {
-    const ms = bestTime
-    const minutes = Math.floor(ms / 60000)
-    const seconds = Math.floor((ms % 60000) / 1000)
-    const tenths = Math.floor((ms % 1000) / 100)
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`
-  }, [bestTime])
+  const formattedBestTime = useMemo(() => formatBestTime(bestTime), [bestTime])
 
   const levelIcons = useMemo(() => {
     return levels.map((_, index) => {
@@ -70,30 +61,31 @@ export const GameMenu = memo(({
 
   if (gameStarted && !winner) return null
 
-  // --- Main Homescreen View ---
-  if (view === 'main') {
-    return (
-      <GameMenuHome
-        formattedBestTime={formattedBestTime}
-        continuousMode={continuousMode}
-        resolutionScale={resolutionScale}
-        setResolutionScale={setResolutionScale}
-        onStartGame={onStartGame}
-        onShowLevels={() => setView('levels')}
-        onToggleContinuousMode={onToggleContinuousMode}
-        onResetGame={onResetGame}
-      />
-    )
-  }
+  // TODO: [OPTIMIZATION] Consider implementing error boundaries for lazy-loaded components to handle potential loading failures gracefully.
 
   return (
-    <GameMenuLevelSelect
-      levels={levels}
-      selectedLevel={selectedLevel}
-      levelIcons={levelIcons}
-      onSelectLevel={onSelectLevel}
-      onStartGame={onStartGame}
-      onBack={() => setView('main')}
-    />
+    <Suspense fallback={<div>Loading...</div>}>
+      {view === 'main' ? (
+        <GameMenuHome
+          formattedBestTime={formattedBestTime}
+          continuousMode={continuousMode}
+          resolutionScale={resolutionScale}
+          setResolutionScale={setResolutionScale}
+          onStartGame={onStartGame}
+          onShowLevels={() => setView('levels')}
+          onToggleContinuousMode={onToggleContinuousMode}
+          onResetGame={onResetGame}
+        />
+      ) : (
+        <GameMenuLevelSelect
+          levels={levels}
+          selectedLevel={selectedLevel}
+          levelIcons={levelIcons}
+          onSelectLevel={onSelectLevel}
+          onStartGame={onStartGame}
+          onBack={() => setView('main')}
+        />
+      )}
+    </Suspense>
   )
 })
