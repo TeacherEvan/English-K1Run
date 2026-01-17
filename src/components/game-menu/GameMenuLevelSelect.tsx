@@ -95,7 +95,7 @@ export const GameMenuLevelSelect = memo(
                     <div className="px-8 py-6 border-t bg-card/50 rounded-b-xl flex justify-center shrink-0">
                         <Button
                             size="lg"
-                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-linear-to-r from-primary to-primary/80"
+                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-gradient-to-r from-primary to-primary/80"
                             onClick={onStartGame}
                             data-testid="start-button"
                             aria-label="Start Game with Selected Level"

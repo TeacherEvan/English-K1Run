@@ -31,7 +31,7 @@ import {
  */
 export function processLaneCollisions(
   laneObjects: GameObject[],
-  lane: PlayerSide,
+  lane: PlayerSide
 ): void {
   // Input validation
   if (!laneObjects || laneObjects.length <= 1) {
@@ -88,12 +88,12 @@ export function processLaneCollisions(
       currentObject.x = clamp(
         currentObject.x + overlap * pushDirection,
         minXBound,
-        maxXBound,
+        maxXBound
       );
       otherObject.x = clamp(
         otherObject.x - overlap * pushDirection,
         minXBound,
-        maxXBound,
+        maxXBound
       );
     }
   }
@@ -110,7 +110,7 @@ export function processLaneCollisions(
 export function applyWormObjectCollision(
   worms: WormObject[],
   objects: GameObject[],
-  viewportWidth: number,
+  viewportWidth: number
 ): void {
   // Input validation
   if (
@@ -161,8 +161,8 @@ export function applyWormObjectCollision(
         // Calculate pixel-based push
         const pushXPixel = directionX * pushStrength;
         const pushYPixel = directionY * pushStrength;
-        // for worm-object collisions if object counts exceed ~500, since the current approach is
-        // O(n×m) (n = worms, m = objects) and may not scale well without more efficient spatial indexing.
+        // NOTE: This worm-object collision loop is O(n×m) (n = worms, m = objects) and may degrade
+        // if object counts exceed ~500; see the optimization TODO below for potential spatial indexing.
         // Apply push and convert back to percentage for X coordinate
         obj.x += (pushXPixel / viewportWidth) * 100;
         obj.y += pushYPixel;
