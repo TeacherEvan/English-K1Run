@@ -282,8 +282,10 @@ export class GameMenuPage {
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
       } catch (error) {
         // Loading screen can auto-complete before the skip button appears.
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         console.warn(
-          "Failed to skip loading screen, but it might have finished on its own",
+          `Failed to skip loading screen; it may have finished already: ${errorMessage}`,
           error,
         );
       }
@@ -294,10 +296,12 @@ export class GameMenuPage {
     try {
       await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
     } catch (error) {
-      // HUD can appear after slow asset loads; callers will re-check visibility.
+      // HUD can appear after slow asset loads; waitForReady will re-check visibility.
       // Allow caller (beforeEach) to handle the final wait with its own timeout
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       console.warn(
-        "Target display not immediately visible, caller will verify",
+        `Target display not immediately visible; waitForReady will verify: ${errorMessage}`,
         error,
       );
     }
