@@ -10,6 +10,7 @@ import {
     PlayIcon,
     TrophyIcon,
 } from "./icons";
+import { MENU_THAI_LABELS } from "./constants";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
@@ -126,7 +127,7 @@ export const GameMenuHome = memo(
                                     icon={<TrophyIcon className="w-6 h-6" />}
                                     iconWrapperClassName="p-2 bg-white/20 rounded-full"
                                     title="Play All Levels"
-                                    subtitle="เล่นทุกระดับ"
+                                    subtitle={MENU_THAI_LABELS.playAllLevels}
                                 />
                             </Button>
 

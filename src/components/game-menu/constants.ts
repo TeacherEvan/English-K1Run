@@ -30,3 +30,7 @@ export const DISPLAY_SCALE_OPTIONS = [
   { id: "medium", label: "Medium" },
   { id: "large", label: "Large" },
 ] satisfies Array<{ id: ResolutionScale; label: string }>;
+
+export const MENU_THAI_LABELS = {
+  playAllLevels: "เล่นทุกระดับ",
+};
