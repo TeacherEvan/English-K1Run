@@ -255,6 +255,10 @@ export class GameMenuPage {
     await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
     await this.startGameButton.click({ timeout: 30_000 });
 
+    await this.waitForGameStart();
+  }
+
+  private async waitForGameStart() {
     const loadingScreen = this.page.locator(
       '[data-testid="worm-loading-screen"]',
     );
@@ -300,36 +304,7 @@ export class GameMenuPage {
     });
     await this.playAllLevelsButton.click({ timeout: 30_000 });
 
-    const loadingScreen = this.page.locator(
-      '[data-testid="worm-loading-screen"]',
-    );
-    const targetDisplay = this.page.locator('[data-testid="target-display"]');
-    const skipButton = this.page.locator('[data-testid="skip-loading-button"]');
-
-    await Promise.race([
-      loadingScreen
-        .waitFor({ state: "visible", timeout: 20_000 })
-        .catch(() => {}),
-      targetDisplay.waitFor({ state: "visible", timeout: 20_000 }).catch(() => {}),
-    ]);
-
-    if (await loadingScreen.isVisible()) {
-      try {
-        await skipButton.waitFor({ state: "visible", timeout: 10_000 });
-        await skipButton.click();
-        await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
-      } catch {
-        console.log(
-          "Failed to skip loading screen, but it might have finished on its own",
-        );
-      }
-    }
-
-    try {
-      await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
-    } catch {
-      console.log("Target display not immediately visible, caller will verify");
-    }
+    await this.waitForGameStart();
   }
 }
 
