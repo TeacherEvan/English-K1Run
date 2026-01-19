@@ -276,7 +276,7 @@ export class GameMenuPage {
         await skipButton.waitFor({ state: "visible", timeout: 10_000 });
         await skipButton.click();
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
-      } catch (error) {
+      } catch {
         console.log(
           "Failed to skip loading screen, but it might have finished on its own",
         );
@@ -287,7 +287,7 @@ export class GameMenuPage {
     // Increased timeout for Firefox's slower state transitions
     try {
       await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
-    } catch (error) {
+    } catch {
       // Allow caller (beforeEach) to handle the final wait with its own timeout
       console.log("Target display not immediately visible, caller will verify");
     }
@@ -318,7 +318,7 @@ export class GameMenuPage {
         await skipButton.waitFor({ state: "visible", timeout: 10_000 });
         await skipButton.click();
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
-      } catch (error) {
+      } catch {
         console.log(
           "Failed to skip loading screen, but it might have finished on its own",
         );
@@ -327,7 +327,7 @@ export class GameMenuPage {
 
     try {
       await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
-    } catch (error) {
+    } catch {
       console.log("Target display not immediately visible, caller will verify");
     }
   }
