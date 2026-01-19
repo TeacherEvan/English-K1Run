@@ -143,7 +143,7 @@ export const GameMenuHome = memo(
                                 <MenuActionButtonContent
                                     icon={<GridIcon className="w-6 h-6" />}
                                     title="Level Select"
-                                    subtitle="เลือกระดับ"
+                                    subtitle={MENU_THAI_LABELS.levelSelect}
                                 />
                             </Button>
 

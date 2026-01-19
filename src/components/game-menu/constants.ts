@@ -33,4 +33,5 @@ export const DISPLAY_SCALE_OPTIONS = [
 
 export const MENU_THAI_LABELS = {
   playAllLevels: "เล่นทุกระดับ",
+  levelSelect: "เลือกระดับ",
 };
