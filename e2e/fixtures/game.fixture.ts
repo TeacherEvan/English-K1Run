@@ -281,6 +281,7 @@ export class GameMenuPage {
         await skipButton.click();
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
       } catch {
+        // Ignore loading screen timeouts; game may already be ready.
         console.log(
           "Failed to skip loading screen, but it might have finished on its own",
         );
@@ -292,6 +293,7 @@ export class GameMenuPage {
     try {
       await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
     } catch {
+      // Ignore slow HUD appearance; callers will re-check visibility.
       // Allow caller (beforeEach) to handle the final wait with its own timeout
       console.log("Target display not immediately visible, caller will verify");
     }
