@@ -114,13 +114,14 @@ export const GameMenuHome = memo(
                             <Button
                                 variant="default"
                                 size="lg"
-                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 bg-blue-600 hover:bg-blue-700 text-white"
+                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-blue-600 hover:bg-blue-700 text-white"
                                 onClick={handlePlayAllLevels}
                                 data-testid="play-all-levels-button"
                                 aria-label="Play All Levels"
                             >
                                 <MenuActionButtonContent
                                     icon={<TrophyIcon className="w-6 h-6" />}
+                                    iconWrapperClassName="p-2 bg-white/20 rounded-full"
                                     title="Play All Levels"
                                     subtitle="เล่นทุกระดับ"
                                 />
