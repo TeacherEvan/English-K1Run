@@ -282,7 +282,7 @@ export class GameMenuPage {
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
       } catch (error) {
         // Loading screen can auto-complete before the skip button appears.
-        console.error(
+        console.warn(
           "Failed to skip loading screen, but it might have finished on its own",
           error,
         );
@@ -296,7 +296,7 @@ export class GameMenuPage {
     } catch (error) {
       // HUD can appear after slow asset loads; callers will re-check visibility.
       // Allow caller (beforeEach) to handle the final wait with its own timeout
-      console.error(
+      console.warn(
         "Target display not immediately visible, caller will verify",
         error,
       );
