@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -31,9 +31,14 @@ export const GameMenuHome = memo(
         setResolutionScale,
         onStartGame,
         onShowLevels,
-        onToggleContinuousMode,
-        onResetGame,
+    onToggleContinuousMode,
+    onResetGame,
     }: GameMenuHomeProps) => {
+        const handlePlayAllLevels = useCallback(() => {
+            onToggleContinuousMode?.(true);
+            onStartGame();
+        }, [onStartGame, onToggleContinuousMode]);
+
         return (
             <div
                 className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in duration-300 pointer-events-auto"
@@ -103,6 +108,22 @@ export const GameMenuHome = memo(
                                         subtitle="เริ่มเกม"
                                     />
                                 </span>
+                            </Button>
+
+                            {/* 1b. PLAY ALL LEVELS Button */}
+                            <Button
+                                variant="default"
+                                size="lg"
+                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={handlePlayAllLevels}
+                                data-testid="play-all-levels-button"
+                                aria-label="Play All Levels"
+                            >
+                                <MenuActionButtonContent
+                                    icon={<TrophyIcon className="w-6 h-6" />}
+                                    title="Play All Levels"
+                                    subtitle="เล่นทุกระดับ"
+                                />
                             </Button>
 
                             {/* 2. LEVEL SELECT Button */}

@@ -176,6 +176,7 @@ export class GameMenuPage {
   readonly container: Locator;
   readonly title: Locator;
   readonly startButton: Locator;
+  readonly playAllLevelsButton: Locator;
   readonly levelSelectButton: Locator;
   readonly levelButtons: Locator;
   readonly settingsButton: Locator;
@@ -190,6 +191,9 @@ export class GameMenuPage {
     this.title = page.locator('[data-testid="game-title"]');
     // Homescreen actions
     this.startButton = page.locator('[data-testid="start-game-button"]');
+    this.playAllLevelsButton = page.locator(
+      '[data-testid="play-all-levels-button"]',
+    );
     this.levelSelectButton = page.locator(
       '[data-testid="level-select-button"]',
     );
@@ -288,6 +292,45 @@ export class GameMenuPage {
       console.log("Target display not immediately visible, caller will verify");
     }
   }
+
+  async playAllLevels() {
+    await this.playAllLevelsButton.waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+    await this.playAllLevelsButton.click({ timeout: 30_000 });
+
+    const loadingScreen = this.page.locator(
+      '[data-testid="worm-loading-screen"]',
+    );
+    const targetDisplay = this.page.locator('[data-testid="target-display"]');
+    const skipButton = this.page.locator('[data-testid="skip-loading-button"]');
+
+    await Promise.race([
+      loadingScreen
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => {}),
+      targetDisplay.waitFor({ state: "visible", timeout: 20_000 }).catch(() => {}),
+    ]);
+
+    if (await loadingScreen.isVisible()) {
+      try {
+        await skipButton.waitFor({ state: "visible", timeout: 10_000 });
+        await skipButton.click();
+        await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
+      } catch (error) {
+        console.log(
+          "Failed to skip loading screen, but it might have finished on its own",
+        );
+      }
+    }
+
+    try {
+      await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
+    } catch (error) {
+      console.log("Target display not immediately visible, caller will verify");
+    }
+  }
 }
 
 /**
@@ -305,6 +348,7 @@ export class GameplayPage {
   readonly worms: Locator;
   readonly progressBars: Locator;
   readonly fireworks: Locator;
+  readonly stopwatch: Locator;
 
   constructor(private page: Page) {
     this.gameArea = page.locator('[data-testid="game-area"]');
@@ -318,6 +362,7 @@ export class GameplayPage {
     this.worms = page.locator('[data-testid="worm"]');
     this.progressBars = page.locator('[data-testid="progress-bar"]');
     this.fireworks = page.locator('[data-testid="fireworks"]');
+    this.stopwatch = page.locator('[data-testid="continuous-mode-stopwatch"]');
   }
 
   async isGameStarted() {
