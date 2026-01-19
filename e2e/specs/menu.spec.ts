@@ -70,6 +70,13 @@ test.describe("Game Menu", () => {
     expect(gameStarted).toBe(true);
   });
 
+  test("should start continuous mode when Play All Levels is clicked", async ({
+    gamePage,
+  }) => {
+    await gamePage.menu.playAllLevels();
+    await expect(gamePage.gameplay.stopwatch).toBeVisible();
+  });
+
   test("should display correct category after starting game", async ({
     gamePage,
   }) => {

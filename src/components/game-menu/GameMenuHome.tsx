@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -10,6 +10,7 @@ import {
     PlayIcon,
     TrophyIcon,
 } from "./icons";
+import { MENU_THAI_LABELS } from "./constants";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
@@ -31,9 +32,16 @@ export const GameMenuHome = memo(
         setResolutionScale,
         onStartGame,
         onShowLevels,
-        onToggleContinuousMode,
-        onResetGame,
+    onToggleContinuousMode,
+    onResetGame,
     }: GameMenuHomeProps) => {
+        const canPlayAllLevels = Boolean(onToggleContinuousMode);
+        const handlePlayAllLevels = useCallback(() => {
+            if (!onToggleContinuousMode) return;
+            onToggleContinuousMode(true);
+            onStartGame();
+        }, [onStartGame, onToggleContinuousMode]);
+
         return (
             <div
                 className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in duration-300 pointer-events-auto"
@@ -105,6 +113,24 @@ export const GameMenuHome = memo(
                                 </span>
                             </Button>
 
+                            {/* 1b. PLAY ALL LEVELS Button */}
+                            <Button
+                                variant="default"
+                                size="lg"
+                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={handlePlayAllLevels}
+                                disabled={!canPlayAllLevels}
+                                data-testid="play-all-levels-button"
+                                aria-label="Play All Levels"
+                            >
+                                <MenuActionButtonContent
+                                    icon={<TrophyIcon className="w-6 h-6" />}
+                                    iconWrapperClassName="p-2 bg-white/20 rounded-full"
+                                    title="Play All Levels"
+                                    subtitle={MENU_THAI_LABELS.playAllLevels}
+                                />
+                            </Button>
+
                             {/* 2. LEVEL SELECT Button */}
                             <Button
                                 variant="default"
@@ -117,7 +143,7 @@ export const GameMenuHome = memo(
                                 <MenuActionButtonContent
                                     icon={<GridIcon className="w-6 h-6" />}
                                     title="Level Select"
-                                    subtitle="เลือกระดับ"
+                                    subtitle={MENU_THAI_LABELS.levelSelect}
                                 />
                             </Button>
 

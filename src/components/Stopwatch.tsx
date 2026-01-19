@@ -65,7 +65,10 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
     }
 
     return (
-        <div className="fixed top-4 right-4 z-40 flex flex-col gap-2 pointer-events-none">
+        <div
+            className="fixed top-4 right-4 z-40 flex flex-col gap-2 pointer-events-none"
+            data-testid="continuous-mode-stopwatch"
+        >
             <Card className="bg-black/80 backdrop-blur border-2 border-yellow-500/50 p-3 rounded-xl shadow-2xl">
                 <div className="flex flex-col gap-1 min-w-[120px]">
                     <div className="flex flex-col items-end">

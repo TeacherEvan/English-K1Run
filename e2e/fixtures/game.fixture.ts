@@ -176,6 +176,7 @@ export class GameMenuPage {
   readonly container: Locator;
   readonly title: Locator;
   readonly startButton: Locator;
+  readonly playAllLevelsButton: Locator;
   readonly levelSelectButton: Locator;
   readonly levelButtons: Locator;
   readonly settingsButton: Locator;
@@ -190,6 +191,9 @@ export class GameMenuPage {
     this.title = page.locator('[data-testid="game-title"]');
     // Homescreen actions
     this.startButton = page.locator('[data-testid="start-game-button"]');
+    this.playAllLevelsButton = page.locator(
+      '[data-testid="play-all-levels-button"]',
+    );
     this.levelSelectButton = page.locator(
       '[data-testid="level-select-button"]',
     );
@@ -251,6 +255,10 @@ export class GameMenuPage {
     await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
     await this.startGameButton.click({ timeout: 30_000 });
 
+    await this.waitForGameStart();
+  }
+
+  private async waitForGameStart() {
     const loadingScreen = this.page.locator(
       '[data-testid="worm-loading-screen"]',
     );
@@ -273,8 +281,12 @@ export class GameMenuPage {
         await skipButton.click();
         await loadingScreen.waitFor({ state: "detached", timeout: 20_000 });
       } catch (error) {
-        console.log(
-          "Failed to skip loading screen, but it might have finished on its own",
+        // Loading screen can auto-complete before the skip button appears.
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        console.warn(
+          `Failed to skip loading screen; it may have finished already: ${errorMessage}`,
+          error,
         );
       }
     }
@@ -284,9 +296,25 @@ export class GameMenuPage {
     try {
       await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
     } catch (error) {
+      // HUD can appear after slow asset loads; waitForReady will re-check visibility.
       // Allow caller (beforeEach) to handle the final wait with its own timeout
-      console.log("Target display not immediately visible, caller will verify");
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.warn(
+        `Target display not immediately visible; waitForReady will verify: ${errorMessage}`,
+        error,
+      );
     }
+  }
+
+  async playAllLevels() {
+    await this.playAllLevelsButton.waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+    await this.playAllLevelsButton.click({ timeout: 30_000 });
+
+    await this.waitForGameStart();
   }
 }
 
@@ -305,6 +333,7 @@ export class GameplayPage {
   readonly worms: Locator;
   readonly progressBars: Locator;
   readonly fireworks: Locator;
+  readonly stopwatch: Locator;
 
   constructor(private page: Page) {
     this.gameArea = page.locator('[data-testid="game-area"]');
@@ -318,6 +347,7 @@ export class GameplayPage {
     this.worms = page.locator('[data-testid="worm"]');
     this.progressBars = page.locator('[data-testid="progress-bar"]');
     this.fireworks = page.locator('[data-testid="fireworks"]');
+    this.stopwatch = page.locator('[data-testid="continuous-mode-stopwatch"]');
   }
 
   async isGameStarted() {
