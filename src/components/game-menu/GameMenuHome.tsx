@@ -34,8 +34,10 @@ export const GameMenuHome = memo(
     onToggleContinuousMode,
     onResetGame,
     }: GameMenuHomeProps) => {
+        const canPlayAllLevels = Boolean(onToggleContinuousMode);
         const handlePlayAllLevels = useCallback(() => {
-            onToggleContinuousMode?.(true);
+            if (!onToggleContinuousMode) return;
+            onToggleContinuousMode(true);
             onStartGame();
         }, [onStartGame, onToggleContinuousMode]);
 
@@ -116,6 +118,7 @@ export const GameMenuHome = memo(
                                 size="lg"
                                 className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-blue-600 hover:bg-blue-700 text-white"
                                 onClick={handlePlayAllLevels}
+                                disabled={!canPlayAllLevels}
                                 data-testid="play-all-levels-button"
                                 aria-label="Play All Levels"
                             >
