@@ -74,6 +74,16 @@ test.describe("Game Menu", () => {
     gamePage,
   }) => {
     await gamePage.menu.playAllLevels();
+
+    // Menu should disappear
+    const menuVisible = await gamePage.menu.isVisible();
+    expect(menuVisible).toBe(false);
+
+    // Game should start
+    const gameStarted = await gamePage.gameplay.isGameStarted();
+    expect(gameStarted).toBe(true);
+
+    // Stopwatch should be visible in continuous mode
     await expect(gamePage.gameplay.stopwatch).toBeVisible();
   });
 
