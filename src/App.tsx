@@ -51,8 +51,8 @@ import { PROGRESS_MILESTONES } from './lib/constants/engagement-system'
 // Utilities
 import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
 import { eventTracker } from './lib/event-tracker'
-import { initWebVitalsMonitoring } from './lib/web-vitals-monitor'
 import { useLazyBackgroundPreloader } from './lib/utils/background-preloader'
+import { initWebVitalsMonitoring } from './lib/web-vitals-monitor'
 
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
@@ -124,6 +124,12 @@ function App() {
       document.documentElement.classList.add('e2e-mode')
     }
   }, [isE2E])
+
+  // Signal app boot after first render to avoid false positives
+  useEffect(() => {
+    window.__APP_BOOTED__ = true
+    window.dispatchEvent(new Event('__app_ready__'))
+  }, [])
 
   const [timeRemaining, setTimeRemaining] = useState(10000)
   const [selectedLevel, setSelectedLevel] = useState(0)
