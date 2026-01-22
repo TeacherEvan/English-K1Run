@@ -436,22 +436,6 @@ function App() {
           </div>
         </CategoryErrorBoundary>
 
-        {/* Game Menu Overlay - Lazy loaded */}
-        <Suspense fallback={<LoadingSkeleton variant="menu" />}>
-          <GameMenu
-            onStartGame={handleStartGame}
-            onSelectLevel={setSelectedLevel}
-            selectedLevel={selectedLevel}
-            levels={levelNames}
-            gameStarted={gameState.gameStarted}
-            winner={gameState.winner}
-            continuousMode={continuousMode}
-            onToggleContinuousMode={handleToggleContinuousMode}
-            bestTime={continuousModeHighScore ?? 0}
-            initialView="main"
-          />
-        </Suspense>
-
         {/* Fireworks Display - Lazy loaded only when winner */}
         {gameState.winner && (
           <Suspense fallback={null}>
@@ -480,6 +464,22 @@ function App() {
           </Suspense>
         )}
       </div>
+
+      {/* Game Menu Overlay - OUTSIDE .app container to avoid position:relative conflicts */}
+      <Suspense fallback={<LoadingSkeleton variant="menu" />}>
+        <GameMenu
+          onStartGame={handleStartGame}
+          onSelectLevel={setSelectedLevel}
+          selectedLevel={selectedLevel}
+          levels={levelNames}
+          gameStarted={gameState.gameStarted}
+          winner={gameState.winner}
+          continuousMode={continuousMode}
+          onToggleContinuousMode={handleToggleContinuousMode}
+          bestTime={continuousModeHighScore ?? 0}
+          initialView="main"
+        />
+      </Suspense>
     </>
   )
 }
