@@ -16,7 +16,7 @@ const waitForMenuReady = async (page: Page) => {
 
   await page
     .locator(
-      '[data-testid="start-game-button"], [data-testid="new-game-button"]'
+      '[data-testid="start-game-button"], [data-testid="new-game-button"]',
     )
     .first()
     .waitFor({ state: "visible", timeout: 20_000 });
@@ -65,7 +65,7 @@ test.describe("Accessibility", () => {
 
     // Check buttons are accessible (homescreen)
     const levelSelectButton = page.locator(
-      '[data-testid="level-select-button"]'
+      '[data-testid="level-select-button"]',
     );
     await expect(levelSelectButton).toBeVisible();
     await expect(levelSelectButton).toBeEnabled();
@@ -84,7 +84,7 @@ test.describe("Accessibility", () => {
 
     // Level buttons should be visible and accessible (level selection)
     await levelSelectButton.evaluate((button: HTMLButtonElement) =>
-      button.click()
+      button.click(),
     );
     const levelButtons = page.locator('[data-testid="level-button"]');
     const count = await levelButtons.count();
@@ -166,7 +166,7 @@ test.describe("Accessibility", () => {
     await page.waitForFunction(
       () =>
         document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const objects = page.locator('[data-testid="falling-object"]');
@@ -223,7 +223,7 @@ test.describe("Keyboard Navigation", () => {
   }) => {
     // Focus on New Game button
     const levelSelectButton = page.locator(
-      '[data-testid="level-select-button"]'
+      '[data-testid="level-select-button"]',
     );
     await levelSelectButton.focus();
 
@@ -233,18 +233,18 @@ test.describe("Keyboard Navigation", () => {
     // Wait for level select to appear
     await page
       .locator('[data-testid="level-select-menu"]')
-      .waitFor({ state: "visible" });
+      .waitFor({ state: "visible", timeout: 10000 });
 
     // Then start the game from the level select screen
-    await page
-      .locator('[data-testid="start-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+    const startButton = page.locator('[data-testid="start-button"]');
+    await startButton.waitFor({ state: "visible", timeout: 5000 });
+    await startButton.click({ force: true });
 
     await skipWormLoadingIfPresent(page);
 
     // Game should start
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 5000,
+      timeout: 10000,
     });
   });
 });

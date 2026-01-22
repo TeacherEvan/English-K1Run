@@ -33,6 +33,7 @@
 **Issue Identified:** The GitHub Copilot instructions file lacked comprehensive guidelines for error handling, performance optimization, accessibility, testing, security, and deployment, limiting the quality of AI-generated code suggestions.
 
 **Improvements Implemented:**
+
 - **Structure Enhancement:** Added Table of Contents for better navigation and organized content into logical sections.
 - **New Sections Added:** Error Handling (ErrorBoundary, async error handling), Performance Optimization (lazy loading, memoization, code splitting), Accessibility (ARIA labels, keyboard navigation), Testing Practices (Jest unit tests, Playwright E2E), Security Guidelines (input validation, XSS prevention), Deployment Considerations (CI/CD, monitoring).
 - **Coding Standards:** Introduced TypeScript best practices, naming conventions, and import organization guidelines.
@@ -40,6 +41,7 @@
 - **Best Practices Integration:** Incorporated research from GitHub's Copilot documentation and React development standards.
 
 **Technical Details:**
+
 - Expanded from 7 to 13 comprehensive sections covering the full development lifecycle.
 - Added actionable guidelines with specific examples and file references.
 - Maintained existing architecture documentation while enhancing it with production-grade practices.
@@ -48,18 +50,33 @@
 
 **Impact:** Production-grade Copilot instructions that will generate higher quality, more maintainable, and performant code suggestions across the entire development stack.
 
+### MCP Tool Error Diagnosis (January 17, 2026) ✅
+
+**Issue Identified:** Errors surfaced when invoking `mcp_memory_add_observations` and `mcp_sequentialthi_sequentialthinking` in this workspace.
+
+**Root Cause:** The job card stated that MCP tools were configured in `cline_mcp_settings.json`, but that file is not present in this repo. Tool availability is provided by the editor runtime, while the repo only contains `mcp-config.json` for server package metadata. The mismatch caused confusion about which tools are actually available.
+
+**Fix Implemented:**
+
+- Updated the MCP integration entry to reference `mcp-config.json` and clarified that tool availability is editor-managed.
+- Documented the runtime/tooling boundary to prevent future attempts to “configure” editor tools via repo files.
+
+**Impact:** Removes inaccurate documentation and prevents repeated tool invocation errors caused by incorrect configuration assumptions.
+
 ### Playwright TestServer Code Improvements (January 17, 2026) ✅
 
 **Issue Identified:** The Playwright testServer.js file in node_modules required production-grade enhancements for error handling, maintainability, and bug fixes to ensure robust test execution.
 
 **Improvements Implemented:**
-- **Bug Fix:** Fixed _devServerReport not being set, causing empty reports in stopDevServer.
+
+- **Bug Fix:** Fixed \_devServerReport not being set, causing empty reports in stopDevServer.
 - **Error Handling:** Added comprehensive try-catch blocks around all async operations with proper logging.
-- **Code Readability:** Renamed properties (_serializer → uiModeReporterPath, _closeOnDisconnect → shouldCloseOnDisconnect) and added JSDoc comments.
+- **Code Readability:** Renamed properties (\_serializer → uiModeReporterPath, \_closeOnDisconnect → shouldCloseOnDisconnect) and added JSDoc comments.
 - **Input Validation:** Added parameter checks to prevent runtime errors.
 - **Best Practices:** Improved method naming and added TODO comments for future optimizations.
 
 **Technical Details:**
+
 - Enhanced dispatch method with method existence checks and error handling.
 - Added validation for required parameters in critical methods.
 - Maintained backward compatibility with existing Playwright API.
@@ -73,6 +90,7 @@
 **Issue Identified:** GameMenu component required production-grade enhancements for performance, maintainability, and best practices, including lazy loading, utility extraction, and removal of development artifacts.
 
 **Improvements Implemented:**
+
 - **Performance Optimization:** Implemented React.lazy for GameMenuHome and GameMenuLevelSelect components with Suspense wrapper to enable code splitting and reduce initial bundle size.
 - **Code Maintainability:** Extracted time formatting logic to reusable `formatBestTime` utility function in `src/lib/utils.ts`, eliminating code duplication and improving testability.
 - **Best Practices:** Removed development debug console.log statement and replaced inline time formatting with memoized utility call.
@@ -80,12 +98,14 @@
 - **Type Safety:** Maintained full TypeScript compliance with proper imports and type annotations.
 
 **Technical Details:**
+
 - Lazy loading reduces initial JavaScript bundle by ~15-25KB for menu components.
 - Time formatting utility supports reusability across other components requiring similar functionality.
 - Suspense fallback provides "Loading..." UI during component hydration.
 - Maintained existing memoization and conditional rendering logic without breaking functionality.
 
 **Files Modified:**
+
 - [src/components/GameMenu.tsx](src/components/GameMenu.tsx): Added lazy loading, Suspense, removed debug logs, used utility function.
 - [src/lib/utils.ts](src/lib/utils.ts): Added `formatBestTime` utility function.
 
@@ -96,6 +116,7 @@
 **Issue Identified:** The `navigateWithRetry` method in Playwright e2e test fixtures lacked production-grade error handling, performance optimizations, and best practices for retry logic.
 
 **Improvements Implemented:**
+
 - **Code Readability:** Added comprehensive JSDoc documentation with parameters, return types, and examples.
 - **Performance Optimization:** Removed redundant `waitForLoadState("domcontentloaded")` call since `page.goto()` already handles it; implemented exponential backoff with jitter to prevent thundering herd issues.
 - **Error Handling:** Added proper TypeScript error handling for unknown error types; enhanced logging for debugging flaky tests.
@@ -103,6 +124,7 @@
 - **Maintainability:** Improved variable naming (`attempt` → `currentAttempt`); added console logging for attempt tracking.
 
 **Technical Details:**
+
 - Exponential backoff formula: `baseDelay * 2^(attempt-1)` with 10% jitter to randomize delays.
 - Jitter prevents synchronized retries in CI/CD environments, reducing server load.
 - Maintains backward compatibility with existing API while adding optional parameters.
@@ -116,6 +138,7 @@
 **Issue Identified:** GameMenuLevelSelect component required production-grade enhancements for performance, UX, and maintainability.
 
 **Improvements Implemented:**
+
 - **Code Readability:** Used `clsx` for conditional classNames, simplified complex string concatenations.
 - **Performance Optimization:** Added bounds checking for `selectedLevel`, used `useMemo` for clamped value, unique keys with `index`.
 - **Error Handling:** Added empty levels state, fallbacks for missing icons/translations using `LEVEL_ICON_FALLBACKS`.
@@ -123,6 +146,7 @@
 - **Best Practices:** Proper TypeScript types, memoization for performance, responsive design maintained.
 
 **Technical Details:**
+
 - Used `Math.min(selectedLevel, levels.length - 1)` to prevent out-of-bounds selection.
 - Fallback system: `levelIcons[index] || LEVEL_ICON_FALLBACKS[index] || "🎯"`.
 - Enhanced accessibility with `aria-label` on level buttons and `focus-visible:ring-2`.
@@ -137,6 +161,7 @@
 **Issue Identified:** Audio bundle size was bloated at 4.7MB due to redundant uncompressed WAV duplicates of compressed MP3 files, impacting initial load times and Core Web Vitals.
 
 **Solution Implemented:** Removed duplicate WAV files while preserving MP3 versions, as MP3 is already a compressed format suitable for web delivery:
+
 - **Duplicate Removal:** Used batch command to delete WAV files that had corresponding MP3 versions
 - **Format Preservation:** Kept MP3 files (compressed) and removed WAV files (uncompressed)
 - **Size Reduction:** Bundle size reduced from 4,772,522 bytes (~4.7MB) to 1,885,851 bytes (~1.9MB) - 60% reduction
@@ -144,6 +169,7 @@
 - **Compatibility:** Sound manager already prioritizes MP3 files when both formats exist
 
 **Technical Details:**
+
 - Command executed: `for %f in (sounds\*.wav) do if exist "%~dpnf.mp3" del "%f"`
 - Preserved WAV-only files (11.wav, 12.wav, 13.wav, 14.wav, 15.wav, welcome_association.wav, welcome_association_thai.wav, welcome_learning.wav, welcome_learning_thai.wav) for potential future conversion
 - No code changes required - existing import.meta.glob pattern supports both formats
@@ -158,10 +184,12 @@
 **Verification Goal:** Ensure all recent architectural changes and UI fixes are running smoothly in a real browser environment.
 
 **Workflow Restored:**
+
 - Fixed development server collision by migrating to `http://localhost:5174/` (Vite 7) after identifying port 5173 was in use.
 - Resolved "MIME type" load failures caused by using Live Server on port 5500.
 
 **Visual Audit:**
+
 - **Welcome Screen:** Verified high-performance SVG/CSS animations (Sun Beams, Rainbow, Wind, Leaves) are active and non-blocking. Captured [welcome-screen-fixed.png](.playwright-mcp/welcome-screen-fixed.png).
 - **Settings Dialog:** Confirmed language selector and continuous mode toggle are fully functional and properly styled. Captured [settings-language-select.png](.playwright-mcp/settings-language-select.png).
 - **Level Select:** Verified 9-category responsive grid is fixed. No overlapping cards. All emoji and translations are readable. Captured [level-select-grid.png](.playwright-mcp/level-select-grid.png).
@@ -173,12 +201,14 @@
 **Issue Identified:** Need for continuous code quality maintenance in collaborative development environment to catch linting/formatting issues early and minimize merge conflicts.
 
 **Solution Implemented:** Created automated recurring code review system using Windows Task Scheduler and PowerShell script:
+
 - **PowerShell Script** (`code_review.ps1`): Checks for staged files every 5 minutes, runs eslint --fix and prettier --write on .ts/.js files, stages changes, and commits with descriptive message
 - **Scheduled Task:** "CodeReviewTimer" runs the script every 5 minutes indefinitely using schtasks command
 - **Error Handling:** Try-catch blocks to prevent script failures from stopping execution
 - **Selective Processing:** Only processes .ts and .js files to avoid unnecessary operations on other file types
 
 **Technical Implementation:**
+
 - Script navigates to project directory and uses git diff --cached --name-only to identify staged files
 - Runs npx eslint --fix and npx prettier --write with error suppression
 - Checks if files changed after linting using git diff --name-only
@@ -186,10 +216,12 @@
 - Commit message: "Automated code review: linting and formatting improvements"
 
 **Files Created:**
+
 - [code_review.ps1](code_review.ps1): PowerShell script for automated code review
 - Scheduled Task: "CodeReviewTimer" configured via schtasks
 
 **Benefits:**
+
 - Ensures consistent code formatting across team contributions
 - Catches linting issues before they reach main branch
 - Reduces manual code review burden for style/formatting issues
@@ -213,6 +245,7 @@
 ### E2E Test Suite Enhancements (January 16, 2026) ✅
 
 **Enhancements Implemented:**
+
 - **Page Object Model Refinement:** Enhanced GamePage, GameMenuPage, and GameplayPage with improved error handling, retry logic, and additional helper methods for better maintainability.
 - **Browser Coverage Expansion:** Added Firefox, Safari (WebKit), and Edge browser projects to Playwright config, expanding from 3 to 6 browser configurations.
 - **Test Data Management:** Created TestDataFactory class with reusable test data generation, including performance test data, edge cases, and multilingual scenarios.
@@ -220,6 +253,7 @@
 - **Advanced Reporting:** Added Allure Playwright reporter alongside existing HTML and list reporters for comprehensive test visualization and reporting.
 
 **Technical Details:**
+
 - **Browser Projects:** Chromium (desktop), Firefox (desktop), WebKit (desktop), Edge (desktop), iPad Pro 11 (tablet), Pixel 7 (mobile)
 - **Sharding Strategy:** 3 shards for parallel execution, reducing CI time from ~9.7 minutes to ~3-4 minutes per shard
 - **Test Data Factory:** Supports user generation, game levels, sessions, performance data, and edge cases with TypeScript interfaces
@@ -227,6 +261,7 @@
 - **CI Integration:** Matrix strategy with fail-fast disabled for comprehensive browser coverage
 
 **Files Modified:**
+
 - [playwright.config.ts](playwright.config.ts): Added browser projects and Allure reporter
 - [e2e/fixtures/game.fixture.ts](e2e/fixtures/game.fixture.ts): Enhanced Page Object Model
 - [e2e/fixtures/test-data.factory.ts](e2e/fixtures/test-data.factory.ts): New test data factory
@@ -238,12 +273,14 @@
 ### E2E Test Suite Documentation & Best Practices (January 16, 2026) ✅
 
 **Documentation Updates Completed:**
+
 - **CHANGELOG.md**: Added comprehensive January 2026 section documenting all E2E test suite enhancements, fixes, and improvements including Page Object Model, browser coverage expansion, CI/CD sharding, and advanced reporting.
 - **README.md**: Updated testing section to reflect expanded browser coverage (6 browsers), mobile/tablet testing, and CI/CD integration with sharding.
 - **Job Card**: Updated with completed documentation work and established best practices for ongoing e2e test maintenance.
 - **E2E_TEST_FIXES_JAN2026.md**: Reviewed for completeness - already comprehensive with detailed problem analysis, solutions, and best practices.
 
 **Best Practices Established:**
+
 - Animation handling in E2E tests via CSS injection
 - Proper state transition waits (`state: 'detached'`)
 - Strategic use of `force: true` only for dynamic elements
@@ -252,6 +289,7 @@
 - Advanced reporting with Allure integration
 
 **Files Updated:**
+
 - [DOCS/CHANGELOG.md](DOCS/CHANGELOG.md): Added January 2026 E2E enhancements section
 - [README.md](README.md): Updated test coverage details
 - [jobcard.md](jobcard.md): Added documentation completion entry
@@ -265,6 +303,7 @@
 **Issue Identified:** Users lacked a centralized way to manage preferences like language, themes, and accessibility, which is critical for diverse classroom environments.
 
 **Solution Implemented:** Developed a modular settings system with global state management:
+
 - **SettingsContext:** Centralized state for theme, high contrast, reduced motion, resolution scale, and dual-language settings.
 - **SettingsDialog:** A tabbed interface (Language, Display, Accessibility) using Radix UI for a professional look and feel.
 - **Dual-Language Support:** Separated Display Language from Gameplay Language to allow teachers to configure the UI in one language while students learn in another.
@@ -273,12 +312,14 @@
 - **Resolution Scaling:** Added manual overrides for UI scaling to support various display sizes (BenQ QBoard, tablets).
 
 **Technical Details:**
+
 - Used `localStorage` for persistent settings across sessions.
 - Integrated with `useDisplayAdjustment` hook for dynamic scaling.
 - Refactored `LanguageProvider` to synchronize with the new settings source of truth.
 - Implemented Playwright E2E tests to verify persistence and UI reactivity.
 
 **Files Created/Modified:**
+
 - `src/context/settings-context.tsx` (New)
 - `src/components/SettingsDialog.tsx` (New)
 - `src/context/language-context.tsx`
@@ -291,10 +332,9 @@
 
 **Goal:** Enhance Cline's agency within the project environment.
 
-**Implementation:** Configured top 10 MCP tools in `cline_mcp_settings.json`:
-- Memory, Fetch, Filesystem, GitHub, Sequential Thinking, Brave Search, Puppeteer, Google Maps, Slack, and SQLite.
+**Implementation:** Documented MCP server metadata in `mcp-config.json`; editor-provided MCP tool availability (e.g., Memory, Sequential Thinking) is runtime-managed and may vary by environment.
 
-**Impact:** Cline can now perform complex research, manage repositories, and automate browser-based tasks more effectively.
+**Impact:** Clarifies configuration boundaries between repo metadata and editor-provided tools, reducing misconfiguration and tool invocation errors.
 
 ### Level Select & Welcome Screen Enhancement (January 14, 2026)
 
@@ -303,12 +343,14 @@
 **Issue Identified:** Level select screen had catastrophically broken layout with all category cards overlapping and text bleeding together ("& Vegtounting6Frames & Colo" unreadable mess). Cards were stacked on top of each other instead of in a proper grid.
 
 **Root Cause:** Broken JSX structure in `GameMenu.tsx`. The grid container was:
+
 - Wrapped in an unnecessary IIFE `{(() => { ... })()} `
 - Incorrectly nested inside the header `<div>` containing back button and title
 - Not properly positioned as a flex child to take available space
 - Result: Grid collapsed and all 9 category buttons rendered in the same position
 
 **Solution Implemented:**
+
 - **Removed IIFE Wrapper:** Eliminated unnecessary `{(() => { ... })()}` closure around grid
 - **Restructured JSX Hierarchy:** Moved grid out of header div to be a sibling element
 - **Proper Flex Layout:** Made grid a direct child with `flex-1` class to fill available space
@@ -344,6 +386,7 @@
 **Files Modified:** [src/components/GameMenu.tsx](src/components/GameMenu.tsx#L317-L371)
 
 **Impact:**
+
 - ✅ Category cards now display in proper 2-4 column responsive grid
 - ✅ No text overlap - each card cleanly shows emoji, English name, and Thai translation
 - ✅ Proper spacing and hover effects functional
@@ -356,6 +399,7 @@
 **Root Cause:** React.lazy() components show Suspense fallback during load. Tests expected `game-menu` testid but the fallback had a different testid.
 
 **Solution Implemented:**
+
 - Updated `src/components/LoadingSkeleton.tsx`: Changed `data-testid="loading-menu-skeleton"` to `data-testid="game-menu"` for the menu variant
 - This allows tests to find the element during both loading state and loaded state
 
@@ -368,6 +412,7 @@
 **Issue Identified:** Welcome screen image was cropped in landscape view due to `object-cover` CSS property, hiding portions of the partner school graphics.
 
 **Solution Implemented:**
+
 - **Responsive Image Display:** Changed from `object-cover` (crops) to `object-contain` for landscape, preserving `object-cover` for portrait mode
 - **Gradient Background:** Added seamless sky-to-grass gradient matching the image colors for uncovered areas in landscape
 - **Decorative Clouds:** Added animated cloud emoji (☁️) elements on left and right sides visible only in landscape orientation
@@ -375,6 +420,7 @@
 - **Custom CSS Animations:** Implemented `float-slow`, `float-medium`, `float-fast`, `bounce-slow`, `bounce-medium` keyframes for natural movement
 
 **Technical Details:**
+
 - Landscape-specific CSS using `@media (orientation: landscape)`
 - Z-index layering: background (default) → decorations → main image (z-10) → UI overlay (z-20)
 - Preserved existing audio sequence and button functionality
@@ -383,6 +429,7 @@
 **Files Modified:** [src/components/WelcomeScreen.tsx](src/components/WelcomeScreen.tsx#L169-L270)
 
 **Impact:**
+
 - No image cropping in landscape mode
 - Visually engaging animated decorations
 - Seamless gradient fill for empty spaces
@@ -395,6 +442,7 @@
 **Issue Identified:** Project build was failing due to TypeScript configuration errors (`baseUrl`), circular type dependencies, and invalid Tailwind v4 usage. Additionally, the Welcome Screen text overlay was obscuring the partner graphics.
 
 **Solution Implemented:**
+
 - **TypeScript Config:** Updated `tsconfig.json` to handle TS 7.0 deprecations (`ignoreDeprecations: "6.0"`) and fixed `paths`.
 - **Type Consolidation:** Centralized game types in `src/types/game.ts` to resolve import cycles.
 - **Tailwind v4 Fixes:** Updated `LoadingSkeleton.tsx` and `ErrorFallback.tsx` to use valid v4 syntax (replaced `bg-gradient-*` with `bg-linear-*`).
@@ -402,6 +450,7 @@
 - **Linting Compliance:** Cleaned up `WelcomeScreen.tsx` to remove unused variables and logic.
 
 **Files Modified:**
+
 - [tsconfig.json](tsconfig.json)
 - [src/types/game.ts](src/types/game.ts)
 - [src/components/LoadingSkeleton.tsx](src/components/LoadingSkeleton.tsx)
@@ -417,23 +466,27 @@
 **Issue Identified:** Current Web Speech API produces inconsistent, electronic-sounding voices across browsers, particularly problematic for educational content targeting young learners.
 
 **Solution Implemented:** Integrated ElevenLabs API as primary TTS provider with Web Speech API fallback:
+
 - **Primary TTS:** ElevenLabs API with Alice voice (E4IXevHtHpKGh0bvrPPr) - British female voice optimized for educational content
 - **Fallback TTS:** Web Speech API with British English locale (en-GB) for offline compatibility
 - **Caching System:** Implemented audio response caching to reduce API calls and improve performance
 - **Error Handling:** Comprehensive fallback logic for network failures, API limits, and invalid keys
 
 **Technical Implementation:**
+
 - Updated `src/lib/constants/language-config.ts`: Changed English voice ID to Alice (British female)
 - Enhanced `src/lib/audio/speech-synthesizer.ts`: Added ElevenLabs API integration with caching and fallbacks
 - Added environment variable support: `VITE_ELEVENLABS_API_KEY` (falls back to `ELEVENLABS_API_KEY`)
 - Maintained backward compatibility with existing Web Speech API interface
 
 **Files Modified:**
+
 - [src/lib/constants/language-config.ts](src/lib/constants/language-config.ts): Updated English voice to Alice
 - [src/lib/audio/speech-synthesizer.ts](src/lib/audio/speech-synthesizer.ts): Added ElevenLabs API integration
 - [.env](.env): Already contains API key (secured in .gitignore)
 
 **Features Added:**
+
 - Audio caching for improved performance and reduced API costs
 - Automatic fallback to Web Speech API when ElevenLabs unavailable
 - Async/await support for non-blocking audio generation
@@ -446,6 +499,7 @@
 #### Monolithic File Analysis & Module Extraction ✅
 
 **Issue Identified:** Large monolithic files causing:
+
 - Slow initial load times due to large bundle sizes
 - Difficult maintenance with tightly coupled code
 - Poor testability with mixed responsibilities
@@ -453,12 +507,13 @@
 **Monolithic Files Analyzed:**
 
 | File                | Size   | Lines | Status                      |
-|---------------------|--------|-------|-----------------------------|
+| ------------------- | ------ | ----- | --------------------------- |
 | `use-game-logic.ts` | 65.2KB | 1860  | Modules extracted           |
 | `sound-manager.ts`  | 38.9KB | 1338  | Modules extracted           |
 | `App.tsx`           | 15.9KB | 448   | Already using React.lazy ✅ |
 
 **New Audio System Modules** (`src/lib/audio/`):
+
 - `types.ts` - Shared type definitions, enums, constants (~80 lines)
 - `audio-loader.ts` - Vite glob imports, URL resolution, buffer caching (~290 lines)
 - `audio-player.ts` - Web Audio API, HTML Audio fallback (~270 lines)
@@ -466,11 +521,13 @@
 - `index.ts` - Re-exports for convenient importing
 
 **New Game Logic Modules** (`src/lib/game/`):
+
 - `collision-detection.ts` - Physics-based collision resolution (~150 lines)
 - `worm-manager.ts` - Worm creation, movement, lifecycle (~130 lines)
 - `index.ts` - Re-exports for convenient importing
 
 **Lazy Loading Patterns Implemented:**
+
 - React.lazy for components (already in App.tsx)
 - Dynamic import pattern for on-demand module loading
 - Conditional imports for optional features
@@ -478,6 +535,7 @@
 **Documentation Created:** [DOCS/MODULARIZATION_REFACTORING_JAN2026.md](DOCS/MODULARIZATION_REFACTORING_JAN2026.md)
 
 **Estimated Impact:**
+
 - Bundle size reduction: 15-25KB initial load
 - Startup time improvement: ~100ms faster
 - Code maintainability: Target <300 lines per module achieved
@@ -489,6 +547,7 @@
 #### Browser Console Warnings Resolution ✅
 
 **Issue Identified:** Deployed app showing multiple CSS parsing errors in browser console:
+
 - `Unknown property '-moz-column-fill'`, `-moz-column-gap`, `-moz-column-rule`, etc. (dropped declarations)
 - `Error in parsing value for '-webkit-text-size-adjust'` and `-moz-text-size-adjust`
 - `Unknown property 'text-size-adjust'`
@@ -501,6 +560,7 @@
 **Root Cause:** Tailwind CSS v4 generates base styles with outdated vendor prefixes and invalid property values that modern browsers drop or fail to parse, causing console warnings.
 
 **Solution Implemented:** Added CSS overrides in `@layer base` to use modern, supported property values:
+
 - Replaced `-webkit-text-size-adjust: 100%` with `auto` (modern browsers default to auto)
 - Replaced `-moz-text-size-adjust: 100%` with `auto`
 - Added `text-size-adjust: auto` as standard property
@@ -680,18 +740,22 @@
 #### Key Fixes Implemented
 
 **✅ Priority 1 - Vite Dev Server MIME Type Fix:**
+
 - Removed modulepreload link from `index.html` to prevent preloading issues
 - Impact: App now loads successfully in Chromium, reducing failures from 9 to 1
 
 **✅ Priority 2 - JavaScript Runtime Errors:**
+
 - Added try-catch wrapper around React render in `src/main.tsx`
 - Impact: Prevents app crashes from React 19 Activity component issues
 
 **✅ Priority 3 - Test Reliability Improvements:**
+
 - Increased timeouts in `playwright.config.ts` (actionTimeout: 10s→15s, navigationTimeout: 15s→30s)
 - Impact: Reduced timeout failures for slower operations
 
 **✅ Priority 4 - Performance Monitoring Setup:**
+
 - Enabled trace collection on all test runs
 - Impact: Performance data now captured for analysis
 
@@ -726,20 +790,22 @@
 
 - **Audio Generation Required:** Run the ElevenLabs script to generate four welcome screen audio files before deploying:
 
-| Phase | Filename | Language | Voice | Playback Rate | Volume | Expected Duration | Description |
-|-------|----------|----------|-------|---------------|--------|-------------------|-------------|
-| 1 | `welcome_association.wav` | English | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9 | 0.85 | ~3s | "In association with SANGSOM Kindergarten" - Professional introduction |
-| 2 | `welcome_learning.wav` | English | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9 | 0.85 | ~3s | "Learning through games for everyone!" - Educational mission statement |
-| 3 | `welcome_association_thai.wav` | Thai | Male | 0.8 | 0.95 | ~3s | Thai translation of Phase 1 - Cultural localization |
-| 4 | `welcome_learning_thai.wav` | Thai | Male | 0.8 | 0.95 | ~3s | Thai translation of Phase 2 - Cultural localization |
+| Phase | Filename                       | Language | Voice                               | Playback Rate | Volume | Expected Duration | Description                                                            |
+| ----- | ------------------------------ | -------- | ----------------------------------- | ------------- | ------ | ----------------- | ---------------------------------------------------------------------- |
+| 1     | `welcome_association.wav`      | English  | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9           | 0.85   | ~3s               | "In association with SANGSOM Kindergarten" - Professional introduction |
+| 2     | `welcome_learning.wav`         | English  | Female (Alice/E4IXevHtHpKGh0bvrPPr) | 0.9           | 0.85   | ~3s               | "Learning through games for everyone!" - Educational mission statement |
+| 3     | `welcome_association_thai.wav` | Thai     | Male                                | 0.8           | 0.95   | ~3s               | Thai translation of Phase 1 - Cultural localization                    |
+| 4     | `welcome_learning_thai.wav`    | Thai     | Male                                | 0.8           | 0.95   | ~3s               | Thai translation of Phase 2 - Cultural localization                    |
 
 **Error Handling & Validation:**
+
 - File existence checks in `WelcomeScreen.tsx` to log warnings if audio files are missing
 - Fallback strategy continues sequence with available files
 - 8-second timeout per file prevents hanging
 - Format requirements: WAV, 16-bit PCM, 44.1kHz or 48kHz sample rate
 
 **Performance Notes:**
+
 - Thai files use slower playback (0.8x) for clearer pronunciation
 - Higher volume (0.95) for Thai audibility
 - Sequence includes 300ms pauses between phases

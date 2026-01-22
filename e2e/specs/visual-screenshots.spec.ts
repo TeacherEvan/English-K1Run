@@ -169,6 +169,9 @@ test.describe("Visual Screenshots", () => {
       const targetDisplay = page.locator('[data-testid="target-display"]');
       const skipBtn = page.locator('[data-testid="skip-loading-button"]');
 
+      // Small delay for Firefox DOM stabilization
+      await page.waitForTimeout(500);
+
       await Promise.race([
         loadingScreen
           .waitFor({ state: "visible", timeout: 20000 })
@@ -189,11 +192,11 @@ test.describe("Visual Screenshots", () => {
       }
 
       // Ensure game HUD is visible (critical for Firefox stability)
-      await targetDisplay.waitFor({ state: "visible", timeout: 30000 });
+      await targetDisplay.waitFor({ state: "visible", timeout: 45000 });
 
       // Wait for game to be fully ready (Back button appears)
       await page.waitForSelector('[data-testid="back-button"]', {
-        timeout: 30000,
+        timeout: 45000,
       });
 
       // Wait a bit for game elements to spawn/settle

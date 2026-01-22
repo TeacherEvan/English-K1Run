@@ -233,6 +233,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         </>
       )}
 
+      {readyToContinue && !showFallbackImage && (
+        <div className="welcome-image-overlay" aria-hidden="true">
+          <div className="welcome-image-text">Tap to continue</div>
+        </div>
+      )}
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }

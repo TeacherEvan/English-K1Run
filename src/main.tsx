@@ -12,8 +12,27 @@ import "./main.css";
 
 // Handle stale asset preload errors after deployments (Vite)
 if (typeof window !== 'undefined') {
+  const showBootFallback = (reason?: string) => {
+    const overlay = document.getElementById('boot-fallback')
+    if (overlay) {
+      overlay.classList.add('show')
+    }
+    if (reason) {
+      console.warn('[Boot] Showing fallback overlay:', reason)
+    }
+  }
+
   window.addEventListener('vite:preloadError', () => {
+    showBootFallback('vite:preloadError')
     window.location.reload()
+  })
+
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event?.reason as { message?: string } | string | undefined
+    const message = typeof reason === 'string' ? reason : reason?.message || ''
+    if (/Failed to fetch dynamically imported module|ChunkLoadError|Loading chunk|imported module/i.test(message)) {
+      showBootFallback(message)
+    }
   })
 }
 
@@ -78,9 +97,6 @@ try {
       </ErrorBoundary>
     )
 
-    // Signal successful app boot
-    window.__APP_BOOTED__ = true
-    window.dispatchEvent(new Event('__app_ready__'))
   }
 } catch (error) {
   console.error('Failed to render app:', error)

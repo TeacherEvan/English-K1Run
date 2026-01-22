@@ -1,7 +1,7 @@
 /* Real Image Backgrounds - Generated automatically */
 
 .app-bg-mountain-sunrise {
-  background-image: url('/backgrounds/mountain-sunrise.jpg');
+  background-image: url("/backgrounds/mountain-sunrise.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -11,7 +11,7 @@
 }
 
 .app-bg-mountain-sunrise::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -19,11 +19,11 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 
 .app-bg-ocean-sunset {
-  background-image: url('/backgrounds/ocean-sunset.jpg');
+  background-image: url("/backgrounds/ocean-sunset.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -32,7 +32,7 @@
 }
 
 .app-bg-ocean-sunset::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -40,11 +40,11 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 
 .app-bg-forest-path {
-  background-image: url('/backgrounds/forest-path.jpg');
+  background-image: url("/backgrounds/forest-path.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -53,7 +53,7 @@
 }
 
 .app-bg-forest-path::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -61,11 +61,11 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 
 .app-bg-lavender-field {
-  background-image: url('/backgrounds/lavender-field.jpg');
+  background-image: url("/backgrounds/lavender-field.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -74,7 +74,7 @@
 }
 
 .app-bg-lavender-field::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -82,11 +82,11 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 
 .app-bg-aurora-night {
-  background-image: url('/backgrounds/aurora-night.jpg');
+  background-image: url("/backgrounds/aurora-night.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -95,7 +95,7 @@
 }
 
 .app-bg-aurora-night::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -110,7 +110,7 @@
 
 /* Galaxy/Space - Colorful nebula for cosmic wonder */
 .app-bg-nebula-galaxy {
-  background-image: url('/backgrounds/nebula-galaxy.jpg');
+  background-image: url("/backgrounds/nebula-galaxy.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -119,7 +119,7 @@
 }
 
 .app-bg-nebula-galaxy::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -132,7 +132,7 @@
 
 /* Nature - Lush tropical waterfall */
 .app-bg-tropical-waterfall {
-  background-image: url('/backgrounds/tropical-waterfall.jpg');
+  background-image: url("/backgrounds/tropical-waterfall.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -141,7 +141,7 @@
 }
 
 .app-bg-tropical-waterfall::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -154,7 +154,7 @@
 
 /* Architecture - Colorful Burano Italy buildings */
 .app-bg-colorful-buildings {
-  background-image: url('/backgrounds/colorful-buildings.jpg');
+  background-image: url("/backgrounds/colorful-buildings.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -163,7 +163,7 @@
 }
 
 .app-bg-colorful-buildings::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -176,7 +176,7 @@
 
 /* Nature - Pink cherry blossom trees */
 .app-bg-cherry-blossom {
-  background-image: url('/backgrounds/cherry-blossom.jpg');
+  background-image: url("/backgrounds/cherry-blossom.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -185,7 +185,7 @@
 }
 
 .app-bg-cherry-blossom::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -198,7 +198,7 @@
 
 /* Art - Colorful abstract art gallery */
 .app-bg-starry-art {
-  background-image: url('/backgrounds/starry-art.jpg');
+  background-image: url("/backgrounds/starry-art.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -207,7 +207,7 @@
 }
 
 .app-bg-starry-art::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -219,9 +219,9 @@
 }
 
 /* Ensure game content appears above background overlays */
-.app>* {
+.app > * {
   position: relative;
-  z-index: 2;
+  z-index: 10;
 }
 
 /* Optional: Add subtle animation to backgrounds */
@@ -231,7 +231,7 @@
 
 @keyframes gentle-zoom {
   0% {
-    transform: scale(1.0);
+    transform: scale(1);
   }
 
   100% {
