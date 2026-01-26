@@ -4,7 +4,7 @@
 Enforce the policy that **no file exceeds 500 lines** by auditing current violations, identifying code smells, and laying out a pragmatic refactor plan that aligns with the project’s architecture (touch-first gameplay, audio modules, and performance-sensitive UI).
 
 ## Audit Summary (Files > 500 Lines)
-Line counts are from the current working tree as of 2026-01-26. The list prioritizes gameplay- and user-facing code first, then shared utilities, then documentation/generator scripts.
+Line counts are from the current working tree at the time of this audit. The list prioritizes gameplay- and user-facing code first, then shared utilities, then documentation/generator scripts.
 
 | Priority | File | Lines | Area | Code Smells / Risks |
 | --- | --- | --- | --- | --- |
@@ -28,7 +28,7 @@ Line counts are from the current working tree as of 2026-01-26. The list priorit
 | P2 | `C-jobcard.md` | 1014 | Docs | Same as above; over limit. |
 | P2 | `DOCS/ARCHIVE/A-ACTIONABLE_RECOMMENDATIONS_2026-01-17.md` | 1201 | Docs | Archived but still exceeds limit. |
 | P2 | `DOCS/ARCHIVE/C-CODE_REVIEW_REPORT_2026-01-17.md` | 938 | Docs | Archived but still exceeds limit. |
-| P2 | `package-lock.json` | 19364 | Generated | Auto-generated lockfile; violates policy without procedural mitigation. |
+| P2 | `package-lock.json` | 19364 | Generated | Auto-generated lockfile; violates policy without procedural mitigation and should be reviewed for dependency bloat separately. |
 
 ## Key Code Smells & Maintainability Risks
 - **God objects / mixed responsibilities**: `sound-manager.ts`, `use-game-logic.ts`, and `accessibility-utils.ts` combine unrelated workflows, blocking clear separation of concerns.
@@ -41,7 +41,7 @@ Recent work shows value in **extracting inline CSS into dedicated files**, **ESL
 
 ### Module Decomposition Targets
 - **Audio system (`sound-manager.ts`, `audio-loader.ts`)**
-  - Split into `src/lib/audio/` modules: `registry.ts`, `preload.ts`, `fallbacks.ts`, `speech.ts`, `tone-utils.ts`, `playback.ts`, `audio-context.ts`.
+  - Split into `src/lib/audio/` modules: `registry.ts` (alias mapping/indexing), `preload.ts` (priority loading), `fallbacks.ts` (HTMLAudio/Speech/tone fallbacks), `speech.ts` (speech synthesis), `tone-utils.ts` (tone generation helpers), `playback.ts` (play/stop orchestration), `audio-context.ts` (context lifecycle).
   - Keep singletons; avoid new audio instantiations per the architecture.
 - **Game logic (`use-game-logic.ts`)**
   - Create `src/hooks/use-game-logic/` with `state.ts`, `reducers.ts`, `actions.ts`, `scoring.ts`, `timers.ts`, `spawn.ts`, `selectors.ts`.
