@@ -28,7 +28,7 @@ Line counts are from the current working tree at the time of this audit. The lis
 | P2 | `C-jobcard.md` | 1014 | Docs | Same as above; over limit. |
 | P2 | `DOCS/ARCHIVE/A-ACTIONABLE_RECOMMENDATIONS_2026-01-17.md` | 1201 | Docs | Archived but still exceeds limit. |
 | P2 | `DOCS/ARCHIVE/C-CODE_REVIEW_REPORT_2026-01-17.md` | 938 | Docs | Archived but still exceeds limit. |
-| P2 | `package-lock.json` | 19364 | Generated | Auto-generated lockfile; violates policy without procedural mitigation and should be reviewed for dependency bloat separately. |
+| P2 | `package-lock.json` | 19364 | Generated | Auto-generated lockfile; requires policy exception or procedural handling and should be reviewed for dependency bloat separately. |
 
 ## Key Code Smells & Maintainability Risks
 - **God objects / mixed responsibilities**: `sound-manager.ts`, `use-game-logic.ts`, and `accessibility-utils.ts` combine unrelated workflows, blocking clear separation of concerns.
@@ -71,7 +71,8 @@ Recent work shows value in **extracting inline CSS into dedicated files**, **ESL
 ### Generated Files Policy
 - `package-lock.json` exceeds the 500-line limit. Decide between:
   1. **Workspace-level lockfiles** (split by package if tooling allows), or
-  2. **Policy exception for generated artifacts** documented in the repo.
+  2. **Policy exception for generated artifacts** documented in the repo, or
+  3. **.gitattributes marking generated files** to exclude lockfiles from line-count tooling while keeping them tracked.
 
 If exceptions are not allowed, a split-lockfile approach is required before enforcement.
 
