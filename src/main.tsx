@@ -76,7 +76,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Initialize accessibility manager
-import { enableSmartFocusVisibility, getAccessibilityManager } from './lib/accessibility-utils';
+import { enableSmartFocusVisibility, getAccessibilityManager } from './lib/accessibility';
 
 // Initialize accessibility features
 enableSmartFocusVisibility()

@@ -1,0 +1,73 @@
+/* Accessibility preferences styles */
+
+/* Animation speed adjustments */
+* {
+  animation-duration: calc(var(--animation-speed, 1) * 1s) !important;
+  transition-duration: calc(var(--animation-speed, 1) * 0.2s) !important;
+}
+
+/* High contrast mode */
+body.high-contrast {
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #000000;
+  --muted: #f0f0f0;
+  --muted-foreground: #333333;
+  filter: contrast(1.5);
+}
+
+/* Reduced motion */
+body.reduced-motion *,
+body.reduced-motion *::before,
+body.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Simplified mode - reduce visual complexity */
+body.simplified-mode .complex-animation,
+body.simplified-mode .advanced-effects {
+  display: none !important;
+}
+
+body.simplified-mode .simplified-alternative {
+  display: block !important;
+}
+
+/* Screen reader optimizations */
+body.screen-reader-optimized .sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Smart focus visibility */
+*:focus {
+  outline: none;
+}
+
+body.using-keyboard *:focus {
+  outline: 2px solid hsl(var(--focus-ring-color, 59 100% 50%));
+  outline-width: var(--focus-indicator-size, 2px);
+  outline-offset: 2px;
+  border-radius: 4px;
+  transition:
+    outline-color 0.2s ease,
+    outline-width 0.2s ease;
+}
+
+body.using-keyboard button:focus,
+body.using-keyboard input:focus,
+body.using-keyboard textarea:focus,
+body.using-keyboard select:focus {
+  box-shadow: 0 0 0 3px hsla(var(--focus-ring-color, 59 100% 50%), 0.3);
+}
