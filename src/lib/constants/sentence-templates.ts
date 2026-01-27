@@ -1,1 +1,1 @@
-export * from "./sentence-templates";
+export * from "./sentence-templates/index";
