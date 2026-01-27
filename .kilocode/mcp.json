@@ -1,0 +1,145 @@
+{
+    "mcpServers": {
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/Users"
+            ],
+            "alwaysAllow": [
+                "read_file",
+                "read_text_file",
+                "read_media_file",
+                "read_multiple_files",
+                "write_file",
+                "edit_file",
+                "create_directory",
+                "list_directory",
+                "list_directory_with_sizes",
+                "directory_tree",
+                "move_file",
+                "search_files",
+                "get_file_info",
+                "list_allowed_directories"
+            ]
+        },
+        "brave-search": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-brave-search"
+            ],
+            "disabled": true,
+            "alwaysAllow": []
+        },
+        "github": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-github"
+            ],
+            "alwaysAllow": [
+                "create_or_update_file",
+                "search_repositories",
+                "create_repository",
+                "get_file_contents",
+                "push_files",
+                "create_issue",
+                "create_pull_request",
+                "fork_repository",
+                "create_branch",
+                "list_commits",
+                "list_issues",
+                "update_issue",
+                "add_issue_comment",
+                "search_code",
+                "search_issues",
+                "search_users",
+                "get_issue",
+                "get_pull_request",
+                "list_pull_requests",
+                "create_pull_request_review",
+                "merge_pull_request",
+                "get_pull_request_files",
+                "get_pull_request_status",
+                "update_pull_request_branch",
+                "get_pull_request_comments",
+                "get_pull_request_reviews"
+            ]
+        },
+        "slack": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-slack"
+            ],
+            "disabled": true,
+            "alwaysAllow": []
+        },
+        "everything": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-everything"
+            ],
+            "alwaysAllow": [
+                "echo",
+                "get-annotated-message",
+                "get-env",
+                "get-resource-links",
+                "get-resource-reference",
+                "get-structured-content",
+                "get-sum",
+                "get-tiny-image",
+                "gzip-file-as-resource",
+                "toggle-simulated-logging",
+                "toggle-subscriber-updates",
+                "trigger-long-running-operation"
+            ]
+        },
+        "sqlite": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sqlite",
+                "/tmp/test.db"
+            ],
+            "disabled": true,
+            "alwaysAllow": []
+        },
+        "puppeteer": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-puppeteer"
+            ],
+            "alwaysAllow": [
+                "puppeteer_navigate",
+                "puppeteer_screenshot",
+                "puppeteer_click",
+                "puppeteer_fill",
+                "puppeteer_select",
+                "puppeteer_hover",
+                "puppeteer_evaluate"
+            ]
+        },
+        "git": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-git",
+                "--repository",
+                "path/to/repo"
+            ]
+        },
+        "postgres": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-postgres",
+                "postgresql://localhost/mydb"
+            ]
+        }
+    }
+}
