@@ -164,7 +164,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         document.removeEventListener(event, handleInteraction)
       })
     }
-  }, [isE2E, onComplete])
+  }, [isE2E, onComplete, readyToContinue, sequenceFinished])
 
   useEffect(() => {
     // Keyboard accessibility: Any key proceeds to menu

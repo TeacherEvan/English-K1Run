@@ -36,6 +36,7 @@ export const GameMenuSettingsDialog = memo(
                         size="lg"
                         className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/5 border-2"
                         data-testid="settings-button"
+                        role="button"
                     >
                         <MenuActionButtonContent
                             icon={<SettingsIcon className="w-6 h-6 text-primary" />}

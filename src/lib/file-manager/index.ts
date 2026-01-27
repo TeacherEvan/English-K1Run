@@ -115,7 +115,7 @@ export async function retrieveAssetMetadata(
     const record = await assetDatabase.assets.get(assetId);
     if (!record) return null;
 
-    const { blob, ...metadata } = record;
+    const { blob: _blob, ...metadata } = record;
     return metadata;
   } catch (error) {
     console.error("[FileManager] Failed to retrieve metadata:", error);
@@ -285,7 +285,7 @@ export async function enumerateStoredAssets(
     }
 
     const records = await collection.toArray();
-    return records.map(({ blob, ...metadata }) => metadata);
+    return records.map(({ blob: _blob, ...metadata }) => metadata);
   } catch (error) {
     console.error("[FileManager] Enumeration failed:", error);
     return [];

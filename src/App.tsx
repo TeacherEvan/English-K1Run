@@ -304,7 +304,7 @@ function App() {
       document.removeEventListener('touchmove', preventDefaultTouch)
       document.removeEventListener('touchstart', preventMultiTouch)
     }
-  }, [gameState.gameStarted])
+  }, [gameState.gameStarted, isE2E])
 
   // Keyboard shortcut: Ctrl+D or Cmd+D to toggle debug overlays
   useEffect(() => {

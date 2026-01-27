@@ -58,7 +58,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     level: 0,
     gameStarted: false,
     winner: false,
-    targetChangeTime: Date.now() + 10000,
+    targetChangeTime: 0,
     streak: 0,
     multiplier: 1.0,
     lastMilestone: 0,
@@ -84,12 +84,15 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const [lastCompletionTime, setLastCompletionTime] = useState<number | null>(
     null,
   );
+  const [continuousModeElapsed, setContinuousModeElapsed] = useState<
+    number | null
+  >(null);
 
   const viewportRef = useRef({ width: 1920, height: 1080 });
   useViewportObserver(viewportRef);
 
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map());
-  const lastTargetSpawnTime = useRef(Date.now());
+  const lastTargetSpawnTime = useRef(0);
   const targetPool = useRef<Array<{ emoji: string; name: string }>>([]);
   const staleEmojisCache = useRef<{
     emojis: Array<{ emoji: string; name: string }>;
@@ -284,6 +287,23 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setCurrentMilestone(null);
   }, []);
 
+  // Update elapsed time periodically
+  useEffect(() => {
+    if (!continuousModeStartTime) {
+      setContinuousModeElapsed(null);
+      return;
+    }
+
+    const updateElapsed = () => {
+      setContinuousModeElapsed(Date.now() - continuousModeStartTime);
+    };
+
+    updateElapsed(); // Initial update
+    const interval = setInterval(updateElapsed, 100); // Update every 100ms
+
+    return () => clearInterval(interval);
+  }, [continuousModeStartTime]);
+
   return {
     gameObjects,
     worms,
@@ -302,9 +322,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     clearAchievement: (achievementId: number) => {
       setAchievements((prev) => prev.filter((a) => a.id !== achievementId));
     },
-    continuousModeElapsed: continuousModeStartTime
-      ? Date.now() - continuousModeStartTime
-      : null,
+    continuousModeElapsed,
     continuousModeHighScore,
     showHighScoreWindow,
     lastCompletionTime,

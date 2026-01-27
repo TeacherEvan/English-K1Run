@@ -3,16 +3,14 @@
  * Features premium animations, progress indicators, and accessibility.
  */
 
-import { useState, useCallback, useRef } from 'react';
-import { AssetCategory } from '../../types/file-management';
-import { Card } from '../ui/card';
+import { useCallback, useRef, useState } from 'react';
+import type { AssetCategory } from '../../types/file-management';
 import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 import { Progress } from '../ui/progress';
-import { Badge } from '../ui/badge';
 
 interface UploadDropzoneProps {
   onFilesSelected: (files: File[], category: AssetCategory) => void;
-  acceptedTypes?: string;
   maxFileSize?: number; // in bytes
   maxFiles?: number;
   isUploading?: boolean;
@@ -38,7 +36,6 @@ const CATEGORY_LABELS = {
 
 export function UploadDropzone({
   onFilesSelected,
-  acceptedTypes = '*/*',
   maxFileSize = 50 * 1024 * 1024, // 50MB
   maxFiles = 10,
   isUploading = false,

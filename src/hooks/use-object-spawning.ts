@@ -63,7 +63,7 @@ export const useObjectSpawning = (
   }, []);
 
   // Process lane collision detection
-  const processLane = useCallback(
+  const _processLane = useCallback(
     (_laneObjects: GameObject[], _lane: PlayerSide) => {
       // TODO: Implement processLane logic
       // Extracted from use-game-logic.ts lines 811-863
@@ -75,7 +75,7 @@ export const useObjectSpawning = (
   const updateObjects = useCallback(() => {
     // TODO: Implement updateObjects logic
     // Extracted from use-game-logic.ts lines 865-948
-  }, [processLane]);
+  }, []);
 
   return {
     spawnImmediateTargets,

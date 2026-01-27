@@ -8,7 +8,7 @@
  */
 
 import type { SupportedLanguage } from "../constants/language-config";
-import { getSentenceTemplate } from "../constants/sentence-templates";
+import { getSentenceTemplate } from "../constants/sentence-templates/index";
 import { eventTracker } from "../event-tracker";
 import { describeIfEnabled } from "./audio-accessibility";
 import { hasAudioKey } from "./audio-registry";
