@@ -7,7 +7,7 @@ import { Card } from "./components/ui/card"
 // import { AlertTriangleIcon, HomeIcon, RefreshCwIcon } from "lucide-react"
 
 interface ErrorFallbackProps {
-  error: any
+  error: unknown
   resetErrorBoundary: () => void
 }
 
@@ -42,7 +42,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
   const [autoRetryCountdown, setAutoRetryCountdown] = useState<number | null>(null)
 
   // Categorize error for better user guidance
-  const errorCategory = categorizeError(error)
+  const errorCategory = categorizeError(error as Error)
 
   const handleRetry = useCallback(() => {
     setRetryCount(prev => prev + 1)
@@ -108,7 +108,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
             <span>Error Details:</span>
           </h3>
           <pre className="text-xs text-destructive bg-background/80 p-4 rounded-lg border border-destructive/20 overflow-auto max-h-40 font-mono">
-            {error.message}
+            {(error as Error).message}
           </pre>
         </div>
 
@@ -174,8 +174,8 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps)
  * @param error - The caught error
  * @returns Error category
  */
-function categorizeError(error: Error): 'network' | 'timeout' | 'rendering' | 'unknown' {
-  const message = error.message.toLowerCase()
+function categorizeError(error: unknown): 'network' | 'timeout' | 'rendering' | 'unknown' {
+  const message = (error as Error).message.toLowerCase()
 
   if (message.includes('network') || message.includes('fetch') || message.includes('failed to load')) {
     return 'network'

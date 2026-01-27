@@ -13,6 +13,7 @@ import {
   WORM_BASE_SPEED,
   WORM_SIZE,
 } from "../constants/game-config";
+import { generateUniqueIdentifier } from "../semantic-utils";
 
 /**
  * Create new worm objects
@@ -26,7 +27,7 @@ export function createWorms(count: number, startIndex = 0): WormObject[] {
     const [minX, maxX] = LANE_BOUNDS[lane];
 
     return {
-      id: `worm-${Date.now()}-${actualIndex}`,
+      id: generateUniqueIdentifier(`worm-${actualIndex}`),
       x: Math.random() * (maxX - minX) + minX,
       y: Math.random() * 300 + 100, // Start in visible area (100-400px)
       vx: (Math.random() - 0.5) * WORM_BASE_SPEED * 2,
@@ -47,7 +48,7 @@ export function updateWormPosition(
   dt: number,
   speedMultiplier: number,
   viewportWidth: number,
-  viewportHeight: number
+  viewportHeight: number,
 ): WormObject {
   if (!worm.alive) return worm;
 
@@ -73,7 +74,7 @@ export function updateWormPosition(
     newVy = -worm.vy;
     newY = Math.max(
       boundsMarginY,
-      Math.min(viewportHeight - boundsMarginY, newY)
+      Math.min(viewportHeight - boundsMarginY, newY),
     );
   }
 
@@ -102,12 +103,18 @@ export function updateWorms(
   dt: number,
   speedMultiplier: number,
   viewportWidth: number,
-  viewportHeight: number
+  viewportHeight: number,
 ): WormObject[] {
   if (worms.length === 0) return worms;
 
   return worms.map((worm) =>
-    updateWormPosition(worm, dt, speedMultiplier, viewportWidth, viewportHeight)
+    updateWormPosition(
+      worm,
+      dt,
+      speedMultiplier,
+      viewportWidth,
+      viewportHeight,
+    ),
   );
 }
 
@@ -116,7 +123,7 @@ export function updateWorms(
  */
 export function killWorm(worms: WormObject[], wormId: string): WormObject[] {
   return worms.map((worm) =>
-    worm.id === wormId ? { ...worm, alive: false } : worm
+    worm.id === wormId ? { ...worm, alive: false } : worm,
   );
 }
 

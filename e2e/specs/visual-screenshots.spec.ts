@@ -186,7 +186,7 @@ test.describe("Visual Screenshots", () => {
           await skipBtn.waitFor({ state: "visible", timeout: 10000 });
           await skipBtn.click({ force: true });
           await loadingScreen.waitFor({ state: "detached", timeout: 15000 });
-        } catch (e) {
+        } catch {
           console.log("Loading screen skip bypassed in screenshot loop");
         }
       }

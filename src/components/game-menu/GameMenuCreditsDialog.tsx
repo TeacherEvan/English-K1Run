@@ -13,16 +13,14 @@ export const GameMenuCreditsDialog = memo(() => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <div className="text-center mt-2">
-                    <Button
-                        variant="link"
-                        size="sm"
-                        className="text-muted-foreground/60 h-auto p-0 text-xs"
-                        data-testid="credits-button"
-                    >
-                        Credits / เครดิต
-                    </Button>
-                </div>
+                <Button
+                    variant="link"
+                    size="sm"
+                    className="text-muted-foreground/60 h-auto p-0 text-xs mt-2"
+                    data-testid="credits-button"
+                >
+                    Credits / เครดิต
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>

@@ -4,7 +4,7 @@
  */
 
 import Dexie, { type Table } from "dexie";
-import type { AssetMetadata, AssetFile } from "../../types/file-management";
+import type { AssetMetadata } from "../../types/file-management";
 
 /**
  * Database schema version and table definitions

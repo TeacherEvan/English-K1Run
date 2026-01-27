@@ -5,7 +5,7 @@
  * not just that they exist in the DOM.
  */
 
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import path from "path";
 
 test.describe("Visual UI Verification - User Perspective", () => {

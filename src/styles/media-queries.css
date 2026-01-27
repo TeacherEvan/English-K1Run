@@ -1,0 +1,38 @@
+@media (max-width: 768px) {
+  .falling-object {
+    font-size: calc(1.2em * var(--object-scale, 1));
+  }
+}
+
+@media (min-width: 1920px) {
+  .falling-object {
+    font-size: calc(1.1em * var(--object-scale, 1));
+  }
+}
+
+@media (orientation: portrait) and (max-width: 768px) {
+  .falling-object {
+    font-size: calc(1.4em * var(--object-scale, 1));
+    animation-duration: calc(var(--fall-speed-scale, 1) * 1.5s);
+  }
+
+  .game-area {
+    padding-top: calc(6rem * var(--spacing-scale, 1));
+  }
+}
+
+@media (min-width: 2560px) {
+  .falling-object {
+    font-size: calc(1.2em * var(--object-scale, 1));
+  }
+}
+
+@media (min-aspect-ratio: 21/9) {
+  .game-area {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  }
+}

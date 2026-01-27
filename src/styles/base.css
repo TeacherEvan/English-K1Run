@@ -1,0 +1,37 @@
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    /* Fix deprecated vendor prefixes for font smoothing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    /* Fix text-size-adjust parsing errors by using modern values */
+    -webkit-text-size-adjust: auto;
+    -moz-text-size-adjust: auto;
+    text-size-adjust: auto;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

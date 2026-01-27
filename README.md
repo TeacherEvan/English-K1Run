@@ -198,6 +198,10 @@ npm run test:e2e:headed
 **Test Coverage:**
 
 - ✅ Accessibility (ARIA, keyboard navigation)
+
+Note: A migration of core utility functions and integrations was performed (Jan 2026).
+See `DOCS/INTEGRATION_GUIDE.md` for the migration checklist and details about the updated utilities (clamp → `calculatePercentageWithinBounds`, ID generation → `generateUniqueIdentifier`, Fisher–Yates → `transformArrayToRandomOrder`, resource preloader, accessibility focus/announcements, and performance monitoring).
+
 - ✅ Gameplay mechanics (object spawning, tapping, progress)
 - ✅ Menu navigation (level selection, settings)
 - ✅ Touch interactions (multi-touch, QBoard compatibility)

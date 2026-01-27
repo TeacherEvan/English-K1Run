@@ -10,17 +10,36 @@
 // Types
 export * from "./types";
 
-// Audio loader
+// Audio context management
 export {
-  AUDIO_PRIORITIES,
-  AudioBufferLoader,
-  audioBufferLoader,
+  AudioContextManager,
+  audioContextManager,
+} from "./audio-context-manager";
+
+// Audio preloader
+export { AudioPreloader, audioPreloader } from "./audio-preloader";
+
+// Audio registry (file discovery and indexing)
+export {
   getAudioUrl,
   getRegisteredKeys,
   hasAudioKey,
   normalizeKey,
   resolveCandidates,
-} from "./audio-loader";
+} from "./audio-registry";
+
+// Audio priorities
+export { AUDIO_PRIORITIES } from "./audio-priorities";
+
+// Audio buffer loader
+export { AudioBufferLoader, audioBufferLoader } from "./audio-buffer-loader";
+
+// Tone generator utilities
+export {
+  createFallbackEffects,
+  createTone,
+  createToneSequence,
+} from "./audio-tone-generator";
 
 // Speech synthesizer
 export { SpeechSynthesizer, speechSynthesizer } from "./speech-synthesizer";

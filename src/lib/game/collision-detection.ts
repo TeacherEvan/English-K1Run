@@ -14,13 +14,13 @@
 
 import type { GameObject, PlayerSide, WormObject } from "../../types/game";
 import {
-  clamp,
   COLLISION_MIN_SEPARATION,
   EMOJI_SIZE,
   LANE_BOUNDS,
   MIN_VERTICAL_GAP,
   WORM_SIZE,
 } from "../constants/game-config";
+import { calculatePercentageWithinBounds } from "../semantic-utils";
 
 /**
  * Process collision detection for objects in a single lane.
@@ -31,7 +31,7 @@ import {
  */
 export function processLaneCollisions(
   laneObjects: GameObject[],
-  lane: PlayerSide
+  lane: PlayerSide,
 ): void {
   // Input validation
   if (!laneObjects || laneObjects.length <= 1) {
@@ -56,7 +56,11 @@ export function processLaneCollisions(
     }
 
     // Clamp position to lane bounds before collision checks
-    currentObject.x = clamp(currentObject.x, minXBound, maxXBound);
+    currentObject.x = calculatePercentageWithinBounds(
+      currentObject.x,
+      minXBound,
+      maxXBound,
+    );
 
     // Check collisions only with objects below (spatial coherence)
     for (let j = i + 1; j < sortedObjects.length; j++) {
@@ -85,15 +89,15 @@ export function processLaneCollisions(
       const pushDirection = currentObject.x < otherObject.x ? -1 : 1;
 
       // Apply equal push to both objects
-      currentObject.x = clamp(
+      currentObject.x = calculatePercentageWithinBounds(
         currentObject.x + overlap * pushDirection,
         minXBound,
-        maxXBound
+        maxXBound,
       );
-      otherObject.x = clamp(
+      otherObject.x = calculatePercentageWithinBounds(
         otherObject.x - overlap * pushDirection,
         minXBound,
-        maxXBound
+        maxXBound,
       );
     }
   }
@@ -110,7 +114,7 @@ export function processLaneCollisions(
 export function applyWormObjectCollision(
   worms: WormObject[],
   objects: GameObject[],
-  viewportWidth: number
+  viewportWidth: number,
 ): void {
   // Input validation
   if (
@@ -169,7 +173,7 @@ export function applyWormObjectCollision(
 
         // Clamp to lane bounds and prevent pushing above screen
         const [minXBound, maxXBound] = LANE_BOUNDS[obj.lane];
-        obj.x = clamp(obj.x, minXBound, maxXBound);
+        obj.x = calculatePercentageWithinBounds(obj.x, minXBound, maxXBound);
         obj.y = Math.max(0, obj.y);
       }
     }

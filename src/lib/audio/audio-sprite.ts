@@ -8,6 +8,7 @@
  */
 
 import { eventTracker } from "../event-tracker";
+import { calculatePercentageWithinBounds } from "../semantic-utils";
 
 export interface AudioSpriteClip {
   /** Start time in seconds */
@@ -36,15 +37,11 @@ export interface AudioSpritePlayOptions {
   maxDuration?: number;
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
 async function fetchWithRetry(
   url: string,
   init?: RequestInit,
   retries = 2,
-  retryDelayMs = 250
+  retryDelayMs = 250,
 ): Promise<Response> {
   let lastError: unknown;
 
@@ -157,7 +154,7 @@ export class AudioSpritePlayer {
       } catch (error) {
         console.warn(
           "[AudioSpritePlayer] Failed to load/decode sprite:",
-          error
+          error,
         );
         this.buffer = null;
         return null;
@@ -208,7 +205,7 @@ export class AudioSpritePlayer {
 
   async playClip(
     clipName: string,
-    options?: AudioSpritePlayOptions
+    options?: AudioSpritePlayOptions,
   ): Promise<boolean> {
     const startTime = performance.now();
 
@@ -221,7 +218,11 @@ export class AudioSpritePlayer {
       }
 
       const playbackRate = options?.playbackRate ?? 1.0;
-      const volume = clamp(options?.volume ?? 0.6, 0, 1);
+      const volume = calculatePercentageWithinBounds(
+        options?.volume ?? 0.6,
+        0,
+        1,
+      );
 
       const clipStart = Math.max(0, clip.start);
       const clipEnd = Math.max(clipStart, clip.end);
@@ -248,11 +249,15 @@ export class AudioSpritePlayer {
         gainNode.connect(this.audioContext.destination);
 
         // Ensure we never play beyond buffer
-        const safeOffset = clamp(clipStart, 0, buffer.duration);
-        const safeDuration = clamp(
+        const safeOffset = calculatePercentageWithinBounds(
+          clipStart,
+          0,
+          buffer.duration,
+        );
+        const safeDuration = calculatePercentageWithinBounds(
           durationSeconds,
           0,
-          buffer.duration - safeOffset
+          buffer.duration - safeOffset,
         );
 
         return await new Promise<boolean>((resolve) => {
@@ -285,7 +290,7 @@ export class AudioSpritePlayer {
             source.start(
               this.audioContext!.currentTime,
               safeOffset,
-              safeDuration
+              safeDuration,
             );
             this.activeSource = source;
           } catch (error) {
@@ -369,7 +374,7 @@ export class AudioSpritePlayer {
             () => {
               stopTimer = window.setTimeout(stopNow, maxDurationMs);
             },
-            () => cleanup(false, "play_error")
+            () => cleanup(false, "play_error"),
           );
         };
 

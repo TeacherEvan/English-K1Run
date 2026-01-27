@@ -3,11 +3,11 @@
  * Features premium animations, lazy loading, and interactive elements.
  */
 
-import { useState, useCallback } from 'react';
-import { AssetFile } from '../../types/file-management';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
+import { useCallback, useState } from 'react';
+import type { AssetFile } from '../../types/file-management';
 import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface AssetCardProps {

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "kill": "fuser -k 5000/tcp",
-    "build": "tsc -b --noCheck && vite build",
+    "build": "tsc -b && vite build",
     "check-types": "tsc -b --noCheck",
     "lint": "eslint .",
     "verify": "npm run lint && npm run build",
@@ -58,6 +58,7 @@
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.16",
@@ -65,6 +66,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^5.0.3",
+    "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "3.2.4",
     "allure-playwright": "^3.4.5",
     "eslint": "^9.39.1",

@@ -4,9 +4,9 @@
  */
 
 import { useMemo } from 'react';
-import { AssetFile } from '../../types/file-management';
-import { AssetCard } from './AssetCard';
+import type { AssetFile } from '../../types/file-management';
 import { LoadingSkeleton } from '../LoadingSkeleton';
+import { AssetCard } from './AssetCard';
 
 interface AssetGridProps {
   assets: AssetFile[];
@@ -42,7 +42,7 @@ export function AssetGrid({
       <div className={gridClasses}>
         {Array.from({ length: 12 }).map((_, index) => (
           <div key={index} className="aspect-square">
-            <LoadingSkeleton variant="card" />
+            <LoadingSkeleton variant="default" />
           </div>
         ))}
       </div>
