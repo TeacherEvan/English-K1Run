@@ -50,9 +50,14 @@ import { PROGRESS_MILESTONES } from './lib/constants/engagement-system'
 
 // Utilities
 import { CategoryErrorBoundary } from './components/CategoryErrorBoundary'
+import { announceToScreenReader } from './lib/accessibility-utils'
 import { eventTracker } from './lib/event-tracker'
+import {
+  measureComponentRenderTime,
+  trackWebVitals
+} from './lib/performance-monitor-utils'
+import { preloadCriticalResources } from './lib/resource-preloader'
 import { useLazyBackgroundPreloader } from './lib/utils/background-preloader'
-import { initWebVitalsMonitoring } from './lib/web-vitals-monitor'
 
 const BACKGROUND_CLASSES = [
   // Original beautiful backgrounds
@@ -112,6 +117,11 @@ function App() {
   console.log('DEBUG: App rendering, isE2E:', typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1');
   const { displaySettings } = useDisplayAdjustment()
 
+  const stopRenderMeasurement = useMemo(
+    () => measureComponentRenderTime('App'),
+    []
+  )
+
   // Lazy preload background images for Core Web Vitals optimization
   useLazyBackgroundPreloader()
 
@@ -141,7 +151,35 @@ function App() {
 
   // Initialize web vitals monitoring on mount
   useEffect(() => {
-    initWebVitalsMonitoring()
+    trackWebVitals((metric) => {
+      if (import.meta.env.DEV) {
+        console.log(`[Web Vitals] ${metric.name}: ${metric.value.toFixed(2)}ms (${metric.rating})`)
+      }
+    })
+  }, [])
+
+  // Capture App render timing
+  useEffect(() => {
+    const duration = stopRenderMeasurement()
+    if (import.meta.env.DEV && duration !== null) {
+      console.log(`[Performance] App rendered in ${duration.toFixed(2)}ms`)
+    }
+  }, [stopRenderMeasurement])
+
+  // Preload critical resources on initialization
+  useEffect(() => {
+    preloadCriticalResources(['high', 'medium'])
+      .then((progress) => {
+        if (import.meta.env.DEV) {
+          console.log(`[Preload] Loaded ${progress.loaded}/${progress.total} resources (failed: ${progress.failed})`)
+        }
+        announceToScreenReader('Game resources loaded', 'polite')
+      })
+      .catch((error) => {
+        if (import.meta.env.DEV) {
+          console.warn('[Preload] Resource preloading failed:', error)
+        }
+      })
   }, [])
 
   const {

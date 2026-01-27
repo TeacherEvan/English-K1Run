@@ -1,4 +1,5 @@
 import { useCallback, useRef } from "react";
+import { transformArrayToRandomOrder } from "../lib/semantic-utils";
 import type { GameObject, GameState, PlayerSide } from "../types/game";
 
 /**
@@ -6,7 +7,7 @@ import type { GameObject, GameState, PlayerSide } from "../types/game";
  * Extracted from use-game-logic.ts to reduce file size and improve maintainability
  */
 export const useObjectSpawning = (
-  _gameStateRef: React.MutableRefObject<GameState>
+  _gameStateRef: React.MutableRefObject<GameState>,
 ) => {
   // Track last appearance time for each emoji to ensure all appear within 10 seconds
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map());
@@ -26,32 +27,19 @@ export const useObjectSpawning = (
   // Shuffled array of remaining targets for current level
   const targetPool = useRef<Array<{ emoji: string; name: string }>>([]);
 
-  // Fisher-Yates shuffle algorithm for randomizing target pool
-  const shuffleArray = useCallback(<T>(array: T[]): T[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }, []);
-
   // Refill target pool with shuffled items from current category
-  const refillTargetPool = useCallback(
-    (_levelIndex?: number) => {
-      // This will need to be passed in or accessed differently
-      // For now, placeholder - will be refactored in full implementation
-      const category = { items: [] }; // TODO: Pass category as parameter
-      targetPool.current = shuffleArray(category.items);
+  const refillTargetPool = useCallback((_levelIndex?: number) => {
+    // This will need to be passed in or accessed differently
+    // For now, placeholder - will be refactored in full implementation
+    const category = { items: [] }; // TODO: Pass category as parameter
+    targetPool.current = transformArrayToRandomOrder(category.items);
 
-      if (import.meta.env.DEV) {
-        console.log(
-          `[TargetPool] Refilled with ${targetPool.current.length} items (shuffled)`
-        );
-      }
-    },
-    [shuffleArray]
-  );
+    if (import.meta.env.DEV) {
+      console.log(
+        `[TargetPool] Refilled with ${targetPool.current.length} items (shuffled)`,
+      );
+    }
+  }, []);
 
   // Generate random target from current category
   const generateRandomTarget = useCallback((_levelIndex?: number) => {
@@ -80,7 +68,7 @@ export const useObjectSpawning = (
       // TODO: Implement processLane logic
       // Extracted from use-game-logic.ts lines 811-863
     },
-    []
+    [],
   );
 
   // Update object positions and handle collisions

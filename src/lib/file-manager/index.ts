@@ -3,24 +3,25 @@
  * Provides high-level functions for asset CRUD operations using IndexedDB.
  */
 
-import { assetDatabase } from "./database";
 import type {
+  AssetCategory,
   AssetFile,
   AssetMetadata,
   AssetQuery,
   AssetSearchResult,
-  FileOperationResult,
   BulkOperationResult,
-  AssetCategory,
   FileManagerEvent,
   FileManagerSubscription,
+  FileOperationResult,
 } from "../../types/file-management";
+import { generateUniqueIdentifier } from "../semantic-utils";
+import { assetDatabase } from "./database";
 
 /**
  * Generate a unique ID for assets
  */
 function generateAssetId(): string {
-  return `asset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return generateUniqueIdentifier("asset");
 }
 
 /**

@@ -4,12 +4,15 @@
 
 import type { MutableRefObject } from "react";
 import {
-  clamp,
   EMOJI_SIZE,
   LANE_BOUNDS,
   WORM_BASE_SPEED,
   WORM_SIZE,
 } from "../../lib/constants/game-config";
+import {
+  calculatePercentageWithinBounds,
+  generateUniqueIdentifier,
+} from "../../lib/semantic-utils";
 import type { GameObject, PlayerSide, WormObject } from "../../types/game";
 
 export interface WormCollisionContext {
@@ -55,7 +58,7 @@ export const applyWormObjectCollision = (
         obj.y += pushYPx;
 
         const [minX, maxX] = LANE_BOUNDS[obj.lane];
-        obj.x = clamp(obj.x, minX, maxX);
+        obj.x = calculatePercentageWithinBounds(obj.x, minX, maxX);
         obj.y = Math.max(0, obj.y);
       }
     }
@@ -68,7 +71,7 @@ export const createWorms = (count: number, startIndex = 0): WormObject[] => {
     const lane: PlayerSide = actualIndex % 2 === 0 ? "left" : "right";
     const [minX, maxX] = LANE_BOUNDS[lane];
     return {
-      id: `worm-${Date.now()}-${actualIndex}`,
+      id: generateUniqueIdentifier(`worm-${actualIndex}`),
       x: Math.random() * (maxX - minX) + minX,
       y: Math.random() * 300 + 100,
       vx: (Math.random() - 0.5) * WORM_BASE_SPEED * 2,

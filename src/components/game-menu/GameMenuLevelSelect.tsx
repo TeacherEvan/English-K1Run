@@ -1,4 +1,13 @@
-import { memo } from "react";
+import {
+    announceToScreenReader,
+    createFocusTrap,
+    isKeyPressed,
+    KeyboardKeys,
+    moveFocusToAdjacentElement,
+} from "@/lib/accessibility-utils";
+import { measureComponentRenderTime } from "@/lib/performance-monitor-utils";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { THAI_TRANSLATIONS } from "./constants";
@@ -22,14 +31,79 @@ export const GameMenuLevelSelect = memo(
         onStartGame,
         onBack,
     }: GameMenuLevelSelectProps) => {
+        const modalRef = useRef<HTMLDivElement>(null);
+        const stopRenderMeasurement = useMemo(
+            () => measureComponentRenderTime("GameMenuLevelSelect"),
+            []
+        );
+
+        useEffect(() => {
+            const duration = stopRenderMeasurement();
+            if (import.meta.env.DEV && duration !== null) {
+                console.log(
+                    `[Performance] GameMenuLevelSelect rendered in ${duration.toFixed(2)}ms`
+                );
+            }
+        }, [stopRenderMeasurement]);
+
+        useEffect(() => {
+            announceToScreenReader("Level selection menu opened", "polite");
+        }, []);
+
+        useEffect(() => {
+            const selectedName = levels[selectedLevel];
+            if (selectedName) {
+                announceToScreenReader(`Selected level: ${selectedName}`, "polite");
+            }
+        }, [levels, selectedLevel]);
+
+        useEffect(() => {
+            if (!modalRef.current) return;
+            const cleanup = createFocusTrap(modalRef.current);
+            return cleanup;
+        }, []);
+
+        const handleKeyDown = useCallback(
+            (event: ReactKeyboardEvent<HTMLDivElement>) => {
+                if (isKeyPressed(event, KeyboardKeys.ESCAPE)) {
+                    event.preventDefault();
+                    onBack();
+                    return;
+                }
+
+                if (isKeyPressed(event, KeyboardKeys.ENTER) || isKeyPressed(event, KeyboardKeys.SPACE)) {
+                    event.preventDefault();
+                    onStartGame();
+                    return;
+                }
+
+                if (isKeyPressed(event, KeyboardKeys.ARROW_LEFT) || isKeyPressed(event, KeyboardKeys.ARROW_UP)) {
+                    event.preventDefault();
+                    moveFocusToAdjacentElement("backward", modalRef.current ?? undefined);
+                    return;
+                }
+
+                if (isKeyPressed(event, KeyboardKeys.ARROW_RIGHT) || isKeyPressed(event, KeyboardKeys.ARROW_DOWN)) {
+                    event.preventDefault();
+                    moveFocusToAdjacentElement("forward", modalRef.current ?? undefined);
+                }
+            },
+            [onBack, onStartGame]
+        );
+
         return (
             <div
                 className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in slide-in-from-right-8 duration-300 pointer-events-auto"
                 data-testid="level-select-menu"
                 role="dialog"
+                aria-modal="true"
                 aria-label="Level Selection Menu"
+                onKeyDown={handleKeyDown}
             >
-                <Card className="w-full max-w-6xl mx-4 bg-card/95 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col">
+                <Card
+                    ref={modalRef}
+                    className="w-full max-w-6xl mx-4 bg-card/95 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col"
+                >
                     {/* Header - Fixed properties */}
                     <div className="flex items-center justify-between px-8 py-6 border-b bg-card rounded-t-xl shrink-0">
                         <Button

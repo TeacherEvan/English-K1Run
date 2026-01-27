@@ -10,6 +10,8 @@
  * @module audio-event-tracker
  */
 
+import { generateUniqueIdentifier } from "../semantic-utils";
+
 export interface AudioPlaybackEvent {
   id: string;
   timestamp: number;
@@ -36,7 +38,7 @@ export class AudioEventTracker {
    */
   trackAudioPlayback(event: Omit<AudioPlaybackEvent, "id" | "timestamp">) {
     const audioEvent: AudioPlaybackEvent = {
-      id: `audio-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+      id: generateUniqueIdentifier("audio"),
       timestamp: Date.now(),
       ...event,
     };
@@ -46,7 +48,7 @@ export class AudioEventTracker {
     // Keep only recent events
     if (this.audioPlaybackEvents.length > this.maxAudioEvents) {
       this.audioPlaybackEvents = this.audioPlaybackEvents.slice(
-        -this.maxAudioEvents
+        -this.maxAudioEvents,
       );
     }
 
@@ -54,7 +56,7 @@ export class AudioEventTracker {
       console.log(
         `[AudioTracker] ${event.success ? "✓" : "✗"} ${event.method}:`,
         event.audioKey,
-        event.error || ""
+        event.error || "",
       );
     }
 

@@ -1,3 +1,4 @@
+import { generateUniqueIdentifier } from "../semantic-utils";
 import type {
   LayoutShift,
   PerformanceEventTiming,
@@ -26,7 +27,7 @@ export const trackWebVitals = (
       onMetric({
         name: "LCP",
         value: lastEntry.startTime,
-        id: `lcp-${Date.now()}`,
+        id: generateUniqueIdentifier("lcp"),
         rating:
           lastEntry.startTime < 2500
             ? "good"
@@ -45,7 +46,7 @@ export const trackWebVitals = (
         onMetric({
           name: "FID",
           value: delay,
-          id: `fid-${Date.now()}`,
+          id: generateUniqueIdentifier("fid"),
           rating:
             delay < 100 ? "good" : delay < 300 ? "needs-improvement" : "poor",
         });
@@ -63,7 +64,7 @@ export const trackWebVitals = (
           onMetric({
             name: "CLS",
             value: clsValue,
-            id: `cls-${Date.now()}`,
+            id: generateUniqueIdentifier("cls"),
             rating:
               clsValue < 0.1
                 ? "good"

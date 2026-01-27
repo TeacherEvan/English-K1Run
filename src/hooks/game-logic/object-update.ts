@@ -7,13 +7,13 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { calculateDynamicSpeed } from "../../lib/constants/engagement-system";
 import {
-  clamp,
   COLLISION_MIN_SEPARATION,
   EMOJI_SIZE,
   LANE_BOUNDS,
   MIN_VERTICAL_GAP,
 } from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
+import { calculatePercentageWithinBounds } from "../../lib/semantic-utils";
 import type { GameObject, GameState, PlayerSide } from "../../types/game";
 
 export interface ObjectUpdateDependencies {
@@ -37,7 +37,7 @@ const processLane = (laneObjects: GameObject[], lane: PlayerSide) => {
 
     if (current.y < 0) continue;
 
-    current.x = clamp(current.x, minX, maxX);
+    current.x = calculatePercentageWithinBounds(current.x, minX, maxX);
 
     for (let j = i + 1; j < laneLength; j++) {
       const other = sorted[j];
@@ -53,8 +53,16 @@ const processLane = (laneObjects: GameObject[], lane: PlayerSide) => {
       const overlap = (minSep - horizontalGap) / 2;
       const direction = current.x < other.x ? -1 : 1;
 
-      current.x = clamp(current.x + overlap * direction, minX, maxX);
-      other.x = clamp(other.x - overlap * direction, minX, maxX);
+      current.x = calculatePercentageWithinBounds(
+        current.x + overlap * direction,
+        minX,
+        maxX,
+      );
+      other.x = calculatePercentageWithinBounds(
+        other.x - overlap * direction,
+        minX,
+        maxX,
+      );
     }
   }
 };

@@ -12,6 +12,7 @@
 import { audioEventTracker } from "./event-metrics/audio-event-tracker";
 import { emojiTracker } from "./event-metrics/emoji-tracker";
 import { performanceTracker } from "./event-metrics/performance-tracker";
+import { generateUniqueIdentifier } from "./semantic-utils";
 
 // Re-export subsystem types and singletons for backward compatibility
 export type {
@@ -119,11 +120,11 @@ class EventTracker {
    * @public
    */
   public trackEvent(
-    event: Omit<GameEvent, "id" | "timestamp" | "userAgent" | "url">
+    event: Omit<GameEvent, "id" | "timestamp" | "userAgent" | "url">,
   ) {
     const fullEvent: GameEvent = {
       ...event,
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      id: generateUniqueIdentifier("event"),
       timestamp: Date.now(),
       userAgent: navigator.userAgent,
       url: window.location.href,
@@ -140,7 +141,7 @@ class EventTracker {
     if (import.meta.env.DEV && event.type === "error") {
       console.error(
         `[EventTracker] ${event.category}: ${event.message}`,
-        event.data
+        event.data,
       );
     }
   }
@@ -160,7 +161,7 @@ class EventTracker {
   // Game-specific tracking methods with optimized performance
   trackObjectSpawn(
     objectType: string,
-    position?: { x?: number; y?: number; count?: number }
+    position?: { x?: number; y?: number; count?: number },
   ) {
     // Batch track spawns to reduce overhead
     if (position?.count) {
@@ -186,7 +187,7 @@ class EventTracker {
     objectId: string,
     correct: boolean,
     playerSide: "left" | "right",
-    latency: number
+    latency: number,
   ) {
     this.trackEvent({
       type: "user_action",
@@ -201,7 +202,7 @@ class EventTracker {
   trackGameStateChange(
     oldState: Record<string, unknown>,
     newState: Record<string, unknown>,
-    action: string
+    action: string,
   ) {
     this.trackEvent({
       type: "info",
@@ -234,7 +235,7 @@ class EventTracker {
   getEvents(
     type?: GameEvent["type"],
     category?: string,
-    limit?: number
+    limit?: number,
   ): GameEvent[] {
     let filtered = this.events;
 
@@ -287,7 +288,7 @@ class EventTracker {
     event: Omit<
       import("./event-metrics").EmojiLifecycleEvent,
       "timestamp" | "duration"
-    >
+    >,
   ) {
     const lifecycleEvent = emojiTracker.trackEmojiLifecycle(event);
 
@@ -323,7 +324,7 @@ class EventTracker {
     event: Omit<
       import("./event-metrics").AudioPlaybackEvent,
       "id" | "timestamp"
-    >
+    >,
   ) {
     const audioEvent = audioEventTracker.trackAudioPlayback(event);
 
@@ -359,7 +360,7 @@ class EventTracker {
       console.log(
         `[EventTracker] Language changed: ${
           previousLanguage || "unknown"
-        } → ${language}`
+        } → ${language}`,
       );
     }
   }
