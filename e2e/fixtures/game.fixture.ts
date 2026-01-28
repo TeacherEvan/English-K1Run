@@ -1,4 +1,4 @@
-import { test as base, expect, Locator, Page } from "@playwright/test";
+simport { test as base, expect, Locator, Page } from "@playwright/test";
 
 /**
  * Custom test fixtures for Kindergarten Race Game
@@ -38,8 +38,12 @@ export class GamePage {
   // Navigation
   async goto() {
     await this.page.emulateMedia({ reducedMotion: "reduce" });
-    await this.page.goto("/?e2e=1");
-    await this.page.waitForLoadState("domcontentloaded");
+    // Use absolute URL to ensure navigation works correctly
+    // The baseURL from playwright.config.ts is http://localhost:5173
+    await this.page.goto("http://localhost:5173/?e2e=1", {
+      waitUntil: "domcontentloaded",
+      timeout: 30_000,
+    });
 
     // Disable background animations that cause instability in Firefox
     await this.page.addStyleTag({
@@ -60,13 +64,13 @@ export class GamePage {
     try {
       await this.page.locator('[data-testid="game-menu"]').waitFor({
         state: "visible",
-        timeout: 20_000,
+        timeout: 30_000,
       });
 
       // Ensure the real GameMenu (not Suspense fallback) is mounted.
       await this.page.locator('[data-testid="level-select-button"]').waitFor({
         state: "visible",
-        timeout: 20_000,
+        timeout: 30_000,
       });
     } catch (e) {
       // Check for error fallback

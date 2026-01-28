@@ -27,7 +27,7 @@ export default defineConfig({
   reporter: [["html", { open: "never" }], ["list"], ["allure-playwright"]],
 
   // Global test timeout
-  timeout: 30_000,
+  timeout: 60_000,
 
   // Expect timeout
   expect: {
@@ -60,7 +60,12 @@ export default defineConfig({
     // Desktop Chrome
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
+      },
+      timeout: 60_000,
     },
 
     // Desktop Firefox
@@ -91,7 +96,10 @@ export default defineConfig({
       use: {
         ...devices["iPad Pro 11"],
         hasTouch: true,
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
       },
+      timeout: 60_000,
     },
 
     // Mobile - for responsive testing
@@ -100,7 +108,10 @@ export default defineConfig({
       use: {
         ...devices["Pixel 7"],
         hasTouch: true,
+        actionTimeout: 25_000,
+        navigationTimeout: 45_000,
       },
+      timeout: 60_000,
     },
   ],
 

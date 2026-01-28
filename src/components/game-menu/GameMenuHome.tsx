@@ -2,6 +2,7 @@ import { memo, useCallback } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { MENU_THAI_LABELS } from "./constants";
 import { GameMenuCreditsDialog } from "./GameMenuCreditsDialog";
 import { GameMenuExitDialog } from "./GameMenuExitDialog";
 import { GameMenuSettingsDialog } from "./GameMenuSettingsDialog";
@@ -10,7 +11,6 @@ import {
     PlayIcon,
     TrophyIcon,
 } from "./icons";
-import { MENU_THAI_LABELS } from "./constants";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
@@ -32,8 +32,8 @@ export const GameMenuHome = memo(
         setResolutionScale,
         onStartGame,
         onShowLevels,
-    onToggleContinuousMode,
-    onResetGame,
+        onToggleContinuousMode,
+        onResetGame,
     }: GameMenuHomeProps) => {
         const canPlayAllLevels = Boolean(onToggleContinuousMode);
         const handlePlayAllLevels = useCallback(() => {
@@ -95,7 +95,7 @@ export const GameMenuHome = memo(
                             {/* 1. START GAME Button */}
                             <Button
                                 size="lg"
-                                className="h-20 text-2xl font-bold shadow-lg hover:scale-105 hover:shadow-primary/25 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-green-600 hover:bg-green-700 text-white"
+                                className="h-20 text-2xl font-bold shadow-lg hover:scale-105 hover:shadow-primary/25 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-green-700 hover:bg-green-800 text-white"
                                 onClick={onStartGame}
                                 data-testid="start-game-button"
                                 aria-label="Start Game Immediately"
@@ -109,6 +109,7 @@ export const GameMenuHome = memo(
                                         iconWrapperClassName="p-2 bg-white/20 rounded-full"
                                         title="Start Game"
                                         subtitle="เริ่มเกม"
+                                        subtitleClassName="text-xs font-semibold text-white font-thai mt-1"
                                     />
                                 </span>
                             </Button>
@@ -117,7 +118,7 @@ export const GameMenuHome = memo(
                             <Button
                                 variant="default"
                                 size="lg"
-                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-blue-700 hover:bg-blue-800 text-white"
                                 onClick={handlePlayAllLevels}
                                 disabled={!canPlayAllLevels}
                                 data-testid="play-all-levels-button"
@@ -128,6 +129,7 @@ export const GameMenuHome = memo(
                                     iconWrapperClassName="p-2 bg-white/20 rounded-full"
                                     title="Play All Levels"
                                     subtitle={MENU_THAI_LABELS.playAllLevels}
+                                    subtitleClassName="text-xs font-semibold text-white font-thai mt-1"
                                 />
                             </Button>
 
@@ -144,6 +146,7 @@ export const GameMenuHome = memo(
                                     icon={<GridIcon className="w-6 h-6" />}
                                     title="Level Select"
                                     subtitle={MENU_THAI_LABELS.levelSelect}
+                                    subtitleClassName="text-xs font-semibold text-white font-thai mt-1"
                                 />
                             </Button>
 

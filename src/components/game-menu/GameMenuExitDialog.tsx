@@ -37,7 +37,7 @@ export const GameMenuExitDialog = memo(
                 <Button
                     variant="destructive"
                     size="lg"
-                    className="h-14 text-lg font-semibold justify-start px-8 gap-4 mt-2"
+                    className="h-14 text-lg font-semibold justify-start px-8 gap-4 mt-2 bg-red-700 hover:bg-red-800"
                     onClick={handleExit}
                     data-testid="exit-button"
                 >
@@ -45,7 +45,7 @@ export const GameMenuExitDialog = memo(
                         icon={<LogOutIcon className="w-5 h-5" />}
                         title="Exit"
                         subtitle="ออก"
-                        subtitleClassName="text-xs font-normal opacity-70 font-thai mt-0.5"
+                        subtitleClassName="text-xs font-semibold text-white font-thai mt-0.5"
                     />
                 </Button>
 

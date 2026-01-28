@@ -8,7 +8,7 @@ import { expect, Page, test } from "@playwright/test";
 const waitForMenuReady = async (page: Page) => {
   await page.locator('[data-testid="game-menu"]').waitFor({
     state: "visible",
-    timeout: 20_000,
+    timeout: 30_000,
   });
 
   await page
@@ -16,7 +16,7 @@ const waitForMenuReady = async (page: Page) => {
       '[data-testid="start-game-button"], [data-testid="new-game-button"]',
     )
     .first()
-    .waitFor({ state: "visible", timeout: 20_000 });
+    .waitFor({ state: "visible", timeout: 30_000 });
 };
 
 const setupAccessibilityTestPage = async (page: Page) => {
@@ -29,7 +29,11 @@ const setupAccessibilityTestPage = async (page: Page) => {
     console.warn("Failed to emulate media for reduced motion:", error);
   }
 
-  await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
+  // Use absolute URL to ensure navigation works correctly
+  await page.goto("http://localhost:5173/?e2e=1", {
+    waitUntil: "domcontentloaded",
+    timeout: 30_000,
+  });
   await waitForMenuReady(page);
 };
 

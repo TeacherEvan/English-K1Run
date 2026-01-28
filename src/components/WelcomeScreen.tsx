@@ -44,9 +44,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
   useEffect(() => {
     if (isE2E) {
-      // Deterministic bypass for Playwright
-      setTimeout(onComplete, 0)
-      return
+      // Deterministic bypass for Playwright - but still show UI briefly for testing
+      // Use setTimeout to avoid synchronous setState in effect
+      const readyTimer = setTimeout(() => setReadyToContinue(true), 0)
+      const completeTimer = setTimeout(onComplete, 500)
+      return () => {
+        clearTimeout(readyTimer)
+        clearTimeout(completeTimer)
+      }
     }
 
     // Safety timer: If audio system fails or hangs, enable continue button after 3s

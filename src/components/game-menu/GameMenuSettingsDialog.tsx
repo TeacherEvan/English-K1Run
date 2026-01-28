@@ -42,7 +42,7 @@ export const GameMenuSettingsDialog = memo(
                             icon={<SettingsIcon className="w-6 h-6 text-primary" />}
                             title="Settings"
                             subtitle="การตั้งค่า"
-                            subtitleClassName="text-xs font-normal opacity-70 font-thai mt-1"
+                            subtitleClassName="text-xs font-semibold text-foreground font-thai mt-1"
                         />
                     </Button>
                 </DialogTrigger>

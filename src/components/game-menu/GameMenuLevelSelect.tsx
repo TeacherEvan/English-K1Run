@@ -117,7 +117,7 @@ export const GameMenuLevelSelect = memo(
                             <ArrowLeftIcon className="w-6 h-6" />
                             <div className="flex flex-col items-start text-left">
                                 <span className="font-bold">Back</span>
-                                <span className="text-xs font-normal opacity-70 font-thai">
+                                <span className="text-xs font-semibold text-foreground font-thai">
                                     กลับ
                                 </span>
                             </div>
@@ -126,7 +126,7 @@ export const GameMenuLevelSelect = memo(
                             <h2 className="text-3xl md:text-4xl font-bold text-primary">
                                 Select Level
                             </h2>
-                            <h3 className="text-lg md:text-xl text-primary/70 font-thai">
+                            <h3 className="text-lg md:text-xl text-primary font-thai">
                                 เลือกระดับ
                             </h3>
                         </div>
@@ -156,7 +156,7 @@ export const GameMenuLevelSelect = memo(
                                         <span className="text-center w-full truncate text-lg md:text-xl">
                                             {level}
                                         </span>
-                                        <span className="text-sm font-normal opacity-80 font-thai text-center w-full truncate mt-1">
+                                        <span className="text-sm font-semibold text-center w-full truncate mt-1">
                                             {THAI_TRANSLATIONS[index] || ""}
                                         </span>
                                     </div>
