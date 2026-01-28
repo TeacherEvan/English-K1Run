@@ -231,16 +231,16 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             data-testid="welcome-screen-fallback"
           />
           {showFallbackImage && (
-            <div className="welcome-image-overlay" aria-hidden="true">
-              <div className="welcome-image-text">Tap to continue</div>
+            <div className="welcome-image-overlay">
+              <div className="welcome-image-text" role="status" aria-live="polite">Tap to continue</div>
             </div>
           )}
         </>
       )}
 
       {readyToContinue && !showFallbackImage && (
-        <div className="welcome-image-overlay" aria-hidden="true">
-          <div className="welcome-image-text">Tap to continue</div>
+        <div className="welcome-image-overlay">
+          <div className="welcome-image-text" role="status" aria-live="polite">Tap to continue</div>
         </div>
       )}
 

@@ -1,4 +1,4 @@
-simport { test as base, expect, Locator, Page } from "@playwright/test";
+import { test as base, expect, Locator, Page } from "@playwright/test";
 
 /**
  * Custom test fixtures for Kindergarten Race Game

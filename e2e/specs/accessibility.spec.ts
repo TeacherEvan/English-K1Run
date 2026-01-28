@@ -34,6 +34,11 @@ const setupAccessibilityTestPage = async (page: Page) => {
     waitUntil: "domcontentloaded",
     timeout: 30_000,
   });
+
+  // FIX: Wait for animations to complete before running accessibility scan
+  // This ensures elements are fully rendered and in their final state
+  await page.waitForTimeout(2000);
+
   await waitForMenuReady(page);
 };
 
@@ -58,10 +63,35 @@ test.describe("Accessibility", () => {
   test("menu page should not have critical accessibility violations", async ({
     page,
   }) => {
+    // DIAGNOSTIC: Check page state before scan
+    const pageState = await page.evaluate(() => {
+      return {
+        url: window.location.href,
+        hasE2EParam: window.location.search.includes("e2e=1"),
+        gameMenuVisible: !!document.querySelector('[data-testid="game-menu"]'),
+        titleVisible: !!document.querySelector('[data-testid="game-title"]'),
+        buttonCount: document.querySelectorAll("button").length,
+      };
+    });
+    console.log(
+      "🔍 DIAGNOSTIC: Page state before scan:",
+      JSON.stringify(pageState, null, 2),
+    );
+
     // Run axe-core accessibility scan
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
+
+    // DIAGNOSTIC: Log all violations for analysis
+    console.log(
+      "🔍 DIAGNOSTIC: Total violations found:",
+      accessibilityScanResults.violations.length,
+    );
+    console.log(
+      "🔍 DIAGNOSTIC: All violations:",
+      JSON.stringify(accessibilityScanResults.violations, null, 2),
+    );
 
     // Check for critical violations
     const criticalViolations = accessibilityScanResults.violations.filter(
@@ -212,6 +242,9 @@ test.describe("Accessibility", () => {
       .locator('[data-testid="target-display"]')
       .waitFor({ state: "visible", timeout: 15000 });
 
+    // FIX: Wait for animations to complete before running accessibility scan
+    await page.waitForTimeout(2000);
+
     // Run axe-core accessibility scan on gameplay page
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -330,24 +363,111 @@ test.describe("Keyboard Navigation", () => {
   test("should be able to activate buttons with Enter key", async ({
     page,
   }) => {
+    // DIAGNOSTIC: Check initial state
+    const initialState = await page.evaluate(() => {
+      const levelSelectButton = document.querySelector(
+        '[data-testid="level-select-button"]',
+      );
+      return {
+        levelSelectButtonExists: !!levelSelectButton,
+        levelSelectButtonVisible: levelSelectButton
+          ? getComputedStyle(levelSelectButton).display !== "none"
+          : false,
+        levelSelectMenuExists: !!document.querySelector(
+          '[data-testid="level-select-menu"]',
+        ),
+        activeElement: document.activeElement?.tagName,
+        activeElementDataTestId: (
+          document.activeElement as HTMLElement
+        )?.getAttribute("data-testid"),
+      };
+    });
+    console.log(
+      "🔍 DIAGNOSTIC: Initial state:",
+      JSON.stringify(initialState, null, 2),
+    );
+
     // Focus on New Game button
     const levelSelectButton = page.locator(
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.focus();
 
+    // DIAGNOSTIC: Check focus state
+    const focusState = await page.evaluate(() => {
+      return {
+        activeElement: document.activeElement?.tagName,
+        activeElementDataTestId: (
+          document.activeElement as HTMLElement
+        )?.getAttribute("data-testid"),
+        activeElementHasFocus:
+          document.activeElement === document.activeElement,
+      };
+    });
+    console.log(
+      "🔍 DIAGNOSTIC: After focus:",
+      JSON.stringify(focusState, null, 2),
+    );
+
     // Press Enter
     await page.keyboard.press("Enter");
+
+    // DIAGNOSTIC: Wait a bit and check state
+    await page.waitForTimeout(500);
+    const afterEnterState = await page.evaluate(() => {
+      return {
+        levelSelectMenuExists: !!document.querySelector(
+          '[data-testid="level-select-menu"]',
+        ),
+        levelSelectMenuVisible: document.querySelector(
+          '[data-testid="level-select-menu"]',
+        )
+          ? getComputedStyle(
+              document.querySelector('[data-testid="level-select-menu"]')!,
+            ).display !== "none"
+          : false,
+      };
+    });
+    console.log(
+      "🔍 DIAGNOSTIC: After Enter key:",
+      JSON.stringify(afterEnterState, null, 2),
+    );
 
     // Wait for level select to appear
     await page
       .locator('[data-testid="level-select-menu"]')
       .waitFor({ state: "visible", timeout: 10000 });
 
+    // DIAGNOSTIC: Check level select menu state
+    const menuState = await page.evaluate(() => {
+      const menu = document.querySelector('[data-testid="level-select-menu"]');
+      const startButton = document.querySelector(
+        '[data-testid="start-button"]',
+      );
+      return {
+        menuExists: !!menu,
+        menuVisible: menu ? getComputedStyle(menu).display !== "none" : false,
+        startButtonExists: !!startButton,
+        startButtonVisible: startButton
+          ? getComputedStyle(startButton).display !== "none"
+          : false,
+      };
+    });
+    console.log(
+      "🔍 DIAGNOSTIC: Level select menu state:",
+      JSON.stringify(menuState, null, 2),
+    );
+
+    // FIX: Wait for animations to complete before clicking start button
+    await page.waitForTimeout(500);
+
     // Then start the game from the level select screen
     const startButton = page.locator('[data-testid="start-button"]');
     await startButton.waitFor({ state: "visible", timeout: 5000 });
-    await startButton.click({ force: true });
+
+    // FIX: Use evaluate to click button more reliably
+    // This ensures React event handlers are properly triggered
+    await startButton.evaluate((button: HTMLButtonElement) => button.click());
 
     await skipWormLoadingIfPresent(page);
 
