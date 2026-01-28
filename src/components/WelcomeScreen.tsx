@@ -16,7 +16,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const startAudioSequenceRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const videoSrc = '/Sansom Video112-evan.mp4'
+  const videoSrc = '/New_welcome_video.mp4'
   const fallbackImageSrc = '/welcome-sangsom.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
