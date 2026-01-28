@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react'
-import type { GameObject } from '../types/game'
 import { multiTouchHandler } from '../lib/touch-handler'
+import type { GameObject } from '../types/game'
 
 interface FallingObjectProps {
   object: GameObject
@@ -122,11 +122,9 @@ if (typeof document !== 'undefined') {
       @keyframes outlinePulseLetter {
         0%, 100% {
           filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
-          transform: scale(1);
         }
         50% {
           filter: drop-shadow(0 0 8px rgba(255, 0, 255, 0.8)) drop-shadow(0 0 12px rgba(255, 0, 255, 0.4));
-          transform: scale(1.05);
         }
       }
       @keyframes outlinePulseNumber {
