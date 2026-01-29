@@ -9,11 +9,10 @@ import { expect, test } from "@playwright/test";
 import path from "path";
 
 test.describe("Visual UI Verification - User Perspective", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-  });
-
   test("should capture welcome screen as user sees it", async ({ page }) => {
+    // Navigate to welcome screen with proper wait option for PWA compatibility
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
     // DIAGNOSTIC: Check URL parameters
     const url = page.url();
     console.log("🔍 DIAGNOSTIC: Current URL:", url);
@@ -82,8 +81,8 @@ test.describe("Visual UI Verification - User Perspective", () => {
   test("should capture menu screen and verify UI is IN VIEWPORT", async ({
     page,
   }) => {
-    // Skip welcome screen
-    await page.goto("/?e2e=1");
+    // Skip welcome screen with proper wait option for PWA compatibility
+    await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
 
     // VISUAL CHECK: Get viewport dimensions
@@ -123,7 +122,7 @@ test.describe("Visual UI Verification - User Perspective", () => {
   });
 
   test("should show menu buttons visually to user", async ({ page }) => {
-    await page.goto("/?e2e=1");
+    await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
 
     const buttons = [
@@ -172,7 +171,7 @@ test.describe("Visual UI Verification - User Perspective", () => {
   });
 
   test("should measure visual layout issues", async ({ page }) => {
-    await page.goto("/?e2e=1");
+    await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
 
     const layoutInfo = await page.evaluate(() => {

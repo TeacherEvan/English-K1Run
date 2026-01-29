@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import { Card } from './ui/card'
 import { Badge } from './ui/badge'
+import { Card } from './ui/card'
 
 interface DisplayInfoProps {
   isVisible: boolean
@@ -16,18 +16,18 @@ interface DisplayInfoProps {
   onToggle: () => void
 }
 
-export const DisplayInfo = memo(({ 
-  isVisible, 
-  screenWidth, 
-  screenHeight, 
-  aspectRatio, 
-  scale, 
-  fontSize, 
-  objectSize, 
-  turtleSize, 
-  fallSpeed, 
+export const DisplayInfo = memo(({
+  isVisible,
+  screenWidth,
+  screenHeight,
+  aspectRatio,
+  scale,
+  fontSize,
+  objectSize,
+  turtleSize,
+  fallSpeed,
   isLandscape,
-  onToggle 
+  onToggle
 }: DisplayInfoProps) => {
   if (!isVisible) {
     return (
@@ -35,6 +35,7 @@ export const DisplayInfo = memo(({
         onClick={onToggle}
         className="fixed bottom-4 right-4 bg-accent text-accent-foreground p-3 rounded-full shadow-lg hover:scale-110 transition-transform z-50"
         style={{ fontSize: `calc(1rem * var(--font-scale, 1))` }}
+        aria-label="Show display information"
       >
         📱
       </button>
@@ -65,54 +66,54 @@ export const DisplayInfo = memo(({
             onClick={onToggle}
             className="text-muted-foreground hover:text-foreground"
             style={{ fontSize: `calc(1.25rem * var(--font-scale, 1))` }}
+            aria-label="Close display information"
           >
             ✕
           </button>
         </div>
-        
         <div className="space-y-2" style={{ fontSize: `calc(0.75rem * var(--font-scale, 1))` }}>
           <div className="flex justify-between">
             <span>Screen:</span>
             <Badge variant="outline">{getScreenCategory()}</Badge>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Resolution:</span>
             <span className="font-mono">{screenWidth}×{screenHeight}</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Aspect Ratio:</span>
             <Badge variant="outline">{getAspectRatioCategory()}</Badge>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Orientation:</span>
             <span>{isLandscape ? '🖥️ Landscape' : '📱 Portrait'}</span>
           </div>
-          
+
           <hr className="border-border" />
-          
+
           <div className="flex justify-between">
             <span>Scale:</span>
             <span className="font-mono">{scale.toFixed(2)}×</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Font Scale:</span>
             <span className="font-mono">{fontSize.toFixed(2)}×</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Object Scale:</span>
             <span className="font-mono">{objectSize.toFixed(2)}×</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Turtle Scale:</span>
             <span className="font-mono">{turtleSize.toFixed(2)}×</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span>Fall Speed:</span>
             <span className="font-mono">{fallSpeed.toFixed(2)}×</span>
@@ -122,3 +123,5 @@ export const DisplayInfo = memo(({
     </div>
   )
 })
+
+DisplayInfo.displayName = 'DisplayInfo'

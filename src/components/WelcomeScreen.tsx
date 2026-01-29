@@ -96,11 +96,25 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     // Start audio playback - tries immediately, retries on user interaction
     const startAudioSequence = async () => {
       // Prevent multiple starts or running if cancelled
-      if (audioStartedRef.current || cancelled || readyToContinue) return
-      audioStartedRef.current = true
+      const isReady = readyToContinue;
+      console.log("[WelcomeScreen] startAudioSequence called:", {
+        audioStarted: audioStartedRef.current,
+        cancelled,
+        readyToContinue: isReady,
+        timestamp: Date.now()
+      });
+
+      if (audioStartedRef.current || cancelled || isReady) {
+        console.log("[WelcomeScreen] Audio sequence blocked by guard condition");
+        return;
+      }
+      audioStartedRef.current = true;
 
       try {
-        console.log("[WelcomeScreen] Starting audio sequence...");
+        console.log("[WelcomeScreen] Starting audio sequence...", {
+          audioContextState: soundManager.isInitialized() ? 'initialized' : 'not initialized',
+          timestamp: Date.now()
+        });
         // Ensure nothing else is playing under the narration.
         soundManager.stopAllAudio()
 
@@ -110,27 +124,36 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
         // Phase 1: English
         checkActive();
+        console.log("[WelcomeScreen] Playing phase 1: welcome_association");
         await playWithTimeout('welcome_association', 0.9, 0.85)
 
         // Phase 2: English
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
+        console.log("[WelcomeScreen] Playing phase 2: welcome_learning");
         await playWithTimeout('welcome_learning', 0.9, 0.85)
 
         // Phase 3: Thai (Slowed)
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
+        console.log("[WelcomeScreen] Playing phase 3: welcome_learning_thai");
         await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
 
-        if (!cancelled && !readyToContinue) {
+        if (!cancelled && !isReady) {
           console.log("[WelcomeScreen] Sequence finished normally")
           setReadyToContinue(true)
           setSequenceFinished(true)
         }
       } catch (err) {
         // Only log warning if it wasn't an intentional cancellation
+        console.log("[WelcomeScreen] Audio sequence error:", {
+          error: err instanceof Error ? err.message : String(err),
+          audioStarted: audioStartedRef.current,
+          readyToContinue: isReady,
+          timestamp: Date.now()
+        });
         if (err instanceof Error && err.message !== 'Sequence cancelled') {
           console.warn('[WelcomeScreen] Audio sequence failed:', err)
         }
@@ -148,6 +171,11 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
     // Fallback: Also trigger on first user interaction if audio hasn't started
     const handleInteraction = () => {
+      console.log("[WelcomeScreen] Document interaction detected:", {
+        audioStarted: audioStartedRef.current,
+        cancelled,
+        timestamp: Date.now()
+      });
       if (!audioStartedRef.current && !cancelled) {
         void startAudioSequence()
       }
@@ -186,7 +214,8 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   }, [handlePrimaryAction])
 
   useEffect(() => {
-    if (!videoLoaded || isE2E) return
+    if (!videoLoaded || isE2E) return;
+    console.log("[WelcomeScreen] Video loaded, triggering audio sequence");
     startAudioSequenceRef.current?.()
   }, [isE2E, videoLoaded])
 

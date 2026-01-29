@@ -5,7 +5,11 @@ import { audioBufferLoader } from "./audio/audio-buffer-loader";
 import { audioContextManager } from "./audio/audio-context-manager";
 import { prefetchAudioKeys as prefetchAudioKeysInternal } from "./audio/audio-key-prefetcher";
 import { audioPreloader } from "./audio/audio-preloader";
-import { getAudioUrl, getRegisteredKeys, resolveCandidates } from "./audio/audio-registry";
+import {
+  getAudioUrl,
+  getRegisteredKeys,
+  resolveCandidates,
+} from "./audio/audio-registry";
 import { audioSpritePlayer } from "./audio/audio-sprite";
 import { SoundPlaybackEngine } from "./audio/sound-playback-engine";
 import { SpeechPlayback } from "./audio/speech-playback";
@@ -225,13 +229,23 @@ class SoundManager {
     playbackRate = 0.9,
     volumeOverride?: number,
   ): Promise<void> {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) {
+      console.log(
+        `[SoundManager] playSound skipped - audio disabled: "${soundName}"`,
+      );
+      return;
+    }
 
     this.trackPlaybackStart(soundName);
 
     try {
       if (import.meta.env.DEV) {
-        console.log(`[SoundManager] playSound called: "${soundName}"`);
+        console.log(`[SoundManager] playSound called: "${soundName}"`, {
+          contextExists: !!this.audioContext,
+          contextState: this.audioContext?.state,
+          userInteraction: this.userInteractionReceived,
+          timestamp: Date.now(),
+        });
       }
 
       if (this.useAudioSprite && audioSpritePlayer.isConfigured()) {
@@ -275,10 +289,13 @@ class SoundManager {
 
       await this.ensureInitialized();
       if (!this.audioContext) {
-        console.error("[SoundManager] No audio context available");
+        console.error(
+          "[SoundManager] No audio context available after ensureInitialized",
+        );
         return;
       }
 
+      console.log(`[SoundManager] Loading buffer for: "${soundName}"`);
       const buffer = await this.loadBufferForName(soundName);
       if (!buffer) {
         console.warn(
@@ -288,6 +305,9 @@ class SoundManager {
         return;
       }
 
+      console.log(
+        `[SoundManager] Buffer loaded, starting playback for: "${soundName}"`,
+      );
       await this.startBufferAsync(
         buffer,
         0,
