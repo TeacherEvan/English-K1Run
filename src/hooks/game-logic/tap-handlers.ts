@@ -5,6 +5,7 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
+import { playSoundEffect } from "../../lib/sound-manager";
 import type {
   FairyTransformObject,
   GameObject,
@@ -73,6 +74,13 @@ export const createHandleObjectTap = (
       const isCorrect = currentCategory.requiresSequence
         ? tappedObject.type === gameState.currentTarget
         : tappedObject.emoji === gameState.targetEmoji;
+
+      // Play sound for correct/incorrect tap
+      if (isCorrect) {
+        playSoundEffect.targetHit();
+      } else {
+        playSoundEffect.targetMiss();
+      }
 
       const tapLatency = performance.now() - tapStartTime;
       eventTracker.trackObjectTap(

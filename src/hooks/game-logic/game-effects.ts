@@ -24,8 +24,6 @@ export const useViewportObserver = (
     const updateViewport = () => {
       viewportRef.current.width = window.innerWidth;
       viewportRef.current.height = window.innerHeight;
-      // Call optional resize callback in the same tick to prevent race conditions
-      // with CSS variable updates (prevents layout thrashing)
       onResize?.();
     };
 
@@ -83,8 +81,11 @@ export const useAnimationLoop = (
   winner: boolean,
   updateObjects: () => void,
   setWorms: Dispatch<SetStateAction<WormObject[]>>,
+  setGameObjects: Dispatch<SetStateAction<GameObject[]>>,
   viewportRef: MutableRefObject<{ width: number; height: number }>,
   wormSpeedMultiplier: MutableRefObject<number>,
+  gameObjectsRef: MutableRefObject<GameObject[]>,
+  wormsRef: MutableRefObject<WormObject[]>,
 ) => {
   useEffect(() => {
     if (!gameStarted || winner) {
@@ -101,9 +102,21 @@ export const useAnimationLoop = (
       const dt = Math.min((currentTime - lastWormTime) / 16.67, 2);
       lastWormTime = currentTime;
 
+      // Update worm positions
       setWorms((prev) =>
         updateWormPositions(prev, dt, viewportRef, wormSpeedMultiplier),
       );
+
+      // Apply worm-object collision (synchronized with object updates)
+      const currentWorms = wormsRef.current;
+      const currentObjects = gameObjectsRef.current;
+      if (currentWorms.length > 0 && currentObjects.length > 0) {
+        setGameObjects((prev) => {
+          const updated = [...prev];
+          applyWormObjectCollision(currentWorms, updated, { viewportRef });
+          return updated;
+        });
+      }
 
       const elapsed = currentTime - lastObjectUpdateTime;
       if (elapsed >= frameInterval) {
@@ -121,60 +134,16 @@ export const useAnimationLoop = (
     winner,
     updateObjects,
     setWorms,
-    viewportRef,
-    wormSpeedMultiplier,
-  ]);
-};
-
-export const useCollisionLoop = (
-  gameStarted: boolean,
-  winner: boolean,
-  wormsRef: MutableRefObject<WormObject[]>,
-  gameObjectsRef: MutableRefObject<GameObject[]>,
-  setGameObjects: Dispatch<SetStateAction<GameObject[]>>,
-  viewportRef: MutableRefObject<{ width: number; height: number }>,
-) => {
-  useEffect(() => {
-    if (!gameStarted || winner) {
-      return;
-    }
-
-    let collisionFrameId: number;
-    let lastCollisionTime = 0;
-    const collisionInterval = 1000 / 30;
-
-    const applyCollisions = (currentTime: number) => {
-      const elapsed = currentTime - lastCollisionTime;
-
-      if (elapsed >= collisionInterval) {
-        const currentWorms = wormsRef.current;
-        const currentObjects = gameObjectsRef.current;
-
-        if (currentWorms.length > 0 && currentObjects.length > 0) {
-          setGameObjects((prev) => {
-            const updated = [...prev];
-            applyWormObjectCollision(currentWorms, updated, { viewportRef });
-            return updated;
-          });
-        }
-
-        lastCollisionTime = currentTime - (elapsed % collisionInterval);
-      }
-
-      collisionFrameId = requestAnimationFrame(applyCollisions);
-    };
-
-    collisionFrameId = requestAnimationFrame(applyCollisions);
-    return () => cancelAnimationFrame(collisionFrameId);
-  }, [
-    gameStarted,
-    winner,
-    wormsRef,
-    gameObjectsRef,
     setGameObjects,
     viewportRef,
+    wormSpeedMultiplier,
+    gameObjectsRef,
+    wormsRef,
   ]);
 };
+
+// Removed useCollisionLoop - collision detection is now integrated into useAnimationLoop
+// to prevent duplicate collision resolution that was causing scattered target positions
 
 export const useFairyCleanup = (
   gameStarted: boolean,

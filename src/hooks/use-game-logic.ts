@@ -9,7 +9,6 @@ import type {
 } from "../types/game";
 import {
   useAnimationLoop,
-  useCollisionLoop,
   useFairyCleanup,
   useNextCategoryPrefetch,
   useSpawnInterval,
@@ -230,16 +229,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameState.winner,
     updateObjects,
     setWorms,
-    viewportRef,
-    wormSpeedMultiplier,
-  );
-  useCollisionLoop(
-    gameState.gameStarted,
-    gameState.winner,
-    wormsRef,
-    gameObjectsRef,
     setGameObjects,
     viewportRef,
+    wormSpeedMultiplier,
+    gameObjectsRef,
+    wormsRef,
   );
   useFairyCleanup(gameState.gameStarted, gameState.winner, setFairyTransforms);
 

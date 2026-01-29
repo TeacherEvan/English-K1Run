@@ -385,6 +385,10 @@ export const playSoundEffect = {
   },
   welcome: async () => soundManager.playSound("welcome"),
   stopAll: () => soundManager.stopAllAudio(),
+  // Target-related sounds
+  targetSpawn: () => soundManager.playSound("target_spawn"),
+  targetHit: () => soundManager.playSound("celebrate"),
+  targetMiss: () => soundManager.playSound("explosion"),
 };
 
 export const prefetchAudioKeys = (keys: string[]) =>

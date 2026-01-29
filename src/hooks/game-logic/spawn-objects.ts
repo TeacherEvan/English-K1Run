@@ -15,6 +15,7 @@ import {
   TARGET_GUARANTEE_COUNT,
 } from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
+import { playSoundEffect } from "../../lib/sound-manager";
 import { calculateSafeSpawnPosition } from "../../lib/utils/spawn-position";
 import type { GameObject, GameState, PlayerSide } from "../../types/game";
 
@@ -409,6 +410,7 @@ export const createSpawnHandlers = (dependencies: SpawnDependencies) => {
         }
 
         if (created.length > 0) {
+          playSoundEffect.targetSpawn();
           eventTracker.trackObjectSpawn(`batch-${created.length}`, {
             count: created.length,
           });
