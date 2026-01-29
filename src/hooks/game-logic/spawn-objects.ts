@@ -154,7 +154,7 @@ export const createSpawnHandlers = (dependencies: SpawnDependencies) => {
         const requiredSlots = TARGET_GUARANTEE_COUNT + MIN_DECOY_SLOTS;
         const maxObjectsBeforeSpawn = MAX_ACTIVE_OBJECTS - requiredSlots;
 
-        let workingList = [...prev];
+        const workingList = [...prev];
         if (workingList.length > maxObjectsBeforeSpawn) {
           const targetEmoji = currentTarget;
           let targetCountOnScreen = 0;
@@ -197,15 +197,6 @@ export const createSpawnHandlers = (dependencies: SpawnDependencies) => {
               targetCountOnScreen--;
             }
             removedCount++;
-          }
-
-          if (removedCount > 0) {
-            workingList = workingList.filter((obj) => !idsToRemove.has(obj.id));
-            if (import.meta.env.DEV) {
-              console.log(
-                `[SpawnObject] Trimmed ${removedCount} old objects to reserve decoy slots`,
-              );
-            }
           }
         }
 

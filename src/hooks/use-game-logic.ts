@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import type {
-  Achievement,
-  ComboCelebration,
   FairyTransformObject,
   GameObject,
   GameState,
-  MilestoneEvent,
   UseGameLogicOptions,
   WormObject,
 } from "../types/game";
@@ -33,13 +30,10 @@ import { useDisplayAdjustment } from "./use-display-adjustment";
 // Re-export for backward compatibility
 export { GAME_CATEGORIES } from "../lib/constants/game-categories";
 export type {
-  Achievement,
-  ComboCelebration,
   FairyTransformObject,
   GameCategory,
   GameObject,
   GameState,
-  MilestoneEvent,
   PlayerSide,
   WormObject,
 } from "../types/game";
@@ -64,11 +58,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     multiplier: 1.0,
     lastMilestone: 0,
   }));
-  const [comboCelebration, setComboCelebration] =
-    useState<ComboCelebration | null>(null);
-  const [currentMilestone, setCurrentMilestone] =
-    useState<MilestoneEvent | null>(null);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   const continuousModeTargetCount = useRef(0);
   const [continuousModeStartTime, setContinuousModeStartTime] = useState<
@@ -81,16 +70,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     const stored = localStorage.getItem("continuousModeHighScore");
     return stored ? parseInt(stored, 10) : null;
   });
-  const [showHighScoreWindow, setShowHighScoreWindow] = useState(false);
-  const [lastCompletionTime, setLastCompletionTime] = useState<number | null>(
-    null,
-  );
-  const [continuousModeElapsed, setContinuousModeElapsed] = useState<
-    number | null
-  >(null);
 
   const viewportRef = useRef({ width: 1920, height: 1080 });
-  // Use display adjustment hook to get resize update function for consolidated resize handling
   const { triggerResizeUpdate } = useDisplayAdjustment();
   useViewportObserver(viewportRef, triggerResizeUpdate);
 
@@ -185,16 +166,11 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         continuousModeHighScore,
         continuousModeStartTime,
         setContinuousModeHighScore,
-        setLastCompletionTime,
-        setShowHighScoreWindow,
         setContinuousModeStartTime,
         refillTargetPool,
         setGameState,
-        setAchievements,
-        setComboCelebration,
         setScreenShake,
         setGameObjects,
-        setCurrentMilestone,
       }),
     [
       gameState,
@@ -212,7 +188,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     () =>
       createHandleWormTap({
         setWorms,
-        setAchievements,
         setFairyTransforms,
         wormSpeedMultiplier,
       }),
@@ -239,7 +214,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         setFairyTransforms,
         setScreenShake,
         setGameState,
-        setComboCelebration,
       }),
     [
       clampLevel,
@@ -269,11 +243,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   );
   useFairyCleanup(gameState.gameStarted, gameState.winner, setFairyTransforms);
 
-  const clearComboCelebration = useCallback(
-    () => setComboCelebration(null),
-    [],
-  );
-
   const changeTargetToVisibleEmoji = useMemo(
     () =>
       createChangeTargetToVisibleEmoji({
@@ -286,27 +255,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     [currentCategory, spawnImmediateTargets],
   );
 
-  const clearMilestone = useCallback(() => {
-    setCurrentMilestone(null);
-  }, []);
-
-  // Update elapsed time periodically
-  useEffect(() => {
-    if (!continuousModeStartTime) {
-      setContinuousModeElapsed(null);
-      return;
-    }
-
-    const updateElapsed = () => {
-      setContinuousModeElapsed(Date.now() - continuousModeStartTime);
-    };
-
-    updateElapsed(); // Initial update
-    const interval = setInterval(updateElapsed, 100); // Update every 100ms
-
-    return () => clearInterval(interval);
-  }, [continuousModeStartTime]);
-
   return {
     gameObjects,
     worms,
@@ -318,20 +266,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     handleWormTap,
     startGame,
     resetGame,
-    comboCelebration,
-    clearComboCelebration,
     changeTargetToVisibleEmoji,
-    achievements,
-    clearAchievement: (achievementId: number) => {
-      setAchievements((prev) => prev.filter((a) => a.id !== achievementId));
-    },
-    continuousModeElapsed,
     continuousModeHighScore,
-    showHighScoreWindow,
-    lastCompletionTime,
-    closeHighScoreWindow: () => setShowHighScoreWindow(false),
-    currentMilestone,
-    clearMilestone,
-    currentMultiplier: gameState.multiplier || 1.0,
   };
 };

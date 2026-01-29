@@ -3,24 +3,12 @@
  */
 
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
-import {
-  COMBO_LEVELS,
-  getStreakMultiplier,
-} from "../../lib/constants/combo-levels";
-import { checkMilestone } from "../../lib/constants/engagement-system";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
-import {
-  CORRECT_MESSAGES,
-  getStreakMessage,
-} from "../../lib/constants/messages";
 import { eventTracker } from "../../lib/event-tracker";
 import type {
-  Achievement,
-  ComboCelebration,
   FairyTransformObject,
   GameObject,
   GameState,
-  MilestoneEvent,
   PlayerSide,
   WormObject,
 } from "../../types/game";
@@ -39,16 +27,11 @@ export interface HandleObjectTapDependencies {
   continuousModeHighScore: number | null;
   continuousModeStartTime: number | null;
   setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;
-  setLastCompletionTime: Dispatch<SetStateAction<number | null>>;
-  setShowHighScoreWindow: Dispatch<SetStateAction<boolean>>;
   setContinuousModeStartTime: Dispatch<SetStateAction<number | null>>;
   refillTargetPool: (levelIndex?: number) => void;
   setGameState: Dispatch<SetStateAction<GameState>>;
-  setAchievements: Dispatch<SetStateAction<Achievement[]>>;
-  setComboCelebration: Dispatch<SetStateAction<ComboCelebration | null>>;
   setScreenShake: Dispatch<SetStateAction<boolean>>;
   setGameObjects: Dispatch<SetStateAction<GameObject[]>>;
-  setCurrentMilestone: Dispatch<SetStateAction<MilestoneEvent | null>>;
 }
 
 export const createHandleObjectTap = (
@@ -65,16 +48,11 @@ export const createHandleObjectTap = (
     continuousModeHighScore,
     continuousModeStartTime,
     setContinuousModeHighScore,
-    setLastCompletionTime,
-    setShowHighScoreWindow,
     setContinuousModeStartTime,
     refillTargetPool,
     setGameState,
-    setAchievements,
-    setComboCelebration,
     setScreenShake,
     setGameObjects,
-    setCurrentMilestone,
   } = dependencies;
 
   return (objectId: string, playerSide: PlayerSide) => {
@@ -114,92 +92,40 @@ export const createHandleObjectTap = (
         data: { isCorrect, tapLatency },
       });
 
+      setGameObjects((prev) => {
+        const removedObj = prev.find((obj) => obj.id === objectId);
+        if (removedObj) {
+          eventTracker.trackEmojiLifecycle({
+            objectId: removedObj.id,
+            emoji: removedObj.emoji,
+            name: removedObj.type,
+            phase: "removed",
+            position: { x: removedObj.x, y: removedObj.y },
+            playerSide: tappedObject.lane,
+            data: { reason: "tapped", isCorrect },
+          });
+        }
+        return prev.filter((obj) => obj.id !== objectId);
+      });
+
       setGameState((prev) => {
         const newState = { ...prev };
 
         if (isCorrect) {
-          const nextStreak = prev.streak + 1;
-          newState.streak = nextStreak;
-
-          const currentMultiplier = getStreakMultiplier(nextStreak);
-          newState.multiplier = currentMultiplier;
-
-          const streakMsg = getStreakMessage(nextStreak);
-          const randomMsg =
-            streakMsg ||
-            CORRECT_MESSAGES[
-              Math.floor(Math.random() * CORRECT_MESSAGES.length)
-            ];
-          setAchievements((prevAchievements) => [
-            ...prevAchievements,
-            {
-              id: Date.now(),
-              type: "correct",
-              message: randomMsg.message,
-              emoji: randomMsg.emoji,
-              x: tappedObject.x,
-              y: tappedObject.y,
-              playerSide: tappedObject.lane,
-            },
-          ]);
-
-          const comboLevel = COMBO_LEVELS.find(
-            (level) => level.streak === nextStreak,
-          );
-          if (comboLevel) {
-            const comboData: ComboCelebration = {
-              id: Date.now(),
-              streak: nextStreak,
-              title: comboLevel.title,
-              description: comboLevel.description,
-              emoji: comboLevel.emoji,
-              specialEffect: comboLevel.specialEffect,
-            };
-            setComboCelebration(comboData);
-            eventTracker.trackEvent({
-              type: "info",
-              category: "combo",
-              message: `Combo streak reached ${comboData.streak} (${currentMultiplier}x multiplier)`,
-              data: { ...comboData, multiplier: currentMultiplier },
-            });
-          }
+          newState.streak += 1;
 
           const basePoints = 20;
-          const earnedPoints = Math.round(basePoints * currentMultiplier);
-          const previousProgress = prev.progress;
-          newState.progress = Math.min(prev.progress + earnedPoints, 100);
-
-          const milestone = checkMilestone(previousProgress, newState.progress);
-          if (milestone && (prev.lastMilestone || 0) < milestone.progress) {
-            newState.lastMilestone = milestone.progress;
-
-            setCurrentMilestone({
-              progress: milestone.progress,
-              title: milestone.title,
-              message: milestone.message,
-              emoji: milestone.emoji,
-              triggeredAt: Date.now(),
-            });
-
-            eventTracker.trackEvent({
-              type: "info",
-              category: "milestone",
-              message: `Milestone reached: ${milestone.progress}%`,
-              data: { ...milestone },
-            });
-          }
+          newState.progress = Math.min(prev.progress + basePoints, 100);
 
           if (newState.progress >= 100) {
             if (continuousMode) {
               continuousModeTargetCount.current += 1;
-
               newState.progress = 0;
               newState.winner = false;
               newState.lastMilestone = 0;
 
               if (continuousModeTargetCount.current >= 5) {
                 continuousModeTargetCount.current = 0;
-
                 const nextLevel = (prev.level + 1) % GAME_CATEGORIES.length;
                 newState.level = nextLevel;
 
@@ -211,7 +137,6 @@ export const createHandleObjectTap = (
 
                 if (nextLevel === 0 && continuousModeStartTime) {
                   const elapsed = Date.now() - continuousModeStartTime;
-                  setLastCompletionTime(elapsed);
                   if (
                     !continuousModeHighScore ||
                     elapsed < continuousModeHighScore
@@ -222,7 +147,6 @@ export const createHandleObjectTap = (
                       elapsed.toString(),
                     );
                   }
-                  setShowHighScoreWindow(true);
                   setContinuousModeStartTime(Date.now());
                 }
 
@@ -231,12 +155,6 @@ export const createHandleObjectTap = (
                   { ...newState },
                   "continuous_mode_level_change",
                 );
-
-                if (import.meta.env.DEV) {
-                  console.log(
-                    `[ContinuousMode] Advanced to level ${nextLevel}: ${GAME_CATEGORIES[nextLevel].name}`,
-                  );
-                }
               } else {
                 eventTracker.trackGameStateChange(
                   { ...prev },
@@ -271,7 +189,6 @@ export const createHandleObjectTap = (
               { ...newState },
               "target_change_on_correct_tap",
             );
-
             setTimeout(() => spawnImmediateTargets(), 0);
           }
 
@@ -288,7 +205,6 @@ export const createHandleObjectTap = (
                 { ...newState },
                 "sequence_advance",
               );
-
               setTimeout(() => spawnImmediateTargets(), 0);
             }
           }
@@ -300,28 +216,11 @@ export const createHandleObjectTap = (
             { ...newState },
             "incorrect_tap_penalty",
           );
-
           setScreenShake(true);
           setTimeout(() => setScreenShake(false), 500);
         }
 
         return newState;
-      });
-
-      setGameObjects((prev) => {
-        const removedObj = prev.find((obj) => obj.id === objectId);
-        if (removedObj) {
-          eventTracker.trackEmojiLifecycle({
-            objectId: removedObj.id,
-            emoji: removedObj.emoji,
-            name: removedObj.type,
-            phase: "removed",
-            position: { x: removedObj.x, y: removedObj.y },
-            playerSide: tappedObject.lane,
-            data: { reason: "tapped", isCorrect },
-          });
-        }
-        return prev.filter((obj) => obj.id !== objectId);
       });
     } catch (error) {
       eventTracker.trackError(error as Error, "handleObjectTap");
@@ -331,7 +230,6 @@ export const createHandleObjectTap = (
 
 export interface HandleWormTapDependencies {
   setWorms: Dispatch<SetStateAction<WormObject[]>>;
-  setAchievements: Dispatch<SetStateAction<Achievement[]>>;
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>;
   wormSpeedMultiplier: MutableRefObject<number>;
 }
@@ -339,8 +237,7 @@ export interface HandleWormTapDependencies {
 export const createHandleWormTap = (
   dependencies: HandleWormTapDependencies,
 ) => {
-  const { setWorms, setAchievements, setFairyTransforms, wormSpeedMultiplier } =
-    dependencies;
+  const { setWorms, setFairyTransforms, wormSpeedMultiplier } = dependencies;
 
   return (wormId: string, playerSide: PlayerSide) => {
     try {
@@ -348,24 +245,6 @@ export const createHandleWormTap = (
         const worm = prev.find((w) => w.id === wormId);
         if (!worm || !worm.alive) return prev;
 
-        setAchievements((prevAchievements) => [
-          ...prevAchievements,
-          {
-            id: Date.now(),
-            type: "worm",
-            message: "",
-            emoji: undefined,
-            x: worm.x,
-            y: worm.y,
-            playerSide: worm.lane,
-          },
-        ]);
-
-        if (import.meta.env.DEV) {
-          console.log(
-            `[FairySpawn] Creating fairy at worm position: x=${worm.x}%, y=${worm.y}px, lane=${worm.lane}`,
-          );
-        }
         setFairyTransforms((prevFairies) => [
           ...prevFairies,
           {

@@ -44,12 +44,6 @@ export const createTargetPoolManager = (
     const safeLevel = clampLevel(level);
     const category = getCategory(safeLevel);
     targetPoolRef.current = shuffleArray(category.items);
-
-    if (import.meta.env.DEV) {
-      console.log(
-        `[TargetPool] Refilled with ${targetPoolRef.current.length} items (shuffled)`,
-      );
-    }
   };
 
   const generateRandomTarget = (levelOverride?: number) => {
@@ -70,12 +64,6 @@ export const createTargetPoolManager = (
     if (!targetItem) {
       const fallback = category.items[0];
       return { name: fallback.name, emoji: fallback.emoji };
-    }
-
-    if (import.meta.env.DEV) {
-      console.log(
-        `[TargetPool] Selected "${targetItem.name}", ${targetPoolRef.current.length} remaining`,
-      );
     }
 
     return { name: targetItem.name, emoji: targetItem.emoji };

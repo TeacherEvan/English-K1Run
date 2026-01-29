@@ -175,11 +175,7 @@ class SoundManager {
   }
 
   async ensureInitialized() {
-    if (!this.isEnabled) {
-      console.warn("[SoundManager] Audio is disabled");
-      return;
-    }
-
+    if (!this.isEnabled) return;
     await audioContextManager.ensureInitialized();
   }
 
@@ -188,32 +184,23 @@ class SoundManager {
   }
 
   async startProgressiveLoading(): Promise<void> {
-    if (!this.isEnabled) return;
-
+    if (!this.isEnabled || !this.userInteractionReceived) return;
     try {
-      if (this.userInteractionReceived) {
-        await audioPreloader.startProgressiveLoading();
-      }
-    } catch (error) {
-      console.error("[SoundManager] Error during progressive loading:", error);
+      await audioPreloader.startProgressiveLoading();
+    } catch {
+      /* silent fail */
     }
   }
 
   stopAllAudio() {
     this.playbackEngine.stopAllAudio();
-
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       try {
         window.speechSynthesis.cancel();
       } catch {
-        // Speech synthesis may not be available
+        /* silent */
       }
     }
-
-    if (import.meta.env.DEV) {
-      console.log("[SoundManager] Stopped all active audio");
-    }
-
     this.activePlaybackCount = 0;
     if (typeof window !== "undefined") {
       window.__audioDebug = {
@@ -229,25 +216,9 @@ class SoundManager {
     playbackRate = 0.9,
     volumeOverride?: number,
   ): Promise<void> {
-    if (!this.isEnabled) {
-      console.log(
-        `[SoundManager] playSound skipped - audio disabled: "${soundName}"`,
-      );
-      return;
-    }
-
+    if (!this.isEnabled) return;
     this.trackPlaybackStart(soundName);
-
     try {
-      if (import.meta.env.DEV) {
-        console.log(`[SoundManager] playSound called: "${soundName}"`, {
-          contextExists: !!this.audioContext,
-          contextState: this.audioContext?.state,
-          userInteraction: this.userInteractionReceived,
-          timestamp: Date.now(),
-        });
-      }
-
       if (this.useAudioSprite && audioSpritePlayer.isConfigured()) {
         const candidates = this.resolveCandidates(soundName);
         for (const candidate of candidates) {
@@ -255,12 +226,9 @@ class SoundManager {
             playbackRate,
             volume: volumeOverride ?? this.volume,
           });
-          if (played) {
-            return;
-          }
+          if (played) return;
         }
       }
-
       if (this.preferHTMLAudio) {
         const candidates = this.resolveCandidates(soundName);
         for (const candidate of candidates) {
@@ -273,41 +241,16 @@ class SoundManager {
             undefined,
             volumeOverride,
           );
-          if (played) {
-            if (import.meta.env.DEV) {
-              console.log(
-                `[SoundManager] Played with HTMLAudio: "${soundName}"`,
-              );
-            }
-            return;
-          }
+          if (played) return;
         }
-        console.warn(
-          `[SoundManager] HTMLAudio failed for "${soundName}", falling back to Web Audio`,
-        );
       }
-
       await this.ensureInitialized();
-      if (!this.audioContext) {
-        console.error(
-          "[SoundManager] No audio context available after ensureInitialized",
-        );
-        return;
-      }
-
-      console.log(`[SoundManager] Loading buffer for: "${soundName}"`);
+      if (!this.audioContext) return;
       const buffer = await this.loadBufferForName(soundName);
       if (!buffer) {
-        console.warn(
-          `[SoundManager] Sound "${soundName}" not available, using fallback`,
-        );
         describeIfEnabled(`Sound: ${soundName}`);
         return;
       }
-
-      console.log(
-        `[SoundManager] Buffer loaded, starting playback for: "${soundName}"`,
-      );
       await this.startBufferAsync(
         buffer,
         0,
@@ -315,9 +258,6 @@ class SoundManager {
         playbackRate,
         volumeOverride,
       );
-      if (import.meta.env.DEV) {
-        console.log(`[SoundManager] Finished playing sound: "${soundName}"`);
-      }
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
       describeIfEnabled(`Sound failed: ${soundName}`);
@@ -387,35 +327,20 @@ class SoundManager {
     options?: { pitch?: number; rate?: number; volume?: number },
   ) {
     if (!this.isEnabled || !text) return;
-
     return this.speechPlayback.enqueue(async () => {
       try {
-        if (!this.speechPlayback.canUseSpeech()) {
-          console.warn("[SoundManager] Speech synthesis not available");
-          return;
-        }
-
+        if (!this.speechPlayback.canUseSpeech()) return;
         const synth = window.speechSynthesis;
         if (!synth) return;
-
         await new Promise<void>((resolve) => {
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.pitch = options?.pitch ?? 1.0;
           utterance.rate = options?.rate ?? 1.0;
           utterance.volume = options?.volume ?? this.volume;
-
           utterance.onend = () => resolve();
           utterance.onerror = () => resolve();
-
           synth.speak(utterance);
         });
-
-        if (import.meta.env.DEV) {
-          console.log(
-            `[SoundManager] Speaking with custom options: "${text}"`,
-            options,
-          );
-        }
       } catch (error) {
         console.error("[SoundManager] Custom speech synthesis error:", error);
       }
@@ -424,20 +349,11 @@ class SoundManager {
 
   setLanguage(langCode: SupportedLanguage): void {
     if (this.currentLanguage === langCode) return;
-
     this.currentLanguage = langCode;
-
     try {
       speechSynthesizer.setLanguage(langCode);
-    } catch (error) {
-      console.warn(
-        "[SoundManager] Failed to set speech synthesizer language:",
-        error,
-      );
-    }
-
-    if (import.meta.env.DEV) {
-      console.log(`[SoundManager] Language changed to: ${langCode}`);
+    } catch {
+      /* silent */
     }
   }
 

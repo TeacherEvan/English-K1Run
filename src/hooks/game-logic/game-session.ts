@@ -13,7 +13,6 @@ import {
 import { eventTracker } from "../../lib/event-tracker";
 import { multiTouchHandler } from "../../lib/touch-handler";
 import type {
-  ComboCelebration,
   FairyTransformObject,
   GameObject,
   GameState,
@@ -42,7 +41,6 @@ export interface GameSessionDependencies {
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>;
   setScreenShake: Dispatch<SetStateAction<boolean>>;
   setGameState: Dispatch<SetStateAction<GameState>>;
-  setComboCelebration: Dispatch<SetStateAction<ComboCelebration | null>>;
 }
 
 export const createGameSessionHandlers = (
@@ -66,7 +64,6 @@ export const createGameSessionHandlers = (
     setFairyTransforms,
     setScreenShake,
     setGameState,
-    setComboCelebration,
   } = dependencies;
 
   const startGame = (levelIndex?: number) => {
@@ -160,7 +157,6 @@ export const createGameSessionHandlers = (
         );
         return newState;
       });
-      setComboCelebration(null);
 
       setTimeout(() => spawnImmediateTargets(), 100);
     } catch (error) {
@@ -204,7 +200,6 @@ export const createGameSessionHandlers = (
       targetChangeTime: Date.now() + 10000,
       streak: 0,
     });
-    setComboCelebration(null);
   };
 
   return { startGame, resetGame };
