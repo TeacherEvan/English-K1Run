@@ -28,6 +28,7 @@ import {
 } from "./game-logic/tap-handlers";
 import { createTargetPoolManager } from "./game-logic/target-pool";
 import { createChangeTargetToVisibleEmoji } from "./game-logic/target-visibility";
+import { useDisplayAdjustment } from "./use-display-adjustment";
 
 // Re-export for backward compatibility
 export { GAME_CATEGORIES } from "../lib/constants/game-categories";
@@ -89,7 +90,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   >(null);
 
   const viewportRef = useRef({ width: 1920, height: 1080 });
-  useViewportObserver(viewportRef);
+  // Use display adjustment hook to get resize update function for consolidated resize handling
+  const { triggerResizeUpdate } = useDisplayAdjustment();
+  useViewportObserver(viewportRef, triggerResizeUpdate);
 
   const lastEmojiAppearance = useRef<Map<string, number>>(new Map());
   const lastTargetSpawnTime = useRef(0);

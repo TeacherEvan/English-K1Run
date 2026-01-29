@@ -51,11 +51,13 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
   }
 
   // Memoize style calculations to prevent recalculation on every render
+  // Performance optimization: Use translate3d for GPU acceleration and isolate scale to font-size
+  // to prevent composition layer recalculation from CSS variable changes
   const objectStyle = useMemo(() => ({
     left: `${object.x}%`,
     top: 0,
-    transform: `translate(-50%, ${object.y}px) scale(var(--object-scale, 1))`,
-    fontSize: `${object.size}px`,
+    transform: `translate3d(-50%, ${object.y}px, 0)`,
+    fontSize: `calc(${object.size}px * var(--object-scale, 1))`,
     lineHeight: 1,
     zIndex: 10,
   }), [object.x, object.y, object.size])

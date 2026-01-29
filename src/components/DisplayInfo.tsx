@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
 
@@ -16,6 +16,13 @@ interface DisplayInfoProps {
   onToggle: () => void
 }
 
+// FPS tracking
+let frameCount = 0;
+let lastFpsTime = performance.now();
+let currentFps = 0;
+
+export const getFps = () => currentFps;
+
 export const DisplayInfo = memo(({
   isVisible,
   screenWidth,
@@ -29,6 +36,27 @@ export const DisplayInfo = memo(({
   isLandscape,
   onToggle
 }: DisplayInfoProps) => {
+  const [fps, setFps] = useState(0);
+
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const updateFps = () => {
+      frameCount++;
+      const now = performance.now();
+      if (now - lastFpsTime >= 1000) {
+        currentFps = frameCount;
+        setFps(frameCount);
+        frameCount = 0;
+        lastFpsTime = now;
+      }
+      animationFrameId = requestAnimationFrame(updateFps);
+    };
+
+    animationFrameId = requestAnimationFrame(updateFps);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
   if (!isVisible) {
     return (
       <button
@@ -117,6 +145,15 @@ export const DisplayInfo = memo(({
           <div className="flex justify-between">
             <span>Fall Speed:</span>
             <span className="font-mono">{fallSpeed.toFixed(2)}×</span>
+          </div>
+
+          <hr className="border-border" />
+
+          <div className="flex justify-between">
+            <span>FPS:</span>
+            <Badge variant={fps >= 50 ? "default" : fps >= 30 ? "secondary" : "destructive"}>
+              {fps}
+            </Badge>
           </div>
         </div>
       </Card>

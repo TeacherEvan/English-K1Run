@@ -1,4 +1,5 @@
 import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react'
+import { audioContextManager } from '../lib/audio/audio-context-manager'
 import { soundManager } from '../lib/sound-manager'
 import './WelcomeScreen.css'
 
@@ -54,12 +55,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
     }
 
-    // Safety timer: If audio system fails or hangs, enable continue button after 3s
+    // Safety timer: If audio system fails or hangs, enable continue button after 10s
     // and auto-advance after 15s. This prevents "Stuck on loading" issues.
     const safetyBtnTimer = setTimeout(() => {
       console.log("[WelcomeScreen] Safety timer: Enabling interaction fallback")
       setReadyToContinue(true)
-    }, 3000)
+    }, 10000)
 
     const safetyEndTimer = setTimeout(() => {
       if (!sequenceFinished) {
@@ -104,7 +105,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         timestamp: Date.now()
       });
 
-      if (audioStartedRef.current || cancelled || isReady) {
+      if (audioStartedRef.current || cancelled) {
         console.log("[WelcomeScreen] Audio sequence blocked by guard condition");
         return;
       }
@@ -115,6 +116,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           audioContextState: soundManager.isInitialized() ? 'initialized' : 'not initialized',
           timestamp: Date.now()
         });
+
+        // Ensure AudioContext is resumed before playing (browser autoplay policy)
+        const audioContext = audioContextManager.getContext();
+        if (audioContext?.state === "suspended") {
+          await audioContext.resume();
+          console.log("[WelcomeScreen] AudioContext resumed successfully");
+        }
+
         // Ensure nothing else is playing under the narration.
         soundManager.stopAllAudio()
 
@@ -134,11 +143,18 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         console.log("[WelcomeScreen] Playing phase 2: welcome_learning");
         await playWithTimeout('welcome_learning', 0.9, 0.85)
 
-        // Phase 3: Thai (Slowed)
+        // Phase 3: Thai intro
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
-        console.log("[WelcomeScreen] Playing phase 3: welcome_learning_thai");
+        console.log("[WelcomeScreen] Playing phase 3: welcome_association_thai");
+        await playWithTimeout('welcome_association_thai', 0.8, 0.95)
+
+        // Phase 4: Thai (Slowed)
+        checkActive();
+        await new Promise(resolve => setTimeout(resolve, 300))
+        checkActive();
+        console.log("[WelcomeScreen] Playing phase 4: welcome_learning_thai");
         await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
 
         if (!cancelled && !isReady) {

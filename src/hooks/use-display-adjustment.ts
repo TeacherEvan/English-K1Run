@@ -1,5 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSettings } from "../context/settings-context";
+
+// Performance monitoring for CSS updates
+let cssUpdateCount = 0;
+let lastReportTime = Date.now();
+const CSS_UPDATE_LOG_THRESHOLD = 100; // Log every 100 updates
+
+export const getCSSUpdateStats = () => ({
+  count: cssUpdateCount,
+  timeSinceLastReport: Date.now() - lastReportTime,
+});
 
 interface DisplaySettings {
   scale: number;
@@ -29,6 +39,14 @@ export function useDisplayAdjustment() {
     aspectRatio: 1,
   });
 
+  // Store updateDisplaySettings callback in ref so it can be called externally
+  const updateDisplaySettingsRef = useRef<(() => void) | null>(null);
+
+  // Create stable callback that can be used externally
+  const triggerResizeUpdate = useCallback(() => {
+    updateDisplaySettingsRef.current?.();
+  }, []);
+
   useEffect(() => {
     // Initialize CSS variables immediately on mount
     const root = document.documentElement;
@@ -39,6 +57,7 @@ export function useDisplayAdjustment() {
     root.style.setProperty("--fall-speed-scale", "1");
     root.style.setProperty("--size-scale", "1");
 
+    // Define updateDisplaySettings as a named function so it can be called externally
     const updateDisplaySettings = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -50,8 +69,8 @@ export function useDisplayAdjustment() {
       const baseHeight = 1080;
 
       // Calculate scale based on smaller dimension to ensure content fits
-      const widthScale = width / baseWidth;
-      const heightScale = height / baseHeight;
+      const widthScale = Math.round((width / baseWidth) * 100) / 100;
+      const heightScale = Math.round((height / baseHeight) * 100) / 100;
       const baseScale = Math.min(widthScale, heightScale);
       const scaleOverride =
         resolutionScale === "small"
@@ -59,7 +78,7 @@ export function useDisplayAdjustment() {
           : resolutionScale === "large"
             ? 1.15
             : 1;
-      const scale = baseScale * scaleOverride;
+      const scale = Math.round(baseScale * scaleOverride * 100) / 100;
 
       // Optimize calculations by using cached values
       let fontSize = scale;
@@ -113,14 +132,60 @@ export function useDisplayAdjustment() {
         fallSpeed *= 0.8; // Further reduced for mobile portrait
       }
 
-      // Set CSS variables IMMEDIATELY before state update
-      const root = document.documentElement;
-      root.style.setProperty("--font-scale", fontSize.toString());
-      root.style.setProperty("--object-scale", objectSize.toString());
-      root.style.setProperty("--turtle-scale", turtleSize.toString());
-      root.style.setProperty("--spacing-scale", spacing.toString());
-      root.style.setProperty("--fall-speed-scale", fallSpeed.toString());
-      root.style.setProperty("--size-scale", spacing.toString());
+      // Set CSS variables with threshold checking to prevent sub-pixel jitter
+      let previousFontScale = 0;
+      let previousObjectScale = 0;
+
+      const updateCSSVariable = (
+        name: string,
+        value: number,
+        previous: number,
+      ) => {
+        if (Math.abs(value - previous) > 0.01) {
+          document.documentElement.style.setProperty(name, value.toFixed(2));
+
+          // Performance monitoring for CSS updates
+          cssUpdateCount++;
+          if (cssUpdateCount % CSS_UPDATE_LOG_THRESHOLD === 0) {
+            const elapsed = Date.now() - lastReportTime;
+            console.log(
+              `[Performance] CSS updates: ${cssUpdateCount} over ${elapsed}ms ` +
+                `(${(cssUpdateCount / (elapsed / 1000)).toFixed(2)} updates/sec)`,
+            );
+            lastReportTime = Date.now();
+          }
+
+          return value;
+        }
+        return previous;
+      };
+
+      previousFontScale = updateCSSVariable(
+        "--font-scale",
+        fontSize,
+        previousFontScale,
+      );
+      previousObjectScale = updateCSSVariable(
+        "--object-scale",
+        objectSize,
+        previousObjectScale,
+      );
+      document.documentElement.style.setProperty(
+        "--turtle-scale",
+        turtleSize.toFixed(2),
+      );
+      document.documentElement.style.setProperty(
+        "--spacing-scale",
+        spacing.toFixed(2),
+      );
+      document.documentElement.style.setProperty(
+        "--fall-speed-scale",
+        fallSpeed.toFixed(2),
+      );
+      document.documentElement.style.setProperty(
+        "--size-scale",
+        spacing.toFixed(2),
+      );
 
       setDisplaySettings((prev) => {
         // Only update if values actually changed to prevent unnecessary renders
@@ -173,12 +238,16 @@ export function useDisplayAdjustment() {
     window.addEventListener("orientationchange", handleOrientationChange);
     document.addEventListener("fullscreenchange", updateDisplaySettings);
 
+    // Store the update function in ref for external access
+    updateDisplaySettingsRef.current = updateDisplaySettings;
+
     return () => {
       clearTimeout(resizeTimeout);
       clearTimeout(orientationTimeout);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleOrientationChange);
       document.removeEventListener("fullscreenchange", updateDisplaySettings);
+      updateDisplaySettingsRef.current = null;
     };
   }, [resolutionScale]);
 
@@ -215,6 +284,7 @@ export function useDisplayAdjustment() {
   return {
     displaySettings,
     getScaledStyles,
+    triggerResizeUpdate,
     ...screenHelpers,
   };
 }

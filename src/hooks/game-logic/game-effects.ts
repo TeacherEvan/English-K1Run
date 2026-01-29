@@ -16,6 +16,7 @@ import { applyWormObjectCollision, updateWormPositions } from "./worm-logic";
 
 export const useViewportObserver = (
   viewportRef: MutableRefObject<{ width: number; height: number }>,
+  onResize?: () => void,
 ) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -23,12 +24,15 @@ export const useViewportObserver = (
     const updateViewport = () => {
       viewportRef.current.width = window.innerWidth;
       viewportRef.current.height = window.innerHeight;
+      // Call optional resize callback in the same tick to prevent race conditions
+      // with CSS variable updates (prevents layout thrashing)
+      onResize?.();
     };
 
     updateViewport();
     window.addEventListener("resize", updateViewport);
     return () => window.removeEventListener("resize", updateViewport);
-  }, [viewportRef]);
+  }, [viewportRef, onResize]);
 };
 
 export const useTargetAnnouncement = (
