@@ -13,7 +13,6 @@ export class SpeechPlayback {
   private speechAvailable: boolean | null = null;
   private voiceQueue: Promise<void> = Promise.resolve();
   private voiceQueueToken = 0;
-  private _maxQueueSize = 2;
 
   resetQueue(): void {
     this.voiceQueueToken += 1;
