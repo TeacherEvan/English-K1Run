@@ -172,14 +172,14 @@ export default defineConfig({
           }
 
           // Application code chunking (lighter strategy)
-          if (id.includes("src/components")) {
-            if (id.includes("ui/")) {
-              return "app-ui";
-            }
-            return "app-components";
-          }
-          if (id.includes("src/hooks")) {
-            return "app-hooks";
+          // FIXED: Merge all application code into single chunk to eliminate circular dependencies
+          // Previously:
+          // - app-ui <-> app-components (components importing UI primitives)
+          // - app-hooks <-> app-components (type sharing, tight coupling)
+          // Since hooks, components, and UI are tightly coupled in this app, merging them
+          // simplifies the dependency graph and eliminates circular reference warnings
+          if (id.includes("src/components") || id.includes("src/hooks")) {
+            return "app";
           }
         },
         // Optimize chunk file names for better caching
