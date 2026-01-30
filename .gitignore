@@ -122,3 +122,5 @@ playwright-report
 .fake
 # Allure
 allure-results/
+package-lock.json
+package.json
