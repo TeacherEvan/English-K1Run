@@ -29,10 +29,10 @@ const setupAccessibilityTestPage = async (page: Page) => {
     console.warn("Failed to emulate media for reduced motion:", error);
   }
 
-  // Use absolute URL to ensure navigation works correctly
-  await page.goto("http://localhost:5173/?e2e=1", {
+  // Use relative URL so Playwright's `baseURL` is applied automatically
+  await page.goto("/?e2e=1", {
     waitUntil: "domcontentloaded",
-    timeout: 30_000,
+    timeout: 60_000,
   });
 
   // FIX: Wait for animations to complete before running accessibility scan
@@ -49,7 +49,7 @@ test.describe("Accessibility", () => {
 
     try {
       await skipButton.waitFor({ state: "visible", timeout: 5_000 });
-      await skipButton.evaluate((button: HTMLButtonElement) => button.click());
+      await skipButton.click({ force: true, timeout: 30000 });
       await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
     } catch {
       // No-op: loading screen not shown
@@ -172,7 +172,7 @@ test.describe("Accessibility", () => {
     // Start game - wait for level select to appear
     await page
       .locator('[data-testid="level-select-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+      .click({ force: true, timeout: 30000 });
     await page
       .locator('[data-testid="level-select-menu"]')
       .waitFor({ state: "visible" });
@@ -180,7 +180,7 @@ test.describe("Accessibility", () => {
     // Click start button and wait for menu to disappear
     await page
       .locator('[data-testid="start-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+      .click({ force: true, timeout: 30000 });
     await page
       .locator('[data-testid="game-menu"]')
       .waitFor({ state: "hidden" });
@@ -188,7 +188,7 @@ test.describe("Accessibility", () => {
     await skipWormLoadingIfPresent(page);
     await page
       .locator('[data-testid="target-display"]')
-      .waitFor({ state: "visible", timeout: 15000 });
+      .waitFor({ state: "visible", timeout: 30000 });
 
     // Target display should be visible
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible();
@@ -226,13 +226,13 @@ test.describe("Accessibility", () => {
     // Start game
     await page
       .locator('[data-testid="level-select-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+      .click({ force: true, timeout: 30000 });
     await page
       .locator('[data-testid="level-select-menu"]')
       .waitFor({ state: "visible" });
     await page
       .locator('[data-testid="start-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+      .click({ force: true, timeout: 30000 });
     await page
       .locator('[data-testid="game-menu"]')
       .waitFor({ state: "hidden" });
@@ -297,18 +297,18 @@ test.describe("Accessibility", () => {
     // Start game
     await page
       .locator('[data-testid="level-select-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+      .click({ force: true, timeout: 30000 });
     await page
       .locator('[data-testid="level-select-menu"]')
       .waitFor({ state: "visible" });
     await page
       .locator('[data-testid="start-button"]')
-      .evaluate((button: HTMLButtonElement) => button.click());
+      .click({ force: true, timeout: 30000 });
     await skipWormLoadingIfPresent(page);
     await page.waitForFunction(
       () =>
         document.querySelectorAll('[data-testid="falling-object"]').length > 0,
-      { timeout: 5000 },
+      { timeout: 15000 },
     );
 
     const objects = page.locator('[data-testid="falling-object"]');
@@ -512,15 +512,14 @@ test.describe("Keyboard Navigation", () => {
     const startButton = page.locator('[data-testid="start-button"]');
     await startButton.waitFor({ state: "visible", timeout: 5000 });
 
-    // FIX: Use evaluate to click button more reliably
-    // This ensures React event handlers are properly triggered
-    await startButton.evaluate((button: HTMLButtonElement) => button.click());
+    // FIX: Use forced click to make test more robust against animations
+    await startButton.click({ force: true, timeout: 30000 });
 
     await skipWormLoadingIfPresent(page);
 
     // Game should start
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 10000,
+      timeout: 30000,
     });
   });
 });

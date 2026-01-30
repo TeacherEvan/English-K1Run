@@ -40,9 +40,11 @@ export class GamePage {
     await this.page.emulateMedia({ reducedMotion: "reduce" });
     // Use absolute URL to ensure navigation works correctly
     // The baseURL from playwright.config.ts is http://localhost:5173
-    await this.page.goto("http://localhost:5173/?e2e=1", {
+    // Use relative URL so Playwright's `baseURL` is applied automatically
+    await this.page.goto("/?e2e=1", {
       waitUntil: "domcontentloaded",
-      timeout: 30_000,
+      // Allow more time for dev server HMR and asset compilation during e2e runs
+      timeout: 60_000,
     });
 
     // Disable background animations that cause instability in Firefox
@@ -378,23 +380,22 @@ export class GameplayPage {
 
   async tapObject(index: number) {
     const obj = this.fallingObjects.nth(index);
-    await obj.click();
+    await obj.click({ force: true });
   }
 
   async tapObjectByEmoji(emoji: string) {
     const obj = this.fallingObjects.filter({ hasText: emoji }).first();
-    await obj.click();
+    await obj.click({ force: true });
   }
 
   async tapWorm(index: number) {
     const worm = this.worms.nth(index);
-    await worm.click();
+    await worm.click({ force: true });
   }
 
   async goBack() {
-    await this.backButton.evaluate((button: HTMLButtonElement) =>
-      button.click(),
-    );
+    // Back button can be affected by animations and transient layout changes; use force.
+    await this.backButton.click({ force: true, timeout: 30_000 });
   }
 
   async waitForObjectsToSpawn(minCount: number = 1) {

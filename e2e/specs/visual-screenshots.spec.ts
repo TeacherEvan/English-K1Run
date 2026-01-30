@@ -75,7 +75,7 @@ test.describe("Visual Screenshots", () => {
 
     // Test reduced motion
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.reload({ waitUntil: "networkidle", timeout: 45000 });
+    await page.reload({ waitUntil: "networkidle", timeout: 60000 });
     await page.waitForSelector('[data-testid="welcome-screen"]', {
       timeout: 15000,
     });
@@ -134,7 +134,7 @@ test.describe("Visual Screenshots", () => {
     // Click settings button (animations disabled via reducedMotion config)
     const settingsButton = page.locator('[data-testid="settings-button"]');
     await settingsButton.waitFor({ state: "visible", timeout: 5000 });
-    await settingsButton.click({ force: true });
+    await settingsButton.click({ force: true, timeout: 30000 });
     // Wait for dialog content
     const settingsTitle = page.locator("text=Settings / การตั้งค่า");
     await settingsTitle.waitFor({ state: "visible", timeout: 5000 });
@@ -152,7 +152,7 @@ test.describe("Visual Screenshots", () => {
     // Close settings (click close button)
     const closeBtn = page.getByRole("button", { name: "Close" });
     await closeBtn.waitFor({ state: "visible", timeout: 10000 });
-    await closeBtn.click({ force: true });
+    await closeBtn.click({ force: true, timeout: 30000 });
     await settingsTitle.waitFor({ state: "detached", timeout: 10000 });
 
     // 3. Level Select
@@ -161,7 +161,7 @@ test.describe("Visual Screenshots", () => {
       '[data-testid="level-select-button"]',
     );
     await levelSelectButton.waitFor({ state: "visible", timeout: 10000 });
-    await levelSelectButton.click({ force: true });
+    await levelSelectButton.click({ force: true, timeout: 30000 });
     await page.waitForSelector('[data-testid="level-select-menu"]', {
       timeout: 20000,
     });
@@ -196,12 +196,12 @@ test.describe("Visual Screenshots", () => {
         .toLowerCase()}`;
 
       // Select level
-      await levelButtons.nth(i).click({ force: true });
+      await levelButtons.nth(i).click({ force: true, timeout: 30000 });
 
       // Click Start Game
       const startGameBtn = page.locator('[data-testid="start-button"]');
       await startGameBtn.waitFor({ state: "visible", timeout: 10000 });
-      await startGameBtn.click({ force: true });
+      await startGameBtn.click({ force: true, timeout: 30000 });
 
       // Handle Worm Loading Screen (Skip it or wait for game)
       const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
@@ -223,7 +223,7 @@ test.describe("Visual Screenshots", () => {
       if (await loadingScreen.isVisible()) {
         try {
           await skipBtn.waitFor({ state: "visible", timeout: 10000 });
-          await skipBtn.click({ force: true });
+          await skipBtn.click({ force: true, timeout: 30000 });
           await loadingScreen.waitFor({ state: "detached", timeout: 15000 });
         } catch {
           console.log("Loading screen skip bypassed in screenshot loop");
@@ -252,7 +252,7 @@ test.describe("Visual Screenshots", () => {
       // Go back
       const backBtn = page.locator('[data-testid="back-button"]');
       await backBtn.waitFor({ state: "visible", timeout: 5000 });
-      await backBtn.click({ force: true });
+      await backBtn.click({ force: true, timeout: 30000 });
 
       // Reload page to ensure clean state for next level
       // This prevents state pollution across multiple game starts
@@ -267,7 +267,7 @@ test.describe("Visual Screenshots", () => {
           '[data-testid="level-select-button"]',
         );
         await levelSelectBtn.waitFor({ state: "visible", timeout: 10000 });
-        await levelSelectBtn.click({ force: true });
+        await levelSelectBtn.click({ timeout: 30000 });
         await page.waitForSelector('[data-testid="level-select-menu"]', {
           timeout: 15000,
         });

@@ -61,8 +61,8 @@ test.describe("Gameplay", () => {
     const firstObject = gamePage.gameplay.fallingObjects.first();
     await expect(firstObject).toBeVisible();
 
-    // Click should not throw error
-    await firstObject.click({ timeout: 5000, force: true });
+    // Click should not throw error (use helper that forces click on moving elements)
+    await gamePage.gameplay.tapObject(0);
   });
 });
 
@@ -92,7 +92,7 @@ test.describe("Gameplay - Object Interaction", () => {
 
     if (count > 0) {
       const initialProgress = await gamePage.gameplay.getProgress(1);
-      await matchingObjects.first().click({ force: true });
+      await gamePage.gameplay.tapObjectByEmoji(targetEmoji!);
 
       // Small delay for state update
       await page.waitForTimeout(100);
@@ -129,8 +129,8 @@ test.describe("Worms (Distractors)", () => {
       const firstWorm = gamePage.gameplay.worms.first();
       await expect(firstWorm).toBeVisible();
 
-      // Tapping worm should not throw
-      await firstWorm.click({ timeout: 2000, force: true });
+      // Tapping worm should not throw (use helper that forces click)
+      await gamePage.gameplay.tapWorm(0);
     }
   });
 });
