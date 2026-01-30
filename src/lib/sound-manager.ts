@@ -23,7 +23,9 @@ declare global {
   interface Window {
     __audioDebug?: {
       active: number;
+      current: number; // Alias for 'active'
       peak: number;
+      total: number; // Total audio events
       lastSound?: string;
     };
   }
@@ -38,6 +40,7 @@ class SoundManager {
   private useAudioSprite = false;
   private activePlaybackCount = 0;
   private peakPlaybackCount = 0;
+  private totalAudioEvents = 0;
   private playbackEngine = new SoundPlaybackEngine({
     getAudioContext: () => this.audioContext,
     getVolume: () => this.volume,
@@ -75,6 +78,7 @@ class SoundManager {
 
   private trackPlaybackStart(soundName: string) {
     this.activePlaybackCount += 1;
+    this.totalAudioEvents += 1;
     this.peakPlaybackCount = Math.max(
       this.peakPlaybackCount,
       this.activePlaybackCount,
@@ -83,7 +87,9 @@ class SoundManager {
     if (typeof window !== "undefined") {
       window.__audioDebug = {
         active: this.activePlaybackCount,
+        current: this.activePlaybackCount,
         peak: this.peakPlaybackCount,
+        total: this.totalAudioEvents,
         lastSound: soundName,
       };
     }
@@ -95,7 +101,9 @@ class SoundManager {
     if (typeof window !== "undefined") {
       window.__audioDebug = {
         active: this.activePlaybackCount,
+        current: this.activePlaybackCount,
         peak: this.peakPlaybackCount,
+        total: this.totalAudioEvents,
         lastSound: soundName ?? window.__audioDebug?.lastSound,
       };
     }
@@ -205,7 +213,9 @@ class SoundManager {
     if (typeof window !== "undefined") {
       window.__audioDebug = {
         active: 0,
+        current: 0,
         peak: this.peakPlaybackCount,
+        total: this.totalAudioEvents,
         lastSound: window.__audioDebug?.lastSound,
       };
     }

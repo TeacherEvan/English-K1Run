@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Performance Monitor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        h1 {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #2196F3;
+            margin-top: 30px;
+        }
+
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button.secondary {
+            background: #2196F3;
+        }
+
+        button.secondary:hover {
+            background: #1976D2;
+        }
+
+        button.danger {
+            background: #f44336;
+        }
+
+        button.danger:hover {
+            background: #d32f2f;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .metric-card.warning {
+            border-left-color: #ff9800;
+        }
+
+        .metric-card.error {
+            border-left-color: #f44336;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .log-container {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            border-left: 3px solid #666;
+        }
+
+        .log-entry.info {
+            border-left-color: #2196F3;
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .log-entry.success {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .log-entry.warning {
+            border-left-color: #ff9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .log-entry.error {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .timestamp {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status.running {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status.stopped {
+            background: #f44336;
+            color: white;
+        }
+
+        .iframe-container {
+            margin: 20px 0;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎵 Audio Performance Monitor <span id="monitorStatus" class="status stopped">STOPPED</span></h1>
+
+    <div class="controls">
+        <button onclick="startMonitoring()">▶️ Start Monitoring</button>
+        <button onclick="stopMonitoring()" class="danger">⏹️ Stop Monitoring</button>
+        <button onclick="clearLogs()" class="secondary">🗑️ Clear Logs</button>
+        <button onclick="exportReport()" class="secondary">📊 Export Report</button>
+    </div>
+
+    <h2>📊 Real-Time Metrics</h2>
+    <div class="metrics" id="metrics"></div>
+
+    <h2>📝 Event Log</h2>
+    <div class="log-container" id="logContainer"></div>
+
+    <h2>🎮 Test Application</h2>
+    <div class="iframe-container">
+        <iframe id="gameFrame" src="http://localhost:5173/?e2e=1"></iframe>
+    </div>
+
+    <script>
+        let monitoringInterval = null;
+        let startTime = null;
+        let logs = [];
+        let peakConcurrentAudio = 0;
+        let totalAudioEvents = 0;
+        let audioOverlapCount = 0;
+
+        const metrics = {
+            peakConcurrentAudio: 0,
+            currentConcurrentAudio: 0,
+            totalAudioEvents: 0,
+            audioOverlapCount: 0,
+            audioContextState: 'N/A',
+            speechQueueLength: 0,
+            htmlAudioActive: 0,
+            webAudioActive: 0,
+            averageLatency: 0,
+            monitoringTime: 0
+        };
+
+        function updateMetrics() {
+            const gameWindow = document.getElementById('gameFrame').contentWindow;
+
+            try {
+                // Check if __audioDebug exists
+                if (gameWindow.__audioDebug) {
+                    const debug = gameWindow.__audioDebug;
+
+                    metrics.currentConcurrentAudio = debug.current || 0;
+                    metrics.peakConcurrentAudio = Math.max(metrics.peakConcurrentAudio, debug.peak || 0);
+                    metrics.totalAudioEvents = debug.total || 0;
+
+                    // Check for overlap
+                    if (metrics.currentConcurrentAudio > 1) {
+                        metrics.audioOverlapCount++;
+                        log('Audio overlap detected!', 'warning', {
+                            concurrent: metrics.currentConcurrentAudio
+                        });
+                    }
+
+                    // Get AudioContext state
+                    if (gameWindow.AudioContext || gameWindow.webkitAudioContext) {
+                        // Try to access the audio context from sound manager
+                        metrics.audioContextState = 'Available';
+                    }
+                }
+
+                // Try to get speech synthesis queue length
+                if (gameWindow.speechSynthesis) {
+                    metrics.speechQueueLength = gameWindow.speechSynthesis.pending ? 1 : 0;
+                }
+
+                // Update monitoring time
+                if (startTime) {
+                    metrics.monitoringTime = Math.floor((Date.now() - startTime) / 1000);
+                }
+
+                renderMetrics();
+            } catch (error) {
+                log('Error accessing game window', 'error', { error: error.message });
+            }
+        }
+
+        function renderMetrics() {
+            const container = document.getElementById('metrics');
+            container.innerHTML = '';
+
+            const metricCards = [
+                {
+                    label: 'Peak Concurrent Audio',
+                    value: metrics.peakConcurrentAudio,
+                    warning: metrics.peakConcurrentAudio > 1,
+                    error: metrics.peakConcurrentAudio > 2
+                },
+                {
+                    label: 'Current Concurrent Audio',
+                    value: metrics.currentConcurrentAudio,
+                    warning: metrics.currentConcurrentAudio > 1,
+                    error: metrics.currentConcurrentAudio > 2
+                },
+                {
+                    label: 'Total Audio Events',
+                    value: metrics.totalAudioEvents
+                },
+                {
+                    label: 'Audio Overlap Count',
+                    value: metrics.audioOverlapCount,
+                    error: metrics.audioOverlapCount > 0
+                },
+                {
+                    label: 'AudioContext State',
+                    value: metrics.audioContextState
+                },
+                {
+                    label: 'Speech Queue Length',
+                    value: metrics.speechQueueLength,
+                    warning: metrics.speechQueueLength > 0
+                },
+                {
+                    label: 'Monitoring Time',
+                    value: `${metrics.monitoringTime}s`
+                }
+            ];
+
+            metricCards.forEach(metric => {
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                if (metric.error) card.className += ' error';
+                else if (metric.warning) card.className += ' warning';
+
+                card.innerHTML = `
+          <div class="metric-label">${metric.label}</div>
+          <div class="metric-value">${metric.value}</div>
+        `;
+                container.appendChild(card);
+            });
+        }
+
+        function log(message, level = 'info', data = null) {
+            const timestamp = new Date().toISOString().substring(11, 23);
+            const entry = { timestamp, message, level, data };
+            logs.push(entry);
+
+            const logContainer = document.getElementById('logContainer');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${level}`;
+
+            let content = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            if (data) {
+                content += ` <code>${JSON.stringify(data)}</code>`;
+            }
+            logEntry.innerHTML = content;
+
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+
+            // Keep only last 100 entries
+            while (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        function startMonitoring() {
+            if (monitoringInterval) {
+                log('Monitoring already running', 'warning');
+                return;
+            }
+
+            startTime = Date.now();
+            document.getElementById('monitorStatus').textContent = 'RUNNING';
+            document.getElementById('monitorStatus').className = 'status running';
+
+            log('🚀 Audio monitoring started', 'success');
+
+            // Monitor every 500ms
+            monitoringInterval = setInterval(updateMetrics, 500);
+
+            // Also listen to iframe console logs
+            setupConsoleInterception();
+        }
+
+        function stopMonitoring() {
+            if (!monitoringInterval) {
+                log('Monitoring not running', 'warning');
+                return;
+            }
+
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
+
+            document.getElementById('monitorStatus').textContent = 'STOPPED';
+            document.getElementById('monitorStatus').className = 'status stopped';
+
+            log('⏹️ Audio monitoring stopped', 'info');
+            generateSummary();
+        }
+
+        function clearLogs() {
+            logs = [];
+            document.getElementById('logContainer').innerHTML = '';
+            log('Logs cleared', 'info');
+        }
+
+        function generateSummary() {
+            log('=== MONITORING SUMMARY ===', 'info');
+            log(`Peak Concurrent Audio: ${metrics.peakConcurrentAudio}`, 'info');
+            log(`Total Audio Events: ${metrics.totalAudioEvents}`, 'info');
+            log(`Audio Overlap Count: ${metrics.audioOverlapCount}`,
+                metrics.audioOverlapCount > 0 ? 'error' : 'success');
+            log(`Monitoring Duration: ${metrics.monitoringTime}s`, 'info');
+
+            // Validation results
+            if (metrics.peakConcurrentAudio <= 1 && metrics.audioOverlapCount === 0) {
+                log('✅ VALIDATION PASSED: No audio overlap detected!', 'success');
+            } else {
+                log('❌ VALIDATION FAILED: Audio overlap detected', 'error');
+            }
+        }
+
+        function exportReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                metrics: metrics,
+                logs: logs,
+                summary: {
+                    validation: metrics.peakConcurrentAudio <= 1 && metrics.audioOverlapCount === 0 ? 'PASSED' : 'FAILED',
+                    monitoringDuration: metrics.monitoringTime
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `audio-performance-report-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            log('📊 Report exported successfully', 'success');
+        }
+
+        function setupConsoleInterception() {
+            const gameFrame = document.getElementById('gameFrame');
+            gameFrame.addEventListener('load', function () {
+                try {
+                    const gameWindow = gameFrame.contentWindow;
+
+                    // Intercept console logs
+                    const originalLog = gameWindow.console.log;
+                    const originalWarn = gameWindow.console.warn;
+                    const originalError = gameWindow.console.error;
+
+                    gameWindow.console.log = function (...args) {
+                        originalLog.apply(gameWindow.console, args);
+                        if (args[0] && args[0].includes('audio')) {
+                            log(`[Game Log] ${args.join(' ')}`, 'info');
+                        }
+                    };
+
+                    gameWindow.console.warn = function (...args) {
+                        originalWarn.apply(gameWindow.console, args);
+                        if (args[0] && (args[0].includes('audio') || args[0].includes('Audio'))) {
+                            log(`[Game Warn] ${args.join(' ')}`, 'warning');
+                        }
+                    };
+
+                    gameWindow.console.error = function (...args) {
+                        originalError.apply(gameWindow.console, args);
+                        if (args[0] && (args[0].includes('audio') || args[0].includes('Audio'))) {
+                            log(`[Game Error] ${args.join(' ')}`, 'error');
+                        }
+                    };
+
+                    log('Console interception set up', 'success');
+                } catch (error) {
+                    log('Failed to set up console interception', 'error', { error: error.message });
+                }
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            log('Audio Performance Monitor initialized', 'success');
+            log('Click "Start Monitoring" to begin', 'info');
+            log('Then interact with the game to test audio synchronization', 'info');
+            renderMetrics();
+        });
+    </script>
+</body>
+
+</html>
