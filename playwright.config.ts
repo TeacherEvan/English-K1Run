@@ -23,15 +23,24 @@ export default defineConfig({
   // Workers - limit parallelism on CI
   workers: process.env.CI ? 1 : process.platform === "win32" ? 2 : undefined,
 
-  // Reporter configuration
+  // Reporter configuration with visual diff support
   reporter: [["html", { open: "never" }], ["list"], ["allure-playwright"]],
 
   // Global test timeout
   timeout: 60_000,
 
-  // Expect timeout
+  // Expect timeout and screenshot comparison options
   expect: {
     timeout: 5_000,
+    // Screenshot comparison options for visual regression testing
+    toHaveScreenshot: {
+      // Maximum number of pixels that can differ
+      maxDiffPixels: 50,
+      // Maximum ratio of pixels that can differ (1%)
+      maxDiffPixelRatio: 0.01,
+      // Similarity threshold (0-1)
+      threshold: 0.2,
+    },
   },
 
   // Shared settings for all projects
@@ -55,8 +64,34 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
 
+  // Centralized baseline storage for all test projects
+  snapshotsDir: ".snapshots",
+
   // Test projects for different browsers/devices
   projects: [
+    // Visual regression testing profile
+    {
+      name: "visual",
+      use: {
+        ...devices["Desktop Chrome"],
+        // Standard desktop viewport for consistent screenshots
+        viewport: { width: 1280, height: 720 },
+        // Disable animations to prevent visual variability
+        animations: "disabled",
+        // Consistent device scale factor
+        deviceScaleFactor: 1,
+        // Deterministic locale settings
+        locale: "en-US",
+        // Consistent timezone
+        timezoneId: "UTC",
+        // Prevent dark mode variations
+        colorScheme: "light",
+        // Consistent reduced motion
+        reducedMotion: "reduce",
+      },
+      timeout: 60_000,
+    },
+
     // Desktop Chrome
     {
       name: "chromium",

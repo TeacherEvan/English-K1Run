@@ -1,5 +1,44 @@
 import { expect, test } from "@playwright/test";
 
+/**
+ * Retry page navigation with exponential backoff for transient server errors
+ */
+async function navigateWithRetry(
+  page: import("@playwright/test").Page,
+  url: string,
+  maxRetries: number = 3,
+): Promise<void> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(
+        `[Screenshots] Navigation attempt ${attempt}/${maxRetries} to ${url}`,
+      );
+      await page.goto(url, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      console.log(`[Screenshots] Navigation successful on attempt ${attempt}`);
+      return;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(
+        `[Screenshots] Navigation attempt ${attempt} failed:`,
+        lastError.message,
+      );
+
+      if (attempt < maxRetries) {
+        const delay = attempt * 2000; // Exponential backoff: 2s, 4s, 6s
+        console.log(`[Screenshots] Retrying in ${delay}ms...`);
+        await page.waitForTimeout(delay);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 test.describe("Visual Screenshots", () => {
   test.slow();
   test("Capture welcome screen with animations", async ({ page }, testInfo) => {
@@ -60,7 +99,7 @@ test.describe("Visual Screenshots", () => {
     test.setTimeout(120000);
 
     console.log("Navigating to app...");
-    await page.goto("/?e2e=1", { waitUntil: "domcontentloaded" });
+    await navigateWithRetry(page, "/?e2e=1");
 
     // Inject CSS to disable background animations for stable testing
     await page.addStyleTag({
@@ -218,7 +257,7 @@ test.describe("Visual Screenshots", () => {
       // Reload page to ensure clean state for next level
       // This prevents state pollution across multiple game starts
       if (i < count - 1) {
-        await page.reload({ waitUntil: "domcontentloaded" });
+        await navigateWithRetry(page, "/?e2e=1");
         await page.waitForSelector('[data-testid="game-menu"]', {
           timeout: 10000,
         });

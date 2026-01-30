@@ -368,18 +368,28 @@ test.describe("Keyboard Navigation", () => {
       const levelSelectButton = document.querySelector(
         '[data-testid="level-select-button"]',
       );
+      const levelSelectMenu = document.querySelector(
+        '[data-testid="level-select-menu"]',
+      );
+      const gameMenu = document.querySelector('[data-testid="game-menu"]');
       return {
         levelSelectButtonExists: !!levelSelectButton,
         levelSelectButtonVisible: levelSelectButton
           ? getComputedStyle(levelSelectButton).display !== "none"
           : false,
-        levelSelectMenuExists: !!document.querySelector(
-          '[data-testid="level-select-menu"]',
-        ),
+        levelSelectMenuExists: !!levelSelectMenu,
+        levelSelectMenuVisible: levelSelectMenu
+          ? getComputedStyle(levelSelectMenu).display !== "none"
+          : false,
+        gameMenuExists: !!gameMenu,
+        gameMenuVisible: gameMenu
+          ? getComputedStyle(gameMenu).display !== "none"
+          : false,
         activeElement: document.activeElement?.tagName,
         activeElementDataTestId: (
           document.activeElement as HTMLElement
         )?.getAttribute("data-testid"),
+        bodyPointerEvents: getComputedStyle(document.body).pointerEvents,
       };
     });
     console.log(
@@ -387,10 +397,31 @@ test.describe("Keyboard Navigation", () => {
       JSON.stringify(initialState, null, 2),
     );
 
-    // Focus on New Game button
+    // Focus on Level Select button
     const levelSelectButton = page.locator(
       '[data-testid="level-select-button"]',
     );
+
+    // DIAGNOSTIC: Verify button is interactable
+    const buttonInfo = await page.evaluate(() => {
+      const btn = document.querySelector('[data-testid="level-select-button"]');
+      if (!btn) return null;
+      const rect = btn.getBoundingClientRect();
+      const styles = window.getComputedStyle(btn);
+      return {
+        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        display: styles.display,
+        visibility: styles.visibility,
+        pointerEvents: styles.pointerEvents,
+        zIndex: styles.zIndex,
+        opacity: styles.opacity,
+      };
+    });
+    console.log(
+      "🔍 DIAGNOSTIC: Button info:",
+      JSON.stringify(buttonInfo, null, 2),
+    );
+
     await levelSelectButton.focus();
 
     // DIAGNOSTIC: Check focus state
@@ -402,6 +433,8 @@ test.describe("Keyboard Navigation", () => {
         )?.getAttribute("data-testid"),
         activeElementHasFocus:
           document.activeElement === document.activeElement,
+        activeElementTag: document.activeElement?.tagName,
+        isButton: document.activeElement instanceof HTMLButtonElement,
       };
     });
     console.log(
@@ -409,27 +442,41 @@ test.describe("Keyboard Navigation", () => {
       JSON.stringify(focusState, null, 2),
     );
 
-    // Press Enter
-    await page.keyboard.press("Enter");
+    // DIAGNOSTIC: Check if the button has received focus
+    const hasFocus = await levelSelectButton.evaluate(
+      (el) => el === document.activeElement,
+    );
+    console.log("🔍 DIAGNOSTIC: Button has focus:", hasFocus);
 
-    // DIAGNOSTIC: Wait a bit and check state
-    await page.waitForTimeout(500);
+    // Press Enter with detailed logging
+    console.log("🔍 DIAGNOSTIC: About to press Enter...");
+    await page.keyboard.press("Enter");
+    console.log("🔍 DIAGNOSTIC: Enter key pressed");
+
+    // DIAGNOSTIC: Wait and check state immediately after key press
+    await page.waitForTimeout(100);
     const afterEnterState = await page.evaluate(() => {
+      const levelSelectMenu = document.querySelector(
+        '[data-testid="level-select-menu"]',
+      );
+      const gameMenu = document.querySelector('[data-testid="game-menu"]');
       return {
-        levelSelectMenuExists: !!document.querySelector(
-          '[data-testid="level-select-menu"]',
-        ),
-        levelSelectMenuVisible: document.querySelector(
-          '[data-testid="level-select-menu"]',
-        )
-          ? getComputedStyle(
-              document.querySelector('[data-testid="level-select-menu"]')!,
-            ).display !== "none"
+        levelSelectMenuExists: !!levelSelectMenu,
+        levelSelectMenuVisible: levelSelectMenu
+          ? getComputedStyle(levelSelectMenu).display !== "none"
           : false,
+        gameMenuExists: !!gameMenu,
+        gameMenuVisible: gameMenu
+          ? getComputedStyle(gameMenu).display !== "none"
+          : false,
+        activeElement: document.activeElement?.tagName,
+        activeElementDataTestId: (
+          document.activeElement as HTMLElement
+        )?.getAttribute("data-testid"),
       };
     });
     console.log(
-      "🔍 DIAGNOSTIC: After Enter key:",
+      "🔍 DIAGNOSTIC: After Enter key (100ms):",
       JSON.stringify(afterEnterState, null, 2),
     );
 

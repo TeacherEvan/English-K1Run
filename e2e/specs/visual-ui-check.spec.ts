@@ -61,8 +61,8 @@ test.describe("Visual UI Verification - User Perspective", () => {
     console.log("⏱️  DIAGNOSTIC: Waiting for 'Tap to continue' to appear...");
     const tapToContinue = page.locator("text=Tap to continue");
 
-    // Wait up to 5 seconds for button to appear (safety timer is 3s)
-    await tapToContinue.waitFor({ state: "visible", timeout: 5000 });
+    // Wait up to 15 seconds for button to appear (safety timer is 10s in E2E mode)
+    await tapToContinue.waitFor({ state: "visible", timeout: 15000 });
     console.log("✅ DIAGNOSTIC: 'Tap to continue' appeared!");
 
     // VISUAL CHECK: Take screenshot of what user actually sees

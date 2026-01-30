@@ -3,6 +3,52 @@ import { devices, expect, test } from "@playwright/test";
 // Use tablet device for touch testing
 test.use({ ...devices["iPad Pro 11"], hasTouch: true });
 
+/**
+ * Retry page navigation with exponential backoff for transient server errors
+ */
+async function navigateWithRetry(
+  page: import("@playwright/test").Page,
+  url: string,
+  maxRetries: number = 3,
+): Promise<void> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(
+        `[Touch Test] Navigation attempt ${attempt}/${maxRetries} to ${url}`,
+      );
+      await page.goto(url, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+
+      // Wait for the game menu to be visible
+      await page.waitForSelector('[data-testid="game-menu"]', {
+        state: "visible",
+        timeout: 15000,
+      });
+
+      console.log(`[Touch Test] Navigation successful on attempt ${attempt}`);
+      return;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(
+        `[Touch Test] Navigation attempt ${attempt} failed:`,
+        lastError.message,
+      );
+
+      if (attempt < maxRetries) {
+        const delay = attempt * 2000; // Exponential backoff: 2s, 4s, 6s
+        console.log(`[Touch Test] Retrying in ${delay}ms...`);
+        await page.waitForTimeout(delay);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 async function skipWormLoadingIfPresent(page: import("@playwright/test").Page) {
   const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
   const skipButton = page.locator('[data-testid="skip-loading-button"]');
@@ -23,17 +69,14 @@ async function skipWormLoadingIfPresent(page: import("@playwright/test").Page) {
 test.describe("Touch Interactions - Tablet", () => {
   test.beforeEach(async ({ page }) => {
     try {
-      // Navigate to the application with e2e flag enabled for testing mode
-      await page.goto("/?e2e=1");
-
-      // Wait for the game menu to be visible, ensuring the page is ready for interaction
-      await page.waitForSelector('[data-testid="game-menu"]', {
-        state: "visible",
-        timeout: 10000, // Consistent timeout to prevent flaky tests
-      });
+      // Navigate with retry logic for transient server errors
+      await navigateWithRetry(page, "/?e2e=1");
     } catch (error) {
-      console.error("Failed to set up test environment:", error);
-      throw error; // Re-throw to fail the test appropriately
+      console.error(
+        "Failed to set up test environment after all retries:",
+        error,
+      );
+      throw error;
     }
   });
 
@@ -135,12 +178,20 @@ test.describe("Touch Interactions - Tablet", () => {
 });
 
 test.describe("Multi-touch Handling", () => {
-  test("should handle rapid sequential taps", async ({ page }) => {
-    await page.goto("/?e2e=1");
-    await page.waitForSelector('[data-testid="game-menu"]', {
-      state: "visible",
-    });
+  test.beforeEach(async ({ page }) => {
+    try {
+      // Navigate with retry logic for transient server errors
+      await navigateWithRetry(page, "/?e2e=1");
+    } catch (error) {
+      console.error(
+        "Failed to set up test environment after all retries:",
+        error,
+      );
+      throw error;
+    }
+  });
 
+  test("should handle rapid sequential taps", async ({ page }) => {
     // Start game
     const levelSelectButton = page.locator(
       '[data-testid="level-select-button"]',
