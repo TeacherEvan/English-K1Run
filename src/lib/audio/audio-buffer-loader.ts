@@ -8,7 +8,6 @@
  */
 
 import { getAudioUrl, resolveCandidates } from "./audio-registry";
-import { createFallbackEffects } from "./audio-tone-generator";
 
 /**
  * Audio Buffer Loader
@@ -32,8 +31,11 @@ export class AudioBufferLoader {
    * Prepare fallback tone effects for essential sounds
    */
   private prepareFallbackEffects(): void {
-    if (!this.audioContext) return;
-    this.fallbackEffects = createFallbackEffects(this.audioContext);
+    // Disable programmatic tone fallbacks to prevent repeated 'boop' noises.
+    // Previously this generated simple tone buffers; removing that behavior
+    // prevents undesired fallback sound loops. If needed, add vetted audio
+    // files to the `sounds/` directory instead.
+    this.fallbackEffects = new Map<string, AudioBuffer>();
   }
 
   /**
