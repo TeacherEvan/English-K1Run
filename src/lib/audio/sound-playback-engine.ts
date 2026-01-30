@@ -119,7 +119,15 @@ export class SoundPlaybackEngine {
     if (this.activeHtmlAudio.has(key)) {
       try {
         const prevAudio = this.activeHtmlAudio.get(key)!;
-        prevAudio.pause();
+
+        // Wait for pause to complete to prevent overlap
+        await new Promise<void>((resolve) => {
+          prevAudio.pause();
+          prevAudio.onpause = () => resolve();
+          // Fallback if pause never fires
+          setTimeout(resolve, 50);
+        });
+
         prevAudio.currentTime = 0;
         this.activeHtmlAudio.delete(key);
       } catch {

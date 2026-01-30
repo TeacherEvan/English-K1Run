@@ -13,6 +13,7 @@ export class SpeechPlayback {
   private speechAvailable: boolean | null = null;
   private voiceQueue: Promise<void> = Promise.resolve();
   private voiceQueueToken = 0;
+  private maxQueueSize = 2;
 
   resetQueue(): void {
     this.voiceQueueToken += 1;
@@ -21,6 +22,23 @@ export class SpeechPlayback {
 
   enqueue(task: () => Promise<void>): Promise<void> {
     const token = this.voiceQueueToken;
+
+    // Clear queue if too long to prevent audio stacking
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      const synth = window.speechSynthesis;
+      // Check if we're already speaking and have pending utterances
+      if (synth.speaking && synth.pending) {
+        // If queue appears to be backing up, clear it
+        window.speechSynthesis.cancel();
+        this.resetQueue();
+        if (import.meta.env.DEV) {
+          console.log(
+            `[SpeechPlayback] Cleared speech queue to prevent stacking`,
+          );
+        }
+      }
+    }
+
     const run = async () => {
       if (token !== this.voiceQueueToken) return;
       await task();
