@@ -397,7 +397,9 @@ export const playSoundEffect = {
   stopAll: () => soundManager.stopAllAudio(),
   // Target-related sounds
   targetSpawn: () => soundManager.playSound("target_spawn"),
-  targetHit: () => soundManager.playSound("celebrate"),
+  // Removed 'celebrate' audio trigger to stop unwanted repeated speech.
+  // Keep targetHit as a silent no-op to preserve call sites/tests.
+  targetHit: () => {},
   targetMiss: () => soundManager.playSound("explosion"),
 };
 

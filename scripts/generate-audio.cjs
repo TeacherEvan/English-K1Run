@@ -87,10 +87,10 @@ const OUTPUT_DIR = path.join(__dirname, "..", "sounds");
 
 if (!ELEVENLABS_API_KEY) {
   console.error(
-    "❌ Error: ELEVENLABS_API_KEY environment variable is required"
+    "❌ Error: ELEVENLABS_API_KEY environment variable is required",
   );
   console.log(
-    "Please set it with: export ELEVENLABS_API_KEY=your_api_key_here"
+    "Please set it with: export ELEVENLABS_API_KEY=your_api_key_here",
   );
   process.exit(1);
 }
@@ -285,7 +285,6 @@ const AUDIO_PHRASES = [
   "smile",
   "laugh",
   "think",
-  "celebrate",
   "wave",
 
   // Body Parts
@@ -397,7 +396,7 @@ function generateAudio(
   text,
   outputPath,
   languageCode = "en",
-  voiceId = VOICE_ID
+  voiceId = VOICE_ID,
 ) {
   return new Promise((resolve, reject) => {
     // Check if there's a custom text mapping first
@@ -412,8 +411,8 @@ function generateAudio(
         new Error(
           "Missing Thai welcome text for " +
             text +
-            ". Set WELCOME_ASSOCIATION_THAI_TEXT or WELCOME_LEARNING_THAI_TEXT to the exact Thai translations you want recorded."
-        )
+            ". Set WELCOME_ASSOCIATION_THAI_TEXT or WELCOME_LEARNING_THAI_TEXT to the exact Thai translations you want recorded.",
+        ),
       );
       return;
     }
@@ -515,7 +514,7 @@ async function main() {
 
     if (!FORCE_REGEN && fs.existsSync(outputPath)) {
       process.stdout.write(
-        `[${i + 1}/${AUDIO_PHRASES.length}] Skipping "${phrase}" (already exists) ...`
+        `[${i + 1}/${AUDIO_PHRASES.length}] Skipping "${phrase}" (already exists) ...`,
       );
       console.log(" ✓");
       skippedCount++;
@@ -524,7 +523,7 @@ async function main() {
 
     try {
       process.stdout.write(
-        `[${i + 1}/${AUDIO_PHRASES.length}] Generating "${phrase}"...`
+        `[${i + 1}/${AUDIO_PHRASES.length}] Generating "${phrase}"...`,
       );
 
       await generateAudio(phrase, outputPath);
