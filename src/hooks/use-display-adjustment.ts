@@ -59,8 +59,10 @@ export function useDisplayAdjustment() {
 
     // Define updateDisplaySettings as a named function so it can be called externally
     const updateDisplaySettings = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      // Prefer the visual viewport when available (avoids mobile address-bar jitter)
+      const visual = (window as any).visualViewport;
+      const width = visual?.width ?? window.innerWidth;
+      const height = visual?.height ?? window.innerHeight;
       const aspectRatio = width / height;
       const isLandscape = width > height;
 
@@ -133,12 +135,12 @@ export function useDisplayAdjustment() {
       }
 
       // Set CSS variables with threshold checking to prevent sub-pixel jitter
-      const updateCSSVariable = (
-        name: string,
-        value: number,
-        previous: number,
-      ) => {
-        if (Math.abs(value - previous) > 0.01) {
+      const updateCSSVariable = (name: string, value: number) => {
+        const computed = getComputedStyle(
+          document.documentElement,
+        ).getPropertyValue(name);
+        const current = parseFloat(computed) || 0;
+        if (Math.abs(value - current) > 0.01) {
           document.documentElement.style.setProperty(name, value.toFixed(2));
 
           // Performance monitoring for CSS updates
@@ -151,30 +153,30 @@ export function useDisplayAdjustment() {
             );
             lastReportTime = Date.now();
           }
-
-          return value;
         }
-        return previous;
       };
 
-      updateCSSVariable("--font-scale", fontSize, 0);
-      updateCSSVariable("--object-scale", objectSize, 0);
-      document.documentElement.style.setProperty(
-        "--turtle-scale",
-        turtleSize.toFixed(2),
-      );
-      document.documentElement.style.setProperty(
-        "--spacing-scale",
-        spacing.toFixed(2),
-      );
-      document.documentElement.style.setProperty(
-        "--fall-speed-scale",
-        fallSpeed.toFixed(2),
-      );
-      document.documentElement.style.setProperty(
-        "--size-scale",
-        spacing.toFixed(2),
-      );
+      updateCSSVariable("--font-scale", fontSize);
+      updateCSSVariable("--object-scale", objectSize);
+      updateCSSVariable("--turtle-scale", turtleSize);
+      updateCSSVariable("--spacing-scale", spacing);
+      updateCSSVariable("--fall-speed-scale", fallSpeed);
+      updateCSSVariable("--size-scale", spacing);
+      // Also set a pixel-based app-height variable to avoid 100vh mobile jitter
+      const updateCSSPixelVariable = (name: string, px: number) => {
+        const computed = getComputedStyle(
+          document.documentElement,
+        ).getPropertyValue(name);
+        const current = parseFloat(computed) || 0;
+        if (Math.abs(px - current) > 1) {
+          document.documentElement.style.setProperty(
+            name,
+            `${Math.round(px)}px`,
+          );
+        }
+      };
+
+      updateCSSPixelVariable("--app-height", height);
 
       setDisplaySettings((prev) => {
         // Only update if values actually changed to prevent unnecessary renders

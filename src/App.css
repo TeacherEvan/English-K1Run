@@ -2,7 +2,8 @@
 
 .app {
   width: 100%;
-  height: 100vh;
+  /* Use computed pixel app height to avoid mobile address-bar/toolbar jitter */
+  height: var(--app-height, 100vh);
   overflow: hidden;
   position: relative;
   transition:
@@ -536,4 +537,13 @@
 
 .animate-shine {
   animation: shine 1.5s ease-in-out infinite;
+}
+
+/* Override Tailwind h-screen/min-h-screen to use JS-provided app height
+   This prevents mobile browsers toggling the address bar from changing layout */
+.h-screen {
+  height: var(--app-height, 100vh) !important;
+}
+.min-h-screen {
+  min-height: var(--app-height, 100vh) !important;
 }

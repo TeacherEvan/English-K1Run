@@ -22,14 +22,25 @@ export const useViewportObserver = (
     if (typeof window === "undefined") return;
 
     const updateViewport = () => {
-      viewportRef.current.width = window.innerWidth;
-      viewportRef.current.height = window.innerHeight;
+      const visual = (window as any).visualViewport;
+      viewportRef.current.width = visual?.width ?? window.innerWidth;
+      viewportRef.current.height = visual?.height ?? window.innerHeight;
       onResize?.();
     };
 
     updateViewport();
+    const visual = (window as any).visualViewport;
+    if (visual && typeof visual.addEventListener === "function") {
+      visual.addEventListener("resize", updateViewport);
+    }
     window.addEventListener("resize", updateViewport);
-    return () => window.removeEventListener("resize", updateViewport);
+
+    return () => {
+      if (visual && typeof visual.removeEventListener === "function") {
+        visual.removeEventListener("resize", updateViewport);
+      }
+      window.removeEventListener("resize", updateViewport);
+    };
   }, [viewportRef, onResize]);
 };
 
