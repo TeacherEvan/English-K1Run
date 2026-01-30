@@ -135,12 +135,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           if (cancelled || readyToContinue) throw new Error('Sequence cancelled');
         };
 
-        // NEW: Single phase - Teacher Evan's introduction
+        // Temporary: Using welcome_learning until welcome_evan_intro audio is recorded
         checkActive();
         if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Playing: welcome_evan_intro");
+          console.log("[WelcomeScreen] Playing: welcome_learning (temporary - awaiting welcome_evan_intro)");
         }
-        await playWithTimeout('welcome_evan_intro', 0.9, 0.85)
+        await playWithTimeout('welcome_learning', 0.9, 0.85)
 
         // Note: Sangsom association audio moved to Home Menu component
 

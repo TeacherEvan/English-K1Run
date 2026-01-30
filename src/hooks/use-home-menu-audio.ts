@@ -44,24 +44,20 @@ export const useHomeMenuAudio = () => {
           await context.resume();
         }
 
-        // Play English version
+        // Play English version (using existing welcome_association file)
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing English association message");
         }
-        await soundManager.playSound("welcome_sangsom_association", 1.0, 0.85);
+        await soundManager.playSound("welcome_association", 1.0, 0.85);
 
         // 300ms pause between languages
         await new Promise((resolve) => setTimeout(resolve, 300));
 
-        // Play Thai version
+        // Play Thai version (using existing welcome_association_thai file)
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing Thai association message");
         }
-        await soundManager.playSound(
-          "welcome_sangsom_association_thai",
-          0.9,
-          0.85,
-        );
+        await soundManager.playSound("welcome_association_thai", 0.9, 0.85);
 
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Audio sequence completed successfully");
