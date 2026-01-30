@@ -77,7 +77,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       try {
         await soundManager.playSound(name, playbackRate, volume)
       } catch (e) {
-        console.warn(`[WelcomeScreen] Audio ${name} failed:`, e)
+        if (import.meta.env.DEV) {
+          console.warn(`[WelcomeScreen] Audio ${name} failed:`, e)
+        }
       }
     }
 
@@ -85,15 +87,19 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
     const startAudioSequence = async () => {
       // Prevent multiple starts or running if cancelled
       const isReady = readyToContinue;
-      console.log("[WelcomeScreen] startAudioSequence called:", {
-        audioStarted: audioStartedRef.current,
-        cancelled,
-        readyToContinue: isReady,
-        timestamp: Date.now()
-      });
+      if (import.meta.env.DEV) {
+        console.log("[WelcomeScreen] startAudioSequence called:", {
+          audioStarted: audioStartedRef.current,
+          cancelled,
+          readyToContinue: isReady,
+          timestamp: Date.now()
+        });
+      }
 
       if (audioStartedRef.current || cancelled) {
-        console.log("[WelcomeScreen] Audio sequence blocked by guard condition");
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Audio sequence blocked by guard condition");
+        }
         return;
       }
       audioStartedRef.current = true;
@@ -106,10 +112,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       )
 
       const runSequence = async () => {
-        console.log("[WelcomeScreen] Starting audio sequence...", {
-          audioContextState: soundManager.isInitialized() ? 'initialized' : 'not initialized',
-          timestamp: Date.now()
-        });
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Starting audio sequence...", {
+            audioContextState: soundManager.isInitialized() ? 'initialized' : 'not initialized',
+            timestamp: Date.now()
+          });
+        }
 
         // Ensure nothing else is playing before starting the sequence.
         soundManager.stopAllAudio()
@@ -118,7 +126,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         const audioContext = audioContextManager.getContext();
         if (audioContext?.state === "suspended") {
           await audioContext.resume();
-          console.log("[WelcomeScreen] AudioContext resumed successfully");
+          if (import.meta.env.DEV) {
+            console.log("[WelcomeScreen] AudioContext resumed successfully");
+          }
         }
 
         const checkActive = () => {
@@ -127,32 +137,42 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
         // Phase 1: English
         checkActive();
-        console.log("[WelcomeScreen] Playing phase 1: welcome_association");
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Playing phase 1: welcome_association");
+        }
         await playWithTimeout('welcome_association', 0.9, 0.85)
 
         // Phase 2: English
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
-        console.log("[WelcomeScreen] Playing phase 2: welcome_learning");
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Playing phase 2: welcome_learning");
+        }
         await playWithTimeout('welcome_learning', 0.9, 0.85)
 
         // Phase 3: Thai intro
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
-        console.log("[WelcomeScreen] Playing phase 3: welcome_association_thai");
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Playing phase 3: welcome_association_thai");
+        }
         await playWithTimeout('welcome_association_thai', 0.8, 0.95)
 
         // Phase 4: Thai (Slowed)
         checkActive();
         await new Promise(resolve => setTimeout(resolve, 300))
         checkActive();
-        console.log("[WelcomeScreen] Playing phase 4: welcome_learning_thai");
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Playing phase 4: welcome_learning_thai");
+        }
         await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
 
         if (!cancelled && !isReady) {
-          console.log("[WelcomeScreen] Sequence finished normally")
+          if (import.meta.env.DEV) {
+            console.log("[WelcomeScreen] Sequence finished normally")
+          }
           setReadyToContinue(true)
           setSequenceFinished(true)
         }
@@ -162,12 +182,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         await Promise.race([runSequence(), sequenceTimeout])
       } catch (err) {
         // Only log warning if it wasn't an intentional cancellation
-        console.log("[WelcomeScreen] Audio sequence error:", {
-          error: err instanceof Error ? err.message : String(err),
-          audioStarted: audioStartedRef.current,
-          readyToContinue: isReady,
-          timestamp: Date.now()
-        });
+        if (import.meta.env.DEV) {
+          console.log("[WelcomeScreen] Audio sequence error:", {
+            error: err instanceof Error ? err.message : String(err),
+            audioStarted: audioStartedRef.current,
+            readyToContinue: isReady,
+            timestamp: Date.now()
+          });
+        }
         if (err instanceof Error && err.message !== 'Sequence cancelled') {
           console.warn('[WelcomeScreen] Audio sequence failed:', err)
         }
@@ -185,11 +207,13 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
     // Fallback: Also trigger on first user interaction if audio hasn't started
     const handleInteraction = () => {
-      console.log("[WelcomeScreen] Document interaction detected:", {
-        audioStarted: audioStartedRef.current,
-        cancelled,
-        timestamp: Date.now()
-      });
+      if (import.meta.env.DEV) {
+        console.log("[WelcomeScreen] Document interaction detected:", {
+          audioStarted: audioStartedRef.current,
+          cancelled,
+          timestamp: Date.now()
+        });
+      }
       if (!audioStartedRef.current && !cancelled) {
         void startAudioSequence()
       }
@@ -230,7 +254,9 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   useEffect(() => {
     // Single deterministic trigger with 100ms delay to ensure video is rendering
     if (!videoLoaded || isE2E) return;
-    console.log("[WelcomeScreen] Video loaded, scheduling audio sequence with 100ms delay");
+    if (import.meta.env.DEV) {
+      console.log("[WelcomeScreen] Video loaded, scheduling audio sequence with 100ms delay");
+    }
     const triggerTimer = setTimeout(() => {
       startAudioSequenceRef.current?.()
     }, 100)

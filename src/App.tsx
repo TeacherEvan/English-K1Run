@@ -104,7 +104,6 @@ const requestFullscreen = () => {
 }
 
 function App() {
-  console.log('DEBUG: App rendering, isE2E:', typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1');
   const { displaySettings } = useDisplayAdjustment()
 
   const stopRenderMeasurement = useMemo(
