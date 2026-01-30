@@ -133,9 +133,6 @@ export function useDisplayAdjustment() {
       }
 
       // Set CSS variables with threshold checking to prevent sub-pixel jitter
-      let previousFontScale = 0;
-      let previousObjectScale = 0;
-
       const updateCSSVariable = (
         name: string,
         value: number,
@@ -160,16 +157,8 @@ export function useDisplayAdjustment() {
         return previous;
       };
 
-      previousFontScale = updateCSSVariable(
-        "--font-scale",
-        fontSize,
-        previousFontScale,
-      );
-      previousObjectScale = updateCSSVariable(
-        "--object-scale",
-        objectSize,
-        previousObjectScale,
-      );
+      updateCSSVariable("--font-scale", fontSize, 0);
+      updateCSSVariable("--object-scale", objectSize, 0);
       document.documentElement.style.setProperty(
         "--turtle-scale",
         turtleSize.toFixed(2),

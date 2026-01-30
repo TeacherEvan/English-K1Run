@@ -1,4 +1,5 @@
 import { memo, useEffect, useState } from 'react'
+import { updateFpsTracking } from './display-info-helpers'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
 
@@ -15,13 +16,6 @@ interface DisplayInfoProps {
   isLandscape: boolean
   onToggle: () => void
 }
-
-// FPS tracking
-let frameCount = 0;
-let lastFpsTime = performance.now();
-let currentFps = 0;
-
-export const getFps = () => currentFps;
 
 export const DisplayInfo = memo(({
   isVisible,
@@ -42,14 +36,8 @@ export const DisplayInfo = memo(({
     let animationFrameId: number;
 
     const updateFps = () => {
-      frameCount++;
-      const now = performance.now();
-      if (now - lastFpsTime >= 1000) {
-        currentFps = frameCount;
-        setFps(frameCount);
-        frameCount = 0;
-        lastFpsTime = now;
-      }
+      const currentFps = updateFpsTracking();
+      setFps(currentFps);
       animationFrameId = requestAnimationFrame(updateFps);
     };
 
