@@ -242,13 +242,23 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
         )
       })}
 
-      {/* Skip button */}
+      {/* Auto-progression indicator (shown when all worms eliminated) */}
+      {aliveWorms.length === 0 && (
+        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center">
+          <p className="text-xl text-green-700 font-bold animate-pulse bg-white/80 px-6 py-3 rounded-lg shadow-lg">
+            🎯 All worms caught! Starting game...
+          </p>
+        </div>
+      )}
+
+      {/* Skip button (optional - game auto-advances when all worms caught) */}
       <button
         data-testid="skip-loading-button"
         onClick={onComplete}
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all hover:scale-105"
+        aria-label="Skip to game immediately without catching worms"
       >
-        Skip Loading Screen
+        Skip to Game (or catch all worms!)
       </button>
     </div>
   )

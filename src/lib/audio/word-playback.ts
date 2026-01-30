@@ -190,7 +190,7 @@ export async function playWordInternal(
     eventTracker.trackAudioPlayback({
       audioKey: trimmed,
       targetName: trimmed,
-      method: "fallback-tone",
+      method: "speech-synthesis",
       success: false,
       error: "no_audio_available",
     });
@@ -199,7 +199,7 @@ export async function playWordInternal(
     eventTracker.trackAudioPlayback({
       audioKey: phrase,
       targetName: phrase,
-      method: "fallback-tone",
+      method: "speech-synthesis",
       success: false,
       error: error instanceof Error ? error.message : "exception",
     });

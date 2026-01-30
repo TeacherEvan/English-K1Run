@@ -1,5 +1,6 @@
 import { memo, useCallback } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
+import { useHomeMenuAudio } from "../../hooks/use-home-menu-audio";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { MENU_THAI_LABELS } from "./constants";
@@ -35,6 +36,9 @@ export const GameMenuHome = memo(
         onToggleContinuousMode,
         onResetGame,
     }: GameMenuHomeProps) => {
+        // Play "in association with Sangsom Kindergarten" audio on mount
+        useHomeMenuAudio();
+
         const canPlayAllLevels = Boolean(onToggleContinuousMode);
         const handlePlayAllLevels = useCallback(() => {
             if (!onToggleContinuousMode) return;

@@ -365,7 +365,14 @@ const AUDIO_PHRASES = [
   // Welcome messages
   "welcome",
 
-  // Welcome screen sequential audio (professional voice + children's choir)
+  // NEW: Teacher Evan Introduction (Welcome Screen)
+  "welcome_evan_intro", // "Welcome to Teacher Evan's Super Student English Program"
+
+  // NEW: Sangsom Association Messages (Home Menu)
+  "welcome_sangsom_association", // "In association with Sangsom Kindergarten"
+  "welcome_sangsom_association_thai", // Thai translation
+
+  // LEGACY: Original welcome screen audio (kept for backward compatibility)
   "welcome_association", // "In association with SANGSOM Kindergarten"
   "welcome_learning", // "Learning through games for everyone!"
   // Thai male translations (must translate the existing English welcome lines)
@@ -378,6 +385,14 @@ const DELAY_BETWEEN_REQUESTS = 500; // ms
 
 // Custom text mappings for phrases that need different spoken text
 const PHRASE_TEXT_MAPPING = {
+  // NEW: Teacher Evan's Introduction
+  welcome_evan_intro: "Welcome to Teacher Evan's Super Student English Program",
+
+  // NEW: Sangsom Association
+  welcome_sangsom_association: "In association with Sangsom Kindergarten",
+  welcome_sangsom_association_thai: "ร่วมกับโรงเรียนอนุบาลสังสม",
+
+  // LEGACY: Original welcome messages (kept for backward compatibility)
   welcome_association: "In association with SANGSOM Kindergarten",
   welcome_learning: "Learning through games for everyone!",
   // REQUIRED: provide exact Thai translation text via env vars

@@ -34,12 +34,7 @@ export { AUDIO_PRIORITIES } from "./audio-priorities";
 // Audio buffer loader
 export { AudioBufferLoader, audioBufferLoader } from "./audio-buffer-loader";
 
-// Tone generator utilities
-export {
-  createFallbackEffects,
-  createTone,
-  createToneSequence,
-} from "./audio-tone-generator";
+// Tone generator utilities removed — audio-tone-generator deleted
 
 // Speech synthesizer
 export { SpeechSynthesizer, speechSynthesizer } from "./speech-synthesizer";

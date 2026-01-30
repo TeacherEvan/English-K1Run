@@ -55,12 +55,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
     }
 
-    // Safety timer: If audio system fails or hangs, enable continue button after 10s
-    // and auto-advance after 15s. This prevents "Stuck on loading" issues.
+    // Safety timer: Simplified for 1-phase sequence
+    // Enable continue button after 5s and auto-advance after 8s if audio fails
     const safetyBtnTimer = setTimeout(() => {
       console.log("[WelcomeScreen] Safety timer: Enabling interaction fallback")
       setReadyToContinue(true)
-    }, 10000)
+    }, 5000)
 
     const safetyEndTimer = setTimeout(() => {
       if (!sequenceFinished) {
@@ -68,7 +68,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         setSequenceFinished(true)
         setReadyToContinue(true)
       }
-    }, 15000)
+    }, 8000)
 
     let cancelled = false
 
@@ -104,11 +104,11 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
       audioStartedRef.current = true;
 
-      // Sequence-level 20s timeout wrapper (4 phases × ~3s avg + buffer)
+      // Sequence-level 10s timeout wrapper (simplified 1-phase sequence)
       const sequenceTimeout = new Promise<void>((_, reject) =>
         setTimeout(() => {
-          reject(new Error('Sequence timeout after 20s'))
-        }, 20000)
+          reject(new Error('Sequence timeout after 10s'))
+        }, 10000)
       )
 
       const runSequence = async () => {
@@ -135,39 +135,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           if (cancelled || readyToContinue) throw new Error('Sequence cancelled');
         };
 
-        // Phase 1: English
+        // NEW: Single phase - Teacher Evan's introduction
         checkActive();
         if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Playing phase 1: welcome_association");
+          console.log("[WelcomeScreen] Playing: welcome_evan_intro");
         }
-        await playWithTimeout('welcome_association', 0.9, 0.85)
+        await playWithTimeout('welcome_evan_intro', 0.9, 0.85)
 
-        // Phase 2: English
-        checkActive();
-        await new Promise(resolve => setTimeout(resolve, 300))
-        checkActive();
-        if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Playing phase 2: welcome_learning");
-        }
-        await playWithTimeout('welcome_learning', 0.9, 0.85)
-
-        // Phase 3: Thai intro
-        checkActive();
-        await new Promise(resolve => setTimeout(resolve, 300))
-        checkActive();
-        if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Playing phase 3: welcome_association_thai");
-        }
-        await playWithTimeout('welcome_association_thai', 0.8, 0.95)
-
-        // Phase 4: Thai (Slowed)
-        checkActive();
-        await new Promise(resolve => setTimeout(resolve, 300))
-        checkActive();
-        if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Playing phase 4: welcome_learning_thai");
-        }
-        await playWithTimeout('welcome_learning_thai', 0.8, 0.95)
+        // Note: Sangsom association audio moved to Home Menu component
 
         if (!cancelled && !isReady) {
           if (import.meta.env.DEV) {

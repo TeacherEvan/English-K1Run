@@ -13,6 +13,12 @@ import { AudioPriority } from "./types";
 export const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
   [AudioPriority.CRITICAL]: [
     "welcome",
+    // NEW: Teacher Evan's welcome intro (Welcome Screen)
+    "welcome_evan_intro",
+    // NEW: Sangsom association messages (Home Menu)
+    "welcome_sangsom_association",
+    "welcome_sangsom_association_thai",
+    // LEGACY: Original welcome messages (kept for compatibility)
     "welcome_association",
     "welcome_learning",
     "welcome_association_thai",

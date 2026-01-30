@@ -21,7 +21,6 @@ export interface AudioPlaybackEvent {
     | "wav"
     | "html-audio"
     | "speech-synthesis"
-    | "fallback-tone"
     | "web-audio"
     | "audio-sprite";
   success: boolean;

@@ -103,6 +103,109 @@ test.describe("Gameplay - Object Interaction", () => {
   });
 });
 
+test.describe("Worm Loading Screen Auto-Progression", () => {
+  test("should show worm loading screen before gameplay", async ({ page }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Click start game
+    await page.click('[data-testid="start-game-button"]');
+
+    // Should show worm loading screen
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).toBeVisible();
+  });
+
+  test("should automatically advance after all worms eliminated", async ({
+    page,
+  }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Start game
+    await page.click('[data-testid="start-game-button"]');
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).toBeVisible();
+
+    // Eliminate all 5 worms
+    for (let i = 0; i < 5; i++) {
+      const worm = page.locator(".worm-wiggle").first();
+      await worm.click({ force: true });
+      await page.waitForTimeout(100); // Allow animation
+    }
+
+    // Should auto-advance to game within 2 seconds (500ms delay after last worm)
+    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
+      timeout: 2000,
+    });
+
+    // Loading screen should be gone
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).not.toBeVisible();
+  });
+
+  test("should show completion message when all worms eliminated", async ({
+    page,
+  }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.click('[data-testid="start-game-button"]');
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).toBeVisible();
+
+    // Eliminate all worms
+    for (let i = 0; i < 5; i++) {
+      await page.locator(".worm-wiggle").first().click({ force: true });
+      await page.waitForTimeout(100);
+    }
+
+    // Check for completion message
+    await expect(page.locator("text=All worms caught")).toBeVisible();
+    await expect(page.locator("text=Starting game")).toBeVisible();
+  });
+
+  test("skip button should still work as manual override", async ({ page }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.click('[data-testid="start-game-button"]');
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).toBeVisible();
+
+    // Click skip immediately without eliminating worms
+    await page.click('[data-testid="skip-loading-button"]');
+
+    // Should advance to game
+    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
+      timeout: 2000,
+    });
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).not.toBeVisible();
+  });
+
+  test("skip button should have updated text", async ({ page }) => {
+    await page.goto("/?e2e=1");
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.click('[data-testid="start-game-button"]');
+    await expect(
+      page.locator('[data-testid="worm-loading-screen"]'),
+    ).toBeVisible();
+
+    // Check button text clarifies it's optional
+    const button = page.locator('[data-testid="skip-loading-button"]');
+    await expect(button).toContainText("Skip to Game");
+    await expect(button).toContainText("catch all worms");
+  });
+});
+
 test.describe("Worms (Distractors)", () => {
   test.beforeEach(async ({ gamePage }) => {
     await gamePage.goto();

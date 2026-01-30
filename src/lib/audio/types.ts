@@ -22,7 +22,6 @@ export type AudioMethod =
   | "wav"
   | "html-audio"
   | "speech-synthesis"
-  | "fallback-tone"
   | "web-audio"
   | "audio-sprite";
 
@@ -94,5 +93,5 @@ export const NUMBER_WORD_TO_DIGIT: Record<string, string> = {
 
 /** Digit to number word mapping (reverse of above) */
 export const DIGIT_TO_WORD: Record<string, string> = Object.fromEntries(
-  Object.entries(NUMBER_WORD_TO_DIGIT).map(([word, value]) => [value, word])
+  Object.entries(NUMBER_WORD_TO_DIGIT).map(([word, value]) => [value, word]),
 );

@@ -28,13 +28,11 @@ export class AudioBufferLoader {
   }
 
   /**
-   * Prepare fallback tone effects for essential sounds
+   * Prepare fallback effects (currently unused, kept for future extensibility)
    */
   private prepareFallbackEffects(): void {
-    // Disable programmatic tone fallbacks to prevent repeated 'boop' noises.
-    // Previously this generated simple tone buffers; removing that behavior
-    // prevents undesired fallback sound loops. If needed, add vetted audio
-    // files to the `sounds/` directory instead.
+    // Tone generation completely removed (Jan 2026).
+    // All fallback mechanisms now rely on speech synthesis or audio files.
     this.fallbackEffects = new Map<string, AudioBuffer>();
   }
 
