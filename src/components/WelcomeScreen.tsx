@@ -72,25 +72,12 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
     let cancelled = false
 
-    // Timeout wrapper for audio calls to prevent infinite hanging
+    // Simplified wrapper for audio calls (no individual timeout, see sequence-level timeout below)
     const playWithTimeout = async (name: string, playbackRate: number, volume: number) => {
-      let timedOut = false
-      const timeout = new Promise<void>((_, reject) =>
-        setTimeout(() => {
-          timedOut = true
-          reject(new Error('Audio timeout'))
-        }, 8000)
-      )
       try {
-        await Promise.race([
-          soundManager.playSound(name, playbackRate, volume),
-          timeout
-        ])
+        await soundManager.playSound(name, playbackRate, volume)
       } catch (e) {
-        console.warn(`[WelcomeScreen] Audio ${name} timed out or failed:`, e)
-        if (timedOut) {
-          soundManager.stopAllAudio()
-        }
+        console.warn(`[WelcomeScreen] Audio ${name} failed:`, e)
       }
     }
 
@@ -111,11 +98,21 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
       audioStartedRef.current = true;
 
-      try {
+      // Sequence-level 20s timeout wrapper (4 phases × ~3s avg + buffer)
+      const sequenceTimeout = new Promise<void>((_, reject) =>
+        setTimeout(() => {
+          reject(new Error('Sequence timeout after 20s'))
+        }, 20000)
+      )
+
+      const runSequence = async () => {
         console.log("[WelcomeScreen] Starting audio sequence...", {
           audioContextState: soundManager.isInitialized() ? 'initialized' : 'not initialized',
           timestamp: Date.now()
         });
+
+        // Ensure nothing else is playing before starting the sequence.
+        soundManager.stopAllAudio()
 
         // Ensure AudioContext is resumed before playing (browser autoplay policy)
         const audioContext = audioContextManager.getContext();
@@ -123,9 +120,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           await audioContext.resume();
           console.log("[WelcomeScreen] AudioContext resumed successfully");
         }
-
-        // Ensure nothing else is playing under the narration.
-        soundManager.stopAllAudio()
 
         const checkActive = () => {
           if (cancelled || readyToContinue) throw new Error('Sequence cancelled');
@@ -162,6 +156,10 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           setReadyToContinue(true)
           setSequenceFinished(true)
         }
+      }
+
+      try {
+        await Promise.race([runSequence(), sequenceTimeout])
       } catch (err) {
         // Only log warning if it wasn't an intentional cancellation
         console.log("[WelcomeScreen] Audio sequence error:", {
@@ -230,9 +228,13 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   }, [handlePrimaryAction])
 
   useEffect(() => {
+    // Single deterministic trigger with 100ms delay to ensure video is rendering
     if (!videoLoaded || isE2E) return;
-    console.log("[WelcomeScreen] Video loaded, triggering audio sequence");
-    startAudioSequenceRef.current?.()
+    console.log("[WelcomeScreen] Video loaded, scheduling audio sequence with 100ms delay");
+    const triggerTimer = setTimeout(() => {
+      startAudioSequenceRef.current?.()
+    }, 100)
+    return () => clearTimeout(triggerTimer)
   }, [isE2E, videoLoaded])
 
   return (
@@ -256,7 +258,6 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         playsInline
         preload="auto"
         onCanPlay={() => setVideoLoaded(true)}
-        onPlay={() => startAudioSequenceRef.current?.()}
         onEnded={() => {
           setShowFallbackImage(true)
           setReadyToContinue(true)
