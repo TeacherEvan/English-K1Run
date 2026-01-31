@@ -105,6 +105,8 @@ export class SoundPlaybackEngine {
           this.activeSources.delete(soundKey);
         }
         resolve();
+        // Clean up the listener to prevent memory leaks
+        source.onended = null;
       };
     });
   }

@@ -128,6 +128,10 @@ export class SpeechPlayback {
         if (import.meta.env.DEV) {
           console.log(`[SpeechPlayback] Finished speaking: "${text}"`);
         }
+        // Clean up handlers to prevent memory leaks
+        utterance.onstart = null;
+        utterance.onend = null;
+        utterance.onerror = null;
       };
 
       utterance.onerror = (event) => {
@@ -139,6 +143,10 @@ export class SpeechPlayback {
           success: false,
           error: event.error || "unknown_error",
         });
+        // Clean up handlers to prevent memory leaks
+        utterance.onstart = null;
+        utterance.onend = null;
+        utterance.onerror = null;
       };
 
       synth.speak(utterance);
@@ -233,6 +241,10 @@ export class SpeechPlayback {
         utterance.onend = () => {
           if (resolved) return;
           cleanup();
+          // Clean up handlers to prevent memory leaks
+          utterance.onstart = null;
+          utterance.onend = null;
+          utterance.onerror = null;
           if (import.meta.env.DEV) {
             console.log(`[SpeechPlayback] Finished speaking: "${text}"`);
           }
@@ -242,6 +254,10 @@ export class SpeechPlayback {
         utterance.onerror = (event) => {
           if (resolved) return;
           cleanup();
+          // Clean up handlers to prevent memory leaks
+          utterance.onstart = null;
+          utterance.onend = null;
+          utterance.onerror = null;
           console.error("[SpeechPlayback] Speech synthesis error:", event);
           eventTracker.trackAudioPlayback({
             audioKey: text,
@@ -265,6 +281,10 @@ export class SpeechPlayback {
         setTimeout(() => {
           if (!resolved) {
             cleanup();
+            // Clean up handlers to prevent memory leaks
+            utterance.onstart = null;
+            utterance.onend = null;
+            utterance.onerror = null;
             console.warn(
               "[SpeechPlayback] Speech synthesis timed out after 10s",
             );
