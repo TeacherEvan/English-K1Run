@@ -84,7 +84,16 @@ const handleTouchEnd = (e: React.TouchEvent) => {
 - `types.ts` - Shared type definitions
 - `audio-loader.ts` - Lazy audio loading & caching
 - `audio-player.ts` - Web Audio & HTML Audio playback
-- `speech-synthesizer.ts` - Text-to-speech wrapper
+- `speech-synthesizer.ts` - Text-to-speech wrapper (refactored Jan 2026)
+- `audio-sprite.ts` - Audio sprite playback (refactored Jan 2026)
+
+**Audio Submodules** (`src/lib/audio/*/`):
+
+- `speech/elevenlabs-client.ts` - ElevenLabs API integration
+- `speech/web-speech-client.ts` - Browser Web Speech API fallback
+- `sprite/sprite-types.ts` - Audio sprite type definitions
+- `sprite/sprite-loader.ts` - Sprite manifest & buffer loading
+- `sprite/sprite-player.ts` - Sprite clip playback engine
 
 **Game Modules** (`src/lib/game/`):
 
@@ -235,3 +244,19 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 - `DOCS/MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling for QBoard
 - `DOCS/TEST_FAILURES_FIX_JAN2026.md` - E2E test reliability fixes for WormLoadingScreen race conditions
 - `plans/test-failures-analysis-jan2026.md` - Detailed analysis of 53 test failures
+- `C-JOB_CARD_AUDIO_AUDIT_JAN2026.md` - Audio system audit & refactoring status
+
+## Code Quality Standards
+
+**200-Line File Limit**: All source files should be under 200 lines. When files exceed this limit:
+
+1. Identify logical boundaries for splitting
+2. Create focused submodules in subdirectories
+3. Maintain public API compatibility
+4. Update imports in consuming files
+5. Document the refactoring in job cards
+
+**Recently Refactored (Jan 2026):**
+
+- `speech-synthesizer.ts`: 494 → 188 lines (split into `speech/` submodule)
+- `audio-sprite.ts`: 402 → 127 lines (split into `sprite/` submodule)

@@ -206,12 +206,19 @@ export class SpeechPlayback {
 
     return new Promise<boolean>((resolve) => {
       try {
+        let resolved = false;
+        const cleanup = () => {
+          resolved = true;
+        };
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
         utterance.volume = volume;
 
         utterance.onstart = () => {
+          if (resolved) return;
+          cleanup();
           if (import.meta.env.DEV) {
             console.log(`[SpeechPlayback] Started speaking: "${text}"`);
           }
@@ -224,6 +231,8 @@ export class SpeechPlayback {
         };
 
         utterance.onend = () => {
+          if (resolved) return;
+          cleanup();
           if (import.meta.env.DEV) {
             console.log(`[SpeechPlayback] Finished speaking: "${text}"`);
           }
@@ -231,6 +240,8 @@ export class SpeechPlayback {
         };
 
         utterance.onerror = (event) => {
+          if (resolved) return;
+          cleanup();
           console.error("[SpeechPlayback] Speech synthesis error:", event);
           eventTracker.trackAudioPlayback({
             audioKey: text,
@@ -249,6 +260,18 @@ export class SpeechPlayback {
             "[SpeechPlayback] Speech synthesis initiated successfully",
           );
         }
+
+        // Safety timeout to prevent hanging
+        setTimeout(() => {
+          if (!resolved) {
+            cleanup();
+            console.warn(
+              "[SpeechPlayback] Speech synthesis timed out after 10s",
+            );
+            synth.cancel(); // Stop the stuck speech
+            resolve(false);
+          }
+        }, 10000);
       } catch (error) {
         console.warn("[SpeechPlayback] Speech synthesis failed:", error);
         this.speechAvailable = false;
