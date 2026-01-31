@@ -81,13 +81,11 @@ export const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
     "apple",
     "banana",
     "orange",
-    "grape",
+    "grapes", // Fixed: was "grape", matches game-categories.ts
     "strawberry",
     "carrot",
     "broccoli",
-    "tomato",
-    "potato",
-    "onion",
+    // Removed: tomato, potato, onion (not in game-categories.ts)
   ],
   [AudioPriority.RARE]: [
     // Weather
@@ -99,18 +97,15 @@ export const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
     // Vehicles
     "car",
     "bus",
-    "truck",
+    "fire truck", // Fixed: was "truck", matches game-categories.ts
     "bicycle",
     "airplane",
     "boat",
     // Animals
     "dog",
     "cat",
-    "bird",
     "fish",
-    "cow",
-    "pig",
-    "sheep",
+    // Removed: bird, cow, pig, sheep (not in game-categories.ts)
     // Colors
     "red",
     "blue",

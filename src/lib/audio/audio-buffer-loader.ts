@@ -115,6 +115,45 @@ export class AudioBufferLoader {
 
     // Use fallback if allowed
     if (allowFallback) {
+      // Try speech synthesis fallback before giving up
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[AudioBufferLoader] No audio file for "${name}", attempting speech synthesis fallback`,
+        );
+      }
+
+      try {
+        // Dynamically import speech synthesizer to avoid circular dependencies
+        const { speechSynthesizer } = await import("./speech-synthesizer");
+
+        // Clean up name for speech (remove underscores, emoji prefix)
+        const cleanName = name
+          .replace(/^emoji_/, "")
+          .replace(/_/g, " ")
+          .trim();
+
+        // Attempt to speak the word (non-blocking)
+        const spoken = await speechSynthesizer.speakAsync(cleanName, {
+          rate: 1.0,
+          pitch: 1.0,
+          volume: 0.85,
+        });
+
+        if (spoken && import.meta.env.DEV) {
+          console.log(
+            `[AudioBufferLoader] Speech synthesis succeeded for "${name}"`,
+          );
+        }
+      } catch (speechError) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[AudioBufferLoader] Speech synthesis also failed for "${name}":`,
+            speechError,
+          );
+        }
+      }
+
+      // Check for tone/effect fallbacks
       const fallback =
         this.fallbackEffects.get(name) || this.fallbackEffects.get("success");
       if (fallback) {
