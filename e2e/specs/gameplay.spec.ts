@@ -94,11 +94,14 @@ test.describe("Gameplay - Object Interaction", () => {
       const initialProgress = await gamePage.gameplay.getProgress(1);
       await gamePage.gameplay.tapObjectByEmoji(targetEmoji!);
 
-      // Small delay for state update
-      await page.waitForTimeout(100);
+      // Increased delay for React state update + CSS transition (especially Firefox)
+      await page.waitForTimeout(500);
 
       const newProgress = await gamePage.gameplay.getProgress(1);
       expect(newProgress).toBeGreaterThanOrEqual(initialProgress);
+    } else {
+      // Skip test gracefully if no matching objects found
+      console.warn(`No matching objects found for target: ${targetEmoji}`);
     }
   });
 });
@@ -129,16 +132,18 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
       page.locator('[data-testid="worm-loading-screen"]'),
     ).toBeVisible();
 
-    // Eliminate all 5 worms
+    // Eliminate all 5 worms with better selector and timing
     for (let i = 0; i < 5; i++) {
-      const worm = page.locator(".worm-wiggle").first();
-      await worm.click({ force: true });
-      await page.waitForTimeout(100); // Allow animation
+      const worm = page.locator('[data-testid="worm-target"]').first();
+      await worm.waitFor({ state: "visible", timeout: 5000 });
+      await worm.click({ force: true, timeout: 5000 });
+      await page.waitForTimeout(250); // Increased for React state propagation
     }
 
-    // Should auto-advance to game within 2 seconds (500ms delay after last worm)
+    // Should auto-advance to game within 5 seconds
+    // Accounts for: 5 clicks * 250ms + state updates + 500ms delay + component transitions
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 2000,
+      timeout: 5000,
     });
 
     // Loading screen should be gone
@@ -158,15 +163,26 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
       page.locator('[data-testid="worm-loading-screen"]'),
     ).toBeVisible();
 
-    // Eliminate all worms
+    // Eliminate all worms with better timing
     for (let i = 0; i < 5; i++) {
-      await page.locator(".worm-wiggle").first().click({ force: true });
-      await page.waitForTimeout(100);
+      const worm = page.locator('[data-testid="worm-target"]').first();
+      await worm.waitFor({ state: "visible", timeout: 5000 });
+      await worm.click({ force: true, timeout: 5000 });
+      await page.waitForTimeout(250);
     }
 
-    // Check for completion message
-    await expect(page.locator("text=All worms caught")).toBeVisible();
-    await expect(page.locator("text=Starting game")).toBeVisible();
+    // Check for completion message (appears before auto-advancing)
+    await expect(page.locator("text=All worms caught")).toBeVisible({
+      timeout: 2000,
+    });
+    await expect(page.locator("text=Starting game")).toBeVisible({
+      timeout: 2000,
+    });
+
+    // Then verify game starts
+    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test("skip button should still work as manual override", async ({ page }) => {

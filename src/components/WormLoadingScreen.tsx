@@ -166,15 +166,21 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
         w.id === wormId ? { ...w, alive: false } : w
       )
 
-      // Increase speed for remaining worms
+      // Increase speed for remaining worms or trigger completion
       const aliveCount = updatedWorms.filter(w => w.alive).length
       if (aliveCount > 0) {
         setSpeedMultiplier(prevSpeed => prevSpeed * SPEED_INCREASE_FACTOR)
+      } else {
+        // FIX: Trigger completion directly when last worm is eliminated
+        // This eliminates race condition with useEffect dependency checking
+        setTimeout(() => {
+          onComplete()
+        }, 500) // Small delay to show final splat animation
       }
 
       return updatedWorms
     })
-  }, [])
+  }, [onComplete])
 
   const aliveWorms = worms.filter(w => w.alive)
 
@@ -207,10 +213,17 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
             top: `${worm.y}%`,
             fontSize: `${WORM_SIZE}px`,
             transform: `translate(-50%, -50%) rotate(${worm.angle}rad)`,
-            zIndex: 10
+            zIndex: 10,
+            // FIX: Explicit hit area for reliable test clicking
+            width: `${WORM_SIZE * 1.2}px`,
+            height: `${WORM_SIZE * 1.2}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
           onClick={(e) => handleWormClick(worm.id, e)}
           onTouchEnd={(e) => handleWormClick(worm.id, e)}
+          data-testid="worm-target"
         >
           <div className="worm-wiggle">
             🐛
