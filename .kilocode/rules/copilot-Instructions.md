@@ -125,6 +125,12 @@ npm run install:android  # Use before build on ARM64/Android (--legacy-peer-deps
 - All page navigations use `waitUntil: 'domcontentloaded'` (PWA/service worker compatible)
 - Button clicks use `.evaluate(el => el.click())` pattern for stability
 - Fixtures in `e2e/fixtures/game.fixture.ts` provide page object models
+- **Test Timing Best Practices** (Jan 2026):
+  - Use `[data-testid]` selectors instead of CSS classes for moving elements
+  - Allow 250ms between rapid interactions for React state propagation
+  - Allow 500ms for progress bar reads (CSS transitions, especially Firefox)
+  - Use `waitFor({ state: "visible", timeout: 5000 })` before clicking dynamic elements
+  - Component unmount + game start transitions require 2-5s timeouts
 
 ## Component Patterns
 
@@ -227,3 +233,5 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 
 - `DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices
 - `DOCS/MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling for QBoard
+- `DOCS/TEST_FAILURES_FIX_JAN2026.md` - E2E test reliability fixes for WormLoadingScreen race conditions
+- `plans/test-failures-analysis-jan2026.md` - Detailed analysis of 53 test failures
