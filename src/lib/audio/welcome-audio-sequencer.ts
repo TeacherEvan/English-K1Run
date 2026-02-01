@@ -61,7 +61,7 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
   // Sangsom association messages
   {
     key: "welcome_sangsom_association",
-    duration: 3.2,
+    duration: 4.8,
     source: "elevenlabs",
     category: "association",
   },
