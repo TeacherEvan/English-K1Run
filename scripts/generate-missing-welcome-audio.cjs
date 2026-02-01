@@ -46,7 +46,7 @@ const MISSING_FILES = [
   },
   {
     filename: "welcome_sangsom_association.mp3",
-    text: "In association with Sangsom Kindergarten",
+    text: "In association with Sangsom Kindergarten, learning through games for everyone.",
     voiceId: VOICE_ID_ENGLISH,
     languageCode: "en",
   },
