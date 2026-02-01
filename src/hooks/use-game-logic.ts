@@ -54,6 +54,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     winner: false,
     targetChangeTime: 0,
     streak: 0,
+    announcementActive: false,
+    announcementEmoji: "",
+    announcementSentence: "",
     multiplier: 1.0,
     lastMilestone: 0,
   }));
@@ -126,7 +129,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     [gameState.level],
   );
 
-  useTargetAnnouncement(gameState.gameStarted, gameState.currentTarget);
+  useTargetAnnouncement(
+    gameState.gameStarted,
+    gameState.currentTarget,
+    gameState.targetEmoji,
+    setGameState,
+  );
   useNextCategoryPrefetch(gameState.gameStarted, gameState.level, clampLevel);
 
   const { spawnImmediateTargets, spawnObject } = useMemo(

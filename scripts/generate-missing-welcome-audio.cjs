@@ -40,7 +40,7 @@ const VOICE_SETTINGS = {
 const MISSING_FILES = [
   {
     filename: "welcome_evan_intro.mp3",
-    text: "Welcome to Teacher Evan's Super Student English Program",
+    text: "Welcome to Teacher Evan's Super Student, lets have fun learning together!",
     voiceId: VOICE_ID_ENGLISH,
     languageCode: "en",
   },

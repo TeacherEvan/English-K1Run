@@ -29,6 +29,10 @@ export interface GameState {
   winner: boolean;
   targetChangeTime: number;
   streak: number;
+  /** Target announcement overlay state */
+  announcementActive?: boolean;
+  announcementEmoji?: string;
+  announcementSentence?: string;
   /** Current point multiplier from combo system */
   multiplier?: number;
   /** Active power-up effects */

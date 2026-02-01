@@ -45,3 +45,26 @@ export {
   setAudioDescriptionsEnabled,
 } from "./audio-accessibility";
 export { AudioSpritePlayer, audioSpritePlayer } from "./audio-sprite";
+
+// Welcome audio sequencer
+export {
+  clearActiveTargetEmojis,
+  DEFAULT_WELCOME_CONFIG,
+  getActiveTargetEmojis,
+  getWelcomeAudioSequence,
+  getWelcomeSequenceProgress,
+  isWelcomeSequencePlaying,
+  playWelcomeSequence,
+  preloadWelcomeAudio,
+  setActiveTargetEmojis,
+  stopWelcomeSequence,
+  WELCOME_AUDIO_ASSETS,
+} from "./welcome-audio-sequencer";
+export type {
+  AudioAssetMetadata,
+  WelcomeAudioConfig,
+} from "./welcome-audio-sequencer";
+
+// Target announcements + phonics
+export { getTargetSentence, playTargetSentence } from "./target-announcements";
+export { playTargetPhonics } from "./phonics";

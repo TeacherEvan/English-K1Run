@@ -1,18 +1,30 @@
-import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { audioContextManager } from '../lib/audio/audio-context-manager'
+import {
+  DEFAULT_WELCOME_CONFIG,
+  isWelcomeSequencePlaying,
+  playWelcomeSequence,
+  stopWelcomeSequence,
+  type WelcomeAudioConfig,
+} from '../lib/audio/welcome-audio-sequencer'
 import { soundManager } from '../lib/sound-manager'
 import './WelcomeScreen.css'
 
 interface WelcomeScreenProps {
   onComplete: () => void
+  /** Optional custom audio configuration */
+  audioConfig?: Partial<WelcomeAudioConfig>
 }
 
-export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
+export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false)
   const [readyToContinue, setReadyToContinue] = useState(false)
-  const [sequenceFinished, setSequenceFinished] = useState(false)
-  const [videoLoaded, setVideoLoaded] = useState(false)
-  const [showFallbackImage, setShowFallbackImage] = useState(false)
+  const sequenceFinishedRef = useRef(false)
+  const [isSequencePlaying, setIsSequencePlaying] = useState(false)
+  const [_videoLoaded, setVideoLoaded] = useState(false)
+  const [_showFallbackImage, setShowFallbackImage] = useState(false)
+  const [_currentAudioIndex, setCurrentAudioIndex] = useState(0)
+  const [_totalAudioCount, setTotalAudioCount] = useState(0)
   const audioStartedRef = useRef(false)
   const startAudioSequenceRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -21,8 +33,21 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
   const fallbackImageSrc = '/welcome-sangsom.png'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')
 
+  // Merge default config with any provided config
+  const mergedAudioConfig: Partial<WelcomeAudioConfig> = useMemo(() => ({
+    ...DEFAULT_WELCOME_CONFIG,
+    // Prioritize ElevenLabs and sort by duration (longest first)
+    sourcePriority: ['elevenlabs', 'generated', 'fallback'],
+    durationSortOrder: 'desc',
+    filterActiveTargets: true,
+    sequentialDelayMs: 500,
+    maxSequenceLength: 5,
+    ...audioConfig,
+  }), [audioConfig])
+
   // Proceed to menu - stop audio and transition out
   const proceed = useCallback(() => {
+    stopWelcomeSequence()
     soundManager.stopAllAudio()
     startTransition(() => setFadeOut(true))
     setTimeout(onComplete, 350)
@@ -55,33 +80,21 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
     }
 
-    // Safety timer: Simplified for 1-phase sequence
-    // Enable continue button after 5s and auto-advance after 8s if audio fails
+    // Safety timer: Enable continue button after 8s and auto-advance after 12s if audio fails
     const safetyBtnTimer = setTimeout(() => {
       console.log("[WelcomeScreen] Safety timer: Enabling interaction fallback")
       setReadyToContinue(true)
-    }, 5000)
-
-    const safetyEndTimer = setTimeout(() => {
-      if (!sequenceFinished) {
-        console.warn("[WelcomeScreen] Safety timer triggered - forcing sequence completion");
-        setSequenceFinished(true)
-        setReadyToContinue(true)
-      }
     }, 8000)
 
-    let cancelled = false
-
-    // Simplified wrapper for audio calls (no individual timeout, see sequence-level timeout below)
-    const playWithTimeout = async (name: string, playbackRate: number, volume: number) => {
-      try {
-        await soundManager.playSound(name, playbackRate, volume)
-      } catch (e) {
-        if (import.meta.env.DEV) {
-          console.warn(`[WelcomeScreen] Audio ${name} failed:`, e)
-        }
+    const safetyEndTimer = setTimeout(() => {
+      if (!sequenceFinishedRef.current) {
+        console.warn("[WelcomeScreen] Safety timer triggered - forcing sequence completion");
+        sequenceFinishedRef.current = true
+        setReadyToContinue(true)
       }
-    }
+    }, 12000)
+
+    let cancelled = false
 
     // Start audio playback - tries immediately, retries on user interaction
     const startAudioSequence = async () => {
@@ -92,6 +105,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           audioStarted: audioStartedRef.current,
           cancelled,
           readyToContinue: isReady,
+          config: mergedAudioConfig,
           timestamp: Date.now()
         });
       }
@@ -104,17 +118,18 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       }
       audioStartedRef.current = true;
 
-      // Sequence-level 10s timeout wrapper (simplified 1-phase sequence)
+      // Sequence-level 15s timeout wrapper (accommodates multiple audio clips)
       const sequenceTimeout = new Promise<void>((_, reject) =>
         setTimeout(() => {
-          reject(new Error('Sequence timeout after 10s'))
-        }, 10000)
+          reject(new Error('Sequence timeout after 15s'))
+        }, 15000)
       )
 
       const runSequence = async () => {
         if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Starting audio sequence...", {
+          console.log("[WelcomeScreen] Starting welcome audio sequence with ElevenLabs priority...", {
             audioContextState: soundManager.isInitialized() ? 'initialized' : 'not initialized',
+            config: mergedAudioConfig,
             timestamp: Date.now()
           });
         }
@@ -131,25 +146,31 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
           }
         }
 
-        const checkActive = () => {
-          if (cancelled || readyToContinue) throw new Error('Sequence cancelled');
-        };
-
-        // Play Teacher Evan's welcome introduction
-        checkActive();
-        if (import.meta.env.DEV) {
-          console.log("[WelcomeScreen] Playing: welcome_evan_intro");
+        if (cancelled || isReady) {
+          throw new Error('Sequence cancelled');
         }
-        await playWithTimeout('welcome_evan_intro', 0.9, 0.85)
 
-        // Note: Sangsom association audio moved to Home Menu component
+        // Play welcome audio sequence using the new sequencer
+        // This will prioritize ElevenLabs assets and sort by duration (longest first)
+        setIsSequencePlaying(true)
+        await playWelcomeSequence(
+          mergedAudioConfig,
+          (current, total, asset) => {
+            setCurrentAudioIndex(current)
+            setTotalAudioCount(total)
+            if (import.meta.env.DEV) {
+              console.log(`[WelcomeScreen] Playing ${current}/${total}: ${asset.key} (${asset.duration}s)`);
+            }
+          }
+        )
 
         if (!cancelled && !isReady) {
           if (import.meta.env.DEV) {
             console.log("[WelcomeScreen] Sequence finished normally")
           }
           setReadyToContinue(true)
-          setSequenceFinished(true)
+          sequenceFinishedRef.current = true
+          setIsSequencePlaying(false)
         }
       }
 
@@ -162,6 +183,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
             error: err instanceof Error ? err.message : String(err),
             audioStarted: audioStartedRef.current,
             readyToContinue: isReady,
+            wasPlaying: isWelcomeSequencePlaying(),
             timestamp: Date.now()
           });
         }
@@ -170,7 +192,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         }
         if (!cancelled) {
           setReadyToContinue(true)
-          setSequenceFinished(true)
+          sequenceFinishedRef.current = true
         }
       }
     }
@@ -204,13 +226,14 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       cancelled = true
       clearTimeout(safetyBtnTimer)
       clearTimeout(safetyEndTimer)
+      stopWelcomeSequence()
       soundManager.stopAllAudio()
       startAudioSequenceRef.current = null
       events.forEach(event => {
         document.removeEventListener(event, handleInteraction)
       })
     }
-  }, [isE2E, onComplete, readyToContinue, sequenceFinished])
+  }, [isE2E, onComplete, readyToContinue, mergedAudioConfig])
 
   useEffect(() => {
     // Keyboard accessibility: Any key proceeds to menu
@@ -228,7 +251,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
 
   useEffect(() => {
     // Single deterministic trigger with 100ms delay to ensure video is rendering
-    if (!videoLoaded || isE2E) return;
+    if (!_videoLoaded || isE2E) return;
     if (import.meta.env.DEV) {
       console.log("[WelcomeScreen] Video loaded, scheduling audio sequence with 100ms delay");
     }
@@ -236,7 +259,7 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       startAudioSequenceRef.current?.()
     }, 100)
     return () => clearTimeout(triggerTimer)
-  }, [isE2E, videoLoaded])
+  }, [isE2E, _videoLoaded])
 
   return (
     <div
@@ -269,15 +292,15 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
       />
 
       {/* Fallback static image if video fails to load */}
-      {(!videoLoaded || showFallbackImage) && (
+      {(!_videoLoaded || _showFallbackImage) && (
         <>
           <img
             src={fallbackImageSrc}
             alt="Welcome to Sangsom Kindergarten"
-            className={`absolute inset-0 w-full h-full object-cover z-5 ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover z-5 ${_showFallbackImage ? 'welcome-fallback-pop' : ''}`}
             data-testid="welcome-screen-fallback"
           />
-          {showFallbackImage && (
+          {_showFallbackImage && (
             <div className="welcome-image-overlay">
               <div className="welcome-image-text" role="status" aria-live="polite">Tap to continue</div>
             </div>
@@ -285,9 +308,27 @@ export const WelcomeScreen = memo(({ onComplete }: WelcomeScreenProps) => {
         </>
       )}
 
-      {readyToContinue && !showFallbackImage && (
+      {readyToContinue && !_showFallbackImage && (
         <div className="welcome-image-overlay">
           <div className="welcome-image-text" role="status" aria-live="polite">Tap to continue</div>
+        </div>
+      )}
+
+      {/* Audio progress indicator (subtle) */}
+      {isSequencePlaying && _totalAudioCount > 0 && (
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex gap-2">
+            {Array.from({ length: _totalAudioCount }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${i < _currentAudioIndex ? 'bg-green-400' :
+                  i === _currentAudioIndex ? 'bg-yellow-400 animate-pulse' :
+                    'bg-white/30'
+                  }`}
+                data-testid={`audio-progress-${i}`}
+              />
+            ))}
+          </div>
         </div>
       )}
 

@@ -6,10 +6,14 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useEffect } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { FAIRY_TRANSFORM_DURATION } from "../../lib/constants/game-config";
-import { playSoundEffect, prefetchAudioKeys } from "../../lib/sound-manager";
+import { prefetchAudioKeys, soundManager } from "../../lib/sound-manager";
+import { getTargetSentence } from "../../lib/audio/target-announcements";
+import { playTargetPhonics } from "../../lib/audio/phonics";
+import { speechSynthesizer } from "../../lib/audio/speech-synthesizer";
 import type {
   FairyTransformObject,
   GameObject,
+  GameState,
   WormObject,
 } from "../../types/game";
 import { applyWormObjectCollision, updateWormPositions } from "./worm-logic";
@@ -47,12 +51,62 @@ export const useViewportObserver = (
 export const useTargetAnnouncement = (
   gameStarted: boolean,
   currentTarget: string,
+  targetEmoji: string,
+  setGameState: Dispatch<SetStateAction<GameState>>,
 ) => {
   useEffect(() => {
-    if (gameStarted && currentTarget) {
-      void playSoundEffect.voice(currentTarget);
+    if (!gameStarted) {
+      setGameState((prev) => ({
+        ...prev,
+        announcementActive: false,
+      }));
+      return;
     }
-  }, [gameStarted, currentTarget]);
+
+    if (!currentTarget) return;
+
+    let cancelled = false;
+    const language = soundManager.getLanguage();
+
+    const announceTarget = async () => {
+      const sentence = getTargetSentence(currentTarget, language);
+      if (cancelled) return;
+
+      setGameState((prev) => ({
+        ...prev,
+        announcementActive: true,
+        announcementEmoji: targetEmoji,
+        announcementSentence: sentence,
+      }));
+
+      if (!sentence) {
+        setGameState((prev) => ({
+          ...prev,
+          announcementActive: false,
+        }));
+        return;
+      }
+
+      await speechSynthesizer.speakAsync(sentence, { langCode: language });
+
+      if (!cancelled) {
+        setGameState((prev) => ({
+          ...prev,
+          announcementActive: false,
+        }));
+      }
+
+      if (!cancelled) {
+        await playTargetPhonics(currentTarget, language);
+      }
+    };
+
+    void announceTarget();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentTarget, gameStarted, setGameState, targetEmoji]);
 };
 
 export const useNextCategoryPrefetch = (

@@ -366,7 +366,7 @@ const AUDIO_PHRASES = [
   "welcome",
 
   // NEW: Teacher Evan Introduction (Welcome Screen)
-  "welcome_evan_intro", // "Welcome to Teacher Evan's Super Student English Program"
+  "welcome_evan_intro", // "Welcome to Teacher Evan's Super Student, lets have fun learning together!"
 
   // NEW: Sangsom Association Messages (Home Menu)
   "welcome_sangsom_association", // "In association with Sangsom Kindergarten"
@@ -386,7 +386,8 @@ const DELAY_BETWEEN_REQUESTS = 500; // ms
 // Custom text mappings for phrases that need different spoken text
 const PHRASE_TEXT_MAPPING = {
   // NEW: Teacher Evan's Introduction
-  welcome_evan_intro: "Welcome to Teacher Evan's Super Student English Program",
+  welcome_evan_intro:
+    "Welcome to Teacher Evan's Super Student, lets have fun learning together!",
 
   // NEW: Sangsom Association
   welcome_sangsom_association: "In association with Sangsom Kindergarten",

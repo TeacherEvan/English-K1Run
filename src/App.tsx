@@ -5,6 +5,7 @@ import './App.css'
 import { FallingObject } from './components/FallingObject'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { PlayerArea } from './components/PlayerArea'
+import { TargetAnnouncementOverlay } from './components/TargetAnnouncementOverlay'
 import { TargetDisplay } from './components/TargetDisplay'
 import { Worm } from './components/Worm'
 
@@ -383,6 +384,15 @@ function App() {
               onClick={currentCategory.requiresSequence ? undefined : changeTargetToVisibleEmoji}
             />
           </div>
+        )}
+
+        {/* Centered target announcement overlay (synchronized with audio) */}
+        {gameState.gameStarted && !gameState.winner && (
+          <TargetAnnouncementOverlay
+            emoji={gameState.announcementEmoji || gameState.targetEmoji}
+            sentence={gameState.announcementSentence || ""}
+            isVisible={Boolean(gameState.announcementActive)}
+          />
         )}
 
         {/* Stopwatch - Continuous Mode Only */}
