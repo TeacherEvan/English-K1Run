@@ -33,6 +33,9 @@ const audioLoaderIndex = new Map<string, AudioLoaderByFormat>();
 /** Cache of resolved URLs to avoid re-fetching */
 const resolvedUrlCache = new Map<string, string>();
 
+/** Cache for public /sounds URL checks */
+const publicUrlCache = new Map<string, string | null>();
+
 /** Cache for resolveCandidates results */
 const candidatesCache = new Map<string, string[]>();
 
@@ -79,6 +82,34 @@ function getPreferredFormatOrder(): string[] {
   }
 
   return preferredFormatOrder;
+}
+
+async function resolvePublicAudioUrl(key: string): Promise<string | null> {
+  if (publicUrlCache.has(key)) {
+    return publicUrlCache.get(key) ?? null;
+  }
+
+  if (typeof fetch === "undefined") {
+    publicUrlCache.set(key, null);
+    return null;
+  }
+
+  const preferredFormats = getPreferredFormatOrder();
+  for (const ext of preferredFormats) {
+    const url = `/sounds/${key}.${ext}`;
+    try {
+      const response = await fetch(url, { method: "HEAD" });
+      if (response.ok) {
+        publicUrlCache.set(key, url);
+        return url;
+      }
+    } catch {
+      // Ignore network errors and try next format
+    }
+  }
+
+  publicUrlCache.set(key, null);
+  return null;
 }
 
 /**
@@ -217,7 +248,17 @@ export async function getAudioUrl(key: string): Promise<string | null> {
 
   // Get loader
   const loaderEntry = audioLoaderIndex.get(key);
-  if (!loaderEntry) return null;
+  if (!loaderEntry) {
+    const candidates = resolveCandidates(key);
+    for (const candidate of candidates) {
+      const publicUrl = await resolvePublicAudioUrl(candidate);
+      if (publicUrl) {
+        resolvedUrlCache.set(key, publicUrl);
+        return publicUrl;
+      }
+    }
+    return null;
+  }
 
   const preferredFormats = getPreferredFormatOrder();
   let loader: (() => Promise<string>) | undefined;
@@ -237,7 +278,14 @@ export async function getAudioUrl(key: string): Promise<string | null> {
     loader = fallback;
   }
 
-  if (!loader) return null;
+  if (!loader) {
+    const publicUrl = await resolvePublicAudioUrl(key);
+    if (publicUrl) {
+      resolvedUrlCache.set(key, publicUrl);
+      return publicUrl;
+    }
+    return null;
+  }
 
   try {
     // Load module and get default export (URL)

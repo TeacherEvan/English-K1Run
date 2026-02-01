@@ -367,11 +367,8 @@ export const preloadCriticalResources = async (
       type: "image",
       priority: "high",
     },
-    { url: "/sounds/welcome.mp3", type: "audio", priority: "high" }, // Changed from .wav to .mp3
-
-    // Medium priority - Game assets
-    { url: "/sounds/success.mp3", type: "audio", priority: "medium" }, // Changed from .wav to .mp3
-    { url: "/sounds/wrong.mp3", type: "audio", priority: "medium" }, // Changed from .wav to .mp3
+    // Audio files removed - now handled by welcome-audio-sequencer with speech fallback
+    // See src/lib/audio/welcome-audio-sequencer.ts for audio handling
 
     // Low priority - Decorative
     { url: "/backgrounds/ocean-sunset.jpg", type: "image", priority: "low" },

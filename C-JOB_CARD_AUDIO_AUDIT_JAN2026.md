@@ -149,6 +149,14 @@ Refactoring maintains public API compatibility while improving maintainability.
 
 ---
 
+## 9. Updates (2026-02-02)
+
+- Added public /sounds fallback resolution in the audio registry to recover missing welcome audio at runtime.
+- Home menu association playback now uses welcome_sangsom_association and welcome_sangsom_association_thai.
+- Disabled target spawn audio trigger to stop repeated “Target spawned” playback.
+
+---
+
 ## Related Documentation
 
 - `DOCS/AUDIO_AND_LOADING_ENHANCEMENTS_PLAN.md`

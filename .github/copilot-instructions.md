@@ -51,6 +51,8 @@
 ## Audio, i18n, and Welcome Flow
 
 - **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in `src/lib/sound-manager.ts`(../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
+- **Audio asset location**: Runtime fallback resolves `/sounds/<key>.<ext>` from public assets when bundled sounds are missing.
+- **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
 - **Welcome screen narration**: Four phases and respects reduced motion; e2e mode disables animations when `?e2e=1` is present.
 

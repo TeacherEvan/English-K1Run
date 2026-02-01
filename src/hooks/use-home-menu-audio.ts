@@ -1,11 +1,11 @@
 /**
  * Home Menu Audio Hook
  *
- * Plays "in association with Sangsom Kindergarten, learning through games for everyone"
- * audio sequence automatically when the home menu is displayed.
+ * Plays "in association with Sangsom Kindergarten" audio sequence
+ * automatically when the home menu is displayed.
  *
  * Sequence:
- * 1. English: "In association with Sangsom Kindergarten, learning through games for everyone."
+ * 1. English: "In association with Sangsom Kindergarten"
  * 2. Thai: "ร่วมกับโรงเรียนอนุบาลสังสม"
  *
  * @module hooks/use-home-menu-audio
@@ -44,7 +44,7 @@ export const useHomeMenuAudio = () => {
           await context.resume();
         }
 
-        // Play English version (using Sangsom-specific audio file)
+  // Play English version (ElevenLabs Sangsom association)
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing English association message");
         }
@@ -53,11 +53,15 @@ export const useHomeMenuAudio = () => {
         // 300ms pause between languages
         await new Promise((resolve) => setTimeout(resolve, 300));
 
-        // Play Thai version (using Sangsom-specific audio file)
+        // Play Thai version (ElevenLabs Sangsom association)
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing Thai association message");
         }
-        await soundManager.playSound("welcome_sangsom_association_thai", 0.9, 0.85);
+        await soundManager.playSound(
+          "welcome_sangsom_association_thai",
+          0.9,
+          0.85,
+        );
 
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Audio sequence completed successfully");

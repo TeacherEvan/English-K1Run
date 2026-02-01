@@ -13,6 +13,7 @@
 import { soundManager } from "../sound-manager";
 import { audioBufferLoader } from "./audio-buffer-loader";
 import { getAudioUrl } from "./audio-registry";
+import { speechSynthesizer } from "./speech-synthesizer";
 
 /** Metadata for audio assets including duration */
 export interface AudioAssetMetadata {
@@ -21,6 +22,8 @@ export interface AudioAssetMetadata {
   source: "elevenlabs" | "generated" | "fallback";
   category: "welcome" | "instruction" | "association" | "learning";
   associatedEmoji?: string;
+  /** Fallback text for speech synthesis when audio file is unavailable */
+  fallbackText?: string;
 }
 
 /** Configuration for the welcome audio sequencer */
@@ -43,13 +46,14 @@ export const DEFAULT_WELCOME_CONFIG: WelcomeAudioConfig = {
   durationSortOrder: "desc",
   filterActiveTargets: true,
   sequentialDelayMs: 500,
-  maxSequenceLength: 10,
+  // Reduced to 3 to play only: welcome_evan_intro + sangsom association (en + th)
+  maxSequenceLength: 3,
 };
 
 /** Primary greeting that must play first */
 export const PRIMARY_WELCOME_AUDIO_KEY = "welcome_evan_intro";
 
-/** Welcome audio asset registry with duration metadata */
+/** Welcome audio asset registry with duration metadata and fallback text */
 export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
   // Primary welcome intro (ElevenLabs - Teacher Evan)
   {
@@ -57,6 +61,8 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 4.5,
     source: "elevenlabs",
     category: "welcome",
+    fallbackText:
+      "Welcome to Teacher Evan's Super Student! Let's have fun learning together!",
   },
   // Sangsom association messages
   {
@@ -64,12 +70,14 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 4.8,
     source: "elevenlabs",
     category: "association",
+    fallbackText: "In association with Sangsom Kindergarten.",
   },
   {
     key: "welcome_sangsom_association_thai",
     duration: 3.8,
     source: "elevenlabs",
     category: "association",
+    fallbackText: "ร่วมกับโรงเรียนอนุบาลสังสม",
   },
   // Legacy welcome messages (kept for compatibility)
   {
@@ -77,12 +85,14 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 2.8,
     source: "generated",
     category: "association",
+    fallbackText: "Welcome to Super Student!",
   },
   {
     key: "welcome_learning",
     duration: 3.0,
     source: "generated",
     category: "learning",
+    fallbackText: "Let's learn together!",
   },
   {
     key: "welcome_association_thai",
@@ -282,17 +292,45 @@ class WelcomeAudioSequencer {
           );
         }
 
-        // Play the sound through soundManager
+        // Try to play the audio file first, fall back to speech synthesis if unavailable
+        let audioPlayed = false;
         try {
-          await soundManager.playSound(asset.key, 1.0, 1.0);
+          // Check if audio file exists by trying to get the URL
+          const audioUrl = await getAudioUrl(asset.key);
+          if (audioUrl) {
+            await soundManager.playSound(asset.key, 1.0, 1.0);
+            audioPlayed = true;
+          }
         } catch (err) {
           if (import.meta.env.DEV) {
             console.warn(
-              `[WelcomeAudioSequencer] Failed to play ${asset.key}:`,
+              `[WelcomeAudioSequencer] Failed to play audio for ${asset.key}:`,
               err,
             );
           }
-          // Continue with next asset even if this one failed
+        }
+
+        // Use speech synthesis fallback if audio didn't play and fallback text exists
+        if (!audioPlayed && asset.fallbackText && this.isPlaying) {
+          if (import.meta.env.DEV) {
+            console.log(
+              `[WelcomeAudioSequencer] Using speech fallback for ${asset.key}: "${asset.fallbackText}"`,
+            );
+          }
+          try {
+            // Determine language from asset key
+            const langCode = asset.key.includes("_thai") ? "th" : "en";
+            await speechSynthesizer.speakAsync(asset.fallbackText, {
+              langCode,
+            });
+          } catch (speechErr) {
+            if (import.meta.env.DEV) {
+              console.warn(
+                `[WelcomeAudioSequencer] Speech fallback also failed for ${asset.key}:`,
+                speechErr,
+              );
+            }
+          }
         }
 
         // Wait for the delay between clips (except after the last one)
