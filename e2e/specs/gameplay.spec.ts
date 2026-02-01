@@ -172,12 +172,12 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
     }
 
     // Check for completion message (appears before auto-advancing)
-    await expect(page.locator("text=All worms caught")).toBeVisible({
-      timeout: 2000,
-    });
-    await expect(page.locator("text=Starting game")).toBeVisible({
-      timeout: 2000,
-    });
+    const completionMessage = page.locator(
+      '[data-testid="worm-completion-message"]',
+    );
+    await expect(completionMessage).toBeVisible({ timeout: 2000 });
+    await expect(completionMessage).toContainText("All worms caught");
+    await expect(completionMessage).toContainText("Starting game");
 
     // Then verify game starts
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible({

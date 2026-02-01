@@ -60,6 +60,7 @@ export function useDisplayAdjustment() {
     // Define updateDisplaySettings as a named function so it can be called externally
     const updateDisplaySettings = () => {
       // Prefer the visual viewport when available (avoids mobile address-bar jitter)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const visual = (window as any).visualViewport;
       const width = visual?.width ?? window.innerWidth;
       const height = visual?.height ?? window.innerHeight;

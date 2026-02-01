@@ -2,6 +2,15 @@
 
 This file consolidates major changes, bug fixes, and enhancements made to the project.
 
+## February 2026 - Target Audio & Phonics
+
+### Sentence-Based Target Announcements (Feb 1, 2026)
+
+- **Target Audio**: Targets now announce full sentences (no single-word clips)
+- **Centered Overlay**: Target announcement overlay displays the emoji and sentence during playback
+- **Phonics Module**: Independent initial-letter phonics playback after sentence completion
+- **Welcome Greeting**: Updated welcome intro text to "Welcome to Teacher Evan's Super Student, lets have fun learning together!"
+
 ## January 2026 - E2E Testing & Quality Assurance
 
 ### E2E Test Suite Enhancements (Jan 16, 2026)
@@ -17,6 +26,7 @@ This file consolidates major changes, bug fixes, and enhancements made to the pr
 - **Best Practices Documentation**: Established ongoing maintenance guidelines for E2E tests, including animation handling, state transitions, and cross-browser compatibility.
 
 **Technical Details:**
+
 - Browser Projects: Chromium (desktop), Firefox (desktop), WebKit (desktop), Edge (desktop), iPad Pro 11 (tablet), Pixel 7 (mobile)
 - Sharding Strategy: 3 shards for parallel execution, reducing CI time significantly
 - Test Data Factory: Supports user generation, game levels, sessions, performance data, and edge cases with TypeScript interfaces

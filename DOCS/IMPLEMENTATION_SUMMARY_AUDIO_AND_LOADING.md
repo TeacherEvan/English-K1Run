@@ -12,7 +12,7 @@
 **Changes**:
 
 - Simplified from 4-phase to 1-phase audio sequence
-- Now plays `welcome_evan_intro` ("Welcome to Teacher Evan's Super Student English Program")
+- Now plays `welcome_evan_intro` ("Welcome to Teacher Evan's Super Student, lets have fun learning together!")
 - Reduced sequence timeout from 20s to 10s
 - Reduced safety timers: 5s for button enable, 8s for auto-advance
 - Removed welcome_association/learning audio (moved to home menu)
@@ -61,7 +61,7 @@
 
 - Added 3 new audio phrases to `AUDIO_PHRASES` array
 - Added phrase text mappings:
-  - `welcome_evan_intro`: "Welcome to Teacher Evan's Super Student English Program"
+  - `welcome_evan_intro`: "Welcome to Teacher Evan's Super Student, lets have fun learning together!"
   - `welcome_sangsom_association`: "In association with Sangsom Kindergarten"
   - `welcome_sangsom_association_thai`: "ร่วมกับโรงเรียนอนุบาลสังสม"
 
@@ -107,6 +107,21 @@
 1. `sounds/welcome_evan_intro.mp3`
 2. `sounds/welcome_sangsom_association.mp3`
 3. `sounds/welcome_sangsom_association_thai.mp3`
+
+## ✅ Target Audio Announcements & Phonics (Feb 2026)
+
+**Files**:
+
+- `src/lib/audio/target-announcements.ts`
+- `src/lib/audio/phonics.ts`
+- `src/hooks/game-logic/game-effects.ts`
+- `src/components/TargetAnnouncementOverlay.tsx`
+
+**Changes**:
+
+- Targets now play full-sentence announcements (no single-word clips)
+- A centered visual overlay displays the target during audio playback
+- A separate phonics module plays initial-letter sounds after the sentence
 
 **Generation Command**:
 

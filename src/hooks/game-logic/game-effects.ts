@@ -26,6 +26,7 @@ export const useViewportObserver = (
     if (typeof window === "undefined") return;
 
     const updateViewport = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const visual = (window as any).visualViewport;
       viewportRef.current.width = visual?.width ?? window.innerWidth;
       viewportRef.current.height = visual?.height ?? window.innerHeight;
@@ -33,6 +34,7 @@ export const useViewportObserver = (
     };
 
     updateViewport();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const visual = (window as any).visualViewport;
     if (visual && typeof visual.addEventListener === "function") {
       visual.addEventListener("resize", updateViewport);
@@ -69,6 +71,7 @@ export const useTargetAnnouncement = (
     const language = soundManager.getLanguage();
 
     const announceTarget = async () => {
+      speechSynthesizer.stop();
       const sentence = getTargetSentence(currentTarget, language);
       if (cancelled) return;
 
@@ -105,6 +108,7 @@ export const useTargetAnnouncement = (
 
     return () => {
       cancelled = true;
+      speechSynthesizer.stop();
     };
   }, [currentTarget, gameStarted, setGameState, targetEmoji]);
 };

@@ -332,7 +332,7 @@ export const HomeWindow = memo(({
                     </div>
 
                     {/* Tab Content */}
-                    <div className="min-h-[400px]" role="tabpanel" aria-labelledby={`tab-${activeTab}`} id={`tabpanel-${activeTab}`}>
+                    <div className="min-h-100" role="tabpanel" aria-labelledby={`tab-${activeTab}`} id={`tabpanel-${activeTab}`}>
                         <TabContent {...tabProps} />
                     </div>
                 </Card>

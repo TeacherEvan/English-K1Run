@@ -37,7 +37,8 @@ const ensureSentence = (text: string, fallbackName: string) => {
   if (isSingleWord(normalized)) return buildFallbackSentence(fallbackName);
   const wordCount = normalized.split(" ").length;
   if (wordCount < MIN_WORD_COUNT) return buildFallbackSentence(fallbackName);
-  return normalized.endsWith(".") ? normalized : `${normalized}.`;
+  const endsWithPunctuation = /[.!?。！？]$/.test(normalized);
+  return endsWithPunctuation ? normalized : `${normalized}.`;
 };
 
 export const getTargetSentence = (

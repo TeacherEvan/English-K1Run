@@ -7,7 +7,7 @@
 
 This document outlines the implementation plan for three critical feature enhancements:
 
-1. **Startup Audio Configuration**: Configure "Welcome to teacher Evan's Super student..." audio to play during application launch
+1. **Startup Audio Configuration**: Configure "Welcome to Teacher Evan's Super Student, lets have fun learning together!" audio to play during application launch
 2. **Home Menu Audio Sequence**: Trigger "in association with Sangsom kindergarten" (English + Thai) automatically after startup audio
 3. **Automatic Loading Screen Progression**: Auto-advance to gameplay after worm elimination completion, eliminating manual button press requirement
 
@@ -28,7 +28,7 @@ This document outlines the implementation plan for three critical feature enhanc
 
 **Issues with Current Requirements**:
 
-- The current audio files (`welcome_association`, `welcome_learning`) do NOT contain "Welcome to teacher Evan's Super student..." message
+- The current audio files (`welcome_association`, `welcome_learning`) do NOT contain "Welcome to Teacher Evan's Super Student, lets have fun learning together!" message
 - The task requires NEW audio content that doesn't currently exist
 - The "in association with Sangsom kindergarten" audio needs to play in the HOME MENU, not the welcome screen
 
@@ -77,7 +77,7 @@ This document outlines the implementation plan for three critical feature enhanc
 
 **Required Audio Files**:
 
-1. `sounds/welcome_evan_intro.mp3` - "Welcome to teacher Evan's Super student..."
+1. `sounds/welcome_evan_intro.mp3` - "Welcome to Teacher Evan's Super Student, lets have fun learning together!"
 2. `sounds/welcome_sangsom_association.mp3` - "in association with Sangsom kindergarten" (English)
 3. `sounds/welcome_sangsom_association_thai.mp3` - Thai version of association message
 
@@ -448,7 +448,7 @@ test("Welcome screen should have updated audio sequence", async ({ page }) => {
 
 ## Success Criteria
 
-✅ Welcome screen plays "Welcome to teacher Evan's Super student..." audio on launch  
+✅ Welcome screen plays "Welcome to Teacher Evan's Super Student, lets have fun learning together!" audio on launch  
 ✅ Home menu plays "in association with Sangsom kindergarten" (English + Thai) automatically  
 ✅ Loading screen auto-advances to game after all worms eliminated  
 ✅ Loading screen shows clear visual feedback during auto-advance  

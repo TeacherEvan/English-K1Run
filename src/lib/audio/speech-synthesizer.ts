@@ -13,6 +13,7 @@ import type { SupportedLanguage } from "@/lib/constants/language-config";
 import {
   generateSpeech,
   playAudioBuffer,
+  stopAudioBufferPlayback,
   testElevenLabsConnection,
 } from "./speech/elevenlabs-client";
 import {
@@ -28,6 +29,7 @@ export class SpeechSynthesizer {
   private defaultVolume = 0.6;
   private currentLanguage: SupportedLanguage = "en";
   private audioCache = new Map<string, ArrayBuffer>();
+  private static readonly MAX_CACHE_SIZE = 50;
 
   constructor() {
     this.checkElevenLabsAvailability();
@@ -50,6 +52,7 @@ export class SpeechSynthesizer {
   }
 
   stop(): void {
+    stopAudioBufferPlayback();
     stopSpeech();
   }
 
@@ -92,7 +95,7 @@ export class SpeechSynthesizer {
       });
       if (!generated) throw new Error("Failed to generate speech");
       audioBuffer = generated;
-      this.audioCache.set(cacheKey, audioBuffer);
+      this.setCacheEntry(cacheKey, audioBuffer);
     }
 
     await playAudioBuffer(audioBuffer, {
@@ -159,7 +162,7 @@ export class SpeechSynthesizer {
         });
         if (!generated) throw new Error("Failed to generate speech");
         audioBuffer = generated;
-        this.audioCache.set(cacheKey, audioBuffer);
+        this.setCacheEntry(cacheKey, audioBuffer);
       }
 
       await playAudioBuffer(audioBuffer, {
@@ -173,6 +176,15 @@ export class SpeechSynthesizer {
 
   setVolume(volume: number): void {
     this.defaultVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  private setCacheEntry(key: string, value: ArrayBuffer): void {
+    this.audioCache.set(key, value);
+    if (this.audioCache.size <= SpeechSynthesizer.MAX_CACHE_SIZE) return;
+    const oldestKey = this.audioCache.keys().next().value as string | undefined;
+    if (oldestKey) {
+      this.audioCache.delete(oldestKey);
+    }
   }
 
   setLanguage(langCode: SupportedLanguage): void {

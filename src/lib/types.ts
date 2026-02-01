@@ -33,7 +33,8 @@ export interface ThrottleOptions {
 }
 
 /** Debounced function with control methods */
-export interface DebouncedFunction<T extends (...args: unknown[]) => unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface DebouncedFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
   cancel(): void;
   flush(): ReturnType<T> | undefined;
@@ -41,7 +42,8 @@ export interface DebouncedFunction<T extends (...args: unknown[]) => unknown> {
 }
 
 /** Throttled function with control methods */
-export interface ThrottledFunction<T extends (...args: unknown[]) => unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface ThrottledFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
   cancel(): void;
   flush(): ReturnType<T> | undefined;

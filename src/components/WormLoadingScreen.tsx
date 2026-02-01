@@ -24,6 +24,7 @@ const WORM_SIZE = 60
 const BASE_SPEED = 1.5
 const SPLAT_DURATION = 10000 // 10 seconds
 const SPEED_INCREASE_FACTOR = 1.2
+const COMPLETION_DELAY = 2500
 
 // Initialize worms function
 const createInitialWorms = (): Worm[] => {
@@ -44,9 +45,11 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
   const [splats, setSplats] = useState<Splat[]>([])
   const [speedMultiplier, setSpeedMultiplier] = useState(1)
   const [currentTime, setCurrentTime] = useState(() => Date.now())
+  const [showCompletionMessage, setShowCompletionMessage] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const animationFrameRef = useRef<number | undefined>(undefined)
   const splatIdCounter = useRef(0)
+  const completionTriggeredRef = useRef(false)
 
   // Animation loop for worm movement - throttled to ~30fps for performance
   useEffect(() => {
@@ -134,10 +137,12 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
   useEffect(() => {
     const aliveCount = worms.filter(w => w.alive).length
     if (worms.length > 0 && aliveCount === 0) {
+      if (completionTriggeredRef.current) return
+      completionTriggeredRef.current = true
       // Small delay before completing to show final splat
       const timer = setTimeout(() => {
         onComplete()
-      }, 500)
+      }, COMPLETION_DELAY)
       return () => clearTimeout(timer)
     }
   }, [worms, onComplete])
@@ -171,11 +176,13 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
       if (aliveCount > 0) {
         setSpeedMultiplier(prevSpeed => prevSpeed * SPEED_INCREASE_FACTOR)
       } else {
-        // FIX: Trigger completion directly when last worm is eliminated
-        // This eliminates race condition with useEffect dependency checking
+        if (completionTriggeredRef.current) return updatedWorms
+        completionTriggeredRef.current = true
+        setShowCompletionMessage(true)
+        // Trigger completion directly when last worm is eliminated
         setTimeout(() => {
           onComplete()
-        }, 500) // Small delay to show final splat animation
+        }, COMPLETION_DELAY) // Keep completion message visible for tests and UX
       }
 
       return updatedWorms
@@ -183,6 +190,8 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
   }, [onComplete])
 
   const aliveWorms = worms.filter(w => w.alive)
+
+  const completionVisible = showCompletionMessage || aliveWorms.length === 0
 
   return (
     <div
@@ -197,9 +206,11 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
           🐛 Catch the Worms! 🐛
         </h2>
         <p className="text-lg text-green-600">
-          {aliveWorms.length > 0
+          {completionVisible
+            ? 'Great job! Getting ready...'
+            : aliveWorms.length > 0
             ? `${aliveWorms.length} worm${aliveWorms.length !== 1 ? 's' : ''} remaining...`
-            : 'All caught! Starting game...'}
+            : 'All worms caught! Starting game...'}
         </p>
       </div>
 
@@ -256,9 +267,12 @@ export const WormLoadingScreen = memo(({ onComplete }: { onComplete: () => void 
       })}
 
       {/* Auto-progression indicator (shown when all worms eliminated) */}
-      {aliveWorms.length === 0 && (
+      {completionVisible && (
         <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center">
-          <p className="text-xl text-green-700 font-bold animate-pulse bg-white/80 px-6 py-3 rounded-lg shadow-lg">
+          <p
+            className="text-xl text-green-700 font-bold animate-pulse bg-white/80 px-6 py-3 rounded-lg shadow-lg"
+            data-testid="worm-completion-message"
+          >
             🎯 All worms caught! Starting game...
           </p>
         </div>

@@ -25,6 +25,28 @@ const SOFT_VOICE_SETTINGS = {
   use_speaker_boost: true,
 };
 
+const AUDIO_PLAYBACK_STATE_KEY = "__k1_audio_playback_state__";
+
+type PlaybackState = {
+  context: AudioContext | null;
+  activeSource: AudioBufferSourceNode | null;
+};
+
+const getPlaybackState = (): PlaybackState => {
+  const globalScope = globalThis as typeof globalThis & {
+    [AUDIO_PLAYBACK_STATE_KEY]?: PlaybackState;
+  };
+
+  if (!globalScope[AUDIO_PLAYBACK_STATE_KEY]) {
+    globalScope[AUDIO_PLAYBACK_STATE_KEY] = {
+      context: null,
+      activeSource: null,
+    };
+  }
+
+  return globalScope[AUDIO_PLAYBACK_STATE_KEY]!;
+};
+
 export interface ElevenLabsOptions {
   text: string;
   voiceId?: string;
@@ -128,17 +150,55 @@ export async function playAudioBuffer(
     throw new Error("Web Audio API not available");
   }
 
-  const audioContext = new AudioContext();
-  const buffer = await audioContext.decodeAudioData(audioData.slice(0));
-  const source = audioContext.createBufferSource();
-  const gainNode = audioContext.createGain();
+  const playbackState = getPlaybackState();
+
+  if (!playbackState.context || playbackState.context.state === "closed") {
+    playbackState.context = new AudioContext();
+  }
+
+  if (playbackState.context.state === "suspended") {
+    await playbackState.context.resume();
+  }
+
+  if (playbackState.activeSource) {
+    try {
+      playbackState.activeSource.stop();
+    } catch {
+      // ignore stop errors
+    }
+    playbackState.activeSource = null;
+  }
+
+  const buffer = await playbackState.context.decodeAudioData(
+    audioData.slice(0),
+  );
+  const source = playbackState.context.createBufferSource();
+  const gainNode = playbackState.context.createGain();
 
   source.buffer = buffer;
   source.playbackRate.value = options?.rate ?? 1.0;
   gainNode.gain.value = options?.volume ?? 0.6;
 
   source.connect(gainNode);
-  gainNode.connect(audioContext.destination);
+  gainNode.connect(playbackState.context.destination);
+
+  playbackState.activeSource = source;
+  source.onended = () => {
+    if (playbackState.activeSource === source) {
+      playbackState.activeSource = null;
+    }
+  };
 
   source.start();
+}
+
+export function stopAudioBufferPlayback(): void {
+  const playbackState = getPlaybackState();
+  if (!playbackState.activeSource) return;
+  try {
+    playbackState.activeSource.stop();
+  } catch {
+    // ignore stop errors
+  }
+  playbackState.activeSource = null;
 }
