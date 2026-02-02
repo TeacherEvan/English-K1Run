@@ -62,10 +62,7 @@ export interface ElevenLabsOptions {
  */
 function getApiKey(): string | null {
   if (typeof window === "undefined") return null;
-  const apiKey = 
-    import.meta.env.VITE_ELEVENLABS_API_KEY ||
-    import.meta.env.ELEVENLABS_API_KEY ||
-    null;
+  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY || null;
   
   if (!apiKey && import.meta.env.DEV) {
     console.warn(
