@@ -11,7 +11,7 @@ import { DIGIT_TO_WORD, NUMBER_WORD_TO_DIGIT } from "./types";
 
 // Dynamic import of audio files using Vite's glob import
 const rawAudioFiles = import.meta.glob(
-  "../../../sounds/*.{wav,mp3,ogg,m4a,aac,flac}",
+  "../../../public/sounds/*.{wav,mp3,ogg,m4a,aac,flac}",
   {
     import: "default",
     query: "?url",

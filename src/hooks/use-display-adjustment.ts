@@ -98,24 +98,14 @@ export function useDisplayAdjustment() {
         turtleSize = Math.max(scale * 0.9, 0.65);
         spacing = Math.max(scale * 1.0, 0.8);
         fallSpeed = 0.7; // Slower for better performance on mobile
-      } else if (width < 1200) {
-        fontSize = Math.max(scale * 0.95, 0.75);
-        objectSize = Math.max(scale * 0.9, 0.75);
-        turtleSize = Math.max(scale * 0.9, 0.75);
-        spacing = Math.max(scale * 0.95, 0.8);
-        fallSpeed = 0.85;
-      } else if (width < 1920) {
-        fontSize = Math.max(scale * 0.85, 0.8);
-        objectSize = Math.max(scale * 0.85, 0.85);
-        turtleSize = Math.max(scale * 0.85, 0.8);
-        spacing = Math.max(scale * 0.9, 0.85);
-        fallSpeed = 1;
       } else {
-        fontSize = Math.min(scale * 0.9, 1.0);
-        objectSize = Math.min(scale * 0.85, 0.95);
-        turtleSize = Math.min(scale * 0.9, 1.0);
-        spacing = Math.min(scale * 0.9, 1.0);
-        fallSpeed = 1.1;
+        // Unified scaling for all desktop/tablet sizes to prevent jumps
+        // Using values that work well for both 1366 and 1920+
+        fontSize = Math.max(scale * 0.9, 0.8);
+        objectSize = Math.max(scale * 0.9, 0.85);
+        turtleSize = Math.max(scale * 0.9, 0.8);
+        spacing = Math.max(scale * 0.95, 0.85);
+        fallSpeed = width < 1200 ? 0.85 : 1.0; // Keep speed adjustment based on width
       }
 
       // Special adjustments for extreme aspect ratios (reduced for optimization)
