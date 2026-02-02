@@ -38,8 +38,21 @@ export class SpeechSynthesizer {
   private async checkElevenLabsAvailability(): Promise<void> {
     try {
       this.elevenLabsAvailable = await testElevenLabsConnection();
-    } catch {
+      
+      if (!this.elevenLabsAvailable && import.meta.env.DEV) {
+        console.info(
+          "[SpeechSynthesizer] ElevenLabs unavailable - using Web Speech API fallback.\n" +
+          "For high-quality voice: Configure VITE_ELEVENLABS_API_KEY in .env"
+        );
+      }
+    } catch (error) {
       this.elevenLabsAvailable = false;
+      if (import.meta.env.DEV) {
+        console.warn(
+          "[SpeechSynthesizer] Error checking ElevenLabs availability:",
+          error
+        );
+      }
     }
   }
 
@@ -68,6 +81,11 @@ export class SpeechSynthesizer {
     // Try ElevenLabs first
     if (this.canUseElevenLabs()) {
       this.speakWithElevenLabs(text, options).catch(() => {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[SpeechSynthesizer] ElevenLabs failed for "${text.substring(0, 50)}..." - using Web Speech fallback`
+          );
+        }
         // Fallback to Web Speech on failure
         this.speakWithWebSpeech(text, options);
       });
@@ -75,6 +93,9 @@ export class SpeechSynthesizer {
     }
 
     // Fallback to Web Speech
+    if (import.meta.env.DEV) {
+      console.info(`[SpeechSynthesizer] Using Web Speech API for "${text.substring(0, 50)}..."`);
+    }
     return this.speakWithWebSpeech(text, options);
   }
 

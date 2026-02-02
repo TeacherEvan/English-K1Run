@@ -8,6 +8,10 @@
  * 1. English: "In association with Sangsom Kindergarten"
  * 2. Thai: "ร่วมกับโรงเรียนอนุบาลสังสม"
  *
+ * Note: Requires audio files to be present in public/sounds/:
+ * - welcome_sangsom_association.mp3
+ * - welcome_sangsom_association_thai.mp3
+ *
  * @module hooks/use-home-menu-audio
  */
 
@@ -23,6 +27,7 @@ import { soundManager } from "../lib/sound-manager";
  * - Gracefully handles audio context suspension
  * - Non-blocking (errors won't prevent menu interaction)
  * - Automatic cleanup on unmount
+ * - Handles missing audio files gracefully with fallback
  */
 export const useHomeMenuAudio = () => {
   const audioPlayedRef = useRef(false);
@@ -44,11 +49,22 @@ export const useHomeMenuAudio = () => {
           await context.resume();
         }
 
-  // Play English version (ElevenLabs Sangsom association)
+        // Play English version (ElevenLabs Sangsom association)
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing English association message");
         }
-        await soundManager.playSound("welcome_sangsom_association", 1.0, 0.85);
+        
+        try {
+          await soundManager.playSound("welcome_sangsom_association", 1.0, 0.85);
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.warn(
+              "[HomeMenuAudio] English association audio not available:",
+              error instanceof Error ? error.message : String(error),
+              "\nMake sure welcome_sangsom_association.mp3 exists in public/sounds/"
+            );
+          }
+        }
 
         // 300ms pause between languages
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -57,19 +73,34 @@ export const useHomeMenuAudio = () => {
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing Thai association message");
         }
-        await soundManager.playSound(
-          "welcome_sangsom_association_thai",
-          0.9,
-          0.85,
-        );
+        
+        try {
+          await soundManager.playSound(
+            "welcome_sangsom_association_thai",
+            0.9,
+            0.85,
+          );
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.warn(
+              "[HomeMenuAudio] Thai association audio not available:",
+              error instanceof Error ? error.message : String(error),
+              "\nMake sure welcome_sangsom_association_thai.mp3 exists in public/sounds/"
+            );
+          }
+        }
 
         if (import.meta.env.DEV) {
-          console.log("[HomeMenuAudio] Audio sequence completed successfully");
+          console.log("[HomeMenuAudio] Audio sequence completed");
         }
       } catch (error) {
         // Non-blocking error - log but don't throw
         if (import.meta.env.DEV) {
-          console.warn("[HomeMenuAudio] Audio playback failed:", error);
+          console.warn(
+            "[HomeMenuAudio] Audio playback sequence failed:",
+            error instanceof Error ? error.message : String(error),
+            "\nThis is non-critical - menu will function normally."
+          );
         }
       }
     };
