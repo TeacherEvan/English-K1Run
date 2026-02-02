@@ -4,12 +4,11 @@
 
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useEffect } from "react";
+import { speechSynthesizer } from "../../lib/audio/speech-synthesizer";
+import { getTargetSentence } from "../../lib/audio/target-announcements";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { FAIRY_TRANSFORM_DURATION } from "../../lib/constants/game-config";
 import { prefetchAudioKeys, soundManager } from "../../lib/sound-manager";
-import { getTargetSentence } from "../../lib/audio/target-announcements";
-import { playTargetPhonics } from "../../lib/audio/phonics";
-import { speechSynthesizer } from "../../lib/audio/speech-synthesizer";
 import type {
   FairyTransformObject,
   GameObject,
@@ -97,10 +96,6 @@ export const useTargetAnnouncement = (
           ...prev,
           announcementActive: false,
         }));
-      }
-
-      if (!cancelled) {
-        await playTargetPhonics(currentTarget, language);
       }
     };
 
