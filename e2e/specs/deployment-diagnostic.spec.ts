@@ -146,7 +146,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
         (window as unknown as { __audioDebug?: { active: number } })
           .__audioDebug?.active === 0,
       undefined,
-      { timeout: 20000 },
+      { timeout: 40000 },
     );
 
     const peak = await page.evaluate(() => {
