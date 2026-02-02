@@ -1,5 +1,27 @@
 # Job Card
 
+**Date:** February 2, 2026  
+**Repo:** TeacherEvan/English-K1Run (branch: main)  
+**Goal:** Generate missing audio assets and validate audio inventory.
+
+## Work Completed
+
+- **Generated missing welcome audio** using ElevenLabs and confirmed successful output for:
+  - `welcome_evan_intro.mp3`
+  - `welcome_sangsom_association.mp3`
+  - `welcome_sangsom_association_thai.mp3`
+- **Generated the full audio set** using the main generator to ensure all critical, common, and rare audio files exist.
+- **Validated audio inventory** with `npm run audio:validate` and confirmed zero errors and zero warnings.
+
+## Validation
+
+- `npm run audio:validate` → ✅ Passed (no missing files)
+
+## Notes
+
+- All generated audio files are located in the sounds/ directory.
+- Refresh the app to confirm playback quality and pacing.# Job Card
+
 **Date:** January 16, 2026  
 **Repo:** TeacherEvan/English-K1Run (branch: main)  
 **Goal:** Complete TODO.md Quick Wins tasks and fix build errors.

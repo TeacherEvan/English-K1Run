@@ -40,7 +40,7 @@ const VOICE_SETTINGS = {
 const MISSING_FILES = [
   {
     filename: "welcome_evan_intro.mp3",
-    text: "Welcome to Teacher Evan's Super Student, lets have fun learning together!",
+    text: "Welcome to Teacher Evan's Super Student, let's have fun learning together!",
     voiceId: VOICE_ID_ENGLISH,
     languageCode: "en",
   },
@@ -54,7 +54,7 @@ const MISSING_FILES = [
     filename: "welcome_sangsom_association_thai.mp3",
     text: "ร่วมกับโรงเรียนอนุบาลสังสม",
     voiceId: VOICE_ID_THAI,
-    languageCode: "th",
+    languageCode: undefined, // Remove language code - let ElevenLabs auto-detect
   },
 ];
 

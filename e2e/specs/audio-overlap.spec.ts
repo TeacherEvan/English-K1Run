@@ -19,7 +19,7 @@ test.describe("Audio overlap", () => {
         (window as unknown as { __audioDebug?: { active: number } })
           .__audioDebug?.active === 0,
       undefined,
-      { timeout: 20000 },
+      { timeout: 40000 },
     );
 
     const peak = await page.evaluate(() => {

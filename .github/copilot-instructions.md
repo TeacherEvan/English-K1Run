@@ -28,7 +28,7 @@
 - **Coordinates**: Percentage-based only. X ranges 5–95% with `LANE_BOUNDS` in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts). Never use pixel positions for gameplay objects.
 - **Touch handling**: Must route through `multiTouchHandler` in `src/lib/touch-handler.ts`(../src/lib/touch-handler.ts). Do not attach raw `onClick` for gameplay objects.
 - **Sizing**: Uses CSS vars (`--font-scale`, `--object-scale`, `--spacing-scale`) set by `src/hooks/use-display-adjustment.ts`(../src/hooks/use-display-adjustment.ts).
-- **Hard file limit**: All source and documentation files must stay under 200 lines. Split modules or docs when they approach the limit.
+- **Hard file limit**: All source and documentation files must stay under 200 lines. If a file approaches or exceeds the limit, perform a smooth split refactor (extract helpers/components/constants into new modules with clean exports).
 
 ## Coding Standards
 
@@ -53,6 +53,7 @@
 - **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in `src/lib/sound-manager.ts`(../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
 - **Audio asset location**: Runtime fallback resolves `/sounds/<key>.<ext>` from public assets when bundled sounds are missing.
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
+- **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
 - **Welcome screen narration**: Four phases and respects reduced motion; e2e mode disables animations when `?e2e=1` is present.
 
