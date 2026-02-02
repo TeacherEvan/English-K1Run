@@ -62,11 +62,20 @@ export interface ElevenLabsOptions {
  */
 function getApiKey(): string | null {
   if (typeof window === "undefined") return null;
-  return (
+  const apiKey = 
     import.meta.env.VITE_ELEVENLABS_API_KEY ||
     import.meta.env.ELEVENLABS_API_KEY ||
-    null
-  );
+    null;
+  
+  if (!apiKey && import.meta.env.DEV) {
+    console.warn(
+      "[ElevenLabs] API key not configured. Set VITE_ELEVENLABS_API_KEY in .env file.\n" +
+      "Audio will fall back to Web Speech API (robotic voice).\n" +
+      "See .env.example for configuration details."
+    );
+  }
+  
+  return apiKey;
 }
 
 /**
@@ -82,7 +91,12 @@ function getVoiceId(langCode: SupportedLanguage): string {
  */
 export async function testElevenLabsConnection(): Promise<boolean> {
   const apiKey = getApiKey();
-  if (!apiKey) return false;
+  if (!apiKey) {
+    if (import.meta.env.DEV) {
+      console.info("[ElevenLabs] Skipping connection test - no API key configured");
+    }
+    return false;
+  }
 
   try {
     const response = await fetch("https://api.elevenlabs.io/v1/voices", {
@@ -92,8 +106,28 @@ export async function testElevenLabsConnection(): Promise<boolean> {
         "xi-api-key": apiKey,
       },
     });
-    return response.ok;
-  } catch {
+    
+    if (response.ok) {
+      if (import.meta.env.DEV) {
+        console.info("[ElevenLabs] API connection successful ✓");
+      }
+      return true;
+    } else {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[ElevenLabs] API connection failed with status ${response.status}.\n` +
+          "Please check your API key validity at https://elevenlabs.io"
+        );
+      }
+      return false;
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[ElevenLabs] API connection error:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
     return false;
   }
 }

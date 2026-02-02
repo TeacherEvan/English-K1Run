@@ -26,6 +26,7 @@ An educational racing game where kindergarten students (ages 4-6) learn pattern 
 - **Node.js**: 20.18+ or 22.12+ (Vite 7 requirement)
 - **npm** or **yarn**
 - Modern browser (Chrome, Firefox, Safari, Edge)
+- **(Optional) ElevenLabs API Key**: For high-quality voice audio (see [Audio Setup Guide](AUDIO_SETUP.md))
 
 ### Installation
 
@@ -37,11 +38,17 @@ cd English-K1Run
 # Install dependencies
 npm install
 
+# (Optional) Configure audio - see AUDIO_SETUP.md for details
+cp .env.example .env
+# Edit .env and add your VITE_ELEVENLABS_API_KEY
+
 # Start development server
 npm run dev
 ```
 
 The game will be available at `http://localhost:5173`
+
+> **Note**: The game will work without ElevenLabs API key but will use robotic Web Speech API voice. For high-quality natural voice, see [AUDIO_SETUP.md](AUDIO_SETUP.md).
 
 ### Development Commands
 
