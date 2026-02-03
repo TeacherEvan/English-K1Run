@@ -11,7 +11,8 @@ const path = require("path");
 
 // Configuration
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "zmcVlqmyk3Jpn5AVYcAL";
+const ELEVENLABS_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || "";
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "";
 const OUTPUT_DIR = path.join(__dirname, "..", "sounds");
 
 if (!ELEVENLABS_API_KEY) {
@@ -20,6 +21,20 @@ if (!ELEVENLABS_API_KEY) {
   );
   console.log(
     "Please set it with: export ELEVENLABS_API_KEY=your_api_key_here",
+  );
+  process.exit(1);
+}
+
+if (!ELEVENLABS_MODEL_ID) {
+  console.error(
+    "❌ Error: ELEVENLABS_MODEL_ID environment variable is required",
+  );
+  process.exit(1);
+}
+
+if (!VOICE_ID) {
+  console.error(
+    "❌ Error: ELEVENLABS_VOICE_ID environment variable is required",
   );
   process.exit(1);
 }
@@ -84,7 +99,7 @@ function generateAudio(text, outputPath) {
 
     const postData = JSON.stringify({
       text: speechText,
-      model_id: "eleven_monolingual_v1",
+      model_id: ELEVENLABS_MODEL_ID,
       voice_settings: VOICE_SETTINGS,
     });
 

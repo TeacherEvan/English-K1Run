@@ -59,7 +59,7 @@ function requestTts(text, outputPath, voiceId, settings, languageCode) {
   return new Promise((resolve, reject) => {
     const postData = JSON.stringify({
       text,
-      model_id: "eleven_multilingual_v2",
+      model_id: process.env.ELEVENLABS_MODEL_ID,
       voice_settings: settings,
       language_code: languageCode,
     });
@@ -129,6 +129,13 @@ async function main() {
     process.exit(1);
   }
 
+  if (!process.env.ELEVENLABS_MODEL_ID) {
+    console.error(
+      "❌ Error: ELEVENLABS_MODEL_ID environment variable is required",
+    );
+    process.exit(1);
+  }
+
   const soundsDir = path.join(__dirname, "..", "sounds");
   const templates = parseTemplateMap(
     path.join(
@@ -160,10 +167,22 @@ async function main() {
     laser: "The laser is bright.",
   };
 
-  const voiceIdEnglish =
-    process.env.ELEVENLABS_VOICE_ID || "E4IXevHtHpKGh0bvrPPr";
-  const voiceIdThai =
-    process.env.ELEVENLABS_VOICE_ID_TH || "onwK4e9ZLuTAKqWW03F9";
+  const voiceIdEnglish = process.env.ELEVENLABS_VOICE_ID || "";
+  const voiceIdThai = process.env.ELEVENLABS_VOICE_ID_TH || "";
+
+  if (!voiceIdEnglish) {
+    console.error(
+      "❌ Error: ELEVENLABS_VOICE_ID environment variable is required",
+    );
+    process.exit(1);
+  }
+
+  if (!voiceIdThai) {
+    console.error(
+      "❌ Error: ELEVENLABS_VOICE_ID_TH environment variable is required",
+    );
+    process.exit(1);
+  }
   const voiceSettings = {
     stability: 0.35,
     similarity_boost: 0.9,

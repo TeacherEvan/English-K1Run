@@ -19,6 +19,29 @@ import { useEffect, useRef } from "react";
 import { audioContextManager } from "../lib/audio/audio-context-manager";
 import { soundManager } from "../lib/sound-manager";
 
+const HOME_MENU_AUDIO_STORAGE_KEY = "homeMenuAssociationPlayed";
+let hasPlayedHomeMenuAssociation = false;
+
+const hasSessionPlayedHomeMenuAudio = () => {
+  if (typeof window === "undefined") return false;
+  try {
+    return (
+      window.sessionStorage.getItem(HOME_MENU_AUDIO_STORAGE_KEY) === "true"
+    );
+  } catch {
+    return false;
+  }
+};
+
+const markSessionHomeMenuAudioPlayed = () => {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(HOME_MENU_AUDIO_STORAGE_KEY, "true");
+  } catch {
+    // Ignore storage failures (privacy mode, blocked access, etc.)
+  }
+};
+
 /**
  * Custom hook to play association audio when home menu loads
  *
@@ -33,9 +56,19 @@ export const useHomeMenuAudio = () => {
   const audioPlayedRef = useRef(false);
 
   useEffect(() => {
-    // Prevent duplicate playback
+    // Prevent duplicate playback across mounts and within this session
     if (audioPlayedRef.current) return;
+
+    const alreadyPlayed =
+      hasPlayedHomeMenuAssociation || hasSessionPlayedHomeMenuAudio();
+    if (alreadyPlayed) {
+      audioPlayedRef.current = true;
+      return;
+    }
+
     audioPlayedRef.current = true;
+    hasPlayedHomeMenuAssociation = true;
+    markSessionHomeMenuAudioPlayed();
 
     // Play sequence after small delay to ensure audio context is ready
     const playSequence = async () => {
@@ -53,15 +86,19 @@ export const useHomeMenuAudio = () => {
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing English association message");
         }
-        
+
         try {
-          await soundManager.playSound("welcome_sangsom_association", 1.0, 0.85);
+          await soundManager.playSound(
+            "welcome_sangsom_association",
+            1.0,
+            0.85,
+          );
         } catch (error) {
           if (import.meta.env.DEV) {
             console.warn(
               "[HomeMenuAudio] English association audio not available:",
               error instanceof Error ? error.message : String(error),
-              "\nMake sure welcome_sangsom_association.mp3 exists in public/sounds/"
+              "\nMake sure welcome_sangsom_association.mp3 exists in public/sounds/",
             );
           }
         }
@@ -73,7 +110,7 @@ export const useHomeMenuAudio = () => {
         if (import.meta.env.DEV) {
           console.log("[HomeMenuAudio] Playing Thai association message");
         }
-        
+
         try {
           await soundManager.playSound(
             "welcome_sangsom_association_thai",
@@ -85,7 +122,7 @@ export const useHomeMenuAudio = () => {
             console.warn(
               "[HomeMenuAudio] Thai association audio not available:",
               error instanceof Error ? error.message : String(error),
-              "\nMake sure welcome_sangsom_association_thai.mp3 exists in public/sounds/"
+              "\nMake sure welcome_sangsom_association_thai.mp3 exists in public/sounds/",
             );
           }
         }
@@ -99,7 +136,7 @@ export const useHomeMenuAudio = () => {
           console.warn(
             "[HomeMenuAudio] Audio playback sequence failed:",
             error instanceof Error ? error.message : String(error),
-            "\nThis is non-critical - menu will function normally."
+            "\nThis is non-critical - menu will function normally.",
           );
         }
       }

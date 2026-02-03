@@ -24,6 +24,17 @@ Files updated:
 - src/hooks/use-home-menu-audio.ts
 - src/lib/sound-manager.ts
 
+## Latest Update (2026-02-03)
+
+Home menu audio behavior fix:
+
+- Gated Sangsom association welcome lines to play only once per session when the home menu is first accessible.
+- Prevented repeated playback on home screen reopen/remounts while preserving first-run behavior.
+
+Files updated:
+
+- src/hooks/use-home-menu-audio.ts
+
 ## Archive
 
 - DOCS/jobcards/2026-01.md

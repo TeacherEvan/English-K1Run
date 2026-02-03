@@ -52,6 +52,7 @@
 
 - **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in `src/lib/sound-manager.ts`(../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
 - **Audio asset location**: Runtime fallback resolves `/sounds/<key>.<ext>` from public assets when bundled sounds are missing.
+- **Home menu association audio**: Sangsom association lines must play only once per session when the home menu is first accessible (gate repeated replays on reopen/remount).
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).

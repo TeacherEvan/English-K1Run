@@ -20,13 +20,12 @@ const path = require("path");
 
 // Configuration
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
+const ELEVENLABS_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || "";
 const OUTPUT_DIR = path.join(__dirname, "..", "sounds");
 
 // Voice IDs (from generate-audio.cjs)
-const VOICE_ID_ENGLISH =
-  process.env.ELEVENLABS_VOICE_ID || "E4IXevHtHpKGh0bvrPPr"; // Alice
-const VOICE_ID_THAI =
-  process.env.ELEVENLABS_VOICE_ID_TH || "onwK4e9ZLuTAKqWW03F9"; // Daniel
+const VOICE_ID_ENGLISH = process.env.ELEVENLABS_VOICE_ID || "";
+const VOICE_ID_THAI = process.env.ELEVENLABS_VOICE_ID_TH || "";
 
 // Voice settings (from generate-audio.cjs)
 const VOICE_SETTINGS = {
@@ -65,7 +64,7 @@ function generateAudio(text, outputPath, voiceId, languageCode) {
   return new Promise((resolve, reject) => {
     const postData = JSON.stringify({
       text: text,
-      model_id: "eleven_multilingual_v2",
+      model_id: ELEVENLABS_MODEL_ID,
       voice_settings: VOICE_SETTINGS,
       language_code: languageCode,
     });
@@ -133,6 +132,27 @@ async function main() {
     );
     console.log(
       "Please set it with: export ELEVENLABS_API_KEY=your_api_key_here",
+    );
+    process.exit(1);
+  }
+
+  if (!ELEVENLABS_MODEL_ID) {
+    console.error(
+      "❌ Error: ELEVENLABS_MODEL_ID environment variable is required",
+    );
+    process.exit(1);
+  }
+
+  if (!VOICE_ID_ENGLISH) {
+    console.error(
+      "❌ Error: ELEVENLABS_VOICE_ID environment variable is required",
+    );
+    process.exit(1);
+  }
+
+  if (!VOICE_ID_THAI) {
+    console.error(
+      "❌ Error: ELEVENLABS_VOICE_ID_TH environment variable is required",
     );
     process.exit(1);
   }
