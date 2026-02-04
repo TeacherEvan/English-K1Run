@@ -12,8 +12,11 @@ interface DecoySpawnDeps {
   actualSpawnCount: number;
   selectItem: () => { emoji: string; name: string };
   spawnedInBatch: Set<string>;
+  /** Set of emojis currently active on screen */
   activeEmojis: Set<string>;
+  /** Map of emoji to last appearance timestamp (epoch milliseconds) */
   lastEmojiAppearance: Map<string, number>;
+  /** Current timestamp for spawn timing */
   now: number;
   fallSpeedMultiplier: number;
   leftLaneObjects: GameObject[];
@@ -26,21 +29,28 @@ interface DecoySpawnDeps {
 /**
  * Spawns decoy objects for the batch.
  */
-export const spawnDecoyObjects = ({
-  startIndex,
-  actualSpawnCount,
-  selectItem,
-  spawnedInBatch,
-  activeEmojis,
-  lastEmojiAppearance,
-  now,
-  fallSpeedMultiplier,
-  leftLaneObjects,
-  rightLaneObjects,
-  createdLeftLane,
-  createdRightLane,
-  created,
-}: DecoySpawnDeps) => {
+export const spawnDecoyObjects = (deps: DecoySpawnDeps) => {
+  const {
+    startIndex,
+    actualSpawnCount,
+    selectItem,
+    spawnedInBatch,
+    activeEmojis,
+    lastEmojiAppearance,
+    now,
+    fallSpeedMultiplier,
+    leftLaneObjects,
+    rightLaneObjects,
+    createdLeftLane,
+    createdRightLane,
+    created,
+  } = deps;
+
+  if (!activeEmojis || !lastEmojiAppearance || typeof now !== "number") {
+    console.error("[spawnDecoyObjects] Invalid dependencies", deps);
+    return;
+  }
+
   for (let i = startIndex; i < actualSpawnCount; i++) {
     const chosenLane: PlayerSide = Math.random() < 0.5 ? "left" : "right";
     const [minX, maxX] = LANE_BOUNDS[chosenLane];
@@ -66,8 +76,12 @@ export const spawnDecoyObjects = ({
       }
     }
 
-    spawnedInBatch.add(item.emoji);
-    lastEmojiAppearance.set(item.emoji, now);
+    if (spawnedInBatch && item.emoji) {
+      spawnedInBatch.add(item.emoji);
+    }
+    if (lastEmojiAppearance && item.emoji && typeof now === "number") {
+      lastEmojiAppearance.set(item.emoji, now);
+    }
 
     eventTracker.trackEmojiAppearance(item.emoji, item.name);
 

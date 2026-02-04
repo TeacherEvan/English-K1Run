@@ -7,7 +7,7 @@ const WelcomeScreen = lazy(() =>
     })),
 );
 const WormLoadingScreen = lazy(() =>
-    import("../../components/WormLoadingScreen").then((m) => ({
+    import("../../components/worm-loading").then((m) => ({
         default: m.WormLoadingScreen,
     })),
 );

@@ -44,6 +44,9 @@ export const useFairyAnimation = (
   const [trailSparkles, setTrailSparkles] = useState<TrailSparkle[]>([]);
   const sparkleIdRef = useRef(0);
   const frameCountRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef(0);
+  const epochOffsetRef = useRef<number | null>(null);
 
   const [orbitingSparkles] = useState<OrbitSparkle[]>(() =>
     createOrbitingSparkles(),
@@ -95,22 +98,26 @@ export const useFairyAnimation = (
 
   useEffect(() => {
     let animationFrameId: number;
-    let lastUpdateTime = 0;
-    let startTime = 0;
 
     const animate = (currentNow: number) => {
-      if (startTime === 0) {
-        startTime = currentNow - (Date.now() - fairy.createdAt);
+      if (epochOffsetRef.current === null) {
+        epochOffsetRef.current = Date.now() - performance.now();
+      }
+
+      const epochNow = currentNow + epochOffsetRef.current;
+
+      if (startTimeRef.current === null) {
+        startTimeRef.current = currentNow - (epochNow - fairy.createdAt);
       }
 
       frameCountRef.current++;
-      const timeSinceLastUpdate = currentNow - lastUpdateTime;
+      const timeSinceLastUpdate = currentNow - lastUpdateTimeRef.current;
       if (timeSinceLastUpdate >= FAIRY_ANIMATION_TIMING.UPDATE_INTERVAL) {
-        lastUpdateTime = currentNow;
-        setNow(Date.now());
+        lastUpdateTimeRef.current = currentNow;
+        setNow(Math.round(epochNow));
       }
 
-      const currentAge = currentNow - startTime;
+      const currentAge = currentNow - startTimeRef.current;
       const currentPhase: "morphing" | "flying" | "trail-fading" =
         currentAge < FAIRY_ANIMATION_TIMING.MORPH_DURATION
           ? "morphing"
