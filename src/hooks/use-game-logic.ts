@@ -1,30 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GAME_CATEGORIES } from "../lib/constants/game-categories";
-import type {
-  FairyTransformObject,
-  GameObject,
-  GameState,
-  UseGameLogicOptions,
-  WormObject,
-} from "../types/game";
+import { useMemo } from "react";
+import type { UseGameLogicOptions } from "../types/game";
 import {
   useAnimationLoop,
   useFairyCleanup,
   useNextCategoryPrefetch,
   useSpawnInterval,
   useTargetAnnouncement,
-  useViewportObserver,
 } from "./game-logic/game-effects";
-import { createGameSessionHandlers } from "./game-logic/game-session";
-import { createObjectUpdater } from "./game-logic/object-update";
-import { createSpawnHandlers } from "./game-logic/spawn-objects";
-import {
-  createHandleObjectTap,
-  createHandleWormTap,
-} from "./game-logic/tap-handlers";
-import { createTargetPoolManager } from "./game-logic/target-pool";
 import { createChangeTargetToVisibleEmoji } from "./game-logic/target-visibility";
-import { useDisplayAdjustment } from "./use-display-adjustment";
+import { useGameLogicInteractions } from "./use-game-logic-interactions";
+import { useGameLogicResources } from "./use-game-logic-resources";
+import { useGameLogicSession } from "./use-game-logic-session";
+import { useGameLogicSpawn } from "./use-game-logic-spawn";
+import { useGameLogicState } from "./use-game-logic-state";
+import { useGameLogicTargets } from "./use-game-logic-targets";
+import { useGameLogicViewport } from "./use-game-logic-viewport";
+import { useSyncedRef } from "./use-synced-ref";
 
 // Re-export for backward compatibility
 export { GAME_CATEGORIES } from "../lib/constants/game-categories";
@@ -39,95 +30,50 @@ export type {
 
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1, continuousMode = false } = options;
-  const [gameObjects, setGameObjects] = useState<GameObject[]>([]);
-  const [worms, setWorms] = useState<WormObject[]>([]);
-  const [fairyTransforms, setFairyTransforms] = useState<
-    FairyTransformObject[]
-  >([]);
-  const [screenShake, setScreenShake] = useState(false);
-  const [gameState, setGameState] = useState<GameState>(() => ({
-    progress: 0,
-    currentTarget: "",
-    targetEmoji: "",
-    level: 0,
-    gameStarted: false,
-    winner: false,
-    targetChangeTime: 0,
-    streak: 0,
-    announcementActive: false,
-    announcementEmoji: "",
-    announcementSentence: "",
-    multiplier: 1.0,
-    lastMilestone: 0,
-  }));
+  const {
+    gameObjects,
+    setGameObjects,
+    worms,
+    setWorms,
+    fairyTransforms,
+    setFairyTransforms,
+    screenShake,
+    setScreenShake,
+    gameState,
+    setGameState,
+    continuousModeTargetCount,
+    continuousModeStartTime,
+    setContinuousModeStartTime,
+    continuousModeHighScore,
+    setContinuousModeHighScore,
+  } = useGameLogicState();
 
-  const continuousModeTargetCount = useRef(0);
-  const [continuousModeStartTime, setContinuousModeStartTime] = useState<
-    number | null
-  >(null);
-  const [continuousModeHighScore, setContinuousModeHighScore] = useState<
-    number | null
-  >(() => {
-    if (typeof localStorage === "undefined") return null;
-    const stored = localStorage.getItem("continuousModeHighScore");
-    return stored ? parseInt(stored, 10) : null;
+  const { viewportRef } = useGameLogicViewport();
+
+  const {
+    lastEmojiAppearance,
+    lastTargetSpawnTime,
+    targetPool,
+    staleEmojisCache,
+    wormSpeedMultiplier,
+    progressiveSpawnTimeoutRefs,
+    recurringSpawnIntervalRef,
+  } = useGameLogicResources();
+
+  const gameStateRef = useSyncedRef(gameState);
+  const gameObjectsRef = useSyncedRef(gameObjects);
+  const wormsRef = useSyncedRef(worms);
+
+  const {
+    clampLevel,
+    currentCategory,
+    generateRandomTarget,
+    refillTargetPool,
+  } = useGameLogicTargets({
+    targetPool,
+    gameStateRef,
+    gameStateLevel: gameState.level,
   });
-
-  const viewportRef = useRef({ width: 1920, height: 1080 });
-  const { triggerResizeUpdate } = useDisplayAdjustment();
-  useViewportObserver(viewportRef, triggerResizeUpdate);
-
-  const lastEmojiAppearance = useRef<Map<string, number>>(new Map());
-  const lastTargetSpawnTime = useRef(0);
-  const targetPool = useRef<Array<{ emoji: string; name: string }>>([]);
-  const staleEmojisCache = useRef<{
-    emojis: Array<{ emoji: string; name: string }>;
-    timestamp: number;
-  }>({
-    emojis: [],
-    timestamp: 0,
-  });
-
-  const gameStateRef = useRef(gameState);
-  useEffect(() => {
-    gameStateRef.current = gameState;
-  }, [gameState]);
-
-  const gameObjectsRef = useRef<GameObject[]>(gameObjects);
-  useEffect(() => {
-    gameObjectsRef.current = gameObjects;
-  }, [gameObjects]);
-
-  const wormsRef = useRef<WormObject[]>(worms);
-  useEffect(() => {
-    wormsRef.current = worms;
-  }, [worms]);
-
-  const wormSpeedMultiplier = useRef(1);
-  const progressiveSpawnTimeoutRefs = useRef<NodeJS.Timeout[]>([]);
-  const recurringSpawnIntervalRef = useRef<NodeJS.Timeout | undefined>(
-    undefined,
-  );
-
-  const clampLevel = useCallback((levelIndex: number) => {
-    if (Number.isNaN(levelIndex)) return 0;
-    return Math.max(0, Math.min(levelIndex, GAME_CATEGORIES.length - 1));
-  }, []);
-
-  const { generateRandomTarget, refillTargetPool } = useMemo(
-    () =>
-      createTargetPoolManager({
-        targetPoolRef: targetPool,
-        clampLevel,
-        getLevel: () => gameStateRef.current.level,
-      }),
-    [clampLevel],
-  );
-
-  const currentCategory = useMemo(
-    () => GAME_CATEGORIES[gameState.level] || GAME_CATEGORIES[0],
-    [gameState.level],
-  );
 
   useTargetAnnouncement(
     gameState.gameStarted,
@@ -137,99 +83,57 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   );
   useNextCategoryPrefetch(gameState.gameStarted, gameState.level, clampLevel);
 
-  const { spawnImmediateTargets, spawnObject } = useMemo(
-    () =>
-      createSpawnHandlers({
-        setGameObjects,
-        fallSpeedMultiplier,
-        gameStateRef,
-        lastEmojiAppearance,
-        lastTargetSpawnTime,
-        staleEmojisCache,
-      }),
-    [fallSpeedMultiplier],
-  );
+  const { spawnImmediateTargets, spawnObject, updateObjects } =
+    useGameLogicSpawn({
+      setGameObjects,
+      fallSpeedMultiplier,
+      viewportRef,
+      gameStateRef,
+      lastEmojiAppearance,
+      lastTargetSpawnTime,
+      staleEmojisCache,
+    });
 
-  const { updateObjects } = useMemo(
-    () =>
-      createObjectUpdater({
-        setGameObjects,
-        viewportRef,
-        gameStateRef,
-      }),
-    [],
-  );
+  const { handleObjectTap, handleWormTap } = useGameLogicInteractions({
+    gameObjectsRef,
+    gameState,
+    currentCategory,
+    generateRandomTarget,
+    spawnImmediateTargets,
+    continuousMode,
+    continuousModeTargetCount,
+    continuousModeHighScore,
+    continuousModeStartTime,
+    setContinuousModeHighScore,
+    setContinuousModeStartTime,
+    refillTargetPool,
+    setGameState,
+    setScreenShake,
+    setGameObjects,
+    setWorms,
+    setFairyTransforms,
+    wormSpeedMultiplier,
+  });
 
-  const handleObjectTap = useMemo(
-    () =>
-      createHandleObjectTap({
-        gameObjectsRef,
-        gameState,
-        currentCategory,
-        generateRandomTarget,
-        spawnImmediateTargets,
-        continuousMode,
-        continuousModeTargetCount,
-        continuousModeHighScore,
-        continuousModeStartTime,
-        setContinuousModeHighScore,
-        setContinuousModeStartTime,
-        refillTargetPool,
-        setGameState,
-        setScreenShake,
-        setGameObjects,
-      }),
-    [
-      gameState,
-      currentCategory,
-      generateRandomTarget,
-      spawnImmediateTargets,
-      continuousMode,
-      continuousModeHighScore,
-      continuousModeStartTime,
-      refillTargetPool,
-    ],
-  );
-
-  const handleWormTap = useMemo(
-    () =>
-      createHandleWormTap({
-        setWorms,
-        setFairyTransforms,
-        wormSpeedMultiplier,
-      }),
-    [],
-  );
-
-  const { startGame, resetGame } = useMemo(
-    () =>
-      createGameSessionHandlers({
-        clampLevel,
-        gameStateLevel: gameState.level,
-        continuousMode,
-        generateRandomTarget,
-        spawnImmediateTargets,
-        lastEmojiAppearance,
-        targetPool,
-        continuousModeTargetCount,
-        progressiveSpawnTimeoutRefs,
-        recurringSpawnIntervalRef,
-        wormSpeedMultiplier,
-        setContinuousModeStartTime,
-        setGameObjects,
-        setWorms,
-        setFairyTransforms,
-        setScreenShake,
-        setGameState,
-      }),
-    [
-      clampLevel,
-      gameState.level,
-      continuousMode,
-      generateRandomTarget,
-      spawnImmediateTargets,
-    ],
-  );
+  const { startGame, resetGame } = useGameLogicSession({
+    clampLevel,
+    gameStateLevel: gameState.level,
+    continuousMode,
+    generateRandomTarget,
+    spawnImmediateTargets,
+    lastEmojiAppearance,
+    targetPool,
+    continuousModeTargetCount,
+    progressiveSpawnTimeoutRefs,
+    recurringSpawnIntervalRef,
+    wormSpeedMultiplier,
+    setContinuousModeStartTime,
+    setGameObjects,
+    setWorms,
+    setFairyTransforms,
+    setScreenShake,
+    setGameState,
+  });
 
   useSpawnInterval(gameState.gameStarted, gameState.winner, spawnObject);
   useAnimationLoop(

@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, type KeyboardEvent } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useHomeMenuAudio } from "../../hooks/use-home-menu-audio";
 import { Button } from "../ui/button";
@@ -45,6 +45,15 @@ export const GameMenuHome = memo(
             onToggleContinuousMode(true);
             onStartGame();
         }, [onStartGame, onToggleContinuousMode]);
+
+        const handleMenuKeyDown = useCallback(
+            (event: KeyboardEvent<HTMLButtonElement>, action: () => void) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                action();
+            },
+            [],
+        );
 
         return (
             <div
@@ -143,6 +152,7 @@ export const GameMenuHome = memo(
                                 size="lg"
                                 className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4"
                                 onClick={onShowLevels}
+                                onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
                                 data-testid="level-select-button"
                                 aria-label="Go to Level Selection"
                             >
