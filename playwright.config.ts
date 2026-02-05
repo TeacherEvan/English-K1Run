@@ -46,7 +46,7 @@ export default defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL for navigation
-    baseURL: "http://localhost:5174",
+    baseURL: "http://localhost:5173",
 
     // Collect trace on first retry
     trace: "on-first-retry",
@@ -153,7 +153,7 @@ export default defineConfig({
   // Development server configuration
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:5174",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
