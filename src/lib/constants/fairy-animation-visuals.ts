@@ -1,0 +1,15 @@
+/**
+ * Visual sizing and layout constants for fairy animations.
+ */
+
+export const FAIRY_VISUAL_CONSTANTS = {
+  FAIRY_SIZE: 80,
+  SPARKLE_COUNT: 12,
+  MAX_TRAIL_SPARKLES: 30,
+  TRAIL_SPAWN_FRAME_INTERVAL: 6,
+  EDGE_VARIATION_X: 40,
+  EDGE_VARIATION_Y: 200,
+  OFF_SCREEN_DISTANCE: 100,
+  SCREEN_RIGHT_EDGE: 110,
+  SCREEN_LEFT_EDGE: -20,
+} as const;

@@ -1,31 +1,33 @@
-// Sound Manager - Enhanced audio system that supports wav and mp3 assets and speech-like cues
+/**
+ * Sound manager entry point.
+ */
 
-import { describeIfEnabled } from "./audio/audio-accessibility";
-import { audioBufferLoader } from "./audio/audio-buffer-loader";
 import { audioContextManager } from "./audio/audio-context-manager";
 import { prefetchAudioKeys as prefetchAudioKeysInternal } from "./audio/audio-key-prefetcher";
 import { audioPreloader } from "./audio/audio-preloader";
-import {
-  getAudioUrl,
-  getRegisteredKeys,
-  resolveCandidates,
-} from "./audio/audio-registry";
 import { audioSpritePlayer } from "./audio/audio-sprite";
 import { SoundPlaybackEngine } from "./audio/sound-playback-engine";
-import { SpeechPlayback } from "./audio/speech-playback";
-import { speechSynthesizer } from "./audio/speech-synthesizer";
 import { AudioPriority } from "./audio/types";
-import { playWordInternal } from "./audio/word-playback";
 import type { SupportedLanguage } from "./constants/language-config";
-import { getLanguageConfig } from "./constants/language-config";
+import {
+  getAudioContext,
+  getAudioUrlForKey,
+  loadBufferForName,
+  resolveAudioCandidates,
+  startBuffer,
+  startBufferAsync,
+} from "./sound-manager/helpers";
+import { createSoundPlayback } from "./sound-manager/playback";
+import { createSpeechControls } from "./sound-manager/speech";
+import { createPlaybackTelemetry } from "./sound-manager/telemetry";
 
 declare global {
   interface Window {
     __audioDebug?: {
       active: number;
-      current: number; // Alias for 'active'
+      current: number;
       peak: number;
-      total: number; // Total audio events
+      total: number;
       lastSound?: string;
     };
   }
@@ -36,16 +38,58 @@ class SoundManager {
   private volume = 0.6;
   private userInteractionReceived = false;
   private preferHTMLAudio = false;
-  private currentLanguage: SupportedLanguage = "en";
   private useAudioSprite = false;
-  private activePlaybackCount = 0;
-  private peakPlaybackCount = 0;
-  private totalAudioEvents = 0;
   private playbackEngine = new SoundPlaybackEngine({
-    getAudioContext: () => this.audioContext,
+    getAudioContext: () => getAudioContext(),
     getVolume: () => this.volume,
   });
-  private speechPlayback = new SpeechPlayback();
+  private telemetry = createPlaybackTelemetry(() => this.isEnabled);
+  private playback = createSoundPlayback({
+    isEnabled: () => this.isEnabled,
+    getAudioContext: () => getAudioContext(),
+    getVolume: () => this.volume,
+    ensureInitialized: () => this.ensureInitialized(),
+    useAudioSprite: () => this.useAudioSprite,
+    preferHTMLAudio: () => this.preferHTMLAudio,
+    resolveCandidates: (name) => resolveAudioCandidates(name),
+    getUrl: (key) => getAudioUrlForKey(key),
+    loadBufferForName: (name, allowFallback) =>
+      loadBufferForName(name, allowFallback),
+    startBufferAsync: (buffer, delaySeconds, soundKey, playbackRate, volume) =>
+      startBufferAsync(
+        this.playbackEngine,
+        buffer,
+        delaySeconds,
+        soundKey,
+        playbackRate,
+        volume,
+      ),
+    playbackEngine: this.playbackEngine,
+    trackPlaybackStart: (name) => this.telemetry.trackStart(name),
+    trackPlaybackEnd: (name) => this.telemetry.trackEnd(name),
+  });
+  private speechControls = createSpeechControls({
+    ensureInitialized: () => this.ensureInitialized(),
+    getAudioContext: () => getAudioContext(),
+    getVolume: () => this.volume,
+    useAudioSprite: () => this.useAudioSprite,
+    resolveCandidates: (name) => resolveAudioCandidates(name),
+    playVoiceClip: (name, rate, maxDuration, volume) =>
+      this.playback.playVoiceClip(name, rate, maxDuration, volume),
+    loadBufferForName: (name, allowFallback) =>
+      loadBufferForName(name, allowFallback),
+    startBuffer: (buffer, delaySeconds, soundKey, rate, volume) =>
+      startBuffer(
+        this.playbackEngine,
+        buffer,
+        delaySeconds,
+        soundKey,
+        rate,
+        volume,
+      ),
+    stopAllAudio: () => this.stopAllAudio(),
+    isEnabled: () => this.isEnabled,
+  });
 
   constructor() {
     this.useAudioSprite = import.meta.env.VITE_AUDIO_SPRITE_ENABLED === "1";
@@ -70,116 +114,6 @@ class SoundManager {
     audioContextManager.onReady(() => {
       void audioPreloader.preloadAudioByPriority(AudioPriority.CRITICAL);
     });
-  }
-
-  private get audioContext(): AudioContext | null {
-    return audioContextManager.getContext();
-  }
-
-  private trackPlaybackStart(soundName: string) {
-    this.activePlaybackCount += 1;
-    this.totalAudioEvents += 1;
-    this.peakPlaybackCount = Math.max(
-      this.peakPlaybackCount,
-      this.activePlaybackCount,
-    );
-
-    if (typeof window !== "undefined") {
-      window.__audioDebug = {
-        active: this.activePlaybackCount,
-        current: this.activePlaybackCount,
-        peak: this.peakPlaybackCount,
-        total: this.totalAudioEvents,
-        lastSound: soundName,
-      };
-    }
-  }
-
-  private trackPlaybackEnd(soundName?: string) {
-    this.activePlaybackCount = Math.max(0, this.activePlaybackCount - 1);
-
-    if (typeof window !== "undefined") {
-      window.__audioDebug = {
-        active: this.activePlaybackCount,
-        current: this.activePlaybackCount,
-        peak: this.peakPlaybackCount,
-        total: this.totalAudioEvents,
-        lastSound: soundName ?? window.__audioDebug?.lastSound,
-      };
-    }
-  }
-
-  private resolveCandidates(name: string): string[] {
-    return resolveCandidates(name);
-  }
-
-  private async getUrl(key: string): Promise<string | null> {
-    return getAudioUrl(key);
-  }
-
-  private async loadBufferForName(
-    name: string,
-    allowFallback = true,
-  ): Promise<AudioBuffer | null> {
-    return audioBufferLoader.loadBufferForName(name, allowFallback);
-  }
-
-  private async playVoiceClip(
-    name: string,
-    playbackRate = 1.0,
-    maxDuration?: number,
-    volumeOverride?: number,
-  ): Promise<boolean> {
-    const candidates = this.resolveCandidates(name);
-
-    for (const candidate of candidates) {
-      const url = await this.getUrl(candidate);
-      if (!url) continue;
-      const played = await this.playbackEngine.playWithHtmlAudio(
-        candidate,
-        url,
-        playbackRate,
-        maxDuration,
-        volumeOverride,
-      );
-      if (played) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private startBuffer(
-    buffer: AudioBuffer,
-    delaySeconds = 0,
-    soundKey?: string,
-    playbackRate = 1.0,
-    volumeOverride?: number,
-  ) {
-    this.playbackEngine.startBuffer(
-      buffer,
-      delaySeconds,
-      soundKey,
-      playbackRate,
-      volumeOverride,
-    );
-  }
-
-  private startBufferAsync(
-    buffer: AudioBuffer,
-    delaySeconds = 0,
-    soundKey?: string,
-    playbackRate = 1.0,
-    volumeOverride?: number,
-  ): Promise<void> {
-    return this.playbackEngine.startBufferAsync(
-      buffer,
-      delaySeconds,
-      soundKey,
-      playbackRate,
-      volumeOverride,
-    );
   }
 
   async ensureInitialized() {
@@ -209,16 +143,7 @@ class SoundManager {
         /* silent */
       }
     }
-    this.activePlaybackCount = 0;
-    if (typeof window !== "undefined") {
-      window.__audioDebug = {
-        active: 0,
-        current: 0,
-        peak: this.peakPlaybackCount,
-        total: this.totalAudioEvents,
-        lastSound: window.__audioDebug?.lastSound,
-      };
-    }
+    this.telemetry.reset();
   }
 
   async playSound(
@@ -226,98 +151,15 @@ class SoundManager {
     playbackRate = 0.9,
     volumeOverride?: number,
   ): Promise<void> {
-    if (!this.isEnabled) return;
-    this.trackPlaybackStart(soundName);
-    try {
-      if (this.useAudioSprite && audioSpritePlayer.isConfigured()) {
-        const candidates = this.resolveCandidates(soundName);
-        for (const candidate of candidates) {
-          const played = await audioSpritePlayer.playClip(candidate, {
-            playbackRate,
-            volume: volumeOverride ?? this.volume,
-          });
-          if (played) return;
-        }
-      }
-      if (this.preferHTMLAudio) {
-        const candidates = this.resolveCandidates(soundName);
-        for (const candidate of candidates) {
-          const url = await this.getUrl(candidate);
-          if (!url) continue;
-          const played = await this.playbackEngine.playWithHtmlAudio(
-            candidate,
-            url,
-            playbackRate,
-            undefined,
-            volumeOverride,
-          );
-          if (played) return;
-        }
-      }
-      await this.ensureInitialized();
-      if (!this.audioContext) return;
-      const buffer = await this.loadBufferForName(soundName);
-      if (!buffer) {
-        describeIfEnabled(`Sound: ${soundName}`);
-        return;
-      }
-      await this.startBufferAsync(
-        buffer,
-        0,
-        soundName,
-        playbackRate,
-        volumeOverride,
-      );
-    } catch (error) {
-      console.error("[SoundManager] Failed to play sound:", error);
-      describeIfEnabled(`Sound failed: ${soundName}`);
-    } finally {
-      this.trackPlaybackEnd(soundName);
-    }
+    await this.playback.playSound(soundName, playbackRate, volumeOverride);
   }
 
   getDebugInfo() {
-    const loadedPriorities = [
-      AudioPriority.CRITICAL,
-      AudioPriority.COMMON,
-      AudioPriority.RARE,
-    ].filter((priority) => audioPreloader.isPriorityLoaded(priority));
-
-    return {
-      isEnabled: this.isEnabled,
-      hasContext: !!this.audioContext,
-      contextState: this.audioContext?.state,
-      registeredAliases: getRegisteredKeys().length,
-      cachedBuffers: audioBufferLoader.getLoadedCount(),
-      pendingBuffers: audioBufferLoader.getPendingCount(),
-      loadedPriorities: loadedPriorities.map((p) => AudioPriority[p]),
-      sampleAliases: getRegisteredKeys().slice(0, 5),
-    };
+    return this.telemetry.getDebugInfo(getAudioContext());
   }
 
   async playWord(phrase: string, volumeOverride?: number) {
-    this.stopAllAudio();
-    this.speechPlayback.resetQueue();
-    return this.speechPlayback.enqueue(() =>
-      playWordInternal(
-        {
-          ensureInitialized: () => this.ensureInitialized(),
-          getAudioContext: () => this.audioContext,
-          getVolume: () => this.volume,
-          useAudioSprite: () => this.useAudioSprite,
-          currentLanguage: () => this.currentLanguage,
-          resolveCandidates: (name) => this.resolveCandidates(name),
-          playVoiceClip: (...args) => this.playVoiceClip(...args),
-          loadBufferForName: (...args) => this.loadBufferForName(...args),
-          startBuffer: (...args) => this.startBuffer(...args),
-          speechPlayback: this.speechPlayback,
-        },
-        phrase,
-        volumeOverride,
-        true,
-        true,
-      ),
-    );
+    return this.speechControls.playWord(phrase, volumeOverride);
   }
 
   setVolume(volume: number) {
@@ -329,51 +171,26 @@ class SoundManager {
   }
 
   isInitialized(): boolean {
-    return this.audioContext !== null;
+    return getAudioContext() !== null;
   }
 
   async playSpeech(
     text: string,
     options?: { pitch?: number; rate?: number; volume?: number },
   ) {
-    if (!this.isEnabled || !text) return;
-    return this.speechPlayback.enqueue(async () => {
-      try {
-        if (!this.speechPlayback.canUseSpeech()) return;
-        const synth = window.speechSynthesis;
-        if (!synth) return;
-        await new Promise<void>((resolve) => {
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.pitch = options?.pitch ?? 1.0;
-          utterance.rate = options?.rate ?? 1.0;
-          utterance.volume = options?.volume ?? this.volume;
-          utterance.onend = () => resolve();
-          utterance.onerror = () => resolve();
-          synth.speak(utterance);
-        });
-      } catch (error) {
-        console.error("[SoundManager] Custom speech synthesis error:", error);
-      }
-    });
+    return this.speechControls.playSpeech(text, options);
   }
 
   setLanguage(langCode: SupportedLanguage): void {
-    if (this.currentLanguage === langCode) return;
-    this.currentLanguage = langCode;
-    try {
-      speechSynthesizer.setLanguage(langCode);
-    } catch {
-      /* silent */
-    }
+    this.speechControls.setLanguage(langCode);
   }
 
   getLanguage(): SupportedLanguage {
-    return this.currentLanguage;
+    return this.speechControls.getLanguage();
   }
 
   getLanguageVoiceId(): string {
-    const config = getLanguageConfig(this.currentLanguage);
-    return config.elevenLabsVoiceId;
+    return this.speechControls.getLanguageVoiceId();
   }
 
   async prefetchAudioKeys(keys: string[]): Promise<void> {
@@ -381,7 +198,7 @@ class SoundManager {
 
     await prefetchAudioKeysInternal(keys, {
       useAudioSprite: this.useAudioSprite,
-      resolveCandidates: (name) => this.resolveCandidates(name),
+      resolveCandidates: (name) => resolveAudioCandidates(name),
     });
   }
 }
@@ -395,11 +212,7 @@ export const playSoundEffect = {
   },
   welcome: async () => soundManager.playSound("welcome"),
   stopAll: () => soundManager.stopAllAudio(),
-  // Target-related sounds
-  // Disabled: removes unintended repeated "Target spawned" audio.
   targetSpawn: () => {},
-  // Removed 'celebrate' audio trigger to stop unwanted repeated speech.
-  // Keep targetHit as a silent no-op to preserve call sites/tests.
   targetHit: () => {},
   targetMiss: () => soundManager.playSound("explosion"),
 };
