@@ -17,6 +17,7 @@ interface AppStartupGateProps {
     isLoading: boolean;
     onWelcomeComplete: () => void;
     onLoadingComplete: () => void;
+    autoCompleteAfterMs?: number;
 }
 
 /**
@@ -27,6 +28,7 @@ export const AppStartupGate = ({
     isLoading,
     onWelcomeComplete,
     onLoadingComplete,
+    autoCompleteAfterMs,
 }: AppStartupGateProps) => {
     if (startupStep === "welcome") {
         return (
@@ -39,7 +41,10 @@ export const AppStartupGate = ({
     if (isLoading) {
         return (
             <Suspense fallback={<LoadingSkeleton variant="worm" />}>
-                <WormLoadingScreen onComplete={onLoadingComplete} />
+                <WormLoadingScreen
+                    onComplete={onLoadingComplete}
+                    autoCompleteAfterMs={autoCompleteAfterMs}
+                />
             </Suspense>
         );
     }

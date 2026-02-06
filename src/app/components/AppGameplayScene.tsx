@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { CategoryErrorBoundary } from "../../components/CategoryErrorBoundary";
 import { FallingObject } from "../../components/FallingObject";
 import { PlayerArea } from "../../components/PlayerArea";
+import { Stopwatch } from "../../components/Stopwatch";
 import { TargetAnnouncementOverlay } from "../../components/TargetAnnouncementOverlay";
 import { TargetDisplay } from "../../components/TargetDisplay";
 import { Worm } from "../../components/Worm";
@@ -14,9 +15,6 @@ import type {
 } from "../../hooks/use-game-logic";
 import { eventTracker } from "../../lib/event-tracker";
 
-const Stopwatch = lazy(() =>
-    import("../../components/Stopwatch").then((m) => ({ default: m.Stopwatch })),
-);
 const FairyTransformation = lazy(() =>
     import("../../components/FairyTransformation").then((m) => ({
         default: m.FairyTransformation,
@@ -104,12 +102,10 @@ export const AppGameplayScene = ({
             )}
 
             {isActive && continuousMode && (
-                <Suspense fallback={null}>
-                    <Stopwatch
-                        isRunning={!gameState.winner}
-                        bestTime={continuousModeHighScore ?? 0}
-                    />
-                </Suspense>
+                <Stopwatch
+                    isRunning={!gameState.winner}
+                    bestTime={continuousModeHighScore ?? 0}
+                />
             )}
 
             <CategoryErrorBoundary

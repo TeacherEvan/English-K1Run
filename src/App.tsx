@@ -39,6 +39,7 @@ function App() {
   usePreloadResources();
 
   const isE2E = useE2EMode();
+  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
   const [timeRemaining, setTimeRemaining] = useState(10000);
   const [selectedLevel, setSelectedLevel] = useState(0);
@@ -109,6 +110,7 @@ function App() {
         isLoading={isLoading}
         onWelcomeComplete={handleWelcomeComplete}
         onLoadingComplete={handleLoadingComplete}
+        autoCompleteAfterMs={wormAutoCompleteMs}
       />
     );
   }

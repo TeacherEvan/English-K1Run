@@ -22,4 +22,5 @@ export interface Splat {
 
 export interface WormLoadingScreenProps {
   onComplete: () => void;
+  autoCompleteAfterMs?: number;
 }

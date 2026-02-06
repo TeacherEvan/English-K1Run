@@ -1,11 +1,5 @@
 /**
- * WormLoadingScreen - Interactive loading screen with animated worms
- * 
- * Responsibilities:
- * - Orchestrates worm entities, splats, and completion flow
- * - Manages game state (worms, splats, speed, completion)
- * - Handles user interactions (click/touch on worms)
- * - Provides skip functionality and auto-completion
+ * WormLoadingScreen - Interactive loading screen with animated worms.
  */
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
@@ -21,7 +15,7 @@ import { useWormAnimation } from './use-worm-animation'
 import { createInitialWorms } from './worm-utils'
 import { WormEntity } from './WormEntity'
 
-export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) => {
+export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: WormLoadingScreenProps) => {
     const [worms, setWorms] = useState<Worm[]>(createInitialWorms)
     const [splats, setSplats] = useState<Splat[]>([])
     const [speedMultiplier, setSpeedMultiplier] = useState(1)
@@ -30,11 +24,11 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
     const containerRef = useRef<HTMLDivElement>(null)
     const splatIdCounter = useRef(0)
     const completionTriggeredRef = useRef(false)
+    const autoCompleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const hasInteractionRef = useRef(false)
 
-    // Animation loop for worm movement
     useWormAnimation({ setWorms, speedMultiplier, containerRef })
 
-    // Remove splats after duration and update current time for opacity calculations
     useEffect(() => {
         const interval = setInterval(() => {
             const now = Date.now()
@@ -45,7 +39,6 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
         return () => clearInterval(interval)
     }, [])
 
-    // Check if all worms are destroyed and complete loading
     useEffect(() => {
         const aliveCount = worms.filter(w => w.alive).length
         if (worms.length > 0 && aliveCount === 0) {
@@ -58,9 +51,35 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
         }
     }, [worms, onComplete])
 
+    useEffect(() => {
+        if (!autoCompleteAfterMs) return
+        autoCompleteTimeoutRef.current = setTimeout(() => {
+            if (!hasInteractionRef.current) {
+                onComplete()
+            }
+        }, autoCompleteAfterMs)
+
+        return () => {
+            if (autoCompleteTimeoutRef.current) {
+                clearTimeout(autoCompleteTimeoutRef.current)
+                autoCompleteTimeoutRef.current = null
+            }
+        }
+    }, [autoCompleteAfterMs, onComplete])
+
+    const registerInteraction = useCallback(() => {
+        if (hasInteractionRef.current) return
+        hasInteractionRef.current = true
+        if (autoCompleteTimeoutRef.current) {
+            clearTimeout(autoCompleteTimeoutRef.current)
+            autoCompleteTimeoutRef.current = null
+        }
+    }, [])
+
     const handleWormClick = useCallback((wormId: number, event: React.MouseEvent | React.TouchEvent) => {
         event.preventDefault()
         event.stopPropagation()
+        registerInteraction()
 
         setWorms(prev => {
             // Early guard: validate worm exists and is alive
@@ -110,7 +129,7 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
 
             return updatedWorms
         })
-    }, [onComplete])
+    }, [onComplete, registerInteraction])
 
     const aliveWorms = worms.filter(w => w.alive)
     const completionVisible = showCompletionMessage || aliveWorms.length === 0
@@ -122,7 +141,6 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
             className="fixed inset-0 bg-linear-to-br from-green-50 to-green-100 z-50 overflow-hidden"
             style={{ touchAction: 'none' }}
         >
-            {/* Loading message */}
             <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
                 <h2 className="text-3xl font-bold text-green-800 mb-2">
                     🐛 Catch the Worms! 🐛
@@ -136,12 +154,10 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
                 </p>
             </div>
 
-            {/* Worms */}
             {worms.map(worm => (
                 <WormEntity key={worm.id} worm={worm} onWormClick={handleWormClick} />
             ))}
 
-            {/* Splats */}
             {splats.map(splat => (
                 <SplatEffect
                     key={splat.id}
@@ -151,7 +167,6 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
                 />
             ))}
 
-            {/* Auto-progression indicator */}
             {completionVisible && (
                 <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center">
                     <p
@@ -163,10 +178,12 @@ export const WormLoadingScreen = memo(({ onComplete }: WormLoadingScreenProps) =
                 </div>
             )}
 
-            {/* Skip button */}
             <button
                 data-testid="skip-loading-button"
-                onClick={onComplete}
+                onClick={() => {
+                    registerInteraction()
+                    onComplete()
+                }}
                 className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all hover:scale-105"
                 aria-label="Skip to game immediately without catching worms"
             >
