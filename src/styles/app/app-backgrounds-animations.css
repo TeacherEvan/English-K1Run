@@ -1,0 +1,174 @@
+/* Animated keyframes for scenic backgrounds. */
+.app-bg-animated {
+  animation: background-pan 20s linear infinite;
+}
+
+@keyframes sunrise-flow {
+  0%,
+  100% {
+    background-position:
+      0% 50%,
+      center,
+      0% 50%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.95;
+  }
+
+  25% {
+    background-position:
+      25% 75%,
+      center,
+      25% 25%;
+    transform: scale(1.05) translateZ(0);
+    opacity: 1;
+  }
+
+  50% {
+    background-position:
+      50% 100%,
+      center,
+      50% 75%;
+    transform: scale(1.03) translateZ(0);
+    opacity: 0.98;
+  }
+
+  75% {
+    background-position:
+      75% 25%,
+      center,
+      75% 25%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.96;
+  }
+}
+
+@keyframes ocean-waves {
+  0%,
+  100% {
+    background-position:
+      0% 50%,
+      center,
+      0% 50%;
+    transform: scale(1.01) translateZ(0);
+    opacity: 0.92;
+  }
+
+  33% {
+    background-position:
+      33% 66%,
+      center,
+      33% 33%;
+    transform: scale(1.04) translateZ(0);
+    opacity: 1;
+  }
+
+  66% {
+    background-position:
+      66% 33%,
+      center,
+      66% 66%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.96;
+  }
+}
+
+@keyframes forest-breeze {
+  0%,
+  100% {
+    background-position:
+      0% 50%,
+      center,
+      0% 50%;
+    transform: scale(1.01) translateZ(0);
+    opacity: 0.94;
+  }
+
+  30% {
+    background-position:
+      30% 70%,
+      center,
+      30% 30%;
+    transform: scale(1.03) translateZ(0);
+    opacity: 1;
+  }
+
+  70% {
+    background-position:
+      70% 30%,
+      center,
+      70% 70%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.97;
+  }
+}
+
+@keyframes cosmic-drift {
+  0%,
+  100% {
+    background-position:
+      0% 50%,
+      center,
+      0% 50%;
+    transform: scale(1) translateZ(0);
+    opacity: 0.88;
+  }
+
+  25% {
+    background-position:
+      25% 25%,
+      center,
+      25% 75%;
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.95;
+  }
+
+  50% {
+    background-position:
+      50% 75%,
+      center,
+      50% 25%;
+    transform: scale(1.01) translateZ(0);
+    opacity: 0.92;
+  }
+
+  75% {
+    background-position:
+      75% 50%,
+      center,
+      75% 50%;
+    transform: scale(1) translateZ(0);
+    opacity: 0.9;
+  }
+}
+
+@keyframes background-pan {
+  0% {
+    background-position:
+      center center,
+      center center;
+  }
+
+  25% {
+    background-position:
+      center top,
+      center top;
+  }
+
+  50% {
+    background-position:
+      center right,
+      center right;
+  }
+
+  75% {
+    background-position:
+      center bottom,
+      center bottom;
+  }
+
+  100% {
+    background-position:
+      center center,
+      center center;
+  }
+}

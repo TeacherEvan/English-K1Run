@@ -1,0 +1,32 @@
+/* Core application layout and size scale classes. */
+.app {
+  width: 100%;
+  /* Use computed pixel app height to avoid mobile address-bar/toolbar jitter */
+  height: var(--app-height, 100vh);
+  overflow: hidden;
+  position: relative;
+  transition:
+    background 0.8s ease,
+    background-position 1.2s ease;
+}
+
+.app--small {
+  font-size: 0.875rem;
+}
+
+.app--medium {
+  font-size: 1rem;
+}
+
+.app--large {
+  font-size: 1.125rem;
+}
+
+.app .target-display {
+  z-index: 30;
+}
+
+.app .player-area {
+  position: relative;
+  overflow: hidden;
+}

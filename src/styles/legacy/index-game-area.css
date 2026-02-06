@@ -1,0 +1,109 @@
+/* Legacy gameplay layout styles from index.css. */
+.game-area {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1) 0%,
+    hsl(var(--secondary) / 0.15) 25%,
+    hsl(var(--accent) / 0.1) 50%,
+    hsl(var(--primary) / 0.15) 75%,
+    hsl(var(--secondary) / 0.1) 100%
+  );
+  position: relative;
+}
+
+.game-area::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 70%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 30%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.game-area > * {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .falling-object {
+    font-size: calc(1.2em * var(--object-scale, 1));
+  }
+}
+
+@media (min-width: 1920px) {
+  .falling-object {
+    font-size: calc(1.1em * var(--object-scale, 1));
+  }
+}
+
+@media (orientation: portrait) and (max-width: 768px) {
+  .falling-object {
+    font-size: calc(1.4em * var(--object-scale, 1));
+    animation-duration: calc(var(--fall-speed-scale, 1) * 1.5s);
+  }
+
+  .game-area {
+    padding-top: calc(6rem * var(--spacing-scale, 1));
+  }
+}
+
+@media (min-width: 2560px) {
+  .falling-object {
+    font-size: calc(1.2em * var(--object-scale, 1));
+  }
+}
+
+@media (min-aspect-ratio: 21/9) {
+  .game-area {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  }
+}
+
+.bg-background {
+  background:
+    linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.1) 0%,
+      hsl(var(--secondary) / 0.15) 50%,
+      hsl(var(--accent) / 0.1) 100%
+    ),
+    radial-gradient(
+      circle at 30% 70%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 40%
+    ),
+    /* Fallback solid color */ hsl(var(--primary) / 0.05);
+  background-size:
+    cover,
+    120px 120px,
+    100% 100%;
+  background-position:
+    center,
+    50% 50%,
+    center;
+  background-repeat: no-repeat, repeat, no-repeat;
+  background-attachment: fixed;
+}

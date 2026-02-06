@@ -1,0 +1,19 @@
+/* Shared helpers for background stacking and motion. */
+.app > * {
+  position: relative;
+  z-index: 10;
+}
+
+.app-bg-animated {
+  animation: gentle-zoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes gentle-zoom {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.05);
+  }
+}

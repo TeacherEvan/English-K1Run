@@ -1,0 +1,105 @@
+/* Welcome screen animations and layout. */
+@keyframes sunbeam-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cloud-float {
+  0% {
+    transform: translateX(-10%);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(10%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-10%);
+    opacity: 0.8;
+  }
+}
+
+@keyframes children-run {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.welcome-sunbeams {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  width: 150vw;
+  height: 150vw;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.4) 0deg,
+    transparent 20deg,
+    rgba(255, 255, 255, 0.4) 40deg,
+    transparent 60deg,
+    rgba(255, 255, 255, 0.4) 80deg,
+    transparent 100deg,
+    rgba(255, 255, 255, 0.4) 120deg,
+    transparent 140deg,
+    rgba(255, 255, 255, 0.4) 160deg,
+    transparent 180deg,
+    rgba(255, 255, 255, 0.4) 200deg,
+    transparent 220deg,
+    rgba(255, 255, 255, 0.4) 240deg,
+    transparent 260deg,
+    rgba(255, 255, 255, 0.4) 280deg,
+    transparent 300deg,
+    rgba(255, 255, 255, 0.4) 320deg,
+    transparent 340deg,
+    rgba(255, 255, 255, 0.4) 360deg
+  );
+  transform-origin: center;
+  animation: sunbeam-spin 60s linear infinite;
+  mask-image: radial-gradient(circle, transparent 10%, black 80%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.welcome-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50px;
+  filter: blur(10px);
+  z-index: 2;
+  animation: cloud-float 20s ease-in-out infinite;
+}
+
+.welcome-children-container {
+  position: absolute;
+  bottom: 15%;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.anime-child {
+  font-size: 8rem;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+  animation: children-run 1s ease-in-out infinite;
+}
