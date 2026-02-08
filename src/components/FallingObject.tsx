@@ -94,11 +94,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
           boxShadow: isNumericText
             ? '0 2px 8px rgba(59, 130, 246, 0.4)'
             : undefined,
-          animation: isLetter
-            ? 'outlinePulseLetter 2s ease-in-out infinite'
-            : isNumericText
-              ? 'outlinePulseNumber 2s ease-in-out infinite'
-              : undefined,
+
           background: isNumericText
             ? 'rgba(255, 255, 255, 0.95)'
             : undefined,
@@ -114,34 +110,4 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
 
 FallingObject.displayName = 'FallingObject'
 
-// Inline CSS animations for letters and numbers
-if (typeof document !== 'undefined') {
-  const styleId = 'falling-object-animations'
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style')
-    style.id = styleId
-    style.textContent = `
-      @keyframes outlinePulseLetter {
-        0%, 100% {
-          filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
-        }
-        50% {
-          filter: drop-shadow(0 0 8px rgba(255, 0, 255, 0.8)) drop-shadow(0 0 12px rgba(255, 0, 255, 0.4));
-        }
-      }
-      @keyframes outlinePulseNumber {
-        0%, 100% {
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-          transform: scale(1);
-          border-color: rgba(59, 130, 246, 0.8);
-        }
-        50% {
-          box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.0), 0 0 0 12px rgba(59, 130, 246, 0.2);
-          transform: scale(1.05);
-          border-color: rgba(37, 99, 235, 1);
-        }
-      }
-    `
-    document.head.appendChild(style)
-  }
-}
+

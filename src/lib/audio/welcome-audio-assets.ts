@@ -19,7 +19,8 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 4.8,
     source: "elevenlabs",
     category: "association",
-    fallbackText: "In association with Sangsom Kindergarten.",
+    fallbackText:
+      "In association with Sangsom Kindergarten. Learning through games for everyone.",
   },
   {
     key: "welcome_sangsom_association_thai",
