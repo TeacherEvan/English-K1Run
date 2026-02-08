@@ -56,7 +56,8 @@ class SoundManager {
     isEnabled: () => this.isEnabled,
     ensureInitialized: () => this.ensureInitialized(),
     getAudioContext: () => getAudioContext(),
-    loadBufferForName: (name) => loadBufferForName(name),
+    loadBufferForName: (name, allowFallback) =>
+      loadBufferForName(name, allowFallback),
     playSound: (soundName, playbackRate, volumeOverride) =>
       this.playback.playSound(soundName, playbackRate, volumeOverride),
     startBufferWithFadeIn: (

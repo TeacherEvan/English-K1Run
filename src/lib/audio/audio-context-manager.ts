@@ -31,6 +31,10 @@ export class AudioContextManager {
    * Detect if running on a mobile device
    */
   private detectMobile(): void {
+    if (typeof navigator === "undefined") {
+      this.isMobile = false;
+      return;
+    }
     const ua = navigator.userAgent.toLowerCase();
     this.isMobile =
       /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);

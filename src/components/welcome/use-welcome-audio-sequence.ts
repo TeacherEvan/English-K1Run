@@ -32,6 +32,7 @@ export const useWelcomeAudioSequence = ({
   const [isSequencePlaying, setIsSequencePlaying] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
   const [totalAudioCount, setTotalAudioCount] = useState(0);
+  const readyRef = useRef(false);
   const sequenceFinishedRef = useRef(false);
   const audioStartedRef = useRef(false);
   const startAudioSequenceRef = useRef<(() => void) | null>(null);
@@ -59,6 +60,7 @@ export const useWelcomeAudioSequence = ({
   );
 
   const markReadyToContinue = useCallback(() => {
+    readyRef.current = true;
     setReadyToContinue(true);
   }, []);
 
@@ -89,11 +91,10 @@ export const useWelcomeAudioSequence = ({
     let cancelled = false;
 
     const startAudioSequence = async () => {
-      const isReady = readyToContinue;
       logDev("startAudioSequence called:", {
         audioStarted: audioStartedRef.current,
         cancelled,
-        readyToContinue: isReady,
+        readyToContinue: readyRef.current,
         config: mergedAudioConfig,
         timestamp: Date.now(),
       });
@@ -110,7 +111,7 @@ export const useWelcomeAudioSequence = ({
         await runWelcomeAudioSequence({
           config: mergedAudioConfig,
           isCancelled: () => cancelled,
-          isReady: () => isReady,
+          isReady: () => readyRef.current,
           onProgress: (current, total, key, duration) => {
             setCurrentAudioIndex(current);
             setTotalAudioCount(total);
@@ -119,8 +120,9 @@ export const useWelcomeAudioSequence = ({
           onDevLog: (message, data) => logDev(message, data),
         });
 
-        if (!cancelled && !isReady) {
+        if (!cancelled && !readyRef.current) {
           logDev("Sequence finished normally");
+          readyRef.current = true;
           setReadyToContinue(true);
           sequenceFinishedRef.current = true;
           setIsSequencePlaying(false);
@@ -129,7 +131,7 @@ export const useWelcomeAudioSequence = ({
         logDev("Audio sequence error:", {
           error: err instanceof Error ? err.message : String(err),
           audioStarted: audioStartedRef.current,
-          readyToContinue: isReady,
+          readyToContinue: readyRef.current,
           wasPlaying: isWelcomeSequencePlaying(),
           timestamp: Date.now(),
         });
@@ -137,6 +139,7 @@ export const useWelcomeAudioSequence = ({
           console.warn("[WelcomeScreen] Audio sequence failed:", err);
         }
         if (!cancelled) {
+          readyRef.current = true;
           setReadyToContinue(true);
           sequenceFinishedRef.current = true;
         }
@@ -176,6 +179,10 @@ export const useWelcomeAudioSequence = ({
       });
     };
   }, [isE2E, logDev, mergedAudioConfig, readyToContinue]);
+
+  useEffect(() => {
+    readyRef.current = readyToContinue;
+  }, [readyToContinue]);
 
   return {
     readyToContinue,

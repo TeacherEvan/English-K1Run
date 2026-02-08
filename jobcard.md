@@ -17,6 +17,8 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - Added audio fade-in/out support and applied it to welcome-to-menu and home menu sequences.
 - Expanded Settings dialog into Audio, Visual, Controls, and Accessibility tabs.
+- Fixed welcome readiness state for audio sequencing and guarded SSR usage in audio context.
+- Split welcome audio sequencer into smaller modules to satisfy the 200-line limit.
 - Next: home screen visual refactor.
 
 ### 2026-02-03

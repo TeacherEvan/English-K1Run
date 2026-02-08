@@ -150,8 +150,13 @@ export const createHandleObjectTap = (
             { ...newState },
             "incorrect_tap_penalty",
           );
-          setScreenShake(true);
-          setTimeout(() => setScreenShake(false), 500);
+          // Only trigger screen shake if reduced motion is not enabled
+          const hasReducedMotion =
+            document.documentElement.classList.contains("reduced-motion");
+          if (!hasReducedMotion) {
+            setScreenShake(true);
+            setTimeout(() => setScreenShake(false), 500);
+          }
         }
 
         return newState;

@@ -6,7 +6,10 @@ export interface SoundFadeDependencies {
   isEnabled: () => boolean;
   ensureInitialized: () => Promise<void>;
   getAudioContext: () => AudioContext | null;
-  loadBufferForName: (name: string) => Promise<AudioBuffer | null>;
+  loadBufferForName: (
+    name: string,
+    allowFallback?: boolean,
+  ) => Promise<AudioBuffer | null>;
   playSound: (
     soundName: string,
     playbackRate?: number,
@@ -38,7 +41,7 @@ export class SoundFadePlayback {
     try {
       await this.deps.ensureInitialized();
       if (!this.deps.getAudioContext()) return;
-      const buffer = await this.deps.loadBufferForName(soundName);
+      const buffer = await this.deps.loadBufferForName(soundName, false);
       if (!buffer) {
         await this.deps.playSound(soundName, playbackRate, volumeOverride);
         return;
