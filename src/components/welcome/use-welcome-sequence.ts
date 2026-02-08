@@ -94,18 +94,17 @@ export const useWelcomeSequence = ({
     };
   }, [handlePrimaryAction]);
 
+  // Don't auto-start audio on video load - wait for user interaction
+  // to comply with browser autoplay policies
   useEffect(() => {
     if (!videoLoaded || isE2E) return;
     if (import.meta.env.DEV) {
       console.log(
-        "[WelcomeScreen] Video loaded, scheduling audio sequence with 100ms delay",
+        "[WelcomeScreen] Video loaded, ready for user interaction",
       );
     }
-    const triggerTimer = setTimeout(() => {
-      requestStart();
-    }, 100);
-    return () => clearTimeout(triggerTimer);
-  }, [isE2E, requestStart, videoLoaded]);
+    // Audio will start when user taps via handlePrimaryAction
+  }, [isE2E, videoLoaded]);
 
   useEffect(
     () => () => {
