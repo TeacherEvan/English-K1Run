@@ -1,5 +1,6 @@
 import { createResetGame } from "./game-session-reset";
 import { createStartGame } from "./game-session-start";
+import type { GameSessionDependencies } from "./game-session-types";
 export type { GameSessionDependencies } from "./game-session-types";
 
 /**

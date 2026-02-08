@@ -1,6 +1,6 @@
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
-import { playSoundEffect } from "../../lib/sound-manager";
+import { playSoundEffect, soundManager } from "../../lib/sound-manager";
 import type { PlayerSide } from "../../types/game";
 import { handleProgressWin } from "./tap-handlers-object-win";
 import type { HandleObjectTapDependencies } from "./tap-handlers-types";
@@ -49,7 +49,7 @@ export const createHandleObjectTap = (
         : tappedObject.emoji === gameState.targetEmoji;
 
       if (isCorrect) {
-        playSoundEffect.targetHit();
+        void soundManager.playSound("success");
       } else {
         playSoundEffect.targetMiss();
       }

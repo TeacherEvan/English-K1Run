@@ -1,5 +1,6 @@
 import { createSpawnObject } from "./spawn-objects-batch";
 import { createSpawnImmediateTargets } from "./spawn-objects-immediate";
+import type { SpawnDependencies } from "./spawn-objects-types";
 export type { SpawnDependencies } from "./spawn-objects-types";
 
 /**
