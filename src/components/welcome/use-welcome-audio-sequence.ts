@@ -142,6 +142,7 @@ export const useWelcomeAudioSequence = ({
           readyRef.current = true;
           setReadyToContinue(true);
           sequenceFinishedRef.current = true;
+          setIsSequencePlaying(false);
         }
       }
     };

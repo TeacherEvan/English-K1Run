@@ -50,6 +50,8 @@ export class AudioContextManager {
    * Set up listener for user interaction to unlock audio
    */
   private setupUserInteractionListener(): void {
+    if (typeof document === "undefined") return;
+
     const handleInteraction = async () => {
       if (this.userInteractionReceived) return;
       this.userInteractionReceived = true;
@@ -82,6 +84,7 @@ export class AudioContextManager {
    */
   private async initializeAudioContext(): Promise<void> {
     if (this.audioContext || this.initAttempted) return;
+    if (typeof window === "undefined") return;
     this.initAttempted = true;
 
     try {

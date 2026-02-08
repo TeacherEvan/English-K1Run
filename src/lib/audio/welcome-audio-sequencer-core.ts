@@ -3,9 +3,8 @@
  */
 
 import { soundManager } from "../sound-manager";
-import { getAudioUrl } from "./audio-registry";
-import { speechSynthesizer } from "./speech-synthesizer";
 import { WELCOME_AUDIO_ASSETS } from "./welcome-audio-assets";
+import { playAudioSequence } from "./welcome-audio-player";
 import {
   DEFAULT_WELCOME_CONFIG,
   PRIMARY_WELCOME_AUDIO_KEY,
@@ -126,68 +125,14 @@ export class WelcomeAudioSequencer {
     this.isPlaying = true;
     this.currentProgress = { current: 0, total: assets.length };
 
-    const fullConfig = { ...DEFAULT_WELCOME_CONFIG, ...config };
+    const state = {
+      isPlaying: this.isPlaying,
+      currentProgress: this.currentProgress,
+    };
 
-    try {
-      for (let i = 0; i < assets.length; i++) {
-        if (!this.isPlaying) break;
+    await playAudioSequence(assets, config, state, onProgress);
 
-        const asset = assets[i];
-        this.currentProgress.current = i + 1;
-        onProgress?.(i + 1, assets.length, asset);
-
-        if (import.meta.env.DEV) {
-          console.log(
-            `[WelcomeAudioSequencer] Playing ${i + 1}/${assets.length}: ${asset.key}`,
-          );
-        }
-
-        let audioPlayed = false;
-        try {
-          const audioUrl = await getAudioUrl(asset.key);
-          if (audioUrl) {
-            await soundManager.playSound(asset.key, 1.0, 1.0);
-            audioPlayed = true;
-          }
-        } catch (err) {
-          if (import.meta.env.DEV) {
-            console.warn(
-              `[WelcomeAudioSequencer] Failed to play audio for ${asset.key}:`,
-              err,
-            );
-          }
-        }
-
-        if (!audioPlayed && asset.fallbackText && this.isPlaying) {
-          if (import.meta.env.DEV) {
-            console.log(
-              `[WelcomeAudioSequencer] Using speech fallback for ${asset.key}: "${asset.fallbackText}"`,
-            );
-          }
-          try {
-            const langCode = asset.key.includes("_thai") ? "th" : "en";
-            await speechSynthesizer.speakAsync(asset.fallbackText, {
-              langCode,
-            });
-          } catch (speechErr) {
-            if (import.meta.env.DEV) {
-              console.warn(
-                `[WelcomeAudioSequencer] Speech fallback also failed for ${asset.key}:`,
-                speechErr,
-              );
-            }
-          }
-        }
-
-        if (i < assets.length - 1 && fullConfig.sequentialDelayMs > 0) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, fullConfig.sequentialDelayMs),
-          );
-        }
-      }
-    } finally {
-      this.isPlaying = false;
-    }
+    this.isPlaying = state.isPlaying;
   }
 
   stopWelcomeSequence(): void {

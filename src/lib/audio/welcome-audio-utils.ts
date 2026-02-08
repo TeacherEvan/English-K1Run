@@ -24,25 +24,43 @@ export async function loadAudioWithDuration(
 
   return new Promise((resolve) => {
     const audio = new Audio(url);
+    let resolved = false;
+
     const cleanup = () => {
       audio.pause();
       audio.src = "";
       audio.load();
     };
 
+    const timeoutId = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        cleanup();
+        resolve({ buffer: null, duration: 0 });
+      }
+    }, 5000);
+
     audio.addEventListener(
       "loadedmetadata",
       () => {
-        cleanup();
-        resolve({ buffer: null, duration: audio.duration });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timeoutId);
+          cleanup();
+          resolve({ buffer: null, duration: audio.duration });
+        }
       },
       { once: true },
     );
     audio.addEventListener(
       "error",
       () => {
-        cleanup();
-        resolve({ buffer: null, duration: 0 });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timeoutId);
+          cleanup();
+          resolve({ buffer: null, duration: 0 });
+        }
       },
       { once: true },
     );
