@@ -7,6 +7,10 @@
  * @module audio/audio-registry
  */
 
+import {
+  getPreferredFormatOrder,
+  resolvePublicAudioUrl,
+} from "./audio-public-resolver";
 import { DIGIT_TO_WORD, NUMBER_WORD_TO_DIGIT } from "./types";
 
 // Dynamic import of audio files using Vite's glob import
@@ -29,76 +33,8 @@ const audioLoaderIndex = new Map<string, AudioLoaderByFormat>();
 /** Cache of resolved URLs to avoid re-fetching */
 const resolvedUrlCache = new Map<string, string>();
 
-/** Cache for public /sounds URL checks */
-const publicUrlCache = new Map<string, string | null>();
-
 /** Cache for resolveCandidates results */
 const candidatesCache = new Map<string, string[]>();
-
-/** Supported audio formats with their MIME types */
-const SUPPORTED_FORMATS = [
-  { ext: "ogg", mime: 'audio/ogg; codecs="opus"' },
-  { ext: "ogg", mime: 'audio/ogg; codecs="vorbis"' },
-  { ext: "m4a", mime: 'audio/mp4; codecs="mp4a.40.2"' },
-  { ext: "aac", mime: "audio/aac" },
-  { ext: "mp3", mime: "audio/mpeg" },
-  { ext: "wav", mime: "audio/wav" },
-  { ext: "flac", mime: "audio/flac" },
-];
-
-let preferredFormatOrder: string[] | null = null;
-
-/**
- * Detect which audio formats are supported by the browser
- */
-function getPreferredFormatOrder(): string[] {
-  if (preferredFormatOrder) return preferredFormatOrder;
-
-  if (typeof Audio === "undefined" || typeof document === "undefined") {
-    preferredFormatOrder = ["ogg", "m4a", "aac", "mp3", "wav", "flac"];
-    return preferredFormatOrder;
-  }
-
-  const testAudio = document.createElement("audio");
-  const supported = new Set<string>();
-
-  for (const format of SUPPORTED_FORMATS) {
-    const result = testAudio.canPlayType(format.mime);
-    if (result === "probably" || result === "maybe") {
-      supported.add(format.ext);
-    }
-  }
-
-  preferredFormatOrder = ["ogg", "m4a", "aac", "mp3", "wav", "flac"].filter(
-    (ext) => supported.has(ext),
-  );
-
-  if (preferredFormatOrder.length === 0) {
-    preferredFormatOrder = ["mp3", "wav"];
-  }
-
-  return preferredFormatOrder;
-}
-
-async function resolvePublicAudioUrl(key: string): Promise<string | null> {
-  if (publicUrlCache.has(key)) {
-    return publicUrlCache.get(key) ?? null;
-  }
-
-  // Get preferred formats based on browser support
-  const preferredFormats = getPreferredFormatOrder();
-  
-  // Return URL for the first preferred format
-  // Browser will handle loading/404s naturally
-  if (preferredFormats.length > 0) {
-    const url = `/sounds/${key}.${preferredFormats[0]}`;
-    publicUrlCache.set(key, url);
-    return url;
-  }
-
-  publicUrlCache.set(key, null);
-  return null;
-}
 
 /**
  * Register an alias for an audio file
