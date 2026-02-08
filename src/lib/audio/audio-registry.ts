@@ -10,13 +10,9 @@
 import { DIGIT_TO_WORD, NUMBER_WORD_TO_DIGIT } from "./types";
 
 // Dynamic import of audio files using Vite's glob import
-const rawAudioFiles = import.meta.glob(
-  "../../../public/sounds/*.{wav,mp3,ogg,m4a,aac,flac}",
-  {
-    import: "default",
-    query: "?url",
-  },
-) as Record<string, () => Promise<string>>;
+// Note: public/ files are served statically, so this will be empty
+// Audio loading relies on resolvePublicAudioUrl fallback
+const rawAudioFiles = {} as Record<string, () => Promise<string>>;
 
 /** Normalize key for consistent audio file lookups */
 export const normalizeKey = (value: string): string =>
@@ -89,23 +85,15 @@ async function resolvePublicAudioUrl(key: string): Promise<string | null> {
     return publicUrlCache.get(key) ?? null;
   }
 
-  if (typeof fetch === "undefined") {
-    publicUrlCache.set(key, null);
-    return null;
-  }
-
+  // Get preferred formats based on browser support
   const preferredFormats = getPreferredFormatOrder();
-  for (const ext of preferredFormats) {
-    const url = `/sounds/${key}.${ext}`;
-    try {
-      const response = await fetch(url, { method: "HEAD" });
-      if (response.ok) {
-        publicUrlCache.set(key, url);
-        return url;
-      }
-    } catch {
-      // Ignore network errors and try next format
-    }
+  
+  // Return URL for the first preferred format
+  // Browser will handle loading/404s naturally
+  if (preferredFormats.length > 0) {
+    const url = `/sounds/${key}.${preferredFormats[0]}`;
+    publicUrlCache.set(key, url);
+    return url;
   }
 
   publicUrlCache.set(key, null);
