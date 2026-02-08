@@ -12,20 +12,20 @@ const publicUrlCache = new Map<string, string | null>();
 /**
  * Get preferred format order based on what's in public/sounds/
  * and browser support. Optimized for our asset inventory:
- * - Most files: .wav
+ * - Most files: .wav only
  * - Welcome files: .mp3 + .wav
- * - Prefer .mp3 (smaller) when available, fallback to .wav
+ * - Prefer .wav (universally available) over .mp3
  */
 export function getPreferredFormatOrder(): string[] {
   // SSR guard
   if (typeof Audio === "undefined" || typeof document === "undefined") {
-    return ["mp3", "wav"];
+    return ["wav", "mp3"];
   }
 
   const testAudio = document.createElement("audio");
   const formats = [
-    { ext: "mp3", mime: "audio/mpeg" },
     { ext: "wav", mime: "audio/wav" },
+    { ext: "mp3", mime: "audio/mpeg" },
   ];
 
   const supported: string[] = [];
@@ -36,7 +36,7 @@ export function getPreferredFormatOrder(): string[] {
     }
   }
 
-  return supported.length > 0 ? supported : ["mp3", "wav"];
+  return supported.length > 0 ? supported : ["wav", "mp3"];
 }
 
 /**
