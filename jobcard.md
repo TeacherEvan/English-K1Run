@@ -10,6 +10,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Settings and accessibility: expanded settings coverage, reduced motion/high contrast, WCAG-aligned UI.
 - E2E reliability: Playwright waits, navigation retry backoff, touch spec stability.
 - Tooling and docs: Copilot instructions expansion, clarified MCP tooling, build and lint stability.
+- Audio stability: public sounds URL resolution, ElevenLabs stop integration, and SFX fallback guards.
 
 ## Timeline (Compressed)
 
@@ -19,6 +20,10 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Expanded Settings dialog into Audio, Visual, Controls, and Accessibility tabs.
 - Fixed welcome readiness state for audio sequencing and guarded SSR usage in audio context.
 - Split welcome audio sequencer into smaller modules to satisfy the 200-line limit.
+- Fixed public sounds URL resolution to select existing formats (prevents .ogg/.m4a/.aac 404 loops).
+- Stopped ElevenLabs/WebSpeech playback when stopping all audio to prevent overlap across screens.
+- Disabled speech fallback for normal SFX playback to avoid incorrect or stacked audio.
+- Simplified audio-public-resolver to eliminate network check spam (returns .mp3/.wav directly).
 - Next: home screen visual refactor.
 
 ### 2026-02-03
