@@ -3,6 +3,7 @@
  */
 
 import { audioContextManager } from "./audio/audio-context-manager";
+import { speechSynthesizer } from "./audio/speech-synthesizer";
 import { prefetchAudioKeys as prefetchAudioKeysInternal } from "./audio/audio-key-prefetcher";
 import { audioPreloader } from "./audio/audio-preloader";
 import { audioSpritePlayer } from "./audio/audio-sprite";
@@ -123,6 +124,11 @@ class SoundManager {
       } catch {
         /* silent */
       }
+    }
+    try {
+      speechSynthesizer.stop();
+    } catch {
+      /* silent */
     }
     this.telemetry.reset();
   }

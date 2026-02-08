@@ -93,7 +93,7 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
       }
       await deps.ensureInitialized();
       if (!deps.getAudioContext()) return;
-      const buffer = await deps.loadBufferForName(soundName);
+      const buffer = await deps.loadBufferForName(soundName, false);
       if (!buffer) {
         describeIfEnabled(`Sound: ${soundName}`);
         return;
