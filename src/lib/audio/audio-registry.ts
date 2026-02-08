@@ -167,20 +167,35 @@ export function resolveCandidates(name: string): string[] {
 export async function getAudioUrl(key: string): Promise<string | null> {
   // Check cache first
   if (resolvedUrlCache.has(key)) {
-    return resolvedUrlCache.get(key)!;
+    const cached = resolvedUrlCache.get(key)!;
+    if (import.meta.env.DEV) {
+      console.log(`[AudioRegistry] Cache hit for "${key}": ${cached}`);
+    }
+    return cached;
   }
 
   // Get loader
   const loaderEntry = audioLoaderIndex.get(key);
   if (!loaderEntry) {
+    if (import.meta.env.DEV) {
+      console.log(
+        `[AudioRegistry] No loader for "${key}", trying public URL...`,
+      );
+    }
     const candidates = resolveCandidates(key);
     for (const candidate of candidates) {
       const publicUrl = await resolvePublicAudioUrl(candidate);
       if (publicUrl) {
+        if (import.meta.env.DEV) {
+          console.log(
+            `[AudioRegistry] Resolved "${key}" via public: ${publicUrl}`,
+          );
+        }
         resolvedUrlCache.set(key, publicUrl);
         return publicUrl;
       }
     }
+    console.warn(`[AudioRegistry] Failed to resolve URL for "${key}"`);
     return null;
   }
 

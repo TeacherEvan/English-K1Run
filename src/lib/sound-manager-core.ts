@@ -3,11 +3,11 @@
  */
 
 import { audioContextManager } from "./audio/audio-context-manager";
-import { speechSynthesizer } from "./audio/speech-synthesizer";
 import { prefetchAudioKeys as prefetchAudioKeysInternal } from "./audio/audio-key-prefetcher";
 import { audioPreloader } from "./audio/audio-preloader";
 import { audioSpritePlayer } from "./audio/audio-sprite";
 import { SoundPlaybackEngine } from "./audio/sound-playback-engine";
+import { speechSynthesizer } from "./audio/speech-synthesizer";
 import { AudioPriority } from "./audio/types";
 import type { SupportedLanguage } from "./constants/language-config";
 import { SoundFadePlayback } from "./sound-manager-fade";

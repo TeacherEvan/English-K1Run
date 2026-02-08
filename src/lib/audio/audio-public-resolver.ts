@@ -47,17 +47,31 @@ export async function resolvePublicAudioUrl(
   key: string,
 ): Promise<string | null> {
   if (publicUrlCache.has(key)) {
-    return publicUrlCache.get(key) ?? null;
+    const cached = publicUrlCache.get(key) ?? null;
+    if (import.meta.env.DEV) {
+      console.log(`[PublicResolver] Cache hit for "${key}": ${cached}`);
+    }
+    return cached;
   }
 
   const preferredFormats = getPreferredFormatOrder();
+  if (import.meta.env.DEV) {
+    console.log(
+      `[PublicResolver] Preferred formats for "${key}": [${preferredFormats.join(", ")}]`,
+    );
+  }
+
   if (preferredFormats.length === 0) {
+    console.warn(`[PublicResolver] No supported formats for "${key}"`);
     publicUrlCache.set(key, null);
     return null;
   }
 
   // Return first preferred format - browser will 404 if missing
   const url = `/sounds/${key}.${preferredFormats[0]}`;
+  if (import.meta.env.DEV) {
+    console.log(`[PublicResolver] Resolved "${key}" → ${url}`);
+  }
   publicUrlCache.set(key, url);
   return url;
 }

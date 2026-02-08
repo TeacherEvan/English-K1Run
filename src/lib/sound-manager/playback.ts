@@ -92,9 +92,15 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
         }
       }
       await deps.ensureInitialized();
-      if (!deps.getAudioContext()) return;
+      if (!deps.getAudioContext()) {
+        console.warn(`[SoundPlayback] No audio context for "${soundName}"`);
+        return;
+      }
       const buffer = await deps.loadBufferForName(soundName, false);
       if (!buffer) {
+        console.warn(
+          `[SoundPlayback] Failed to load buffer for "${soundName}"`,
+        );
         describeIfEnabled(`Sound: ${soundName}`);
         return;
       }

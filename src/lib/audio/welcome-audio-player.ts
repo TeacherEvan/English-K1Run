@@ -45,9 +45,18 @@ export async function playAudioSequence(
       let audioPlayed = false;
       try {
         const audioUrl = await getAudioUrl(asset.key);
+        if (import.meta.env.DEV) {
+          console.log(
+            `[WelcomeAudioSequencer] Got URL for ${asset.key}: ${audioUrl}`,
+          );
+        }
         if (audioUrl) {
           await soundManager.playSound(asset.key, 1.0, 1.0);
           audioPlayed = true;
+        } else {
+          console.warn(
+            `[WelcomeAudioSequencer] No URL available for ${asset.key}`,
+          );
         }
       } catch (err) {
         console.warn(
