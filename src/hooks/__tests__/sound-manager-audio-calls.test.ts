@@ -44,35 +44,26 @@ describe("Sound Manager Audio Call Behavior", () => {
     }).not.toThrow();
   });
 
-  it("should export target-related sound effects for game events", () => {
-    // Added January 2026 for target spawn, hit, and miss audio feedback
-    expect(playSoundEffect.targetSpawn).toBeDefined();
-    expect(typeof playSoundEffect.targetSpawn).toBe("function");
-    expect(playSoundEffect.targetHit).toBeDefined();
-    expect(typeof playSoundEffect.targetHit).toBe("function");
+  it("should export target-miss sound effect for game events", () => {
     expect(playSoundEffect.targetMiss).toBeDefined();
     expect(typeof playSoundEffect.targetMiss).toBe("function");
 
     expect(() => {
-      void playSoundEffect.targetSpawn();
-      void playSoundEffect.targetHit();
       void playSoundEffect.targetMiss();
     }).not.toThrow();
   });
 
-  it("should only export voice, sticker, welcome, stopAll, and target methods", () => {
+  it("should only export voice, sticker, welcome, stopAll, and targetMiss", () => {
     // Verify that we only have the expected sound effects and control methods
     // voiceWordOnly was removed in December 2025 per issue requirements
     // welcome method added in December 2025 for welcome screen audio
-    // targetSpawn, targetHit, targetMiss added January 2026 for game audio feedback
+    // targetMiss retained for game audio feedback
     const exportedMethods = Object.keys(playSoundEffect);
-    expect(exportedMethods).toHaveLength(7);
+    expect(exportedMethods).toHaveLength(5);
     expect(exportedMethods).toContain("voice");
     expect(exportedMethods).toContain("sticker");
     expect(exportedMethods).toContain("welcome");
     expect(exportedMethods).toContain("stopAll");
-    expect(exportedMethods).toContain("targetSpawn");
-    expect(exportedMethods).toContain("targetHit");
     expect(exportedMethods).toContain("targetMiss");
     expect(exportedMethods).not.toContain("voiceWordOnly");
   });

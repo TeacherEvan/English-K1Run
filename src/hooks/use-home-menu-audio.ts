@@ -88,10 +88,11 @@ export const useHomeMenuAudio = () => {
         }
 
         try {
-          await soundManager.playSound(
+          await soundManager.playSoundWithFade(
             "welcome_sangsom_association",
             1.0,
             0.85,
+            200,
           );
         } catch (error) {
           if (import.meta.env.DEV) {
@@ -112,10 +113,11 @@ export const useHomeMenuAudio = () => {
         }
 
         try {
-          await soundManager.playSound(
+          await soundManager.playSoundWithFade(
             "welcome_sangsom_association_thai",
             0.9,
             0.85,
+            200,
           );
         } catch (error) {
           if (import.meta.env.DEV) {
@@ -142,8 +144,8 @@ export const useHomeMenuAudio = () => {
       }
     };
 
-    // Start playback after 500ms delay to avoid audio context issues
-    const timer = setTimeout(playSequence, 500);
+    // Start playback after 400ms delay to avoid audio context issues
+    const timer = setTimeout(playSequence, 400);
 
     return () => {
       clearTimeout(timer);

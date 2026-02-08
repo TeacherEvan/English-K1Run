@@ -9,10 +9,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
-import { LanguageSelector } from "../ui/language-selector";
-import { DISPLAY_SCALE_OPTIONS } from "./constants";
-import { CheckIcon, SettingsIcon } from "./icons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { SettingsIcon } from "./icons";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
+import { AccessibilitySettings } from "./settings-sections/AccessibilitySettings";
+import { AudioSettings } from "./settings-sections/AudioSettings";
+import { ControlSettings } from "./settings-sections/ControlSettings";
+import { VisualSettings } from "./settings-sections/VisualSettings";
 
 interface GameMenuSettingsDialogProps {
     resolutionScale: ResolutionScale;
@@ -46,66 +49,44 @@ export const GameMenuSettingsDialog = memo(
                         />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-2xl flex items-center gap-2">
                             <SettingsIcon className="w-6 h-6" />
                             Settings / การตั้งค่า
                         </DialogTitle>
-                        <DialogDescription>Configure your game experience</DialogDescription>
+                        <DialogDescription>
+                            Configure audio, visuals, controls, and accessibility
+                        </DialogDescription>
                     </DialogHeader>
-                    <div className="py-6 space-y-6">
-                        <div className="flex flex-col gap-4 p-4 rounded-lg border bg-card/50">
-                            <div>
-                                <h4 className="font-medium leading-none mb-3">Language</h4>
-                                <p className="text-sm text-muted-foreground mb-3">
-                                    Select gameplay language and voiceovers
-                                </p>
-                                <LanguageSelector showLabel={false} className="w-full" />
-                            </div>
+                    <Tabs defaultValue="audio" className="py-4">
+                        <TabsList className="w-full justify-between">
+                            <TabsTrigger value="audio">Audio</TabsTrigger>
+                            <TabsTrigger value="visual">Visual</TabsTrigger>
+                            <TabsTrigger value="controls">Controls</TabsTrigger>
+                            <TabsTrigger value="accessibility">Accessibility</TabsTrigger>
+                        </TabsList>
+                        <div className="mt-6 rounded-lg border bg-card/50 p-4">
+                            <TabsContent value="audio">
+                                <AudioSettings />
+                            </TabsContent>
+                            <TabsContent value="visual">
+                                <VisualSettings
+                                    resolutionScale={resolutionScale}
+                                    setResolutionScale={setResolutionScale}
+                                />
+                            </TabsContent>
+                            <TabsContent value="controls">
+                                <ControlSettings
+                                    continuousMode={continuousMode}
+                                    onToggleContinuousMode={onToggleContinuousMode}
+                                />
+                            </TabsContent>
+                            <TabsContent value="accessibility">
+                                <AccessibilitySettings />
+                            </TabsContent>
                         </div>
-                        <div className="flex flex-col gap-3 p-4 rounded-lg border bg-card/50">
-                            <div>
-                                <h4 className="font-medium leading-none mb-2">Display Scale</h4>
-                                <p className="text-sm text-muted-foreground">
-                                    Adjust UI size for your screen
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {DISPLAY_SCALE_OPTIONS.map((option) => (
-                                    <Button
-                                        key={option.id}
-                                        variant={
-                                            resolutionScale === option.id ? "default" : "outline"
-                                        }
-                                        onClick={() => setResolutionScale(option.id)}
-                                        aria-pressed={resolutionScale === option.id}
-                                    >
-                                        {option.label}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
-                            <div className="space-y-1">
-                                <h4 className="font-medium leading-none">Continuous Mode</h4>
-                                <p className="text-sm text-muted-foreground">
-                                    Play without winning/stopping
-                                </p>
-                            </div>
-                            <Button
-                                variant={continuousMode ? "default" : "outline"}
-                                onClick={() => onToggleContinuousMode?.(!continuousMode)}
-                                className={
-                                    continuousMode ? "bg-green-600 hover:bg-green-700" : ""
-                                }
-                                aria-pressed={continuousMode}
-                            >
-                                {continuousMode ? <CheckIcon className="w-4 h-4 mr-2" /> : null}
-                                {continuousMode ? "On" : "Off"}
-                            </Button>
-                        </div>
-                    </div>
+                    </Tabs>
                 </DialogContent>
             </Dialog>
         );

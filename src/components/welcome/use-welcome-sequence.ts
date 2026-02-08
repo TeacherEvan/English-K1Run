@@ -52,7 +52,7 @@ export const useWelcomeSequence = ({
 
   const proceed = useCallback(() => {
     stopWelcomeSequence();
-    soundManager.stopAllAudio();
+    soundManager.fadeOutAll(350);
     startTransition(() => setFadeOut(true));
     setTimeout(onComplete, 350);
   }, [onComplete]);
@@ -110,7 +110,7 @@ export const useWelcomeSequence = ({
   useEffect(
     () => () => {
       stopWelcomeSequence();
-      soundManager.stopAllAudio();
+      soundManager.fadeOutAll(250);
     },
     [],
   );

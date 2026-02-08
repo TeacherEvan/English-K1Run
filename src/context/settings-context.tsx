@@ -1,3 +1,4 @@
+import { soundManager } from '@/lib/sound-manager'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export type Theme = 'light' | 'dark' | 'colorful'
@@ -10,6 +11,8 @@ interface SettingsState {
   resolutionScale: ResolutionScale
   gameplayLanguage: string
   displayLanguage: string
+  volume: number
+  soundEnabled: boolean
 }
 
 interface SettingsContextType extends SettingsState {
@@ -19,6 +22,8 @@ interface SettingsContextType extends SettingsState {
   setResolutionScale: (scale: ResolutionScale) => void
   setGameplayLanguage: (lang: string) => void
   setDisplayLanguage: (lang: string) => void
+  setVolume: (volume: number) => void
+  setSoundEnabled: (enabled: boolean) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
@@ -32,6 +37,8 @@ const DEFAULT_SETTINGS: SettingsState = {
   resolutionScale: 'auto',
   gameplayLanguage: 'en',
   displayLanguage: 'en',
+  volume: 0.6,
+  soundEnabled: true,
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
@@ -68,6 +75,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     } else {
       root.classList.remove('reduced-motion')
     }
+
+    soundManager.setVolume(settings.volume)
+    soundManager.setEnabled(settings.soundEnabled)
   }, [settings])
 
   const setTheme = (theme: Theme) => setSettings(s => ({ ...s, theme }))
@@ -76,6 +86,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setResolutionScale = (resolutionScale: ResolutionScale) => setSettings(s => ({ ...s, resolutionScale }))
   const setGameplayLanguage = (gameplayLanguage: string) => setSettings(s => ({ ...s, gameplayLanguage }))
   const setDisplayLanguage = (displayLanguage: string) => setSettings(s => ({ ...s, displayLanguage }))
+  const setVolume = (volume: number) => setSettings(s => ({ ...s, volume }))
+  const setSoundEnabled = (soundEnabled: boolean) => setSettings(s => ({ ...s, soundEnabled }))
 
   return (
     <SettingsContext.Provider
@@ -87,6 +99,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setResolutionScale,
         setGameplayLanguage,
         setDisplayLanguage,
+        setVolume,
+        setSoundEnabled,
       }}
     >
       {children}
