@@ -6,6 +6,7 @@
  * @module audio/speech/elevenlabs-client
  */
 
+import { audioContextManager } from "@/lib/audio/audio-context-manager";
 import type { SupportedLanguage } from "@/lib/constants/language-config";
 import { getLanguageConfig } from "@/lib/constants/language-config";
 
@@ -62,16 +63,19 @@ export interface ElevenLabsOptions {
  */
 function getApiKey(): string | null {
   if (typeof window === "undefined") return null;
-  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY || null;
-  
+  const apiKey =
+    import.meta.env.VITE_ELEVENLABS_API_KEY ||
+    import.meta.env.ELEVENLABS_API_KEY ||
+    null;
+
   if (!apiKey && import.meta.env.DEV) {
     console.warn(
       "[ElevenLabs] API key not configured. Set VITE_ELEVENLABS_API_KEY in .env file.\n" +
-      "Audio will fall back to Web Speech API (robotic voice).\n" +
-      "See .env.example for configuration details."
+        "Audio will fall back to Web Speech API (robotic voice).\n" +
+        "See .env.example for configuration details.",
     );
   }
-  
+
   return apiKey;
 }
 
@@ -90,7 +94,9 @@ export async function testElevenLabsConnection(): Promise<boolean> {
   const apiKey = getApiKey();
   if (!apiKey) {
     if (import.meta.env.DEV) {
-      console.info("[ElevenLabs] Skipping connection test - no API key configured");
+      console.info(
+        "[ElevenLabs] Skipping connection test - no API key configured",
+      );
     }
     return false;
   }
@@ -103,7 +109,7 @@ export async function testElevenLabsConnection(): Promise<boolean> {
         "xi-api-key": apiKey,
       },
     });
-    
+
     if (response.ok) {
       if (import.meta.env.DEV) {
         console.info("[ElevenLabs] API connection successful ✓");
@@ -113,7 +119,7 @@ export async function testElevenLabsConnection(): Promise<boolean> {
       if (import.meta.env.DEV) {
         console.warn(
           `[ElevenLabs] API connection failed with status ${response.status}.\n` +
-          "Please check your API key validity at https://elevenlabs.io"
+            "Please check your API key validity at https://elevenlabs.io",
         );
       }
       return false;
@@ -122,7 +128,7 @@ export async function testElevenLabsConnection(): Promise<boolean> {
     if (import.meta.env.DEV) {
       console.warn(
         "[ElevenLabs] API connection error:",
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
     return false;
@@ -184,7 +190,8 @@ export async function playAudioBuffer(
   const playbackState = getPlaybackState();
 
   if (!playbackState.context || playbackState.context.state === "closed") {
-    playbackState.context = new AudioContext();
+    const managedContext = audioContextManager.getContext();
+    playbackState.context = managedContext ?? new AudioContext();
   }
 
   if (playbackState.context.state === "suspended") {

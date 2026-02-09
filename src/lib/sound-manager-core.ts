@@ -8,6 +8,7 @@ import { audioPreloader } from "./audio/audio-preloader";
 import { audioSpritePlayer } from "./audio/audio-sprite";
 import { SoundPlaybackEngine } from "./audio/sound-playback-engine";
 import { speechSynthesizer } from "./audio/speech-synthesizer";
+import { stopAudioBufferPlayback } from "./audio/speech/elevenlabs-client";
 import { AudioPriority } from "./audio/types";
 import type { SupportedLanguage } from "./constants/language-config";
 import { SoundFadePlayback } from "./sound-manager-fade";
@@ -127,6 +128,11 @@ class SoundManager {
     }
     try {
       speechSynthesizer.stop();
+    } catch {
+      /* silent */
+    }
+    try {
+      stopAudioBufferPlayback();
     } catch {
       /* silent */
     }
