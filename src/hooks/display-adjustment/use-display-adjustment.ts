@@ -42,9 +42,19 @@ export function useDisplayAdjustment() {
 
   const updateDisplaySettingsRef = useRef<(() => void) | null>(null);
 
+  const emitDisplayAdjustment = useCallback((cause: string) => {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(
+      new CustomEvent("k1-display-adjustment", {
+        detail: { cause, timestamp: Date.now() },
+      }),
+    );
+  }, []);
+
   const triggerResizeUpdate = useCallback(() => {
     updateDisplaySettingsRef.current?.();
-  }, []);
+    emitDisplayAdjustment("programmatic");
+  }, [emitDisplayAdjustment]);
 
   useEffect(() => {
     initializeDisplayCSSVars();
@@ -90,18 +100,29 @@ export function useDisplayAdjustment() {
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(updateDisplaySettings, 100);
+      resizeTimeout = setTimeout(() => {
+        updateDisplaySettings();
+        emitDisplayAdjustment("resize");
+      }, 100);
     };
 
     let orientationTimeout: NodeJS.Timeout;
     const handleOrientationChange = () => {
       clearTimeout(orientationTimeout);
-      orientationTimeout = setTimeout(updateDisplaySettings, 200);
+      orientationTimeout = setTimeout(() => {
+        updateDisplaySettings();
+        emitDisplayAdjustment("orientation");
+      }, 200);
     };
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("orientationchange", handleOrientationChange);
-    document.addEventListener("fullscreenchange", updateDisplaySettings);
+    const handleFullscreenChange = () => {
+      updateDisplaySettings();
+      emitDisplayAdjustment("fullscreen");
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
 
     updateDisplaySettingsRef.current = updateDisplaySettings;
 
@@ -110,10 +131,10 @@ export function useDisplayAdjustment() {
       clearTimeout(orientationTimeout);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleOrientationChange);
-      document.removeEventListener("fullscreenchange", updateDisplaySettings);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       updateDisplaySettingsRef.current = null;
     };
-  }, [resolutionScale]);
+  }, [emitDisplayAdjustment, resolutionScale]);
 
   const getScaledStyles = useMemo(
     () =>

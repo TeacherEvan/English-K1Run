@@ -162,6 +162,25 @@ export const useWelcomeAudioSequence = ({
       }
     };
 
+    const handleDisplayAdjustment = (event: Event) => {
+      if (audioStartedRef.current || cancelled || readyRef.current) return;
+
+      const userActivation =
+        typeof navigator !== "undefined" &&
+        "userActivation" in navigator &&
+        (navigator.userActivation?.hasBeenActive ||
+          navigator.userActivation?.isActive);
+
+      if (!userActivation) return;
+
+      logDev("Display adjustment triggered welcome audio", {
+        detail: event instanceof CustomEvent ? event.detail : undefined,
+        timestamp: Date.now(),
+      });
+
+      void startAudioSequence();
+    };
+
     const events = ["click", "touchstart", "keydown"] as const;
     events.forEach((event) => {
       document.addEventListener(event, handleInteraction, {
@@ -169,6 +188,8 @@ export const useWelcomeAudioSequence = ({
         passive: true,
       });
     });
+
+    window.addEventListener("k1-display-adjustment", handleDisplayAdjustment);
 
     return () => {
       cancelled = true;
@@ -178,6 +199,10 @@ export const useWelcomeAudioSequence = ({
       events.forEach((event) => {
         document.removeEventListener(event, handleInteraction);
       });
+      window.removeEventListener(
+        "k1-display-adjustment",
+        handleDisplayAdjustment,
+      );
     };
   }, [isE2E, logDev, mergedAudioConfig, readyToContinue]);
 
