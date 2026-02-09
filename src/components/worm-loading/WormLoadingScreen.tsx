@@ -40,18 +40,6 @@ export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: Worm
     }, [])
 
     useEffect(() => {
-        const aliveCount = worms.filter(w => w.alive).length
-        if (worms.length > 0 && aliveCount === 0) {
-            if (completionTriggeredRef.current) return
-            completionTriggeredRef.current = true
-            const timer = setTimeout(() => {
-                onComplete()
-            }, COMPLETION_DELAY)
-            return () => clearTimeout(timer)
-        }
-    }, [worms, onComplete])
-
-    useEffect(() => {
         if (!autoCompleteAfterMs) return
         autoCompleteTimeoutRef.current = setTimeout(() => {
             if (!hasInteractionRef.current) {
