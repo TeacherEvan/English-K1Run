@@ -15,6 +15,7 @@ export interface HandleObjectTapDependencies {
   gameObjectsRef: MutableRefObject<GameObject[]>;
   gameState: GameState;
   currentCategory: (typeof GAME_CATEGORIES)[number];
+  reducedMotion: boolean;
   generateRandomTarget: (levelOverride?: number) => {
     name: string;
     emoji: string;

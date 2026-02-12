@@ -15,6 +15,7 @@ export const createHandleObjectTap = (
     gameObjectsRef,
     gameState,
     currentCategory,
+    reducedMotion,
     generateRandomTarget,
     spawnImmediateTargets,
     continuousMode,
@@ -151,9 +152,7 @@ export const createHandleObjectTap = (
             "incorrect_tap_penalty",
           );
           // Only trigger screen shake if reduced motion is not enabled
-          const hasReducedMotion =
-            document.documentElement.classList.contains("reduced-motion");
-          if (!hasReducedMotion) {
+          if (!reducedMotion) {
             setScreenShake(true);
             setTimeout(() => setScreenShake(false), 500);
           }

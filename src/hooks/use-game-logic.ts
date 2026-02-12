@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useSettings } from "../context/settings-context";
 import type { UseGameLogicOptions } from "../types/game";
 import {
   useAnimationLoop,
@@ -30,6 +31,7 @@ export type {
 
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1, continuousMode = false } = options;
+  const { reducedMotion } = useSettings();
   const {
     gameObjects,
     setGameObjects,
@@ -98,6 +100,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameObjectsRef,
     gameState,
     currentCategory,
+    reducedMotion,
     generateRandomTarget,
     spawnImmediateTargets,
     continuousMode,

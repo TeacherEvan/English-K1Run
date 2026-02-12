@@ -16,6 +16,7 @@ interface InteractionDeps {
   gameObjectsRef: MutableRefObject<GameObject[]>;
   gameState: GameState;
   currentCategory: GameCategory;
+  reducedMotion: boolean;
   generateRandomTarget: (levelOverride?: number) => {
     name: string;
     emoji: string;
@@ -43,6 +44,7 @@ export const useGameLogicInteractions = ({
   gameObjectsRef,
   gameState,
   currentCategory,
+  reducedMotion,
   generateRandomTarget,
   spawnImmediateTargets,
   continuousMode,
@@ -65,6 +67,7 @@ export const useGameLogicInteractions = ({
         gameObjectsRef,
         gameState,
         currentCategory,
+        reducedMotion,
         generateRandomTarget,
         spawnImmediateTargets,
         continuousMode,
@@ -82,6 +85,7 @@ export const useGameLogicInteractions = ({
       gameObjectsRef,
       gameState,
       currentCategory,
+      reducedMotion,
       generateRandomTarget,
       spawnImmediateTargets,
       continuousMode,

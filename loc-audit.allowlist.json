@@ -3,7 +3,6 @@
   "e2e/fixtures/game.fixture.ts",
   "e2e/specs/accessibility.spec.ts",
   "scripts/validate-audio-files.cjs",
-  "src/lib/event-tracker.ts",
   "src/lib/file-manager/index.ts",
   "src/lib/audio/speech-playback.ts",
   "scripts/download-backgrounds.js",
