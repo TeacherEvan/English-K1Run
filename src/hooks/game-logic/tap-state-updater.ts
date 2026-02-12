@@ -106,7 +106,7 @@ export const updateStateOnTap = (
         { ...newState },
         "incorrect_tap_penalty",
       );
-      // Only trigger screen shake if reduced motion is not enabled
+      // Only trigger screen shake if reduced motion preference is disabled
       if (!reducedMotion) {
         setScreenShake(true);
         setTimeout(() => setScreenShake(false), 500);
