@@ -9,6 +9,8 @@
     "build": "tsc -b && vite build",
     "check-types": "tsc -b --noCheck",
     "lint": "eslint .",
+    "audit:loc": "node scripts/loc-audit.cjs",
+    "audit:loc:report": "node scripts/loc-audit.cjs --report-only",
     "verify": "npm run lint && npm run build",
     "audio:list-voices": "node scripts/list-elevenlabs-voices.cjs",
     "audio:validate": "node scripts/validate-audio-files.cjs",

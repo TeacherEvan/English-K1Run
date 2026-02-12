@@ -28,4 +28,5 @@ jobs:
       - name: Build
         run: |
           npm install
+          npm run audit:loc
           npm run build

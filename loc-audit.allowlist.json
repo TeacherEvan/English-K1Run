@@ -1,0 +1,15 @@
+[
+  "src/lib/semantic-utils.improved.ts",
+  "scripts/generate-audio.cjs",
+  "e2e/fixtures/game.fixture.ts",
+  "e2e/specs/accessibility.spec.ts",
+  "scripts/validate-audio-files.cjs",
+  "src/lib/event-tracker.ts",
+  "src/lib/file-manager/index.ts",
+  "src/lib/audio/speech-playback.ts",
+  "scripts/download-backgrounds.js",
+  "scripts/generate-sentence-audio.cjs",
+  "src/lib/resource-preloader.ts",
+  "src/lib/event-metrics/emoji-tracker.ts",
+  "src/lib/utils/__tests__/performance-improvements.test.ts"
+]

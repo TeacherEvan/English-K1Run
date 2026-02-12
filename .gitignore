@@ -107,6 +107,9 @@ playwright-report/
 .nuxt
 jobcard.md
 
+# Local audit reports
+reports/
+
 # Vite cache and build files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

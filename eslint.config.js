@@ -5,7 +5,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "node_modules"] },
+  { ignores: ["dist/**", "node_modules/**", "dashboard-ui/**", "reports/**"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -23,6 +23,8 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      // Complexity (Phase I: visibility). Hard enforcement comes later.
+      complexity: ["warn", { max: 25 }],
       // TypeScript-specific rules
       "@typescript-eslint/no-unused-vars": [
         "warn",
@@ -65,9 +67,17 @@ export default tseslint.config(
   },
   // Disable refs during render for use-game-logic.ts as it's a complex hook with refs
   {
-    files: ["src/hooks/use-game-logic.ts"],
+    files: ["**/use-game-logic.ts"],
     rules: {
       "react-hooks/refs": "off",
+    },
+  },
+  // Complex hooks: allow intentional memoization/ref usage patterns.
+  {
+    files: ["**/use-game-logic*.ts"],
+    rules: {
+      "react-hooks/refs": "off",
+      "react-hooks/preserve-manual-memoization": "off",
     },
   },
 );
