@@ -1,14 +1,9 @@
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
-import {
-  WORM_INITIAL_COUNT,
-  WORM_PROGRESSIVE_SPAWN_INTERVAL,
-  WORM_RECURRING_COUNT,
-  WORM_RECURRING_INTERVAL,
-} from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
 import { multiTouchHandler } from "../../lib/touch-handler";
+import { setupContinuousMode } from "./continuous-mode-initialization";
 import type { GameSessionDependencies } from "./game-session-types";
-import { createWorms } from "./worm-logic";
+import { initializeWormSpawning } from "./worm-initialization";
 
 /**
  * Creates the start game handler.
@@ -38,74 +33,46 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
     try {
       const safeLevel = clampLevel(levelIndex ?? gameStateLevel);
 
+      // Enable touch handling and performance monitoring
       multiTouchHandler.enable();
       eventTracker.startPerformanceMonitoring();
 
+      // Initialize sequence for sequence-based categories
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
         GAME_CATEGORIES[safeLevel].sequenceIndex = 0;
       }
 
+      // Reset game state tracking
       lastEmojiAppearance.current.clear();
       targetPool.current = [];
-      continuousModeTargetCount.current = 0;
 
-      if (continuousMode) {
-        setContinuousModeStartTime(Date.now());
-      }
+      // Setup continuous mode
+      setupContinuousMode({
+        continuousMode,
+        continuousModeTargetCount,
+        setContinuousModeStartTime,
+      });
 
+      // Initialize emoji tracking
       const currentCategory = GAME_CATEGORIES[safeLevel];
       eventTracker.initializeEmojiTracking(currentCategory.items);
       eventTracker.resetPerformanceMetrics();
 
+      // Generate initial target and reset game objects
       const target = generateRandomTarget(safeLevel);
       setGameObjects([]);
       setFairyTransforms([]);
       setScreenShake(false);
 
-      progressiveSpawnTimeoutRefs.current.forEach((timeout) =>
-        clearTimeout(timeout),
-      );
-      progressiveSpawnTimeoutRefs.current = [];
-      if (recurringSpawnIntervalRef.current) {
-        clearInterval(recurringSpawnIntervalRef.current);
-      }
+      // Initialize worm spawning
+      initializeWormSpawning({
+        progressiveSpawnTimeoutRefs,
+        recurringSpawnIntervalRef,
+        wormSpeedMultiplier,
+        setWorms,
+      });
 
-      setWorms([]);
-      wormSpeedMultiplier.current = 1;
-
-      for (let i = 0; i < WORM_INITIAL_COUNT; i++) {
-        const timeout = setTimeout(() => {
-          setWorms((prev) => [...prev, ...createWorms(1, i)]);
-          eventTracker.trackEvent({
-            type: "info",
-            category: "worm",
-            message: `Progressive spawn: worm ${i + 1}/${WORM_INITIAL_COUNT}`,
-            data: { wormIndex: i },
-          });
-        }, i * WORM_PROGRESSIVE_SPAWN_INTERVAL);
-        progressiveSpawnTimeoutRefs.current.push(timeout);
-      }
-
-      recurringSpawnIntervalRef.current = setInterval(() => {
-        setWorms((prev) => {
-          const aliveCount = prev.filter((w) => w.alive).length;
-          const newWorms = createWorms(WORM_RECURRING_COUNT, prev.length);
-
-          eventTracker.trackEvent({
-            type: "info",
-            category: "worm",
-            message: `Recurring spawn: ${WORM_RECURRING_COUNT} worms (${aliveCount} already alive)`,
-            data: {
-              recurringSpawn: true,
-              aliveCount,
-              newCount: WORM_RECURRING_COUNT,
-            },
-          });
-
-          return [...prev, ...newWorms];
-        });
-      }, WORM_RECURRING_INTERVAL);
-
+      // Update game state to start the game
       setGameState((prev) => {
         const newState = {
           ...prev,
@@ -126,6 +93,7 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
         return newState;
       });
 
+      // Spawn initial targets
       setTimeout(() => spawnImmediateTargets(), 100);
     } catch (error) {
       eventTracker.trackError(error as Error, "startGame");
