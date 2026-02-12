@@ -6,6 +6,7 @@ import { eventTracker } from "../../lib/event-tracker";
 import { calculateSafeSpawnPosition } from "../../lib/utils/spawn-position";
 import type { GameObject, PlayerSide } from "../../types/game";
 import { buildObject } from "./spawn-objects-batch-utils";
+import { selectUniqueEmoji } from "./spawn-deduplication";
 
 interface DecoySpawnDeps {
   startIndex: number;
@@ -55,33 +56,13 @@ export const spawnDecoyObjects = (deps: DecoySpawnDeps) => {
     const chosenLane: PlayerSide = Math.random() < 0.5 ? "left" : "right";
     const [minX, maxX] = LANE_BOUNDS[chosenLane];
 
-    let item = selectItem();
-    const isDuplicateInBatch = spawnedInBatch.has(item.emoji);
-    const isDuplicateActive = activeEmojis.has(item.emoji);
-
-    if (isDuplicateInBatch || (isDuplicateActive && Math.random() > 0.3)) {
-      let attempts = 0;
-      const maxAttempts = activeEmojis.size * 2;
-
-      while (attempts < maxAttempts) {
-        item = selectItem();
-        attempts++;
-
-        if (
-          !spawnedInBatch.has(item.emoji) &&
-          (!activeEmojis.has(item.emoji) || Math.random() <= 0.3)
-        ) {
-          break;
-        }
-      }
-    }
-
-    if (spawnedInBatch && item.emoji) {
-      spawnedInBatch.add(item.emoji);
-    }
-    if (lastEmojiAppearance && item.emoji && typeof now === "number") {
-      lastEmojiAppearance.set(item.emoji, now);
-    }
+    // Select unique emoji using deduplication utility
+    const item = selectUniqueEmoji(selectItem, {
+      spawnedInBatch,
+      activeEmojis,
+      lastEmojiAppearance,
+      now,
+    });
 
     eventTracker.trackEmojiAppearance(item.emoji, item.name);
 
