@@ -376,9 +376,7 @@ const AUDIO_PHRASES = [
   "emoji_zipper",
 
   // Sound effects
-  "success",
   "wrong",
-  "win",
   "tap",
   "explosion",
   "laser",

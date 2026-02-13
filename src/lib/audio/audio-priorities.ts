@@ -23,10 +23,8 @@ export const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
     "welcome_learning",
     "welcome_association_thai",
     "welcome_learning_thai",
-    "success",
     "tap",
     "wrong",
-    "win",
   ],
   [AudioPriority.COMMON]: [
     // Numbers 1-10

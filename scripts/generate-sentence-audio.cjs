@@ -8,6 +8,8 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
+const EXCLUDED_REINFORCEMENT_KEYS = new Set(["success", "win"]);
+
 function loadDotEnvIfPresent() {
   try {
     const envPath = path.join(__dirname, "..", ".env");
@@ -159,9 +161,7 @@ async function main() {
     welcome_association_thai: "ร่วมกับโรงเรียนอนุบาลสังสม",
     welcome_learning: "Welcome to learning English.",
     welcome_learning_thai: "ยินดีต้อนรับสู่การเรียนภาษาอังกฤษ",
-    success: "Great job, you are correct.",
     wrong: "Try again, that was not correct.",
-    win: "You win, great work.",
     tap: "Tap the screen to start.",
     explosion: "The explosion is loud.",
     laser: "The laser is bright.",
@@ -214,6 +214,12 @@ async function main() {
   for (let i = 0; i < wavFiles.length; i++) {
     const filename = wavFiles[i];
     const key = filename.replace(/\.wav$/i, "");
+    if (EXCLUDED_REINFORCEMENT_KEYS.has(key)) {
+      console.log(
+        `[${i + 1}/${wavFiles.length}] Skipping reinforcement key: ${filename}`,
+      );
+      continue;
+    }
     const sentence = buildSentence(key, templates, overrides);
     const isThai =
       key.endsWith("_thai") || key === "welcome_sangsom_association_thai";
