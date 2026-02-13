@@ -2,9 +2,17 @@
  * Resource preloading orchestration
  */
 
-import type { ResourceMetadata, ResourcePriority } from "./types";
 import { isLimitedBandwidth } from "./bandwidth-detection";
-import { updateProgress } from "./progress";
+import {
+  getPreloadProgress,
+  setPreloadProgress,
+  updateProgress,
+} from "./progress";
+import type {
+  PreloadProgress,
+  ResourceMetadata,
+  ResourcePriority,
+} from "./types";
 
 /**
  * Preload an image resource with error handling and retry logic
@@ -196,24 +204,38 @@ export const preloadResources = async (
     (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
   );
 
-  // Initialize progress tracking
-  globalPreloadProgress = {
-    total: sortedResources.length,
+  const total = sortedResources.length;
+  let loaded = 0;
+  let failed = 0;
+
+  setPreloadProgress({
+    total,
     loaded: 0,
     failed: 0,
     percentage: 0,
     failedResources: [],
-  };
+  });
+
+  if (total === 0) {
+    const initialProgress = getPreloadProgress();
+    onProgress?.(initialProgress);
+    return initialProgress;
+  }
 
   // Preload resources with concurrency limit (max 6 concurrent)
   const concurrencyLimit = 6;
-  const updateProgress = () => {
-    globalPreloadProgress.percentage = Math.round(
-      ((globalPreloadProgress.loaded + globalPreloadProgress.failed) /
-        globalPreloadProgress.total) *
-        100,
-    );
-    onProgress?.(globalPreloadProgress);
+  const failedResources: string[] = [];
+  const emitProgress = (failedUrl?: string) => {
+    if (failedUrl) failedResources.push(failedUrl);
+    updateProgress(loaded, failed, total, failedUrl);
+    setPreloadProgress({
+      total,
+      loaded,
+      failed,
+      percentage: total > 0 ? Math.round(((loaded + failed) / total) * 100) : 0,
+      failedResources,
+    });
+    onProgress?.(getPreloadProgress());
   };
 
   // Process resources in batches
@@ -224,17 +246,17 @@ export const preloadResources = async (
       batch.map(async (resource) => {
         try {
           await preloadResource(resource);
-          globalPreloadProgress.loaded++;
+          loaded++;
+          emitProgress();
         } catch {
-          globalPreloadProgress.failed++;
-          globalPreloadProgress.failedResources.push(resource.url);
+          failed++;
+          emitProgress(resource.url);
         }
-        updateProgress();
       }),
     );
   }
 
-  return globalPreloadProgress;
+  return getPreloadProgress();
 };
 
 /**
@@ -282,20 +304,3 @@ export const preloadCriticalResources = async (
  *
  * @returns Current global preload progress state
  */
-export const getPreloadProgress = (): PreloadProgress => {
-  return { ...globalPreloadProgress };
-};
-
-/**
- * Reset preload progress tracking
- * Useful for re-initializing after route changes or errors
- */
-export const resetPreloadProgress = (): void => {
-  globalPreloadProgress = {
-    total: 0,
-    loaded: 0,
-    failed: 0,
-    percentage: 0,
-    failedResources: [],
-  };
-};

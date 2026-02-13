@@ -42,14 +42,28 @@ export const updateProgress = (
   loaded: number,
   failed: number,
   total: number,
-  failedUrl?: string
+  failedUrl?: string,
 ): void => {
   globalPreloadProgress.loaded = loaded;
   globalPreloadProgress.failed = failed;
   globalPreloadProgress.total = total;
-  globalPreloadProgress.percentage = total > 0 ? Math.round((loaded / total) * 100) : 0;
+  globalPreloadProgress.percentage =
+    total > 0 ? Math.round(((loaded + failed) / total) * 100) : 0;
 
   if (failedUrl && !globalPreloadProgress.failedResources.includes(failedUrl)) {
     globalPreloadProgress.failedResources.push(failedUrl);
   }
+};
+
+/**
+ * Replace preload progress atomically.
+ */
+export const setPreloadProgress = (progress: PreloadProgress): void => {
+  globalPreloadProgress = {
+    total: progress.total,
+    loaded: progress.loaded,
+    failed: progress.failed,
+    percentage: progress.percentage,
+    failedResources: [...progress.failedResources],
+  };
 };

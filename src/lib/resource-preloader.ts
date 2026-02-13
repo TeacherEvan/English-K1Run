@@ -5,4 +5,4 @@
  * from the refactored module structure.
  */
 
-export * from "./resource-preloader";
+export * from "./resource-preloader/index";
