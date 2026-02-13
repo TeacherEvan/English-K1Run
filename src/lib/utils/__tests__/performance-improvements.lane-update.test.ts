@@ -65,7 +65,6 @@ describe("Performance Improvements (Lane + Update)", () => {
     expect(newTime).toBeLessThan(oldTime * 0.8);
 
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.log(
         `Lane filtering: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms`,
       );
@@ -112,7 +111,6 @@ describe("Performance Improvements (Lane + Update)", () => {
     expect(newTime).toBeLessThan(oldTime * 3);
 
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.log(
         `Object update: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms`,
       );
