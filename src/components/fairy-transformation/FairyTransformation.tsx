@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { FAIRY_VISUAL_CONSTANTS } from "../../lib/constants/fairy-animations";
+import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import type { FairyTransformationProps } from "./types";
 import { useFairyAnimation } from "./use-fairy-animation";
 
@@ -26,7 +27,10 @@ export const FairyTransformation = memo(({ fairy }: FairyTransformationProps) =>
     if (!isVisible && trailSparkles.length === 0) return null;
 
     return (
-        <div className="absolute inset-0 pointer-events-none select-none" style={{ zIndex: 20 }}>
+        <div
+            className="absolute inset-0 pointer-events-none select-none"
+            style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_EFFECTS }}
+        >
             {fairyOpacity > 0 && (
                 <div
                     className="absolute fairy-transform"

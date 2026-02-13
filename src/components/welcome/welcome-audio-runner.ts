@@ -3,6 +3,8 @@
  * Extracted to keep the hook focused on React state management.
  */
 import { audioContextManager } from "@/lib/audio/audio-context-manager";
+import { centralAudioManager } from "@/lib/audio/central-audio-manager";
+import { validateWelcomeAudioIntegrity } from "@/lib/audio/welcome-audio-integrity";
 import {
   playWelcomeSequence,
   type WelcomeAudioConfig,
@@ -38,6 +40,13 @@ export const runWelcomeAudioSequence = async ({
   );
 
   const runSequence = async () => {
+    const integrity = await validateWelcomeAudioIntegrity();
+    if (!integrity.isValid) {
+      console.warn(
+        `[WelcomeAudioRunner] Welcome audio integrity check failed: ${integrity.reason ?? "unknown reason"}`,
+      );
+    }
+
     onDevLog("Starting welcome audio sequence with ElevenLabs priority...", {
       audioContextState: soundManager.isInitialized()
         ? "initialized"
@@ -46,6 +55,7 @@ export const runWelcomeAudioSequence = async ({
       timestamp: Date.now(),
     });
 
+    centralAudioManager.stopAllManaged();
     soundManager.stopAllAudio();
 
     const audioContext = audioContextManager.getContext();

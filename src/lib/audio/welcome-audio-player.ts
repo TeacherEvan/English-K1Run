@@ -2,8 +2,8 @@
  * Welcome audio player - handles playback of audio sequences.
  */
 
-import { soundManager } from "../sound-manager";
 import { getAudioUrl } from "./audio-registry";
+import { centralAudioManager } from "./central-audio-manager";
 import { speechSynthesizer } from "./speech-synthesizer";
 import {
   DEFAULT_WELCOME_CONFIG,
@@ -51,8 +51,18 @@ export async function playAudioSequence(
           );
         }
         if (audioUrl) {
-          await soundManager.playSound(asset.key, 1.0, 1.0);
-          audioPlayed = true;
+          audioPlayed = await centralAudioManager.playManaged({
+            key: asset.key,
+            channel: "welcome",
+            priority: 100,
+            playbackRate: 1,
+            volume: 1,
+            fadeInMs: 120,
+            expectedDurationMs: Math.max(
+              300,
+              Math.round(asset.duration * 1000),
+            ),
+          });
         } else {
           console.warn(
             `[WelcomeAudioSequencer] No URL available for ${asset.key}`,
@@ -91,6 +101,7 @@ export async function playAudioSequence(
       }
     }
   } finally {
+    centralAudioManager.stopChannel("welcome");
     state.isPlaying = false;
   }
 }

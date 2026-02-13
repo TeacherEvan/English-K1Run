@@ -1,6 +1,7 @@
-import { memo, useMemo } from 'react'
-import type { WormObject } from '../types/game'
-import { multiTouchHandler } from '../lib/touch-handler'
+import { memo, useMemo } from 'react';
+import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix';
+import { multiTouchHandler } from '../lib/touch-handler';
+import type { WormObject } from '../types/game';
 import './WormLoadingScreen.css'; // Reuse existing wiggle animation
 
 interface WormProps {
@@ -42,7 +43,7 @@ export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
     top: `${worm.y}px`,
     fontSize: `${WORM_SIZE}px`,
     transform: `translate(-50%, -50%) rotate(${worm.angle}rad) scale(var(--object-scale, 1))`,
-    zIndex: 15 // Above game objects but below UI
+    zIndex: UI_LAYER_MATRIX.GAMEPLAY_HAZARDS
   }), [worm.x, worm.y, worm.angle])
 
   if (!worm.alive) return null

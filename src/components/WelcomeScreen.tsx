@@ -1,5 +1,6 @@
 import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
+import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
 import { memo } from 'react'
 import './WelcomeScreen.css'
 
@@ -28,12 +29,13 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const fallbackImageSrc = '/welcome-sangsom.png'
   return (
     <div
-      className={`fixed inset-0 z-100 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
+      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
         }`}
       data-testid="welcome-screen"
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
         background: '#000',
+        zIndex: UI_LAYER_MATRIX.WELCOME_OVERLAY,
       }}
       onClick={handlePrimaryAction}
     >
@@ -58,7 +60,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           <img
             src={fallbackImageSrc}
             alt="Welcome to Sangsom Kindergarten"
-            className={`absolute inset-0 w-full h-full object-cover z-5 ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
+            style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_EFFECTS }}
             data-testid="welcome-screen-fallback"
           />
           {showFallbackImage && (
@@ -77,7 +80,10 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
       {/* Audio progress indicator (subtle) */}
       {isSequencePlaying && totalAudioCount > 0 && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+        <div
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          style={{ zIndex: UI_LAYER_MATRIX.HUD_SECONDARY }}
+        >
           <div className="flex gap-2">
             {Array.from({ length: totalAudioCount }).map((_, i) => (
               <div

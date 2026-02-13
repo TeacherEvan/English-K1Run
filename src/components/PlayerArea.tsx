@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { Card } from './ui/card'
 
 /**
@@ -44,18 +45,18 @@ interface PlayerAreaProps {
  * </PlayerArea>
  * ```
  */
-export const PlayerArea = memo(({ 
-  playerNumber, 
-  progress, 
-  children, 
-  isWinner 
+export const PlayerArea = memo(({
+  playerNumber,
+  progress,
+  children,
+  isWinner
 }: PlayerAreaProps) => {
   // Clamp progress to valid range (0-100) for safety
   const normalizedProgress = Math.max(0, Math.min(progress, 100))
 
   return (
-    <Card 
-      data-testid={`player-area-${playerNumber}`} 
+    <Card
+      data-testid={`player-area-${playerNumber}`}
       className="relative h-full border-0 game-area overflow-hidden"
       role="main"
       aria-label={`Player ${playerNumber} game area`}
@@ -83,8 +84,8 @@ export const PlayerArea = memo(({
         Contains all interactive game elements (falling objects, worms, effects)
         Top padding (pt-24) reserves space for target display
       */}
-      <div 
-        data-testid="game-area" 
+      <div
+        data-testid="game-area"
         className="absolute inset-0 pt-24"
         aria-live="polite"
         aria-atomic="false"
@@ -98,13 +99,14 @@ export const PlayerArea = memo(({
         Blocks interaction with game elements underneath
       */}
       {isWinner && (
-        <div 
-          className="absolute inset-0 bg-success/20 flex items-center justify-center z-30"
+        <div
+          className="absolute inset-0 bg-success/20 flex items-center justify-center"
+          style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_OVERLAY }}
           role="alert"
           aria-live="assertive"
         >
           <div className="text-center bounce-in">
-            <div 
+            <div
               className="text-8xl mb-4"
               role="img"
               aria-label="Trophy"

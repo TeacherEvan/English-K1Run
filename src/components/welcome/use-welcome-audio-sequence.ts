@@ -89,6 +89,12 @@ export const useWelcomeAudioSequence = ({
     }, 12000);
 
     let cancelled = false;
+    const autoStartFallbackTimer = setTimeout(() => {
+      if (!audioStartedRef.current && !cancelled && !readyRef.current) {
+        logDev("Auto-start fallback triggered for welcome audio");
+        startAudioSequenceRef.current?.();
+      }
+    }, 2500);
 
     const startAudioSequence = async () => {
       logDev("startAudioSequence called:", {
@@ -151,27 +157,8 @@ export const useWelcomeAudioSequence = ({
       void startAudioSequence();
     };
 
-    const handleInteraction = () => {
-      logDev("Document interaction detected:", {
-        audioStarted: audioStartedRef.current,
-        cancelled,
-        timestamp: Date.now(),
-      });
-      if (!audioStartedRef.current && !cancelled) {
-        void startAudioSequence();
-      }
-    };
-
     const handleDisplayAdjustment = (event: Event) => {
       if (audioStartedRef.current || cancelled || readyRef.current) return;
-
-      const userActivation =
-        typeof navigator !== "undefined" &&
-        "userActivation" in navigator &&
-        (navigator.userActivation?.hasBeenActive ||
-          navigator.userActivation?.isActive);
-
-      if (!userActivation) return;
 
       logDev("Display adjustment triggered welcome audio", {
         detail: event instanceof CustomEvent ? event.detail : undefined,
@@ -181,24 +168,14 @@ export const useWelcomeAudioSequence = ({
       void startAudioSequence();
     };
 
-    const events = ["click", "touchstart", "keydown"] as const;
-    events.forEach((event) => {
-      document.addEventListener(event, handleInteraction, {
-        once: true,
-        passive: true,
-      });
-    });
-
     window.addEventListener("k1-display-adjustment", handleDisplayAdjustment);
 
     return () => {
       cancelled = true;
+      clearTimeout(autoStartFallbackTimer);
       clearTimeout(safetyBtnTimer);
       clearTimeout(safetyEndTimer);
       startAudioSequenceRef.current = null;
-      events.forEach((event) => {
-        document.removeEventListener(event, handleInteraction);
-      });
       window.removeEventListener(
         "k1-display-adjustment",
         handleDisplayAdjustment,

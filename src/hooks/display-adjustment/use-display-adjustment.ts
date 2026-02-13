@@ -96,6 +96,7 @@ export function useDisplayAdjustment() {
     };
 
     updateDisplaySettings();
+    emitDisplayAdjustment("initialization");
 
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {

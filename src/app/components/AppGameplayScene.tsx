@@ -13,6 +13,7 @@ import type {
     GameState,
     WormObject,
 } from "../../hooks/use-game-logic";
+import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import { eventTracker } from "../../lib/event-tracker";
 
 const FairyTransformation = lazy(() =>
@@ -60,7 +61,10 @@ export const AppGameplayScene = ({
     return (
         <>
             {isActive && (
-                <div className="absolute top-4 left-4 z-40">
+                <div
+                    className="absolute top-4 left-4"
+                    style={{ zIndex: UI_LAYER_MATRIX.HUD_CRITICAL }}
+                >
                     <button
                         data-testid="back-button"
                         onClick={onResetGame}
@@ -76,7 +80,10 @@ export const AppGameplayScene = ({
             )}
 
             {isActive && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 w-32">
+                <div
+                    className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32"
+                    style={{ zIndex: UI_LAYER_MATRIX.HUD_PRIMARY }}
+                >
                     <TargetDisplay
                         currentTarget={gameState.currentTarget}
                         targetEmoji={gameState.targetEmoji}

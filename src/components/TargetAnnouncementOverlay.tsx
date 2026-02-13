@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { UI_LAYER_MATRIX } from "../lib/constants/ui-layer-matrix";
 
 interface TargetAnnouncementOverlayProps {
   emoji: string;
@@ -12,7 +13,8 @@ export const TargetAnnouncementOverlay = memo(
 
     return (
       <div
-        className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none"
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        style={{ zIndex: UI_LAYER_MATRIX.HUD_CRITICAL }}
         aria-live="polite"
         role="status"
         data-testid="target-announcement"

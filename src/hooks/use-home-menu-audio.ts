@@ -17,7 +17,7 @@
 
 import { useEffect, useRef } from "react";
 import { audioContextManager } from "../lib/audio/audio-context-manager";
-import { soundManager } from "../lib/sound-manager";
+import { centralAudioManager } from "../lib/audio/central-audio-manager";
 
 const HOME_MENU_AUDIO_STORAGE_KEY = "homeMenuAssociationPlayed";
 let hasPlayedHomeMenuAssociation = false;
@@ -88,12 +88,15 @@ export const useHomeMenuAudio = () => {
         }
 
         try {
-          await soundManager.playSoundWithFade(
-            "welcome_sangsom_association",
-            1.0,
-            0.85,
-            200,
-          );
+          await centralAudioManager.playManaged({
+            key: "welcome_sangsom_association",
+            channel: "menu",
+            priority: 70,
+            playbackRate: 1,
+            volume: 0.85,
+            fadeInMs: 200,
+            expectedDurationMs: 5000,
+          });
         } catch (error) {
           if (import.meta.env.DEV) {
             console.warn(
@@ -113,12 +116,15 @@ export const useHomeMenuAudio = () => {
         }
 
         try {
-          await soundManager.playSoundWithFade(
-            "welcome_sangsom_association_thai",
-            0.9,
-            0.85,
-            200,
-          );
+          await centralAudioManager.playManaged({
+            key: "welcome_sangsom_association_thai",
+            channel: "menu",
+            priority: 70,
+            playbackRate: 0.9,
+            volume: 0.85,
+            fadeInMs: 200,
+            expectedDurationMs: 4500,
+          });
         } catch (error) {
           if (import.meta.env.DEV) {
             console.warn(

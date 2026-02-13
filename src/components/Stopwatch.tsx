@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react'
+import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { Card } from './ui/card'
 
 interface StopwatchProps {
@@ -66,11 +67,12 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
 
     return (
         <div
-            className="fixed top-4 right-4 z-40 flex flex-col gap-2 pointer-events-none"
+            className="fixed top-4 right-4 flex flex-col gap-2 pointer-events-none"
+            style={{ zIndex: UI_LAYER_MATRIX.HUD_SECONDARY }}
             data-testid="continuous-mode-stopwatch"
         >
             <Card className="bg-black/80 backdrop-blur border-2 border-yellow-500/50 p-3 rounded-xl shadow-2xl">
-                <div className="flex flex-col gap-1 min-w-[120px]">
+                <div className="flex flex-col gap-1 min-w-30">
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase tracking-wider text-yellow-500/80 font-bold">
                             Best Time

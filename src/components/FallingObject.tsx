@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react'
+import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { multiTouchHandler } from '../lib/touch-handler'
 import type { GameObject } from '../types/game'
 
@@ -59,7 +60,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     transform: `translate3d(-50%, ${object.y}px, 0)`,
     fontSize: `calc(${object.size}px * var(--object-scale, 1))`,
     lineHeight: 1,
-    zIndex: 10,
+    zIndex: UI_LAYER_MATRIX.GAMEPLAY_OBJECTS,
   }), [object.x, object.y, object.size])
 
   // Detect object types for styling
