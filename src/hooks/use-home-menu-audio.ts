@@ -1,161 +1,67 @@
 /**
  * Home Menu Audio Hook
  *
- * Plays "in association with Sangsom Kindergarten" audio sequence
- * automatically when the home menu is displayed.
- *
- * Sequence:
- * 1. English: "In association with Sangsom Kindergarten"
- * 2. Thai: "ร่วมกับโรงเรียนอนุบาลสังสม"
- *
- * Note: Requires audio files to be present in public/sounds/:
- * - welcome_sangsom_association.mp3
- * - welcome_sangsom_association_thai.mp3
+ * Plays only the mission-complete sticker line when returning to home menu.
+ * Non-instruction menu audio is intentionally disabled.
  *
  * @module hooks/use-home-menu-audio
  */
 
 import { useEffect, useRef } from "react";
 import { audioContextManager } from "../lib/audio/audio-context-manager";
-import { centralAudioManager } from "../lib/audio/central-audio-manager";
-
-const HOME_MENU_AUDIO_STORAGE_KEY = "homeMenuAssociationPlayed";
-let hasPlayedHomeMenuAssociation = false;
-
-const hasSessionPlayedHomeMenuAudio = () => {
-  if (typeof window === "undefined") return false;
-  try {
-    return (
-      window.sessionStorage.getItem(HOME_MENU_AUDIO_STORAGE_KEY) === "true"
-    );
-  } catch {
-    return false;
-  }
-};
-
-const markSessionHomeMenuAudioPlayed = () => {
-  if (typeof window === "undefined") return;
-  try {
-    window.sessionStorage.setItem(HOME_MENU_AUDIO_STORAGE_KEY, "true");
-  } catch {
-    // Ignore storage failures (privacy mode, blocked access, etc.)
-  }
-};
+import { playSoundEffect } from "../lib/sound-manager";
+import { consumeMissionCompleteStickerPending } from "./home-menu-audio-state";
 
 /**
- * Custom hook to play association audio when home menu loads
+ * Custom hook to play mission completion sticker audio when home menu loads
  *
  * Features:
- * - Plays only once per mount
+ * - Plays only after mission completion
+ * - Plays once per pending mission completion marker
  * - Gracefully handles audio context suspension
  * - Non-blocking (errors won't prevent menu interaction)
  * - Automatic cleanup on unmount
- * - Handles missing audio files gracefully with fallback
  */
 export const useHomeMenuAudio = () => {
   const audioPlayedRef = useRef(false);
 
   useEffect(() => {
-    // Prevent duplicate playback across mounts and within this session
     if (audioPlayedRef.current) return;
-
-    const alreadyPlayed =
-      hasPlayedHomeMenuAssociation || hasSessionPlayedHomeMenuAudio();
-    if (alreadyPlayed) {
-      audioPlayedRef.current = true;
+    const shouldPlaySticker = consumeMissionCompleteStickerPending();
+    if (!shouldPlaySticker) {
       return;
     }
 
     audioPlayedRef.current = true;
-    hasPlayedHomeMenuAssociation = true;
-    markSessionHomeMenuAudioPlayed();
 
-    // Play sequence after small delay to ensure audio context is ready
-    const playSequence = async () => {
+    const playSticker = async () => {
       try {
-        // Ensure AudioContext is ready
         const context = audioContextManager.getContext();
         if (context?.state === "suspended") {
-          if (import.meta.env.DEV) {
-            console.log("[HomeMenuAudio] Resuming suspended AudioContext");
-          }
           await context.resume();
         }
 
-        // Play English version (ElevenLabs Sangsom association)
         if (import.meta.env.DEV) {
-          console.log("[HomeMenuAudio] Playing English association message");
+          console.log("[HomeMenuAudio] Playing mission-complete sticker audio");
         }
 
-        try {
-          await centralAudioManager.playManaged({
-            key: "welcome_sangsom_association",
-            channel: "menu",
-            priority: 70,
-            playbackRate: 1,
-            volume: 0.85,
-            fadeInMs: 200,
-            expectedDurationMs: 5000,
-          });
-        } catch (error) {
-          if (import.meta.env.DEV) {
-            console.warn(
-              "[HomeMenuAudio] English association audio not available:",
-              error instanceof Error ? error.message : String(error),
-              "\nMake sure welcome_sangsom_association.mp3 exists in public/sounds/",
-            );
-          }
-        }
-
-        // 300ms pause between languages
-        await new Promise((resolve) => setTimeout(resolve, 300));
-
-        // Play Thai version (ElevenLabs Sangsom association)
-        if (import.meta.env.DEV) {
-          console.log("[HomeMenuAudio] Playing Thai association message");
-        }
-
-        try {
-          await centralAudioManager.playManaged({
-            key: "welcome_sangsom_association_thai",
-            channel: "menu",
-            priority: 70,
-            playbackRate: 0.9,
-            volume: 0.85,
-            fadeInMs: 200,
-            expectedDurationMs: 4500,
-          });
-        } catch (error) {
-          if (import.meta.env.DEV) {
-            console.warn(
-              "[HomeMenuAudio] Thai association audio not available:",
-              error instanceof Error ? error.message : String(error),
-              "\nMake sure welcome_sangsom_association_thai.mp3 exists in public/sounds/",
-            );
-          }
-        }
-
-        if (import.meta.env.DEV) {
-          console.log("[HomeMenuAudio] Audio sequence completed");
-        }
+        await playSoundEffect.sticker();
       } catch (error) {
-        // Non-blocking error - log but don't throw
         if (import.meta.env.DEV) {
           console.warn(
-            "[HomeMenuAudio] Audio playback sequence failed:",
+            "[HomeMenuAudio] Sticker playback failed:",
             error instanceof Error ? error.message : String(error),
-            "\nThis is non-critical - menu will function normally.",
           );
         }
       }
     };
 
-    // Start playback after 400ms delay to avoid audio context issues
-    const timer = setTimeout(playSequence, 400);
+    const timer = setTimeout(() => {
+      void playSticker();
+    }, 300);
 
     return () => {
       clearTimeout(timer);
-      // Note: Don't stop audio on unmount - let it complete naturally
     };
   }, []);
 };

@@ -46,7 +46,6 @@ export const useWelcomeSequence = ({
     isSequencePlaying,
     currentAudioIndex,
     totalAudioCount,
-    requestStart,
     markReadyToContinue,
   } = useWelcomeAudioSequence({ audioConfig, isE2E });
 
@@ -64,12 +63,11 @@ export const useWelcomeSequence = ({
     }
 
     if (!readyToContinue) {
-      requestStart();
       return;
     }
 
     proceed();
-  }, [isE2E, proceed, readyToContinue, requestStart]);
+  }, [isE2E, proceed, readyToContinue]);
 
   useEffect(() => {
     if (!isE2E) return;
@@ -99,9 +97,7 @@ export const useWelcomeSequence = ({
   useEffect(() => {
     if (!videoLoaded || isE2E) return;
     if (import.meta.env.DEV) {
-      console.log(
-        "[WelcomeScreen] Video loaded, ready for user interaction",
-      );
+      console.log("[WelcomeScreen] Video loaded, ready for user interaction");
     }
     // Audio will start when user taps via handlePrimaryAction
   }, [isE2E, videoLoaded]);

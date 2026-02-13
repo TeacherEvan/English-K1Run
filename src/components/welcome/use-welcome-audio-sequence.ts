@@ -8,6 +8,7 @@ import {
   isWelcomeSequencePlaying,
   type WelcomeAudioConfig,
 } from "@/lib/audio/welcome-audio-sequencer";
+import { subscribeDisplayAdjustmentSignal } from "@/lib/display-adjustment-signal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface UseWelcomeAudioSequenceOptions {
@@ -157,11 +158,25 @@ export const useWelcomeAudioSequence = ({
       void startAudioSequence();
     };
 
-    const handleDisplayAdjustment = (event: Event) => {
+    const stopDisplayAdjustmentSubscription = subscribeDisplayAdjustmentSignal(
+      (detail) => {
+        if (audioStartedRef.current || cancelled || readyRef.current) return;
+
+        logDev("Display adjustment triggered welcome audio", {
+          detail,
+          timestamp: Date.now(),
+        });
+
+        void startAudioSequence();
+      },
+      { replayLatest: true },
+    );
+
+    const handleDisplayAdjustment = () => {
       if (audioStartedRef.current || cancelled || readyRef.current) return;
 
       logDev("Display adjustment triggered welcome audio", {
-        detail: event instanceof CustomEvent ? event.detail : undefined,
+        detail: { cause: "legacy-event", timestamp: Date.now() },
         timestamp: Date.now(),
       });
 
@@ -180,6 +195,7 @@ export const useWelcomeAudioSequence = ({
         "k1-display-adjustment",
         handleDisplayAdjustment,
       );
+      stopDisplayAdjustmentSubscription();
     };
   }, [isE2E, logDev, mergedAudioConfig, readyToContinue]);
 

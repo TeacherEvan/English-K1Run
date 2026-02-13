@@ -5,6 +5,7 @@ import {
     KeyboardKeys,
     moveFocusToAdjacentElement,
 } from "@/lib/accessibility-utils";
+import { UI_LAYER_MATRIX } from "@/lib/constants/ui-layer-matrix";
 import { measureComponentRenderTime } from "@/lib/performance-monitor-utils";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
@@ -93,7 +94,8 @@ export const GameMenuLevelSelect = memo(
 
         return (
             <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in slide-in-from-right-8 duration-300 pointer-events-auto"
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center animate-in fade-in slide-in-from-right-8 duration-300 pointer-events-auto"
+                style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
                 data-testid="level-select-menu"
                 role="dialog"
                 aria-modal="true"

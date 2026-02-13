@@ -14,6 +14,15 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 ## Timeline (Compressed)
 
+### 2026-02-13
+
+- Disabled gameplay tap reinforcement audio (removed correct/incorrect tap sound playback).
+- Enforced instruction-first gameplay audio: target-identification announcements remain the only gameplay voice output.
+- Added mission completion marker (`sessionStorage`) when non-continuous mode reaches winner state.
+- Reworked home menu audio hook to disable association lines and play only "GIVE THEM A STICKER!" after returning from mission completion.
+- Added shared mission-complete audio state helper: `src/hooks/home-menu-audio-state.ts`.
+- Validation: changed files pass ESLint (`ESLINT_EXIT:0`) and error scan (no TypeScript/diagnostic errors in touched files).
+
 ### 2026-02-08
 
 - Added audio fade-in/out support and applied it to welcome-to-menu and home menu sequences.

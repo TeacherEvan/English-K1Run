@@ -3,6 +3,7 @@
  * The implementation delegates math and CSS updates to helpers.
  */
 import { useSettings } from "@/context/settings-context";
+import { emitDisplayAdjustmentSignal } from "@/lib/display-adjustment-signal";
 import {
   type CSSProperties,
   useCallback,
@@ -42,14 +43,19 @@ export function useDisplayAdjustment() {
 
   const updateDisplaySettingsRef = useRef<(() => void) | null>(null);
 
-  const emitDisplayAdjustment = useCallback((cause: string) => {
-    if (typeof window === "undefined") return;
-    window.dispatchEvent(
-      new CustomEvent("k1-display-adjustment", {
-        detail: { cause, timestamp: Date.now() },
-      }),
-    );
-  }, []);
+  const emitDisplayAdjustment = useCallback(
+    (
+      cause:
+        | "initialization"
+        | "resize"
+        | "orientation"
+        | "fullscreen"
+        | "programmatic",
+    ) => {
+      emitDisplayAdjustmentSignal(cause);
+    },
+    [],
+  );
 
   const triggerResizeUpdate = useCallback(() => {
     updateDisplaySettingsRef.current?.();

@@ -1,6 +1,7 @@
 import { memo, useCallback, type KeyboardEvent } from "react";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useHomeMenuAudio } from "../../hooks/use-home-menu-audio";
+import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { MENU_THAI_LABELS } from "./constants";
@@ -57,7 +58,8 @@ export const GameMenuHome = memo(
 
         return (
             <div
-                className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-60 animate-in fade-in duration-300 pointer-events-auto"
+                className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-300 pointer-events-auto"
+                style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
                 data-testid="game-menu"
             >
                 <Card className="w-full max-w-4xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl backdrop-blur-md">

@@ -1,12 +1,7 @@
-import { playSoundEffect, soundManager } from "../../lib/sound-manager";
-
 /**
  * Plays audio feedback for object taps.
  */
-export const playTapAudioFeedback = (isCorrect: boolean): void => {
-  if (isCorrect) {
-    void soundManager.playSound("success");
-  } else {
-    playSoundEffect.targetMiss();
-  }
+export const playTapAudioFeedback = (_isCorrect: boolean): void => {
+  // Intentionally silent: gameplay audio is restricted to target instruction
+  // announcements only.
 };

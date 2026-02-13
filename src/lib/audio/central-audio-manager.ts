@@ -26,6 +26,7 @@ interface PlayManagedOptions {
 export class CentralAudioManager {
   private static instance: CentralAudioManager | null = null;
   private channelState = new Map<AudioChannel, ChannelState>();
+  private channelTokens = new Map<AudioChannel, number>();
   private channelTimers = new Map<
     AudioChannel,
     ReturnType<typeof setTimeout>
@@ -49,6 +50,17 @@ export class CentralAudioManager {
   private clearChannel(channel: AudioChannel) {
     this.clearChannelTimer(channel);
     this.channelState.delete(channel);
+    this.channelTokens.delete(channel);
+  }
+
+  private nextChannelToken(channel: AudioChannel): number {
+    const nextToken = (this.channelTokens.get(channel) ?? 0) + 1;
+    this.channelTokens.set(channel, nextToken);
+    return nextToken;
+  }
+
+  private isCurrentToken(channel: AudioChannel, token: number): boolean {
+    return this.channelTokens.get(channel) === token;
   }
 
   private canPlay(priority: number): boolean {
@@ -90,16 +102,38 @@ export class CentralAudioManager {
     }
 
     this.fadeOutLowerPriorityChannels(priority);
+    const token = this.nextChannelToken(channel);
 
-    await soundManager.playSoundWithFade(key, playbackRate, volume, fadeInMs);
     this.clearChannelTimer(channel);
     this.channelState.set(channel, { key, priority });
 
+    try {
+      await soundManager.playSoundWithFade(key, playbackRate, volume, fadeInMs);
+    } catch (error) {
+      if (this.isCurrentToken(channel, token)) {
+        this.clearChannel(channel);
+      }
+      if (import.meta.env.DEV) {
+        console.warn("[CentralAudioManager] Managed playback failed", {
+          key,
+          channel,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+      return false;
+    }
+
+    if (!this.isCurrentToken(channel, token)) {
+      soundManager.fadeOutKey(key, 80);
+      return false;
+    }
+
     if (expectedDurationMs && expectedDurationMs > 0) {
-      const timer = setTimeout(
-        () => this.clearChannel(channel),
-        expectedDurationMs,
-      );
+      const timer = setTimeout(() => {
+        if (this.isCurrentToken(channel, token)) {
+          this.clearChannel(channel);
+        }
+      }, expectedDurationMs);
       this.channelTimers.set(channel, timer);
     }
 
@@ -115,10 +149,22 @@ export class CentralAudioManager {
   }
 
   stopAllManaged(): void {
-    for (const [channel, active] of this.channelState.entries()) {
+    for (const [channel, active] of Array.from(this.channelState.entries())) {
       soundManager.fadeOutKey(active.key, 120);
       this.clearChannel(channel);
     }
+  }
+
+  getActiveChannels(): ReadonlyArray<{
+    channel: AudioChannel;
+    key: string;
+    priority: number;
+  }> {
+    return Array.from(this.channelState.entries()).map(([channel, state]) => ({
+      channel,
+      key: state.key,
+      priority: state.priority,
+    }));
   }
 }
 

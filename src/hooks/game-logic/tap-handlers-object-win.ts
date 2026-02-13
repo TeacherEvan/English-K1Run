@@ -2,6 +2,7 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
 import type { GameState } from "../../types/game";
+import { markMissionCompleteStickerPending } from "../home-menu-audio-state";
 
 interface ProgressWinDeps {
   prev: GameState;
@@ -83,6 +84,7 @@ export const handleProgressWin = ({
     setTimeout(() => spawnImmediateTargets(), 0);
   } else {
     newState.winner = true;
+    markMissionCompleteStickerPending();
     eventTracker.trackGameStateChange(
       { ...prev },
       { ...newState },

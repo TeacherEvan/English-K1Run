@@ -3,6 +3,7 @@
  */
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { UI_LAYER_MATRIX } from '../../lib/constants/ui-layer-matrix'
 import '../WormLoadingScreen.css'
 import {
     COMPLETION_DELAY,
@@ -126,8 +127,8 @@ export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: Worm
         <div
             data-testid="worm-loading-screen"
             ref={containerRef}
-            className="fixed inset-0 bg-linear-to-br from-green-50 to-green-100 z-50 overflow-hidden"
-            style={{ touchAction: 'none' }}
+            className="fixed inset-0 bg-linear-to-br from-green-50 to-green-100 overflow-hidden"
+            style={{ touchAction: 'none', zIndex: UI_LAYER_MATRIX.STARTUP_LOADING_OVERLAY }}
         >
             <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
                 <h2 className="text-3xl font-bold text-green-800 mb-2">

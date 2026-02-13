@@ -59,62 +59,7 @@ export const AppGameplayScene = ({
     const isActive = gameState.gameStarted && !gameState.winner;
 
     return (
-        <>
-            {isActive && (
-                <div
-                    className="absolute top-4 left-4"
-                    style={{ zIndex: UI_LAYER_MATRIX.HUD_CRITICAL }}
-                >
-                    <button
-                        data-testid="back-button"
-                        onClick={onResetGame}
-                        className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 backdrop-blur-sm border-2 border-primary-foreground/20"
-                        style={{
-                            fontSize: `calc(0.875rem * var(--font-scale, 1))`,
-                            padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`,
-                        }}
-                    >
-                        ← Back to Levels
-                    </button>
-                </div>
-            )}
-
-            {isActive && (
-                <div
-                    className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32"
-                    style={{ zIndex: UI_LAYER_MATRIX.HUD_PRIMARY }}
-                >
-                    <TargetDisplay
-                        currentTarget={gameState.currentTarget}
-                        targetEmoji={gameState.targetEmoji}
-                        category={currentCategory}
-                        timeRemaining={
-                            currentCategory.requiresSequence ? undefined : timeRemaining
-                        }
-                        onClick={
-                            currentCategory.requiresSequence
-                                ? undefined
-                                : onChangeTargetToVisibleEmoji
-                        }
-                    />
-                </div>
-            )}
-
-            {isActive && (
-                <TargetAnnouncementOverlay
-                    emoji={gameState.announcementEmoji || gameState.targetEmoji}
-                    sentence={gameState.announcementSentence || ""}
-                    isVisible={Boolean(gameState.announcementActive)}
-                />
-            )}
-
-            {isActive && continuousMode && (
-                <Stopwatch
-                    isRunning={!gameState.winner}
-                    bestTime={continuousModeHighScore ?? 0}
-                />
-            )}
-
+        <div className="absolute inset-0" style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_BACKGROUND }}>
             <CategoryErrorBoundary
                 category="rendering"
                 enableSafeMode
@@ -152,6 +97,58 @@ export const AppGameplayScene = ({
                     </PlayerArea>
                 </div>
             </CategoryErrorBoundary>
-        </>
+
+            {isActive && (
+                <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ zIndex: UI_LAYER_MATRIX.HUD_PRIMARY }}
+                >
+                    <div className="absolute top-4 left-4 pointer-events-auto">
+                        <button
+                            data-testid="back-button"
+                            onClick={onResetGame}
+                            className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 backdrop-blur-sm border-2 border-primary-foreground/20"
+                            style={{
+                                fontSize: `calc(0.875rem * var(--font-scale, 1))`,
+                                padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`,
+                            }}
+                        >
+                            ← Back to Levels
+                        </button>
+                    </div>
+
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 pointer-events-auto">
+                        <TargetDisplay
+                            currentTarget={gameState.currentTarget}
+                            targetEmoji={gameState.targetEmoji}
+                            category={currentCategory}
+                            timeRemaining={
+                                currentCategory.requiresSequence ? undefined : timeRemaining
+                            }
+                            onClick={
+                                currentCategory.requiresSequence
+                                    ? undefined
+                                    : onChangeTargetToVisibleEmoji
+                            }
+                        />
+                    </div>
+                </div>
+            )}
+
+            {isActive && (
+                <TargetAnnouncementOverlay
+                    emoji={gameState.announcementEmoji || gameState.targetEmoji}
+                    sentence={gameState.announcementSentence || ""}
+                    isVisible={Boolean(gameState.announcementActive)}
+                />
+            )}
+
+            {isActive && continuousMode && (
+                <Stopwatch
+                    isRunning={!gameState.winner}
+                    bestTime={continuousModeHighScore ?? 0}
+                />
+            )}
+        </div>
     );
 };

@@ -118,7 +118,7 @@ function App() {
   return (
     <>
       <div
-        className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}
+        className={`h-screen overflow-hidden relative isolate app app-bg-animated ${backgroundClass}`}
       >
         <AppGameplayScene
           gameState={gameState}
