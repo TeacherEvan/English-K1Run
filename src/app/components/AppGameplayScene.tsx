@@ -117,8 +117,8 @@ export const AppGameplayScene = ({
                         </button>
                     </div>
 
-                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto"
-                        style={{ maxWidth: '160px', width: 'auto' }}>
+                    <div className="absolute top-20 left-4 pointer-events-auto"
+                        style={{ maxWidth: '140px', width: 'auto' }}>
                         <TargetDisplay
                             currentTarget={gameState.currentTarget}
                             targetEmoji={gameState.targetEmoji}
