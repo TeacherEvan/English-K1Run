@@ -107,6 +107,60 @@ export class SoundPlaybackFader {
     return true;
   }
 
+  startBufferWithFadeInAsync(
+    buffer: AudioBuffer,
+    delaySeconds = 0,
+    soundKey?: string,
+    playbackRate = 1.0,
+    volumeOverride?: number,
+    fadeInMs = 150,
+  ): Promise<void> {
+    return new Promise((resolve) => {
+      const audioContext = this.deps.getAudioContext();
+      if (!audioContext) {
+        resolve();
+        return;
+      }
+
+      this.deps.stopExistingSource(soundKey);
+
+      const source = audioContext.createBufferSource();
+      const gainNode = audioContext.createGain();
+
+      source.buffer = buffer;
+      source.playbackRate.value = playbackRate;
+
+      const targetGain = volumeOverride ?? this.deps.getVolume();
+      const startTime = audioContext.currentTime + Math.max(0, delaySeconds);
+
+      if (fadeInMs > 0) {
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(
+          targetGain,
+          startTime + Math.max(0, fadeInMs) / 1000,
+        );
+      } else {
+        gainNode.gain.value = targetGain;
+      }
+
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      source.start(startTime);
+
+      this.deps.registerSource(soundKey, source, gainNode);
+
+      source.onended = () => {
+        if (soundKey) {
+          this.deps.activeSources.delete(soundKey);
+          this.deps.activeGains.delete(soundKey);
+        }
+        resolve();
+        source.onended = null;
+      };
+    });
+  }
+
   fadeOutAll(durationMs = 250) {
     for (const key of this.deps.activeSources.keys()) {
       this.fadeOutKey(key, durationMs);

@@ -78,6 +78,22 @@ class SoundManager {
         volumeOverride,
         fadeInMs,
       ),
+    startBufferWithFadeInAsync: (
+      buffer,
+      delaySeconds,
+      soundKey,
+      playbackRate,
+      volumeOverride,
+      fadeInMs,
+    ) =>
+      this.playbackEngine.startBufferWithFadeInAsync(
+        buffer,
+        delaySeconds,
+        soundKey,
+        playbackRate,
+        volumeOverride,
+        fadeInMs,
+      ),
     trackPlaybackStart: (name) => this.telemetry.trackStart(name),
     trackPlaybackEnd: (name) => this.telemetry.trackEnd(name),
   });
@@ -160,6 +176,20 @@ class SoundManager {
     fadeInMs = 150,
   ): Promise<void> {
     await this.fadePlayback.playSoundWithFade(
+      soundName,
+      playbackRate,
+      volumeOverride,
+      fadeInMs,
+    );
+  }
+
+  async playSoundWithFadeAsync(
+    soundName: string,
+    playbackRate = 0.9,
+    volumeOverride?: number,
+    fadeInMs = 150,
+  ): Promise<void> {
+    await this.fadePlayback.playSoundWithFadeAsync(
       soundName,
       playbackRate,
       volumeOverride,

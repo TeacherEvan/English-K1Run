@@ -21,18 +21,18 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
     <Card data-testid="target-display" className="bg-transparent text-foreground mx-auto cursor-pointer hover:scale-105 transition-transform"
       onClick={onClick}
       style={{
-        padding: `calc(0.5rem * var(--spacing-scale, 1))`,
+        padding: `calc(0.4rem * var(--spacing-scale, 1))`,
         // Subtle background for better visibility without obstruction
         // Add golden glow when multiplier is active
-        backgroundColor: hasActiveMultiplier ? 'rgba(255, 251, 235, 0.95)' : 'rgba(255, 255, 255, 0.85)',
-        border: hasActiveMultiplier ? '2px solid rgba(251, 191, 36, 0.8)' : '2px solid rgba(255, 255, 255, 0.95)',
+        backgroundColor: hasActiveMultiplier ? 'rgba(255, 251, 235, 0.92)' : 'rgba(255, 255, 255, 0.75)',
+        border: hasActiveMultiplier ? '2px solid rgba(251, 191, 36, 0.8)' : '2px solid rgba(255, 255, 255, 0.9)',
         boxShadow: hasActiveMultiplier
-          ? '0 4px 12px rgba(251, 191, 36, 0.3), 0 0 20px rgba(251, 191, 36, 0.2)'
-          : '0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.2)',
-        backdropFilter: 'blur(8px)',
-        borderRadius: '12px',
+          ? '0 2px 8px rgba(251, 191, 36, 0.25), 0 0 16px rgba(251, 191, 36, 0.15)'
+          : '0 2px 8px rgba(0, 0, 0, 0.1), 0 0 12px rgba(255, 255, 255, 0.15)',
+        backdropFilter: 'blur(6px)',
+        borderRadius: '10px',
         maxWidth: 'fit-content',
-        minWidth: '120px',
+        minWidth: '100px',
         pointerEvents: onClick ? 'auto' : 'none' // Enable clicks when handler is provided
       }}>
       <div className="text-center">
@@ -40,8 +40,8 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         {hasActiveMultiplier && (
           <Badge variant="default" className="mb-1 font-bold animate-pulse"
             style={{
-              fontSize: `calc(0.65rem * var(--font-scale, 1))`,
-              padding: `calc(0.2rem * var(--spacing-scale, 1)) calc(0.4rem * var(--spacing-scale, 1))`,
+              fontSize: `calc(0.6rem * var(--font-scale, 1))`,
+              padding: `calc(0.15rem * var(--spacing-scale, 1)) calc(0.35rem * var(--spacing-scale, 1))`,
               backgroundColor: 'rgba(251, 191, 36, 0.9)',
               color: 'rgb(120, 53, 15)',
               border: '1px solid rgba(217, 119, 6, 0.5)',
@@ -53,8 +53,8 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
 
         <Badge variant="secondary" className="mb-1 font-semibold"
           style={{
-            fontSize: `calc(0.7rem * var(--font-scale, 1))`,
-            padding: `calc(0.25rem * var(--spacing-scale, 1)) calc(0.5rem * var(--spacing-scale, 1))`,
+            fontSize: `calc(0.65rem * var(--font-scale, 1))`,
+            padding: `calc(0.2rem * var(--spacing-scale, 1)) calc(0.4rem * var(--spacing-scale, 1))`,
             backgroundColor: 'rgba(59, 130, 246, 0.2)',
             color: 'rgb(30, 64, 175)',
             border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -66,18 +66,18 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         <div className="text-center mb-1">
           <div data-testid="target-emoji" className="mb-1 bounce-in" key={targetEmoji}
             style={{
-              fontSize: `calc(2.5rem * var(--object-scale, 1))`,
+              fontSize: `calc(2rem * var(--object-scale, 1))`,
               lineHeight: '1',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+              filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))'
             }}>
             {targetEmoji}
           </div>
           <div data-testid="target-name" className="font-bold"
             style={{
-              fontSize: `calc(1rem * var(--font-scale, 1))`,
+              fontSize: `calc(0.875rem * var(--font-scale, 1))`,
               color: 'rgb(30, 64, 175)',
               textShadow: '0 1px 2px rgba(255,255,255,0.8)',
-              letterSpacing: '0.02em'
+              letterSpacing: '0.01em'
             }}>
             Find: {currentTarget}
           </div>
