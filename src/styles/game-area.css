@@ -37,9 +37,15 @@
   z-index: 1;
 }
 
+/* 
+ * CRITICAL: Do NOT add z-index here!
+ * This rule must NOT create a stacking context, otherwise inline z-index
+ * values from UI_LAYER_MATRIX (FallingObject, Worm, etc.) will be trapped
+ * and ineffective. See: plans/ui-layer-forensic-audit-feb2026.md
+ */
 .game-area > * {
   position: relative;
-  z-index: 2;
+  /* z-index removed to allow UI_LAYER_MATRIX values to work correctly */
 }
 
 .bg-background {
