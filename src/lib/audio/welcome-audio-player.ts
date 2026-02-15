@@ -58,7 +58,7 @@ export async function playAudioSequence(
             playbackRate: 1,
             volume: 1,
             fadeInMs: 120,
-            // Add 200ms buffer to ensure audio completes
+            // Add buffer to expectedDurationMs to account for timing variations
             expectedDurationMs: Math.max(
               300,
               Math.round(asset.duration * 1000) + 200,

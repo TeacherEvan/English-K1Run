@@ -148,15 +148,19 @@ export class SoundPlaybackFader {
 
       source.start(startTime);
 
-      this.deps.registerSource(soundKey, source, gainNode);
+      // Register source and set up completion handler
+      if (soundKey) {
+        this.deps.activeSources.set(soundKey, source);
+        this.deps.activeGains.set(soundKey, gainNode);
+      }
 
       source.onended = () => {
         if (soundKey) {
           this.deps.activeSources.delete(soundKey);
           this.deps.activeGains.delete(soundKey);
         }
-        resolve();
         source.onended = null;
+        resolve();
       };
     });
   }
