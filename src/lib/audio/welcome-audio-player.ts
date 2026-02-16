@@ -58,11 +58,16 @@ export async function playAudioSequence(
             playbackRate: 1,
             volume: 1,
             fadeInMs: 120,
+            // Add buffer to expectedDurationMs to account for timing variations
             expectedDurationMs: Math.max(
               300,
-              Math.round(asset.duration * 1000),
+              Math.round(asset.duration * 1000) + 200,
             ),
           });
+          // Add extra delay after audio playback to ensure no overlap
+          if (audioPlayed && i < assets.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
         } else {
           console.warn(
             `[WelcomeAudioSequencer] No URL available for ${asset.key}`,

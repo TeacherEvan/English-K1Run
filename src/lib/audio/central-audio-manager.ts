@@ -108,7 +108,7 @@ export class CentralAudioManager {
     this.channelState.set(channel, { key, priority });
 
     try {
-      await soundManager.playSoundWithFade(key, playbackRate, volume, fadeInMs);
+      await soundManager.playSoundWithFadeAsync(key, playbackRate, volume, fadeInMs);
     } catch (error) {
       if (this.isCurrentToken(channel, token)) {
         this.clearChannel(channel);
