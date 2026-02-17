@@ -1,7 +1,7 @@
 /* Shared helpers for background stacking and motion. */
 .app > * {
   position: relative;
-  z-index: 10;
+  /* z-index removed - allows UI_LAYER_MATRIX values to work correctly */
 }
 
 .app-bg-animated {

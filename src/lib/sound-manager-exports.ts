@@ -12,6 +12,18 @@ export const playSoundEffect = {
   welcome: async () => soundManager.playSound("welcome"),
   stopAll: () => soundManager.stopAllAudio(),
   targetMiss: () => soundManager.playSound("explosion"),
+  /**
+   * Play a sound effect by name.
+   * Looks for files in /sounds/{name}.wav
+   * @param name - Sound file name without extension
+   * @param playbackRate - Optional playback rate (default 0.9)
+   * @param volumeOverride - Optional volume override (0-1)
+   */
+  byName: async (
+    name: string,
+    playbackRate?: number,
+    volumeOverride?: number,
+  ) => soundManager.playSound(name, playbackRate, volumeOverride),
 };
 
 export const prefetchAudioKeys = (keys: string[]) =>
