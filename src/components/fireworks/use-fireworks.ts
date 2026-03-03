@@ -10,7 +10,7 @@ interface FireworksState {
 /**
  * Drive fireworks and confetti animation state for the win screen.
  */
-export const useFireworks = (isVisible: boolean, winner: boolean) => {
+export const useFireworks = (isVisible: boolean, _winner: boolean) => {
   const [fireworks, setFireworks] = useState<Firework[]>([]);
 
   const [confettiElements] = useState<ConfettiElement[]>(() =>
