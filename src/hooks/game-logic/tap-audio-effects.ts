@@ -1,4 +1,4 @@
-import { playSoundEffect } from "../../lib/sound-manager-exports";
+import { soundManager } from "../../lib/sound-manager";
 
 /**
  * Plays audio feedback for object taps.
@@ -9,5 +9,5 @@ export const playTapAudioFeedback = (isCorrect: boolean): void => {
   const playbackRate = isCorrect ? 1.0 : 0.9;
 
   // Fire-and-forget with void operator - errors handled by sound manager
-  void playSoundEffect.byName(soundName, playbackRate, 0.7);
+  void soundManager.playSound(soundName, playbackRate, 0.7);
 };

@@ -7,6 +7,7 @@ import type { GameState } from "../../../types/game";
 
 /**
  * Manages the target announcement overlay and speech playback.
+ * Uses soundManager.playWord for robust multi-fallback audio delivery.
  */
 export const useTargetAnnouncement = (
   gameStarted: boolean,
@@ -40,15 +41,9 @@ export const useTargetAnnouncement = (
         announcementSentence: sentence,
       }));
 
-      if (!sentence) {
-        setGameState((prev) => ({
-          ...prev,
-          announcementActive: false,
-        }));
-        return;
-      }
-
-      await speechSynthesizer.speakAsync(sentence, { langCode: language });
+      // Use soundManager.playWord for the full fallback chain:
+      // sentence template → speech synthesis → audio sprite → voice WAV → Web Speech API
+      await soundManager.playWord(currentTarget);
 
       if (!cancelled) {
         setGameState((prev) => ({

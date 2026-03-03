@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { playSoundEffect } from "../../lib/sound-manager";
 import { FIREWORK_COLORS } from "./constants";
 import type { ConfettiElement, Firework, Particle } from "./types";
 
@@ -11,9 +10,8 @@ interface FireworksState {
 /**
  * Drive fireworks and confetti animation state for the win screen.
  */
-export const useFireworks = (isVisible: boolean, winner: boolean) => {
+export const useFireworks = (isVisible: boolean, _winner: boolean) => {
   const [fireworks, setFireworks] = useState<Firework[]>([]);
-  const [hasPlayedSticker, setHasPlayedSticker] = useState(false);
 
   const [confettiElements] = useState<ConfettiElement[]>(() =>
     Array.from({ length: 20 }).map((_, i) => ({
@@ -87,7 +85,6 @@ export const useFireworks = (isVisible: boolean, winner: boolean) => {
     if (!isVisible) {
       const reset = () => {
         setFireworks([]);
-        setHasPlayedSticker(false);
       };
 
       const handle = requestAnimationFrame(reset);
@@ -96,16 +93,6 @@ export const useFireworks = (isVisible: boolean, winner: boolean) => {
 
     return undefined;
   }, [isVisible]);
-
-  useEffect(() => {
-    if (isVisible && winner && !hasPlayedSticker) {
-      const timer = setTimeout(() => {
-        void playSoundEffect.sticker();
-        setHasPlayedSticker(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, winner, hasPlayedSticker]);
 
   useEffect(() => {
     if (!isVisible) return;
