@@ -95,5 +95,8 @@
     "packages": [
       "packages/*"
     ]
+  },
+  "overrides": {
+    "serialize-javascript": ">=7.0.3"
   }
 }
