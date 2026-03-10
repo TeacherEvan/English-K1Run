@@ -11,14 +11,13 @@ import { speechSynthesizer } from "./audio/speech-synthesizer";
 import { stopAudioBufferPlayback } from "./audio/speech/elevenlabs-client";
 import { AudioPriority } from "./audio/types";
 import type { SupportedLanguage } from "./constants/language-config";
-import { SoundFadePlayback } from "./sound-manager-fade";
 import {
+  createManagerFadePlayback,
   createManagerPlayback,
   createManagerSpeechControls,
 } from "./sound-manager-initializers";
 import {
   getAudioContext,
-  loadBufferForName,
   resolveAudioCandidates,
 } from "./sound-manager/helpers";
 import { createPlaybackTelemetry } from "./sound-manager/telemetry";
@@ -54,46 +53,13 @@ class SoundManager {
     stopAllAudio: () => this.stopAllAudio(),
     isEnabled: () => this.isEnabled,
   });
-  private fadePlayback = new SoundFadePlayback({
+  private fadePlayback = createManagerFadePlayback({
     isEnabled: () => this.isEnabled,
     ensureInitialized: () => this.ensureInitialized(),
     getAudioContext: () => getAudioContext(),
-    loadBufferForName: (name, allowFallback) =>
-      loadBufferForName(name, allowFallback),
+    playbackEngine: this.playbackEngine,
     playSound: (soundName, playbackRate, volumeOverride) =>
       this.playback.playSound(soundName, playbackRate, volumeOverride),
-    startBufferWithFadeIn: (
-      buffer,
-      delaySeconds,
-      soundKey,
-      playbackRate,
-      volumeOverride,
-      fadeInMs,
-    ) =>
-      this.playbackEngine.startBufferWithFadeIn(
-        buffer,
-        delaySeconds,
-        soundKey,
-        playbackRate,
-        volumeOverride,
-        fadeInMs,
-      ),
-    startBufferWithFadeInAsync: (
-      buffer,
-      delaySeconds,
-      soundKey,
-      playbackRate,
-      volumeOverride,
-      fadeInMs,
-    ) =>
-      this.playbackEngine.startBufferWithFadeInAsync(
-        buffer,
-        delaySeconds,
-        soundKey,
-        playbackRate,
-        volumeOverride,
-        fadeInMs,
-      ),
     trackPlaybackStart: (name) => this.telemetry.trackStart(name),
     trackPlaybackEnd: (name) => this.telemetry.trackEnd(name),
   });
