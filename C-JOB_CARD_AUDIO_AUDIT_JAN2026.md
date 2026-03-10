@@ -159,7 +159,7 @@ Refactoring maintains public API compatibility while improving maintainability.
 
 ## Related Documentation
 
-- `DOCS/AUDIO_AND_LOADING_ENHANCEMENTS_PLAN.md`
+- Practical follow-up guidance now lives in `jobcard.md` and `AUDIO_SETUP.md`
 - `DOCS/AUDIO_MODULE_REFACTORING_REPORT.md`
 - `DOCS/TEST_FAILURES_FIX_JAN2026.md`
 - `plans/audio-loading-issues-analysis-jan2026.md`

@@ -18,6 +18,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 ### 2026-03-10
 
 - Approved implementation after roadmap phase and executed the first single-player competition-polish slice.
+- Changed worm gameplay collisions so only contacted falling targets disappear; non-colliding raining targets continue normally.
 - Tightened `TargetDisplay` motion and styling: removed pulse-heavy behavior, kept the HUD compact, and reduced countdown-bar motion.
 - Removed positive reinforcement gameplay audio; only target-description sentences should speak during play, with incorrect taps kept as lightweight SFX.
 - Added gameplay-audio tracking hooks around target announcements to help audit overlap and confirm only the target sentence is triggered.
@@ -99,6 +100,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - Gameplay voice output should stay instruction-first: target-description sentences are the only intended spoken gameplay audio.
 - `centralAudioManager` and `eventTracker` are the preferred coordination points for overlap prevention and playback auditing.
+- Worms are distractors that cull only the targets they physically touch; collision updates should preserve all other falling targets.
 - Keep gameplay HUD overlays visually light and nonblocking; center-top target guidance is acceptable only when pointer-safe.
 
 ## Recommendations

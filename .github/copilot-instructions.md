@@ -51,6 +51,7 @@
 ## Gameplay Tuning and Continuous Mode
 
 - **Tuning constants**: Live in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts).
+- **Worm collisions**: In gameplay, worms remove only the falling targets they touch; non-colliding raining targets must continue unchanged. Do not reintroduce bounce/push-away behavior.
 - **Continuous mode state**: In SettingsContext with persistence (localStorage key `continuousModeHighScore`); see `src/context/settings-context.tsx`(../src/context/settings-context.tsx).
 
 ## Error Handling

@@ -6,6 +6,7 @@ Use this page as the main landing point for repository documentation.
 
 - `../README.md` — onboarding, commands, architecture notes
 - `../AUDIO_SETUP.md` — current audio and environment setup
+- `../jobcard.md` — compressed recent-history and practical repo notes
 - `CODEBASE_INDEX.md` — fast navigation map for the codebase
 - `../plans/competition-readiness-roadmap-2026-03-10.md` — current competition-readiness roadmap
 
@@ -15,6 +16,7 @@ Use this page as the main landing point for repository documentation.
 | ------------------- | ---------------------- | ------------------------------------------------------ |
 | Onboarding          | `../README.md`         | You need install/run/test commands                     |
 | Audio/env           | `../AUDIO_SETUP.md`    | You need current ElevenLabs or asset guidance          |
+| Recent history      | `../jobcard.md`        | You need the shortest reliable summary of recent work  |
 | Codebase navigation | `CODEBASE_INDEX.md`    | You need to find the right module quickly              |
 | Integration details | `INTEGRATION_GUIDE.md` | You are wiring utilities or shared infrastructure      |
 | Best practices      | `BEST_PRACTICES.md`    | You are changing code patterns or contributor workflow |
@@ -28,10 +30,12 @@ These files are useful context, but they are not the primary source of truth for
 - `../CONSOLE_EXAMPLES.md`
 - `../ISSUE_RESOLUTION_AUDIO.md`
 - `../PR_SUMMARY.md`
-- `IMPLEMENTATION_SUMMARY_AUDIO_AND_LOADING.md`
 - `AUDIO_LOADING_FIXES_COMPLETED_JAN2026.md`
 - `LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md`
 - `archive/README.md`
+
+Older one-off implementation reports may be merged into `../jobcard.md` or `.github/copilot-instructions.md` once their practical guidance becomes stable.
+The January 2026 audio/loading plan and implementation-summary docs have already been folded into `../jobcard.md`, `../AUDIO_SETUP.md`, and code-level references.
 
 If a historical summary disagrees with current behavior:
 

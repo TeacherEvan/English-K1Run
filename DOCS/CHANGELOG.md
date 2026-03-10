@@ -97,7 +97,7 @@ This file consolidates major changes, bug fixes, and enhancements made to the pr
 - **Performance Optimization**: Added input validation guards, pre-calculated collision radii, maintained existing spatial coherence optimizations.
 - **Best Practices**: Implemented TypeScript best practices with proper error handling, consistent naming, and input validation.
 - **Future-Proofing**: Added TODO comment for potential spatial partitioning (quadtree) if object counts scale beyond 500.
-- **Documentation**: Created `COLLISION_DETECTION_IMPROVEMENTS_JAN2026.md` with detailed technical specifications and testing recommendations.
+- **Documentation**: Practical collision guidance now lives in `jobcard.md` and `.github/copilot-instructions.md`.
 - **Impact**: Improved maintainability, robustness, and performance while preserving existing collision behavior.
 
 ### navigateWithRetry Method Improvements (Jan 17, 2026)

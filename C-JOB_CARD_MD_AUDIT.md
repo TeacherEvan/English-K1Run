@@ -44,7 +44,8 @@ Maintained all current, relevant documentation:
 - `DOCS/A-README.md` - Additional README (preserved)
 - `DOCS/A-TODO.md` - Current todo list
 - Job cards: `C-jobcard.md`, `C-JOB_CARD_WORKSPACE_FIXES.md`, `DOCS/JOB_CARD_TOUCH_SPEC_IMPROVEMENT.md`
-- Recent docs: `DOCS/E2E_TEST_FIXES_JAN2026.md`, `DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md`, `DOCS/COLLISION_DETECTION_IMPROVEMENTS_JAN2026.md`
+- Recent docs: `DOCS/E2E_TEST_FIXES_JAN2026.md`, `DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md`
+- Practical collision guidance was later merged into `jobcard.md` and `.github/copilot-instructions.md`.
 
 ## Quality Assurance
 
