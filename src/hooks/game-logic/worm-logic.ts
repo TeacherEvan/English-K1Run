@@ -9,10 +9,7 @@ import {
   WORM_BASE_SPEED,
   WORM_SIZE,
 } from "../../lib/constants/game-config";
-import {
-  calculatePercentageWithinBounds,
-  generateUniqueIdentifier,
-} from "../../lib/semantic-utils";
+import { generateUniqueIdentifier } from "../../lib/semantic-utils";
 import type { GameObject, PlayerSide, WormObject } from "../../types/game";
 
 export interface WormCollisionContext {
@@ -24,12 +21,13 @@ export const applyWormObjectCollision = (
   objects: GameObject[],
   context: WormCollisionContext,
 ) => {
-  if (worms.length === 0 || objects.length === 0) return;
+  if (worms.length === 0 || objects.length === 0) return objects;
 
   const viewportWidth = context.viewportRef.current.width;
   const wormRadiusPx = WORM_SIZE / 2;
   const objectRadiusPx = EMOJI_SIZE / 2;
   const collisionDistancePx = wormRadiusPx + objectRadiusPx;
+  const collidedObjectIds = new Set<string>();
 
   for (const worm of worms) {
     if (!worm.alive) continue;
@@ -45,24 +43,15 @@ export const applyWormObjectCollision = (
       const dy = objYPx - wormYPx;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < collisionDistancePx && distance > 0) {
-        const overlap = collisionDistancePx - distance;
-        const pushStrength = overlap * 0.3;
-        const dirX = dx / distance;
-        const dirY = dy / distance;
-
-        const pushXPx = dirX * pushStrength;
-        const pushYPx = dirY * pushStrength;
-
-        obj.x += (pushXPx / viewportWidth) * 100;
-        obj.y += pushYPx;
-
-        const [minX, maxX] = LANE_BOUNDS[obj.lane];
-        obj.x = calculatePercentageWithinBounds(obj.x, minX, maxX);
-        obj.y = Math.max(0, obj.y);
+      if (distance <= collisionDistancePx) {
+        collidedObjectIds.add(obj.id);
       }
     }
   }
+
+  if (collidedObjectIds.size === 0) return objects;
+
+  return objects.filter((obj) => !collidedObjectIds.has(obj.id));
 };
 
 export const createWorms = (count: number, startIndex = 0): WormObject[] => {

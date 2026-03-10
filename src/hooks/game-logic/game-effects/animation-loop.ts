@@ -40,9 +40,9 @@ export const useAnimationLoop = (
       const currentObjects = gameObjectsRef.current;
       if (currentWorms.length > 0 && currentObjects.length > 0) {
         setGameObjects((prev) => {
-          const updated = [...prev];
-          applyWormObjectCollision(currentWorms, updated, { viewportRef });
-          return updated;
+          return applyWormObjectCollision(currentWorms, prev, {
+            viewportRef,
+          });
         });
       }
 

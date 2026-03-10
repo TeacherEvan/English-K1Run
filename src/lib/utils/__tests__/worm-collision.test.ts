@@ -1,101 +1,82 @@
-/**
- * Unit tests for worm-object collision physics
- * Tests the collision detection and bump mechanics between worms and game objects
- */
+import { describe, expect, it } from "vitest";
+import { applyWormObjectCollision } from "../../../hooks/game-logic/worm-logic";
+import type { GameObject, WormObject } from "../../../types/game";
 
-import { describe, it, expect } from 'vitest'
+const viewportRef = { current: { width: 1000, height: 800 } };
 
-describe('Worm-Object Collision Physics', () => {
-  it('should detect collision when worm and object are close', () => {
-    // Test setup: worm at (50%, 100px), object at (52%, 105px)
-    // With WORM_SIZE=60 and EMOJI_SIZE=60, collision should occur
-    const wormRadiusPx = 30 // WORM_SIZE / 2
-    const objectRadiusPx = 30 // EMOJI_SIZE / 2
-    const collisionDistancePx = wormRadiusPx + objectRadiusPx // 60px
-    
-    const viewportWidth = 1920
-    
-    // Convert percentages to pixels
-    const wormXPx = (50 / 100) * viewportWidth // 960px
-    const wormYPx = 100
-    
-    const objXPx = (52 / 100) * viewportWidth // 998.4px
-    const objYPx = 105
-    
-    // Calculate distance
-    const dx = objXPx - wormXPx // 38.4px
-    const dy = objYPx - wormYPx // 5px
-    const distance = Math.sqrt(dx * dx + dy * dy) // ~38.7px
-    
-    // Should be less than collision distance (60px)
-    expect(distance).toBeLessThan(collisionDistancePx)
-  })
+const createWorm = (overrides: Partial<WormObject> = {}): WormObject => ({
+  id: "worm-1",
+  x: 50,
+  y: 100,
+  vx: 0,
+  vy: 0,
+  alive: true,
+  angle: 0,
+  wigglePhase: 0,
+  lane: "left",
+  ...overrides,
+});
 
-  it('should not detect collision when worm and object are far apart', () => {
-    // Test setup: worm at (20%, 100px), object at (80%, 100px)
-    const wormRadiusPx = 30
-    const objectRadiusPx = 30
-    const collisionDistancePx = wormRadiusPx + objectRadiusPx // 60px
-    
-    const viewportWidth = 1920
-    
-    const wormXPx = (20 / 100) * viewportWidth // 384px
-    const wormYPx = 100
-    
-    const objXPx = (80 / 100) * viewportWidth // 1536px
-    const objYPx = 100
-    
-    const dx = objXPx - wormXPx // 1152px
-    const dy = objYPx - wormYPx // 0px
-    const distance = Math.sqrt(dx * dx + dy * dy) // 1152px
-    
-    // Should be greater than collision distance (60px)
-    expect(distance).toBeGreaterThan(collisionDistancePx)
-  })
+const createObject = (
+  id: string,
+  overrides: Partial<GameObject> = {},
+): GameObject => ({
+  id,
+  type: "apple",
+  emoji: "🍎",
+  x: 50,
+  y: 100,
+  speed: 1,
+  size: 60,
+  lane: "left",
+  ...overrides,
+});
 
-  it('should calculate correct push direction away from worm', () => {
-    // Test: worm at (50, 100), object at (52, 100)
-    // Object should be pushed to the right (positive X direction)
-    const wormXPx = 960 // 50% of 1920
-    const wormYPx = 100
-    
-    const objXPx = 998.4 // 52% of 1920
-    const objYPx = 100
-    
-    const dx = objXPx - wormXPx // 38.4px (positive = right)
-    const dy = objYPx - wormYPx // 0px
-    
-    const distance = Math.sqrt(dx * dx + dy * dy) // 38.4px
-    
-    // Normalized direction should be positive X
-    const dirX = dx / distance
-    const dirY = dy / distance
-    
-    expect(dirX).toBeCloseTo(1, 1) // Should be ~1 (right)
-    expect(dirY).toBeCloseTo(0, 1) // Should be ~0 (no vertical)
-  })
+describe("applyWormObjectCollision", () => {
+  it("removes only objects that collide with a live worm", () => {
+    const worm = createWorm();
+    const collided = createObject("collided", { x: 52, y: 105 });
+    const safe = createObject("safe", { x: 80, y: 300 });
 
-  it('should calculate push strength based on overlap', () => {
-    // Collision distance is 60px (30 + 30)
-    const collisionDistancePx = 60
-    
-    // Actual distance is 40px (20px overlap)
-    const actualDistance = 40
-    const overlap = collisionDistancePx - actualDistance // 20px
-    
-    // Push strength is 30% of overlap
-    const pushStrength = overlap * 0.3 // 6px
-    
-    expect(pushStrength).toBe(6)
-  })
+    const remaining = applyWormObjectCollision([worm], [collided, safe], {
+      viewportRef,
+    });
 
-  it('should convert push correctly from pixels to percentage', () => {
-    const viewportWidth = 1920
-    const pushXPx = 10 // 10 pixels push
-    
-    // Convert to percentage
-    const pushXPercentage = (pushXPx / viewportWidth) * 100
-    
-    expect(pushXPercentage).toBeCloseTo(0.521, 2) // ~0.52%
-  })
-})
+    expect(remaining).toEqual([safe]);
+  });
+
+  it("keeps all objects when no collisions happen", () => {
+    const worm = createWorm();
+    const safeA = createObject("safe-a", { x: 10, y: 200 });
+    const safeB = createObject("safe-b", { x: 85, y: 320, lane: "right" });
+    const objects = [safeA, safeB];
+
+    const remaining = applyWormObjectCollision([worm], objects, {
+      viewportRef,
+    });
+
+    expect(remaining).toEqual(objects);
+  });
+
+  it("ignores dead worms", () => {
+    const deadWorm = createWorm({ alive: false });
+    const object = createObject("target", { x: 51, y: 102 });
+
+    const remaining = applyWormObjectCollision([deadWorm], [object], {
+      viewportRef,
+    });
+
+    expect(remaining).toEqual([object]);
+  });
+
+  it("removes objects even when perfectly overlapping a worm", () => {
+    const worm = createWorm();
+    const overlapping = createObject("overlap");
+
+    const remaining = applyWormObjectCollision([worm], [overlapping], {
+      viewportRef,
+    });
+
+    expect(remaining).toEqual([]);
+  });
+});
