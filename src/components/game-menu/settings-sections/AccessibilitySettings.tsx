@@ -1,4 +1,5 @@
 import { memo, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "../../../context/settings-context";
 import {
     isAudioDescriptionsEnabled,
@@ -7,6 +8,7 @@ import {
 import { Button } from "../../ui/button";
 
 export const AccessibilitySettings = memo(() => {
+    const { t } = useTranslation();
     const { highContrast, reducedMotion, setHighContrast, setReducedMotion } =
         useSettings();
     const [audioDescriptions, setAudioDescriptions] = useState(
@@ -34,9 +36,9 @@ export const AccessibilitySettings = memo(() => {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h4 className="font-medium leading-none">High Contrast</h4>
+                    <h4 className="font-medium leading-none">{t("settings.accessibility.highContrastTitle")}</h4>
                     <p className="text-sm text-muted-foreground">
-                        Improve visibility with higher contrast colors
+                        {t("settings.accessibility.highContrastDescription")}
                     </p>
                 </div>
                 <Button
@@ -44,14 +46,14 @@ export const AccessibilitySettings = memo(() => {
                     aria-pressed={highContrast}
                     onClick={() => setHighContrast(!highContrast)}
                 >
-                    {highContrast ? "On" : "Off"}
+                    {highContrast ? t("common.on") : t("common.off")}
                 </Button>
             </div>
             <div className="flex items-center justify-between">
                 <div>
-                    <h4 className="font-medium leading-none">Reduced Motion</h4>
+                    <h4 className="font-medium leading-none">{t("settings.accessibility.reducedMotionTitle")}</h4>
                     <p className="text-sm text-muted-foreground">
-                        Minimize animations and movement
+                        {t("settings.accessibility.reducedMotionDescription")}
                     </p>
                 </div>
                 <Button
@@ -59,14 +61,14 @@ export const AccessibilitySettings = memo(() => {
                     aria-pressed={reducedMotion}
                     onClick={() => setReducedMotion(!reducedMotion)}
                 >
-                    {reducedMotion ? "On" : "Off"}
+                    {reducedMotion ? t("common.on") : t("common.off")}
                 </Button>
             </div>
             <div className="flex items-center justify-between">
                 <div>
-                    <h4 className="font-medium leading-none">Audio Descriptions</h4>
+                    <h4 className="font-medium leading-none">{t("settings.accessibility.audioDescriptionsTitle")}</h4>
                     <p className="text-sm text-muted-foreground">
-                        Speak short descriptions when audio is missing
+                        {t("settings.accessibility.audioDescriptionsDescription")}
                     </p>
                 </div>
                 <Button
@@ -74,7 +76,7 @@ export const AccessibilitySettings = memo(() => {
                     aria-pressed={audioDescriptions}
                     onClick={toggleAudioDescriptions}
                 >
-                    {audioDescriptions ? "On" : "Off"}
+                    {audioDescriptions ? t("common.on") : t("common.off")}
                 </Button>
             </div>
         </div>

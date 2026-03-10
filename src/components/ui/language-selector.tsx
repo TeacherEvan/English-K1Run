@@ -4,10 +4,12 @@
  * Supports keyboard navigation and screen readers
  */
 
+import { useSettings } from '@/context/settings-context'
 import { useLanguage } from '@/hooks/use-language'
 import { LANGUAGE_OPTIONS, type SupportedLanguage } from '@/lib/constants/language-config'
 import { cn } from '@/lib/utils'
 import * as SelectPrimitive from '@radix-ui/react-select'
+import { useTranslation } from 'react-i18next'
 // import { Check, ChevronDown } from 'lucide-react'
 import React, { useState } from 'react'
 
@@ -27,6 +29,7 @@ interface LanguageSelectorProps {
     onLanguageChange?: (language: SupportedLanguage) => void
     showLabel?: boolean
     disabled?: boolean
+    languageType?: 'display' | 'gameplay'
 }
 
 /**
@@ -36,9 +39,27 @@ interface LanguageSelectorProps {
 export const LanguageSelector = React.forwardRef<
     HTMLButtonElement,
     LanguageSelectorProps
->(({ className, onLanguageChange, showLabel = true, disabled = false }, ref) => {
-    const { language, setLanguage } = useLanguage()
+>(({ className, onLanguageChange, showLabel = true, disabled = false, languageType = 'display' }, ref) => {
+    const { t } = useTranslation()
+    const { language: displayLanguage, setLanguage: setDisplayLanguage } = useLanguage()
+    const { gameplayLanguage, setGameplayLanguage } = useSettings()
     const [isOpen, setIsOpen] = useState(false)
+    const language = languageType === 'gameplay' ? gameplayLanguage : displayLanguage
+    const setLanguage = languageType === 'gameplay'
+        ? setGameplayLanguage
+        : setDisplayLanguage
+
+    const labelId = `${languageType}-language-selector-label`
+    const descriptionId = `${languageType}-language-selector-description`
+    const labelText = languageType === 'gameplay'
+        ? t('settings.controls.gameplayLanguageTitle')
+        : t('settings.controls.displayLanguageTitle')
+    const descriptionText = languageType === 'gameplay'
+        ? t('settings.controls.gameplayLanguageDescription')
+        : t('settings.controls.displayLanguageDescription')
+    const ariaLabel = languageType === 'gameplay'
+        ? t('settings.controls.selectGameplayLanguage')
+        : t('settings.controls.selectDisplayLanguage')
 
     const handleLanguageChange = (value: string) => {
         if (value !== language) {
@@ -60,9 +81,9 @@ export const LanguageSelector = React.forwardRef<
             {showLabel && (
                 <label
                     className="block text-sm font-medium text-foreground mb-2"
-                    id="language-selector-label"
+                    id={labelId}
                 >
-                    Select Language
+                    {labelText}
                 </label>
             )}
 
@@ -81,11 +102,11 @@ export const LanguageSelector = React.forwardRef<
                         'focus:ring-2 focus:ring-ring/50 focus:border-ring',
                         'disabled:cursor-not-allowed disabled:opacity-50',
                         'data-[state=open]:border-ring data-[state=open]:ring-2 data-[state=open]:ring-ring/50',
-                        'transition-colors duration-200 hover:border-input/80',
-                        'aria-label-by="language-selector-label"'
+                        'transition-colors duration-200 hover:border-input/80'
                     )}
-                    aria-label="Select gameplay language"
-                    aria-describedby="language-selector-description"
+                    aria-label={ariaLabel}
+                    aria-describedby={descriptionId}
+                    aria-labelledby={showLabel ? labelId : undefined}
                     aria-expanded={isOpen}
                 >
                     <SelectPrimitive.Value
@@ -120,7 +141,7 @@ export const LanguageSelector = React.forwardRef<
                         <SelectPrimitive.Viewport className="p-1">
                             <SelectPrimitive.Group>
                                 <SelectPrimitive.Label className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                                    Languages
+                                    {t('settings.controls.languageGroupLabel')}
                                 </SelectPrimitive.Label>
 
                                 {LANGUAGE_OPTIONS.map((option) => (
@@ -166,10 +187,10 @@ export const LanguageSelector = React.forwardRef<
             </SelectPrimitive.Root>
 
             <p
-                id="language-selector-description"
+                id={descriptionId}
                 className="mt-1 text-xs text-muted-foreground"
             >
-                Changes will apply to gameplay text and voiceovers
+                {descriptionText}
             </p>
         </div>
     )

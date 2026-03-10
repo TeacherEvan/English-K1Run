@@ -24,7 +24,17 @@
     "tapToStart": "點擊開始",
     "tapToContinue": "點擊繼續",
     "pressEnter": "按 ENTER 開始",
-    "pressSpace": "按 SPACE 開始"
+    "pressSpace": "按 SPACE 開始",
+    "exitDialog": {
+      "title": "退出遊戲",
+      "description": "你確定要退出嗎？"
+    },
+    "credits": {
+      "title": "鳴謝",
+      "createdBy": "製作",
+      "inAssociationWith": "合作單位",
+      "specialThanks": "特別鳴謝"
+    }
   },
   "categories": {
     "fruits": "水果和蔬菜",
@@ -59,5 +69,63 @@
     "targetObject": "目標對象",
     "levelSelectionOpened": "關卡選擇選單已開啟",
     "selectedLevel": "已選擇關卡：{{level}}"
+  },
+  "common": {
+    "on": "開啟",
+    "off": "關閉",
+    "cancel": "取消",
+    "close": "關閉"
+  },
+  "settings": {
+    "title": "設定",
+    "description": "設定音效、畫面、控制與無障礙功能",
+    "tabs": {
+      "audio": "音效",
+      "visual": "畫面",
+      "controls": "控制",
+      "accessibility": "無障礙"
+    },
+    "audio": {
+      "soundTitle": "聲音",
+      "soundDescription": "開啟或靜音全部遊戲音效",
+      "masterVolume": "主音量"
+    },
+    "visual": {
+      "themeTitle": "主題",
+      "themeDescription": "為介面選擇配色主題",
+      "displayScaleTitle": "顯示縮放",
+      "displayScaleDescription": "按你的螢幕調整介面大小",
+      "themeOptions": {
+        "colorful": "繽紛",
+        "light": "明亮",
+        "dark": "深色"
+      },
+      "scaleOptions": {
+        "auto": "自動",
+        "small": "小",
+        "medium": "中",
+        "large": "大"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "語言",
+      "languageSectionDescription": "選擇選單/按鈕語言，以及遊戲文字/語音語言。",
+      "displayLanguageTitle": "選單與按鈕語言",
+      "displayLanguageDescription": "套用到選單、按鈕及畫面介面文字。",
+      "gameplayLanguageTitle": "遊戲文字與語音語言",
+      "gameplayLanguageDescription": "套用到遊戲提示、目標句子與語音播放。",
+      "selectDisplayLanguage": "選擇選單與按鈕語言",
+      "selectGameplayLanguage": "選擇遊戲文字與語音語言",
+      "languageGroupLabel": "語言",
+      "continuousModeDescription": "持續遊玩，不會因勝利或停止而結束"
+    },
+    "accessibility": {
+      "highContrastTitle": "高對比",
+      "highContrastDescription": "使用更高對比色彩提升可見度",
+      "reducedMotionTitle": "減少動態效果",
+      "reducedMotionDescription": "減少動畫與移動效果",
+      "audioDescriptionsTitle": "音訊描述",
+      "audioDescriptionsDescription": "當沒有音效時朗讀簡短描述"
+    }
   }
 }

@@ -1,5 +1,12 @@
 import { expect, test } from "../fixtures/game.fixture";
 
+const THAI_OPTION_NAME = /^Thai/;
+const CONTROLS_TAB_NAME = /Controls|การควบคุม/;
+const DISPLAY_LANGUAGE_LABEL = /Menu and buttons language|ภาษาเมนูและปุ่ม/;
+const GAMEPLAY_LANGUAGE_LABEL =
+  /Gameplay text and voice language|ภาษาข้อความเกมและเสียง/;
+const SETTINGS_DIALOG_NAME = /Settings|ตั้งค่า/;
+
 test.describe("Game Menu", () => {
   test.beforeEach(async ({ gamePage }) => {
     await gamePage.goto();
@@ -33,13 +40,11 @@ test.describe("Game Menu", () => {
 
   test("should allow selecting different levels", async ({ gamePage }) => {
     await gamePage.menu.openLevelSelect();
-    // Select level 2 (Counting Fun)
     await gamePage.menu.selectLevel(1);
 
     const secondButton = gamePage.menu.levelButtons.nth(1);
     await expect(secondButton).toHaveAttribute("data-selected", "true");
 
-    // First button should no longer be selected
     const firstButton = gamePage.menu.levelButtons.first();
     await expect(firstButton).toHaveAttribute("data-selected", "false");
   });
@@ -61,11 +66,9 @@ test.describe("Game Menu", () => {
   test("should start game when Start Race is clicked", async ({ gamePage }) => {
     await gamePage.menu.startGame();
 
-    // Menu should disappear
     const menuVisible = await gamePage.menu.isVisible();
     expect(menuVisible).toBe(false);
 
-    // Target display should appear
     const gameStarted = await gamePage.gameplay.isGameStarted();
     expect(gameStarted).toBe(true);
   });
@@ -75,30 +78,126 @@ test.describe("Game Menu", () => {
   }) => {
     await gamePage.menu.playAllLevels();
 
-    // Menu should disappear
     const menuVisible = await gamePage.menu.isVisible();
     expect(menuVisible).toBe(false);
 
-    // Game should start
     const gameStarted = await gamePage.gameplay.isGameStarted();
     expect(gameStarted).toBe(true);
-
-    // Stopwatch should be visible in continuous mode
     await expect(gamePage.gameplay.stopwatch).toBeVisible();
   });
 
   test("should display correct category after starting game", async ({
     gamePage,
   }) => {
-    // Select Counting Fun (level 2)
     await gamePage.menu.selectLevel(1);
     await gamePage.menu.startGame();
-
-    // Wait for game to start
     await gamePage.gameplay.targetDisplay.waitFor({ state: "visible" });
 
-    // Should display target from counting category
     const target = await gamePage.gameplay.getCurrentTarget();
     expect(target.name).toBeTruthy();
+  });
+
+  test("should persist Thai display and gameplay language settings after reload", async ({
+    gamePage,
+    page,
+  }) => {
+    const openSettingsDialog = async () => {
+      await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
+        element.click();
+      });
+
+      const dialog = page.getByRole("dialog", { name: SETTINGS_DIALOG_NAME });
+      await expect(dialog).toBeVisible();
+      return dialog;
+    };
+
+    const openControlsTab = async () => {
+      const controlsTab = page
+        .getByRole("dialog", { name: SETTINGS_DIALOG_NAME })
+        .getByRole("tab", { name: CONTROLS_TAB_NAME });
+
+      await controlsTab.focus();
+      await page.keyboard.press("Enter");
+      await page
+        .getByRole("heading", { name: /Language|ภาษา/ })
+        .waitFor({ state: "visible" });
+    };
+
+    const chooseThaiForLabel = async (labelPattern: RegExp) => {
+      const trigger = page.getByRole("combobox", { name: labelPattern });
+
+      await trigger.evaluate((element: HTMLElement) => {
+        element.click();
+      });
+      await page
+        .getByRole("option", { name: THAI_OPTION_NAME })
+        .evaluate((element: HTMLElement) => {
+          element.click();
+        });
+    };
+
+    await page.evaluate(() => {
+      localStorage.removeItem("k1-settings");
+      localStorage.removeItem("k1-language");
+    });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await gamePage.waitForReady();
+
+    await expect(gamePage.menu.startButton).toContainText("Start Game");
+
+    const settingsDialog = await openSettingsDialog();
+    await openControlsTab();
+    await chooseThaiForLabel(DISPLAY_LANGUAGE_LABEL);
+
+    await expect(
+      settingsDialog.getByRole("heading", { name: "ตั้งค่า" }),
+    ).toBeVisible();
+    await settingsDialog
+      .getByRole("button", { name: /Close|ปิด/ })
+      .last()
+      .evaluate((element: HTMLElement) => {
+        element.click();
+      });
+
+    await expect(gamePage.menu.startButton).toContainText("เริ่มเกม");
+    await expect(gamePage.menu.playAllLevelsButton).toContainText(
+      "เล่นทุกระดับ",
+    );
+    await expect(gamePage.menu.settingsButton).toContainText("ตั้งค่า");
+
+    await openSettingsDialog();
+    await openControlsTab();
+    await chooseThaiForLabel(GAMEPLAY_LANGUAGE_LABEL);
+
+    const storedSettings = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("k1-settings") ?? "{}"),
+    );
+    expect(storedSettings.displayLanguage).toBe("th");
+    expect(storedSettings.gameplayLanguage).toBe("th");
+
+    const storedDisplayLanguage = await page.evaluate(() =>
+      localStorage.getItem("k1-language"),
+    );
+    expect(storedDisplayLanguage).toBe("th");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await gamePage.waitForReady();
+
+    await expect(gamePage.menu.startButton).toContainText("เริ่มเกม");
+
+    const reloadedSettingsDialog = await openSettingsDialog();
+    await openControlsTab();
+
+    const displayLanguageTrigger = reloadedSettingsDialog.getByRole(
+      "combobox",
+      { name: DISPLAY_LANGUAGE_LABEL },
+    );
+    const gameplayLanguageTrigger = reloadedSettingsDialog.getByRole(
+      "combobox",
+      { name: GAMEPLAY_LANGUAGE_LABEL },
+    );
+
+    await expect(displayLanguageTrigger).toContainText("Thai");
+    await expect(gameplayLanguageTrigger).toContainText("Thai");
   });
 });

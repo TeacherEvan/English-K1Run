@@ -24,7 +24,17 @@
     "tapToStart": "แตะเพื่อเริ่มต้น",
     "tapToContinue": "แตะเพื่อไปต่อ",
     "pressEnter": "กด ENTER เพื่อเริ่มต้น",
-    "pressSpace": "กด SPACE เพื่อเริ่มต้น"
+    "pressSpace": "กด SPACE เพื่อเริ่มต้น",
+    "exitDialog": {
+      "title": "ออกจากเกม",
+      "description": "คุณแน่ใจหรือไม่ว่าต้องการออก?"
+    },
+    "credits": {
+      "title": "เครดิต",
+      "createdBy": "สร้างโดย",
+      "inAssociationWith": "ร่วมกับ",
+      "specialThanks": "ขอขอบคุณเป็นพิเศษ"
+    }
   },
   "categories": {
     "fruits": "ผลไม้และผัก",
@@ -59,5 +69,63 @@
     "targetObject": "วัตถุเป้าหมาย",
     "levelSelectionOpened": "เปิดเมนูเลือกด่านแล้ว",
     "selectedLevel": "ด่านที่เลือก: {{level}}"
+  },
+  "common": {
+    "on": "เปิด",
+    "off": "ปิด",
+    "cancel": "ยกเลิก",
+    "close": "ปิด"
+  },
+  "settings": {
+    "title": "ตั้งค่า",
+    "description": "ปรับแต่งเสียง ภาพ การควบคุม และการช่วยการเข้าถึง",
+    "tabs": {
+      "audio": "เสียง",
+      "visual": "ภาพ",
+      "controls": "การควบคุม",
+      "accessibility": "การช่วยการเข้าถึง"
+    },
+    "audio": {
+      "soundTitle": "เสียง",
+      "soundDescription": "เปิดหรือปิดเสียงทั้งหมดของเกม",
+      "masterVolume": "ระดับเสียงหลัก"
+    },
+    "visual": {
+      "themeTitle": "ธีม",
+      "themeDescription": "เลือกชุดสีสำหรับหน้าตาโปรแกรม",
+      "displayScaleTitle": "ขนาดการแสดงผล",
+      "displayScaleDescription": "ปรับขนาดส่วนติดต่อให้เหมาะกับหน้าจอของคุณ",
+      "themeOptions": {
+        "colorful": "สีสันสดใส",
+        "light": "สว่าง",
+        "dark": "มืด"
+      },
+      "scaleOptions": {
+        "auto": "อัตโนมัติ",
+        "small": "เล็ก",
+        "medium": "กลาง",
+        "large": "ใหญ่"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "ภาษา",
+      "languageSectionDescription": "เลือกภาษาสำหรับเมนูและปุ่ม รวมถึงภาษาสำหรับข้อความเกมและเสียง",
+      "displayLanguageTitle": "ภาษาเมนูและปุ่ม",
+      "displayLanguageDescription": "ใช้กับเมนู ปุ่ม และข้อความบนหน้าจอ",
+      "gameplayLanguageTitle": "ภาษาข้อความเกมและเสียง",
+      "gameplayLanguageDescription": "ใช้กับคำสั่งในเกม ประโยคเป้าหมาย และเสียงบรรยาย",
+      "selectDisplayLanguage": "เลือกภาษาเมนูและปุ่ม",
+      "selectGameplayLanguage": "เลือกภาษาข้อความเกมและเสียง",
+      "languageGroupLabel": "ภาษา",
+      "continuousModeDescription": "เล่นต่อเนื่องโดยไม่หยุดเมื่อชนะ"
+    },
+    "accessibility": {
+      "highContrastTitle": "คอนทราสต์สูง",
+      "highContrastDescription": "เพิ่มความชัดเจนด้วยสีที่ตัดกันมากขึ้น",
+      "reducedMotionTitle": "ลดการเคลื่อนไหว",
+      "reducedMotionDescription": "ลดแอนิเมชันและการเคลื่อนไหวบนหน้าจอ",
+      "audioDescriptionsTitle": "คำบรรยายเสียง",
+      "audioDescriptionsDescription": "พูดคำอธิบายสั้น ๆ เมื่อไม่มีไฟล์เสียง"
+    }
   }
 }

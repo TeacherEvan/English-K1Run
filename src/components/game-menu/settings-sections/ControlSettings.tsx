@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button";
 import { LanguageSelector } from "../../ui/language-selector";
 
@@ -9,20 +10,29 @@ interface ControlSettingsProps {
 
 export const ControlSettings = memo(
     ({ continuousMode, onToggleContinuousMode }: ControlSettingsProps) => {
+        const { t } = useTranslation();
+
         return (
             <div className="space-y-4">
-                <div>
-                    <h4 className="font-medium leading-none mb-2">Language</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                        Select gameplay language and voiceovers
-                    </p>
-                    <LanguageSelector showLabel={false} className="w-full" />
+                <div className="space-y-4 rounded-lg border bg-card/50 p-4">
+                    <div className="space-y-1">
+                        <h4 className="font-medium leading-none">
+                            {t("settings.controls.languageSectionTitle")}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                            {t("settings.controls.languageSectionDescription")}
+                        </p>
+                    </div>
+                    <LanguageSelector className="w-full" languageType="display" />
+                    <LanguageSelector className="w-full" languageType="gameplay" />
                 </div>
                 <div className="flex items-center justify-between rounded-lg border bg-card/50 p-4">
                     <div className="space-y-1">
-                        <h4 className="font-medium leading-none">Continuous Mode</h4>
+                        <h4 className="font-medium leading-none">
+                            {t("game.continuousMode")}
+                        </h4>
                         <p className="text-sm text-muted-foreground">
-                            Play without winning or stopping
+                            {t("settings.controls.continuousModeDescription")}
                         </p>
                     </div>
                     <Button
@@ -31,7 +41,7 @@ export const ControlSettings = memo(
                         className={continuousMode ? "bg-green-600 hover:bg-green-700" : ""}
                         aria-pressed={continuousMode}
                     >
-                        {continuousMode ? "On" : "Off"}
+                        {continuousMode ? t("common.on") : t("common.off")}
                     </Button>
                 </div>
             </div>

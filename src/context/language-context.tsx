@@ -16,19 +16,26 @@ interface LanguageProviderProps {
 import { useSettings } from './settings-context'
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-    const { displayLanguage, setDisplayLanguage } = useSettings()
+    const {
+        displayLanguage,
+        gameplayLanguage,
+        setDisplayLanguage,
+    } = useSettings()
 
     // Use displayLanguage from settings as the source of truth
     const language = useMemo(() =>
         isSupportedLanguage(displayLanguage) ? displayLanguage as SupportedLanguage : 'en' as SupportedLanguage
         , [displayLanguage])
 
-    // Sync language to localStorage, i18n, and sound manager
+    // Sync display language to localStorage and i18n
     useEffect(() => {
         localStorage.setItem('k1-language', language)
         void i18n.changeLanguage(language)
-        soundManager.setLanguage(language)
     }, [language])
+
+    useEffect(() => {
+        soundManager.setLanguage(gameplayLanguage)
+    }, [gameplayLanguage])
 
     // Update language with telemetry tracking
     const setLanguage = (newLanguage: SupportedLanguage) => {

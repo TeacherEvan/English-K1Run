@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import type { ResolutionScale } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import {
@@ -31,6 +32,8 @@ export const GameMenuSettingsDialog = memo(
         continuousMode,
         onToggleContinuousMode,
     }: GameMenuSettingsDialogProps) => {
+        const { t } = useTranslation();
+
         return (
             <Dialog>
                 <DialogTrigger asChild>
@@ -43,9 +46,7 @@ export const GameMenuSettingsDialog = memo(
                     >
                         <MenuActionButtonContent
                             icon={<SettingsIcon className="w-6 h-6 text-primary" />}
-                            title="Settings"
-                            subtitle="การตั้งค่า"
-                            subtitleClassName="text-xs font-semibold text-foreground font-thai mt-1"
+                            title={t("game.settings")}
                         />
                     </Button>
                 </DialogTrigger>
@@ -53,18 +54,20 @@ export const GameMenuSettingsDialog = memo(
                     <DialogHeader>
                         <DialogTitle className="text-2xl flex items-center gap-2">
                             <SettingsIcon className="w-6 h-6" />
-                            Settings / การตั้งค่า
+                            {t("settings.title")}
                         </DialogTitle>
                         <DialogDescription>
-                            Configure audio, visuals, controls, and accessibility
+                            {t("settings.description")}
                         </DialogDescription>
                     </DialogHeader>
                     <Tabs defaultValue="audio" className="py-4">
                         <TabsList className="w-full justify-between">
-                            <TabsTrigger value="audio">Audio</TabsTrigger>
-                            <TabsTrigger value="visual">Visual</TabsTrigger>
-                            <TabsTrigger value="controls">Controls</TabsTrigger>
-                            <TabsTrigger value="accessibility">Accessibility</TabsTrigger>
+                            <TabsTrigger value="audio">{t("settings.tabs.audio")}</TabsTrigger>
+                            <TabsTrigger value="visual">{t("settings.tabs.visual")}</TabsTrigger>
+                            <TabsTrigger value="controls">{t("settings.tabs.controls")}</TabsTrigger>
+                            <TabsTrigger value="accessibility">
+                                {t("settings.tabs.accessibility")}
+                            </TabsTrigger>
                         </TabsList>
                         <div className="mt-6 rounded-lg border bg-card/50 p-4">
                             <TabsContent value="audio">

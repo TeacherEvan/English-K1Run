@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import type { ResolutionScale, Theme } from "../../../context/settings-context";
 import { useSettings } from "../../../context/settings-context";
 import { Button } from "../../ui/button";
@@ -10,21 +11,22 @@ interface VisualSettingsProps {
 }
 
 const THEME_OPTIONS: Array<{ id: Theme; label: string }> = [
-    { id: "colorful", label: "Colorful" },
-    { id: "light", label: "Light" },
-    { id: "dark", label: "Dark" },
+    { id: "colorful", label: "settings.visual.themeOptions.colorful" },
+    { id: "light", label: "settings.visual.themeOptions.light" },
+    { id: "dark", label: "settings.visual.themeOptions.dark" },
 ];
 
 export const VisualSettings = memo(
     ({ resolutionScale, setResolutionScale }: VisualSettingsProps) => {
+        const { t } = useTranslation();
         const { theme, setTheme } = useSettings();
 
         return (
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Theme</h4>
+                    <h4 className="font-medium leading-none">{t("settings.visual.themeTitle")}</h4>
                     <p className="text-sm text-muted-foreground">
-                        Choose a color theme for the interface
+                        {t("settings.visual.themeDescription")}
                     </p>
                     <div className="grid grid-cols-3 gap-2">
                         {THEME_OPTIONS.map((option) => (
@@ -34,15 +36,15 @@ export const VisualSettings = memo(
                                 onClick={() => setTheme(option.id)}
                                 aria-pressed={theme === option.id}
                             >
-                                {option.label}
+                                {t(option.label)}
                             </Button>
                         ))}
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Display Scale</h4>
+                    <h4 className="font-medium leading-none">{t("settings.visual.displayScaleTitle")}</h4>
                     <p className="text-sm text-muted-foreground">
-                        Adjust UI size for your screen
+                        {t("settings.visual.displayScaleDescription")}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                         {DISPLAY_SCALE_OPTIONS.map((option) => (
@@ -54,7 +56,7 @@ export const VisualSettings = memo(
                                 onClick={() => setResolutionScale(option.id)}
                                 aria-pressed={resolutionScale === option.id}
                             >
-                                {option.label}
+                                {t(`settings.visual.scaleOptions.${option.id}`)}
                             </Button>
                         ))}
                     </div>

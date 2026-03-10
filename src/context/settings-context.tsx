@@ -1,3 +1,8 @@
+import {
+  DEFAULT_LANGUAGE,
+  isSupportedLanguage,
+  type SupportedLanguage,
+} from '@/lib/constants/language-config'
 import { soundManager } from '@/lib/sound-manager'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
@@ -9,8 +14,8 @@ interface SettingsState {
   highContrast: boolean
   reducedMotion: boolean
   resolutionScale: ResolutionScale
-  gameplayLanguage: string
-  displayLanguage: string
+  gameplayLanguage: SupportedLanguage
+  displayLanguage: SupportedLanguage
   volume: number
   soundEnabled: boolean
 }
@@ -20,8 +25,8 @@ interface SettingsContextType extends SettingsState {
   setHighContrast: (enabled: boolean) => void
   setReducedMotion: (enabled: boolean) => void
   setResolutionScale: (scale: ResolutionScale) => void
-  setGameplayLanguage: (lang: string) => void
-  setDisplayLanguage: (lang: string) => void
+  setGameplayLanguage: (lang: SupportedLanguage) => void
+  setDisplayLanguage: (lang: SupportedLanguage) => void
   setVolume: (volume: number) => void
   setSoundEnabled: (enabled: boolean) => void
 }
@@ -30,13 +35,32 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 const STORAGE_KEY = 'k1-settings'
 
+const sanitizeLanguage = (value: unknown): SupportedLanguage =>
+  typeof value === 'string' && isSupportedLanguage(value)
+    ? value
+    : DEFAULT_LANGUAGE
+
+const sanitizeStoredSettings = (value: unknown): SettingsState => {
+  if (!value || typeof value !== 'object') {
+    return DEFAULT_SETTINGS
+  }
+
+  const stored = value as Partial<SettingsState>
+  return {
+    ...DEFAULT_SETTINGS,
+    ...stored,
+    gameplayLanguage: sanitizeLanguage(stored.gameplayLanguage),
+    displayLanguage: sanitizeLanguage(stored.displayLanguage),
+  }
+}
+
 const DEFAULT_SETTINGS: SettingsState = {
   theme: 'colorful',
   highContrast: false,
   reducedMotion: false,
   resolutionScale: 'auto',
-  gameplayLanguage: 'en',
-  displayLanguage: 'en',
+  gameplayLanguage: DEFAULT_LANGUAGE,
+  displayLanguage: DEFAULT_LANGUAGE,
   volume: 0.6,
   soundEnabled: true,
 }
@@ -47,7 +71,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       try {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) }
+        return sanitizeStoredSettings(JSON.parse(stored))
       } catch (e) {
         console.error('Failed to parse settings', e)
       }
@@ -84,8 +108,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setHighContrast = (highContrast: boolean) => setSettings(s => ({ ...s, highContrast }))
   const setReducedMotion = (reducedMotion: boolean) => setSettings(s => ({ ...s, reducedMotion }))
   const setResolutionScale = (resolutionScale: ResolutionScale) => setSettings(s => ({ ...s, resolutionScale }))
-  const setGameplayLanguage = (gameplayLanguage: string) => setSettings(s => ({ ...s, gameplayLanguage }))
-  const setDisplayLanguage = (displayLanguage: string) => setSettings(s => ({ ...s, displayLanguage }))
+  const setGameplayLanguage = (gameplayLanguage: SupportedLanguage) => setSettings(s => ({ ...s, gameplayLanguage }))
+  const setDisplayLanguage = (displayLanguage: SupportedLanguage) => setSettings(s => ({ ...s, displayLanguage }))
   const setVolume = (volume: number) => setSettings(s => ({ ...s, volume }))
   const setSoundEnabled = (soundEnabled: boolean) => setSettings(s => ({ ...s, soundEnabled }))
 

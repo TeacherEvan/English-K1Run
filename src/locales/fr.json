@@ -24,7 +24,17 @@
     "tapToStart": "Appuyez pour commencer",
     "tapToContinue": "Appuyez pour continuer",
     "pressEnter": "Appuyez sur ENTRÉE pour commencer",
-    "pressSpace": "Appuyez sur ESPACE pour commencer"
+    "pressSpace": "Appuyez sur ESPACE pour commencer",
+    "exitDialog": {
+      "title": "Quitter le jeu",
+      "description": "Voulez-vous vraiment quitter ?"
+    },
+    "credits": {
+      "title": "Crédits",
+      "createdBy": "Créé par",
+      "inAssociationWith": "En association avec",
+      "specialThanks": "Remerciements spéciaux"
+    }
   },
   "categories": {
     "fruits": "Fruits et Légumes",
@@ -59,5 +69,63 @@
     "targetObject": "Objet Cible",
     "levelSelectionOpened": "Menu de sélection des niveaux ouvert",
     "selectedLevel": "Niveau sélectionné : {{level}}"
+  },
+  "common": {
+    "on": "Activé",
+    "off": "Désactivé",
+    "cancel": "Annuler",
+    "close": "Fermer"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Configurer l'audio, l'affichage, les commandes et l'accessibilité",
+    "tabs": {
+      "audio": "Audio",
+      "visual": "Affichage",
+      "controls": "Commandes",
+      "accessibility": "Accessibilité"
+    },
+    "audio": {
+      "soundTitle": "Son",
+      "soundDescription": "Activer ou couper tous les sons du jeu",
+      "masterVolume": "Volume principal"
+    },
+    "visual": {
+      "themeTitle": "Thème",
+      "themeDescription": "Choisissez un thème de couleurs pour l'interface",
+      "displayScaleTitle": "Échelle d'affichage",
+      "displayScaleDescription": "Ajustez la taille de l'interface pour votre écran",
+      "themeOptions": {
+        "colorful": "Coloré",
+        "light": "Clair",
+        "dark": "Sombre"
+      },
+      "scaleOptions": {
+        "auto": "Auto",
+        "small": "Petit",
+        "medium": "Moyen",
+        "large": "Grand"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "Langue",
+      "languageSectionDescription": "Choisissez la langue des menus/boutons et celle du texte/voix du jeu.",
+      "displayLanguageTitle": "Langue des menus et boutons",
+      "displayLanguageDescription": "S'applique aux menus, boutons et textes affichés.",
+      "gameplayLanguageTitle": "Langue du texte et de la voix du jeu",
+      "gameplayLanguageDescription": "S'applique aux consignes, phrases cibles et voix du jeu.",
+      "selectDisplayLanguage": "Sélectionner la langue des menus et boutons",
+      "selectGameplayLanguage": "Sélectionner la langue du texte et de la voix du jeu",
+      "languageGroupLabel": "Langues",
+      "continuousModeDescription": "Jouer sans gagner ni s'arrêter"
+    },
+    "accessibility": {
+      "highContrastTitle": "Contraste élevé",
+      "highContrastDescription": "Améliore la visibilité avec des couleurs plus contrastées",
+      "reducedMotionTitle": "Mouvement réduit",
+      "reducedMotionDescription": "Réduit les animations et les mouvements",
+      "audioDescriptionsTitle": "Descriptions audio",
+      "audioDescriptionsDescription": "Prononce de courtes descriptions quand l'audio manque"
+    }
   }
 }

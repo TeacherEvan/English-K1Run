@@ -24,7 +24,17 @@
     "tapToStart": "Tap to start",
     "tapToContinue": "Tap to continue",
     "pressEnter": "Press ENTER to start",
-    "pressSpace": "Press SPACE to start"
+    "pressSpace": "Press SPACE to start",
+    "exitDialog": {
+      "title": "Exit Game",
+      "description": "Are you sure you want to exit?"
+    },
+    "credits": {
+      "title": "Credits",
+      "createdBy": "Created By",
+      "inAssociationWith": "In Association With",
+      "specialThanks": "Special Thanks To"
+    }
   },
   "categories": {
     "fruits": "Fruits & Vegetables",
@@ -59,5 +69,63 @@
     "targetObject": "Target Object",
     "levelSelectionOpened": "Level selection menu opened",
     "selectedLevel": "Selected level: {{level}}"
+  },
+  "common": {
+    "on": "On",
+    "off": "Off",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Configure audio, visuals, controls, and accessibility",
+    "tabs": {
+      "audio": "Audio",
+      "visual": "Visual",
+      "controls": "Controls",
+      "accessibility": "Accessibility"
+    },
+    "audio": {
+      "soundTitle": "Sound",
+      "soundDescription": "Enable or mute all game audio",
+      "masterVolume": "Master Volume"
+    },
+    "visual": {
+      "themeTitle": "Theme",
+      "themeDescription": "Choose a color theme for the interface",
+      "displayScaleTitle": "Display Scale",
+      "displayScaleDescription": "Adjust UI size for your screen",
+      "themeOptions": {
+        "colorful": "Colorful",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "scaleOptions": {
+        "auto": "Auto",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "Language",
+      "languageSectionDescription": "Choose the menu/button language and the gameplay text/voice language.",
+      "displayLanguageTitle": "Menu and buttons language",
+      "displayLanguageDescription": "Applies to menus, buttons, and on-screen interface text.",
+      "gameplayLanguageTitle": "Gameplay text and voice language",
+      "gameplayLanguageDescription": "Applies to gameplay prompts, target sentences, and voiceovers.",
+      "selectDisplayLanguage": "Select menu and buttons language",
+      "selectGameplayLanguage": "Select gameplay text and voice language",
+      "languageGroupLabel": "Languages",
+      "continuousModeDescription": "Play without winning or stopping"
+    },
+    "accessibility": {
+      "highContrastTitle": "High Contrast",
+      "highContrastDescription": "Improve visibility with higher contrast colors",
+      "reducedMotionTitle": "Reduced Motion",
+      "reducedMotionDescription": "Minimize animations and movement",
+      "audioDescriptionsTitle": "Audio Descriptions",
+      "audioDescriptionsDescription": "Speak short descriptions when audio is missing"
+    }
   }
 }

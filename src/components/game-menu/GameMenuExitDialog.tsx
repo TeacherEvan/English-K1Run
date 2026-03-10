@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import {
     Dialog,
@@ -16,6 +17,7 @@ interface GameMenuExitDialogProps {
 
 export const GameMenuExitDialog = memo(
     ({ onResetGame }: GameMenuExitDialogProps) => {
+        const { t } = useTranslation();
         const [showExitDialog, setShowExitDialog] = useState(false);
 
         const handleExit = () => {
@@ -43,9 +45,7 @@ export const GameMenuExitDialog = memo(
                 >
                     <MenuActionButtonContent
                         icon={<LogOutIcon className="w-5 h-5" />}
-                        title="Exit"
-                        subtitle="ออก"
-                        subtitleClassName="text-xs font-semibold text-white font-thai mt-0.5"
+                        title={t("game.exit")}
                     />
                 </Button>
 
@@ -54,10 +54,10 @@ export const GameMenuExitDialog = memo(
                         <DialogHeader>
                             <DialogTitle className="text-2xl flex items-center gap-2 text-destructive">
                                 <LogOutIcon className="w-6 h-6" />
-                                Exit Game / ออกจากเกม
+                                {t("menu.exitDialog.title")}
                             </DialogTitle>
                             <DialogDescription>
-                                Are you sure you want to exit? / คุณแน่ใจหรือไม่ว่าต้องการออก?
+                                {t("menu.exitDialog.description")}
                             </DialogDescription>
                         </DialogHeader>
                         <div className="flex gap-4 justify-end mt-6">
@@ -66,10 +66,10 @@ export const GameMenuExitDialog = memo(
                                 onClick={() => setShowExitDialog(false)}
                                 autoFocus
                             >
-                                Cancel / ยกเลิก
+                                {t("common.cancel")}
                             </Button>
                             <Button variant="destructive" onClick={confirmExit}>
-                                Exit / ออก
+                                {t("game.exit")}
                             </Button>
                         </div>
                     </DialogContent>
