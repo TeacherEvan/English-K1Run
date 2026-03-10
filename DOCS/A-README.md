@@ -1,4 +1,4 @@
-# 🐢 Kindergarten Race - Educational Game
+# 🐢 English K1 Run - Educational Game
 
 > **Production-Grade v1.2** - A premium educational racing game with cutting-edge UX, PWA support, React 19 concurrent features, and 60fps performance
 
@@ -51,7 +51,7 @@ An engaging educational racing game where students identify falling objects to a
 - **GPU-accelerated transforms** for 60fps on tablets/QBoard displays
 - **Reduced motion support** for accessibility (WCAG 2.1 AA compliant)
 
-### 📱 Progressive Web App (PWA)
+### 📱 Progressive Web App setup (PWA)
 
 - **Offline gameplay** - works without internet after first load
 - **Intelligent caching** - 80% faster repeat visits
@@ -159,14 +159,14 @@ The game works as a Progressive Web App with full offline support:
 **Desktop (Chrome/Edge):**
 
 1. Look for install icon in address bar
-2. Click "Install Kindergarten Race"
+2. Click "Install English K1 Run"
 3. Launches in standalone window
 
 ### 🏫 Deployment Options
 
 #### 1. Vercel (Recommended for Schools)
 
-**Alternative Methods**
+#### Alternative Methods
 
 ```bash
 # Method 1: Clean install with legacy peer deps
@@ -186,7 +186,7 @@ npm install -g pnpm
 pnpm install
 ```
 
-**Step 5: Start Development Server**
+#### Step 5: Start Development Server
 
 ```bash
 # Start the dev server (accessible on mobile browser)
@@ -196,7 +196,7 @@ npm run dev
 # http://localhost:5173
 ```
 
-**Step 6: Access on Mobile Browser**
+#### Step 6: Access on Mobile Browser
 
 - Open Chrome/Firefox on your Android device
 - Navigate to `http://localhost:5173`
@@ -241,7 +241,7 @@ npm config set registry https://registry.npmjs.org/
 
 #### Troubleshooting Common Termux Issues
 
-**Issue: Permission Denied**
+#### Issue: Permission Denied
 
 ```bash
 # Fix permission issues
@@ -249,7 +249,7 @@ termux-setup-storage
 chmod +x node_modules/.bin/*
 ```
 
-**Issue: Out of Memory**
+#### Issue: Out of Memory
 
 ```bash
 # Reduce build concurrency
@@ -257,7 +257,7 @@ export NODE_OPTIONS="--max-old-space-size=1024"
 npm run build -- --max-old-space-size=1024
 ```
 
-**Issue: Port Already in Use**
+#### Issue: Port Already in Use
 
 ```bash
 # Kill process using port 5173

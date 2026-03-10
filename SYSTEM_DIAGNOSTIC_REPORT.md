@@ -1,7 +1,7 @@
 # System Diagnostic Report
 
-**Date**: February 8, 2026  
-**Project**: English-K1Run (Kindergarten Race Game)  
+**Date**: February 8, 2026
+**Project**: English-K1Run (English K1 Run)
 **Workspace**: `C:\Users\eboth\Documents\English-K1Run`
 
 ---
@@ -36,7 +36,7 @@ All core development tools are up-to-date. No action required.
 
 ### Summary
 
-```
+```text
 46 vulnerabilities (9 moderate, 14 high, 23 critical)
 ```
 
@@ -112,7 +112,7 @@ This package is:
 | msedgewebview2.exe | ~10   | 135 MB     | ~350 MB      | VSCode webview panels                      |
 | pwsh.exe           | 1     | 10 MB      | 10 MB        | This terminal session                      |
 
-### Verdict
+### Tooling verdict
 
 ✅ **All processes are legitimate development tools.**  
 ✅ **No zombie processes detected** (all have recent start times or active CPU usage).  
@@ -124,7 +124,7 @@ This package is:
 
 ## 5. Disk Space Status
 
-```
+```text
 Drive C:
   Total:   455.32 GB
   Used:    285.83 GB
@@ -132,7 +132,7 @@ Drive C:
   Free %:  37.2%
 ```
 
-### Verdict
+### Disk verdict
 
 ✅ **Healthy - no action required.**  
 Space usage is normal for a development machine.
@@ -181,8 +181,8 @@ npm run build  # Verify build still works
 
 Reference documentation before upgrading:
 
-- ESLint v10: https://eslint.org/blog/2024/eslint-v10-released/
-- Vitest v4: https://vitest.dev/guide/migration.html
+- ESLint v10: <https://eslint.org/blog/2024/eslint-v10-released/>
+- Vitest v4: <https://vitest.dev/guide/migration.html>
 
 **Risk**: MEDIUM (breaking changes require code updates)  
 **Impact**: New linting rules, test API changes  

@@ -1,7 +1,15 @@
 {
   "game": {
-    "title": "การแข่งเต่า",
+    "title": "English K1 Run",
     "startGame": "เริ่มเกม",
+    "playAllLevels": "เล่นทุกระดับ",
+    "levelSelect": "เลือกระดับ",
+    "selectLevel": "เลือกด่าน",
+    "back": "กลับ",
+    "bestTime": "เวลาที่ดีที่สุด",
+    "continuousMode": "โหมดต่อเนื่อง",
+    "find": "หา",
+    "inOrder": "ตามลำดับ",
     "settings": "ตั้งค่า",
     "resume": "ดำเนินการต่อ",
     "quit": "ออกจากเกม",
@@ -11,9 +19,10 @@
     "volume": "ระดับเสียง"
   },
   "menu": {
-    "welcome": "ยินดีต้อนรับสู่การแข่งเต่า!",
+    "welcome": "ยินดีต้อนรับสู่ English K1 Run!",
     "instructions": "แตะวัตถุที่ตกลงมาเพื่อช่วยให้เต่าของคุณชนะ!",
     "tapToStart": "แตะเพื่อเริ่มต้น",
+    "tapToContinue": "แตะเพื่อไปต่อ",
     "pressEnter": "กด ENTER เพื่อเริ่มต้น",
     "pressSpace": "กด SPACE เพื่อเริ่มต้น"
   },
@@ -24,10 +33,13 @@
     "shapes": "รูปร่างและสี",
     "animals": "สัตว์และธรรมชาติ",
     "things": "สิ่งที่เคลื่อนไหว",
-    "weather": "ปรากฏการณ์ลมฟ้าอากาศ"
+    "weather": "ปรากฏการณ์ลมฟ้าอากาศ",
+    "feelings": "ความรู้สึกและการกระทำ",
+    "body": "ส่วนต่างๆ ของร่างกาย"
   },
   "messages": {
     "gameWon": "คุณชนะ! ทำได้ดีมากขอบคุณ!",
+    "victoryTitle": "คุณชนะ!",
     "gameOver": "สิ้นสุดเกม",
     "score": "คะแนน",
     "perfect": "สมบูรณ์แบบ!"
@@ -44,6 +56,8 @@
     "languageSelection": "การเลือกภาษา",
     "gameBoard": "บอร์ดเกม",
     "score": "คะแนนปัจจุบัน",
-    "targetObject": "วัตถุเป้าหมาย"
+    "targetObject": "วัตถุเป้าหมาย",
+    "levelSelectionOpened": "เปิดเมนูเลือกด่านแล้ว",
+    "selectedLevel": "ด่านที่เลือก: {{level}}"
   }
 }

@@ -8,7 +8,7 @@ export const HomeWindowHeader = memo(() => (
     <div className="text-center mb-8">
         <div className="text-6xl mb-4 animate-bounce">🏠</div>
         <h1 className="text-3xl font-bold text-primary mb-2">
-            Welcome to Kindergarten Race
+            Welcome to English K1 Run
         </h1>
         <p className="text-muted-foreground">Choose your adventure!</p>
     </div>

@@ -1,7 +1,15 @@
 {
   "game": {
-    "title": "乌龟比赛",
+    "title": "English K1 Run",
     "startGame": "开始游戏",
+    "playAllLevels": "游玩全部关卡",
+    "levelSelect": "关卡选择",
+    "selectLevel": "选择关卡",
+    "back": "返回",
+    "bestTime": "最佳时间",
+    "continuousMode": "连续模式",
+    "find": "寻找",
+    "inOrder": "按顺序",
     "settings": "设置",
     "resume": "继续",
     "quit": "退出游戏",
@@ -11,9 +19,10 @@
     "volume": "音量"
   },
   "menu": {
-    "welcome": "欢迎来到乌龟比赛!",
+    "welcome": "欢迎来到 English K1 Run!",
     "instructions": "点击掉落的物体来帮助你的乌龟赢得比赛!",
     "tapToStart": "点击开始",
+    "tapToContinue": "点击继续",
     "pressEnter": "按 ENTER 开始",
     "pressSpace": "按 SPACE 开始"
   },
@@ -24,10 +33,13 @@
     "shapes": "形状和颜色",
     "animals": "动物和自然",
     "things": "移动的东西",
-    "weather": "天气奇观"
+    "weather": "天气奇观",
+    "feelings": "情绪与动作",
+    "body": "身体部位"
   },
   "messages": {
     "gameWon": "你赢了!做得很好!",
+    "victoryTitle": "你赢了！",
     "gameOver": "游戏结束",
     "score": "分数",
     "perfect": "完美!"
@@ -44,6 +56,8 @@
     "languageSelection": "语言选择",
     "gameBoard": "游戏板",
     "score": "当前分数",
-    "targetObject": "目标对象"
+    "targetObject": "目标对象",
+    "levelSelectionOpened": "关卡选择菜单已打开",
+    "selectedLevel": "已选择关卡：{{level}}"
   }
 }

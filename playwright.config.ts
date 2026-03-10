@@ -1,5 +1,96 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const isCI = Boolean(process.env.CI);
+const playwrightHost = process.env.PLAYWRIGHT_HOST ?? "127.0.0.1";
+const playwrightPort = process.env.PLAYWRIGHT_PORT ?? "4173";
+const playwrightBaseURL =
+  process.env.PLAYWRIGHT_BASE_URL ??
+  `http://${playwrightHost}:${playwrightPort}`;
+const playwrightProjects = new Set(
+  (process.env.PLAYWRIGHT_PROJECTS ?? "")
+    .split(",")
+    .map((project) => project.trim())
+    .filter(Boolean),
+);
+const includeWebkitProjects =
+  isCI || process.env.PLAYWRIGHT_ENABLE_WEBKIT === "1";
+const localFilteredMatrix = !isCI && playwrightProjects.size > 0;
+const configuredWorkers = process.env.PLAYWRIGHT_WORKERS
+  ? Number(process.env.PLAYWRIGHT_WORKERS)
+  : undefined;
+const shouldIncludeProject = (name: string) => {
+  if (playwrightProjects.size > 0 && !playwrightProjects.has(name))
+    return false;
+  if (!includeWebkitProjects && (name === "webkit" || name === "tablet")) {
+    return false;
+  }
+  return true;
+};
+
+const projects = [
+  {
+    name: "visual",
+    use: {
+      ...devices["Desktop Chrome"],
+      viewport: { width: 1280, height: 720 },
+      animations: "disabled" as const,
+      deviceScaleFactor: 1,
+      locale: "en-US",
+      timezoneId: "UTC",
+      colorScheme: "light" as const,
+      reducedMotion: "reduce" as const,
+    },
+    timeout: 60_000,
+  },
+  {
+    name: "chromium",
+    use: {
+      ...devices["Desktop Chrome"],
+      actionTimeout: 25_000,
+      navigationTimeout: 45_000,
+    },
+    timeout: 60_000,
+  },
+  {
+    name: "firefox",
+    use: {
+      ...devices["Desktop Firefox"],
+      actionTimeout: 25_000,
+      navigationTimeout: 45_000,
+    },
+    timeout: 60_000,
+  },
+  {
+    name: "webkit",
+    use: {
+      ...devices["Desktop Safari"],
+      actionTimeout: 25_000,
+      navigationTimeout: 45_000,
+    },
+    timeout: 60_000,
+  },
+  {
+    name: "tablet",
+    use: {
+      ...devices["iPad Pro 11"],
+      hasTouch: true,
+      actionTimeout: 25_000,
+      navigationTimeout: 45_000,
+    },
+    timeout: 60_000,
+  },
+  {
+    name: "mobile",
+    use: {
+      ...devices["Pixel 7"],
+      hasTouch: true,
+      actionTimeout: 25_000,
+      navigationTimeout: 45_000,
+    },
+    timeout: 60_000,
+  },
+].filter((project) => shouldIncludeProject(project.name));
+
 /**
  * Playwright configuration for Kindergarten Race Game
  * @see https://playwright.dev/docs/test-configuration
@@ -15,13 +106,21 @@ export default defineConfig({
   fullyParallel: true,
 
   // Fail the build on CI if you accidentally left test.only in the source code
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
 
   // Retry failed tests on CI
-  retries: process.env.CI ? 2 : 0,
+  retries: isCI ? 2 : 0,
 
   // Workers - limit parallelism on CI
-  workers: process.env.CI ? 1 : process.platform === "win32" ? 2 : undefined,
+  workers:
+    configuredWorkers ??
+    (isCI
+      ? 1
+      : localFilteredMatrix
+        ? 1
+        : process.platform === "win32"
+          ? 2
+          : undefined),
 
   // Reporter configuration with visual diff support
   reporter: [["html", { open: "never" }], ["list"], ["allure-playwright"]],
@@ -46,7 +145,7 @@ export default defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL for navigation
-    baseURL: "http://localhost:5173",
+    baseURL: playwrightBaseURL,
 
     // Collect trace on first retry
     trace: "on-first-retry",
@@ -68,93 +167,15 @@ export default defineConfig({
   snapshotsDir: ".snapshots",
 
   // Test projects for different browsers/devices
-  projects: [
-    // Visual regression testing profile
-    {
-      name: "visual",
-      use: {
-        ...devices["Desktop Chrome"],
-        // Standard desktop viewport for consistent screenshots
-        viewport: { width: 1280, height: 720 },
-        // Disable animations to prevent visual variability
-        animations: "disabled",
-        // Consistent device scale factor
-        deviceScaleFactor: 1,
-        // Deterministic locale settings
-        locale: "en-US",
-        // Consistent timezone
-        timezoneId: "UTC",
-        // Prevent dark mode variations
-        colorScheme: "light",
-        // Consistent reduced motion
-        reducedMotion: "reduce",
-      },
-      timeout: 60_000,
-    },
-
-    // Desktop Chrome
-    {
-      name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-        actionTimeout: 25_000,
-        navigationTimeout: 45_000,
-      },
-      timeout: 60_000,
-    },
-
-    // Desktop Firefox
-    {
-      name: "firefox",
-      use: {
-        ...devices["Desktop Firefox"],
-        actionTimeout: 25_000,
-        navigationTimeout: 45_000,
-      },
-      timeout: 60_000,
-    },
-
-    // Desktop Safari
-    {
-      name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-        actionTimeout: 25_000,
-        navigationTimeout: 45_000,
-      },
-      timeout: 60_000,
-    },
-
-    // Tablet - iPad (primary target device for kindergarten)
-    {
-      name: "tablet",
-      use: {
-        ...devices["iPad Pro 11"],
-        hasTouch: true,
-        actionTimeout: 25_000,
-        navigationTimeout: 45_000,
-      },
-      timeout: 60_000,
-    },
-
-    // Mobile - for responsive testing
-    {
-      name: "mobile",
-      use: {
-        ...devices["Pixel 7"],
-        hasTouch: true,
-        actionTimeout: 25_000,
-        navigationTimeout: 45_000,
-      },
-      timeout: 60_000,
-    },
-  ],
+  projects,
 
   // Development server configuration
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
+    command:
+      process.env.PLAYWRIGHT_WEB_SERVER_COMMAND ??
+      `npm run dev -- --host ${playwrightHost} --port ${playwrightPort} --strictPort`,
+    url: playwrightBaseURL,
+    reuseExistingServer: !isCI,
     timeout: 120_000,
   },
 

@@ -48,7 +48,7 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
 
 if (!ELEVENLABS_API_KEY) {
   console.error(
-    "❌ Error: ELEVENLABS_API_KEY environment variable is required"
+    "❌ Error: ELEVENLABS_API_KEY environment variable is required",
   );
   process.exit(1);
 }
@@ -77,7 +77,7 @@ function httpGetJson({ hostname, path, headers }) {
             reject(err);
           }
         });
-      }
+      },
     );
 
     req.on("error", reject);
@@ -116,7 +116,7 @@ function httpGetJson({ hostname, path, headers }) {
 
     console.log("-".repeat(72));
     console.log(
-      "\nPick a Thai male voice_id and set ELEVENLABS_VOICE_ID_THAI to that value."
+      "\nPick the voice_id you want and copy it into .env.example/.env using the ELEVENLABS_VOICE_ID_* variables (for Thai, use ELEVENLABS_VOICE_ID_TH).",
     );
   } catch (err) {
     console.error("❌ Failed to list voices:", err?.message || err);

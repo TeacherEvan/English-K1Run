@@ -1,6 +1,17 @@
-# Changelog - Kindergarten Race Game
+# Changelog - English K1 Run
 
 This file consolidates major changes, bug fixes, and enhancements made to the project.
+
+## March 2026 - Competition Polish Slice
+
+### Welcome, Localization & Branding (Mar 10, 2026)
+
+- **Deterministic Welcome Start**: Removed non-deterministic auto-start paths so welcome narration begins from explicit user interaction in normal mode.
+- **Localized Accessibility Announcements**: Level-select screen-reader announcements now use locale keys instead of hardcoded English strings.
+- **Core UI Localization**: Target display, victory copy, menu labels, and gameplay ARIA labels now rely on translated strings.
+- **Brand Alignment**: Unified active player-facing copy around `English K1 Run` and updated the menu title Playwright expectation.
+- **Documentation Sync**: Updated roadmap, jobcard, README-family docs, and Copilot instructions to reflect the implementation slice.
+- **Verification Note**: Editor diagnostics were clean; terminal lint/Playwright verification remained blocked until dependencies are installed.
 
 ## February 2026 - Target Audio & Phonics
 

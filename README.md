@@ -1,6 +1,8 @@
-# English-K1Run - Kindergarten Race Game 🎮🎓
+# English K1 Run (`English-K1Run`) 🎮🎓
 
 An educational racing game where kindergarten students (ages 4-6) learn pattern recognition, letters, numbers, and vocabulary through interactive gameplay. Built with modern web technologies for tablets and interactive displays.
+
+Current public-facing product name: **English K1 Run**.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-61dafb)](https://react.dev/)
@@ -9,12 +11,12 @@ An educational racing game where kindergarten students (ages 4-6) learn pattern 
 
 ## 🌟 Features
 
-- **7 Educational Categories**: Fruits & Vegetables, Counting (1-15), Alphabet (A-Z), Shapes & Colors, Animals & Nature, Things That Go, Weather Wonders
+- **9 Educational Categories**: Fruits & Vegetables, Counting, Alphabet, Shapes & Colors, Animals & Nature, Things That Go, Weather Wonders, Feelings & Actions, Body Parts
 - **121 Game Items**: Each with professional audio pronunciations
 - **Single-Player Mode**: Optimized for kindergarten classroom use
 - **Continuous Mode**: Auto-advancing levels for extended play sessions
 - **Touch-Optimized**: Designed for tablets and QBoard interactive displays
-- **Animated Welcome Screen**: Rotating sun beams, drifting clouds, wind streams, tumbling leaves, and progressive rainbow arch (January 2026)
+- **Deterministic Welcome Screen**: explicit-tap narration start, visible continue CTA, and E2E-safe bypass behavior
 - **Accessibility**: WCAG 2.3.3 AAA compliant with `prefers-reduced-motion` support
 - **Progressive Loading**: Smart audio preloading for smooth gameplay
 - **Offline Support**: PWA-enabled for classroom reliability
@@ -48,7 +50,7 @@ npm run dev
 
 The game will be available at `http://localhost:5173`
 
-> **Note**: The game will work without ElevenLabs API key but will use robotic Web Speech API voice. For high-quality natural voice, see [AUDIO_SETUP.md](AUDIO_SETUP.md).
+> **Note**: The game will work without ElevenLabs API key but will use fallback browser speech/audio behavior. For high-quality natural voice, see [AUDIO_SETUP.md](AUDIO_SETUP.md).
 
 ### Development Commands
 
@@ -90,7 +92,7 @@ npm run requirements:json # Generate requirements.json (JSON format)
 
 ### Project Structure
 
-```
+```text
 English-K1Run/
 ├── src/
 │   ├── components/          # React components
@@ -400,7 +402,7 @@ Automatically scales for different screen sizes:
 
 ### Common Issues
 
-**Audio not playing**
+#### Audio not playing
 
 ```bash
 # Check audio context state
@@ -410,14 +412,14 @@ console.log(soundManager.getDebugInfo())
 ls public/sounds/*.wav
 ```
 
-**Build fails with TypeScript errors**
+#### Build fails with TypeScript errors
 
 ```bash
 # Use --noCheck flag (React 19 types still evolving)
 npm run build  # Already configured in package.json
 ```
 
-**E2E tests failing**
+#### E2E tests failing
 
 ```bash
 # Install Playwright browsers
@@ -427,7 +429,7 @@ npx playwright install --with-deps
 npm run test:e2e:headed
 ```
 
-**Docker build fails**
+#### Docker build fails
 
 ```bash
 # Use legacy peer deps for ARM64/Android
@@ -493,7 +495,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/English-K1Run/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/English-K1Run/discussions)
-- **Email**: support@example.com
+- **Email**: [support@example.com](mailto:support@example.com)
 
 ## 🗺️ Roadmap
 
@@ -526,6 +528,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for kindergarten education**
+### Made with ❤️ for kindergarten education
 
-_Last Updated: January 2026_
+Last Updated: January 2026

@@ -2,6 +2,7 @@ import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.css'
 
 interface WelcomeScreenProps {
@@ -11,6 +12,7 @@ interface WelcomeScreenProps {
 }
 
 export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
+  const { t } = useTranslation()
   const {
     fadeOut,
     readyToContinue,
@@ -27,6 +29,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
   const videoSrc = '/New_welcome_video.mp4'
   const fallbackImageSrc = '/welcome-sangsom.png'
+  const actionLabel = readyToContinue ? t('menu.tapToContinue') : t('menu.tapToStart')
+
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
@@ -59,24 +63,29 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         <>
           <img
             src={fallbackImageSrc}
-            alt="Welcome to Sangsom Kindergarten"
+            alt={t('game.title')}
             className={`absolute inset-0 w-full h-full object-cover ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
             style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_EFFECTS }}
             data-testid="welcome-screen-fallback"
           />
-          {showFallbackImage && (
-            <div className="welcome-image-overlay">
-              <div className="welcome-image-text" role="status" aria-live="polite">Tap to continue</div>
-            </div>
-          )}
         </>
       )}
 
-      {readyToContinue && !showFallbackImage && (
-        <div className="welcome-image-overlay">
-          <div className="welcome-image-text" role="status" aria-live="polite">Tap to continue</div>
-        </div>
-      )}
+      <div className="welcome-image-overlay">
+        <button
+          type="button"
+          className="welcome-image-button"
+          onClick={(event) => {
+            event.stopPropagation()
+            handlePrimaryAction()
+          }}
+          data-testid="welcome-primary-button"
+        >
+          <span className="welcome-image-text" role="status" aria-live="polite">
+            {actionLabel}
+          </span>
+        </button>
+      </div>
 
       {/* Audio progress indicator (subtle) */}
       {isSequencePlaying && totalAudioCount > 0 && (

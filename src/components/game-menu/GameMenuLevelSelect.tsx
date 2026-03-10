@@ -9,9 +9,9 @@ import { UI_LAYER_MATRIX } from "@/lib/constants/ui-layer-matrix";
 import { measureComponentRenderTime } from "@/lib/performance-monitor-utils";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import { THAI_TRANSLATIONS } from "./constants";
 import { ArrowLeftIcon } from "./icons";
 
 interface GameMenuLevelSelectProps {
@@ -32,6 +32,7 @@ export const GameMenuLevelSelect = memo(
         onStartGame,
         onBack,
     }: GameMenuLevelSelectProps) => {
+        const { t } = useTranslation();
         const modalRef = useRef<HTMLDivElement>(null);
         const stopRenderMeasurement = useMemo(
             () => measureComponentRenderTime("GameMenuLevelSelect"),
@@ -48,15 +49,18 @@ export const GameMenuLevelSelect = memo(
         }, [stopRenderMeasurement]);
 
         useEffect(() => {
-            announceToScreenReader("Level selection menu opened", "polite");
-        }, []);
+            announceToScreenReader(t("accessibility.levelSelectionOpened"), "polite");
+        }, [t]);
 
         useEffect(() => {
             const selectedName = levels[selectedLevel];
             if (selectedName) {
-                announceToScreenReader(`Selected level: ${selectedName}`, "polite");
+                announceToScreenReader(
+                    t("accessibility.selectedLevel", { level: selectedName }),
+                    "polite"
+                );
             }
-        }, [levels, selectedLevel]);
+        }, [levels, selectedLevel, t]);
 
         useEffect(() => {
             if (!modalRef.current) return;
@@ -99,14 +103,13 @@ export const GameMenuLevelSelect = memo(
                 data-testid="level-select-menu"
                 role="dialog"
                 aria-modal="true"
-                aria-label="Level Selection Menu"
+                aria-label={t("game.selectLevel")}
                 onKeyDown={handleKeyDown}
             >
                 <Card
                     ref={modalRef}
                     className="w-full max-w-6xl mx-4 bg-card/95 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col"
                 >
-                    {/* Header - Fixed properties */}
                     <div className="flex items-center justify-between px-8 py-6 border-b bg-card rounded-t-xl shrink-0">
                         <Button
                             variant="ghost"
@@ -114,29 +117,19 @@ export const GameMenuLevelSelect = memo(
                             onClick={onBack}
                             className="gap-2 text-xl hover:bg-primary/10"
                             data-testid="back-to-menu-button"
-                            aria-label="Back to Main Menu"
+                            aria-label={t("game.back")}
                         >
                             <ArrowLeftIcon className="w-6 h-6" />
-                            <div className="flex flex-col items-start text-left">
-                                <span className="font-bold">Back</span>
-                                <span className="text-xs font-semibold text-foreground font-thai">
-                                    กลับ
-                                </span>
-                            </div>
+                            <span className="font-bold">{t("game.back")}</span>
                         </Button>
                         <div className="text-center">
                             <h2 className="text-3xl md:text-4xl font-bold text-primary">
-                                Select Level
+                                {t("game.selectLevel")}
                             </h2>
-                            <h3 className="text-lg md:text-xl text-primary font-thai">
-                                เลือกระดับ
-                            </h3>
                         </div>
-                        {/* Spacer to balance the header visually */}
                         <div className="w-32"></div>
                     </div>
 
-                    {/* Level Grid - Scrollable Area */}
                     <div className="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                             {levels.map((level, index) => (
@@ -158,9 +151,6 @@ export const GameMenuLevelSelect = memo(
                                         <span className="text-center w-full truncate text-lg md:text-xl">
                                             {level}
                                         </span>
-                                        <span className="text-sm font-semibold text-center w-full truncate mt-1">
-                                            {THAI_TRANSLATIONS[index] || ""}
-                                        </span>
                                     </div>
                                 </Button>
                             ))}
@@ -174,9 +164,9 @@ export const GameMenuLevelSelect = memo(
                             className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-linear-to-r from-primary to-primary/80"
                             onClick={onStartGame}
                             data-testid="start-button"
-                            aria-label="Start Game with Selected Level"
+                            aria-label={t("game.startGame")}
                         >
-                            START GAME / เริ่มเกม
+                            {t("game.startGame")}
                         </Button>
                     </div>
                 </Card>

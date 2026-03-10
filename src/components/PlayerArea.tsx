@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { Card } from './ui/card'
 
@@ -51,6 +52,7 @@ export const PlayerArea = memo(({
   children,
   isWinner
 }: PlayerAreaProps) => {
+  const { t } = useTranslation()
   // Clamp progress to valid range (0-100) for safety
   const normalizedProgress = Math.max(0, Math.min(progress, 100))
 
@@ -59,7 +61,7 @@ export const PlayerArea = memo(({
       data-testid={`player-area-${playerNumber}`}
       className="relative h-full border-0 game-area overflow-hidden"
       role="main"
-      aria-label={`Player ${playerNumber} game area`}
+      aria-label={`${t('accessibility.gameBoard')} ${playerNumber}`}
     >
       {/* 
         Hidden progress indicator retained for telemetry & E2E test hooks
@@ -114,7 +116,7 @@ export const PlayerArea = memo(({
               🏆
             </div>
             <div className="text-primary text-3xl font-bold drop-shadow-lg">
-              You Win!
+              {t('messages.victoryTitle')}
             </div>
           </div>
         </div>

@@ -1,7 +1,15 @@
 {
   "game": {
-    "title": "Course de Tortue",
+    "title": "English K1 Run",
     "startGame": "Commencer le jeu",
+    "playAllLevels": "Jouer tous les niveaux",
+    "levelSelect": "Choix du niveau",
+    "selectLevel": "Sélectionner un niveau",
+    "back": "Retour",
+    "bestTime": "Meilleur temps",
+    "continuousMode": "Mode continu",
+    "find": "Trouve",
+    "inOrder": "Dans l'ordre",
     "settings": "Paramètres",
     "resume": "Reprendre",
     "quit": "Quitter le jeu",
@@ -11,9 +19,10 @@
     "volume": "Volume"
   },
   "menu": {
-    "welcome": "Bienvenue à Course de Tortue!",
+    "welcome": "Bienvenue dans English K1 Run!",
     "instructions": "Tapotez les objets qui tombent pour aider votre tortue à gagner!",
     "tapToStart": "Appuyez pour commencer",
+    "tapToContinue": "Appuyez pour continuer",
     "pressEnter": "Appuyez sur ENTRÉE pour commencer",
     "pressSpace": "Appuyez sur ESPACE pour commencer"
   },
@@ -24,10 +33,13 @@
     "shapes": "Formes et Couleurs",
     "animals": "Animaux et Nature",
     "things": "Choses en Mouvement",
-    "weather": "Merveilles Météorologiques"
+    "weather": "Merveilles Météorologiques",
+    "feelings": "Émotions et actions",
+    "body": "Parties du corps"
   },
   "messages": {
     "gameWon": "Vous gagnez! Excellent travail!",
+    "victoryTitle": "Victoire !",
     "gameOver": "Fin du Jeu",
     "score": "Score",
     "perfect": "Parfait!"
@@ -44,6 +56,8 @@
     "languageSelection": "Sélection de la Langue",
     "gameBoard": "Plateau de Jeu",
     "score": "Score Actuel",
-    "targetObject": "Objet Cible"
+    "targetObject": "Objet Cible",
+    "levelSelectionOpened": "Menu de sélection des niveaux ouvert",
+    "selectedLevel": "Niveau sélectionné : {{level}}"
   }
 }

@@ -37,10 +37,31 @@
   letter-spacing: 0.04em;
 }
 
+.welcome-image-button {
+  border: 0;
+  border-radius: 9999px;
+  padding: 0.9rem 1.6rem;
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.welcome-image-button:hover,
+.welcome-image-button:focus-visible {
+  outline: none;
+  transform: scale(1.03);
+}
+
 @media (orientation: landscape) {
   .welcome-video {
     object-fit: contain;
     background: linear-gradient(180deg, #7ec8ff 0%, #eaf5ff 45%, #b7e07a 100%);
+  }
+
+  .welcome-image-button {
+    padding: 0.8rem 1.4rem;
   }
 }
 

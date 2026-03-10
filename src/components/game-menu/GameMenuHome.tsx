@@ -1,18 +1,14 @@
 import { memo, useCallback, type KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useHomeMenuAudio } from "../../hooks/use-home-menu-audio";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import { MENU_THAI_LABELS } from "./constants";
 import { GameMenuCreditsDialog } from "./GameMenuCreditsDialog";
 import { GameMenuExitDialog } from "./GameMenuExitDialog";
 import { GameMenuSettingsDialog } from "./GameMenuSettingsDialog";
-import {
-    GridIcon,
-    PlayIcon,
-    TrophyIcon,
-} from "./icons";
+import { GridIcon, PlayIcon, TrophyIcon } from "./icons";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
@@ -37,7 +33,7 @@ export const GameMenuHome = memo(
         onToggleContinuousMode,
         onResetGame,
     }: GameMenuHomeProps) => {
-        // Play "in association with Sangsom Kindergarten" audio on mount
+        const { t } = useTranslation();
         useHomeMenuAudio();
 
         const canPlayAllLevels = Boolean(onToggleContinuousMode);
@@ -74,20 +70,19 @@ export const GameMenuHome = memo(
                                     className="text-4xl md:text-5xl font-bold text-primary tracking-tight drop-shadow-sm"
                                     data-testid="game-title"
                                 >
-                                    Kindergarten Race
+                                    {t("game.title")}
                                 </h1>
-                                <h2 className="text-2xl md:text-3xl font-semibold text-primary/80 font-thai">
-                                    การแข่งขันอนุบาล
-                                </h2>
+                                <p className="text-base md:text-lg font-medium text-primary/80 max-w-sm">
+                                    {t("menu.instructions")}
+                                </p>
                             </div>
 
-                            {/* Best Times Display */}
                             <div className="mt-8 p-6 bg-black/80 rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)] w-full max-w-xs transform hover:scale-105 transition-transform duration-300 group">
                                 <div className="flex flex-col items-center">
                                     <div className="flex items-center gap-2 mb-2">
                                         <TrophyIcon className="w-5 h-5 text-yellow-500 group-hover:rotate-12 transition-transform" />
                                         <span className="text-yellow-500 font-bold uppercase tracking-widest text-sm">
-                                            Best Time
+                                            {t("game.bestTime")}
                                         </span>
                                     </div>
                                     <div
@@ -98,22 +93,20 @@ export const GameMenuHome = memo(
                                     </div>
                                     {continuousMode && (
                                         <div className="mt-2 text-xs text-white/60 bg-green-900/50 px-2 py-1 rounded-full border border-green-500/30">
-                                            Continuous Mode
+                                            {t("game.continuousMode")}
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column: Menu Actions */}
                         <div className="flex flex-col gap-3 w-full max-w-sm mx-auto">
-                            {/* 1. START GAME Button */}
                             <Button
                                 size="lg"
                                 className="h-20 text-2xl font-bold shadow-lg hover:scale-105 hover:shadow-primary/25 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-green-700 hover:bg-green-800 text-white"
                                 onClick={onStartGame}
                                 data-testid="start-game-button"
-                                aria-label="Start Game Immediately"
+                                aria-label={t("game.startGame")}
                             >
                                 <span
                                     className="flex items-center gap-4 w-full"
@@ -122,14 +115,11 @@ export const GameMenuHome = memo(
                                     <MenuActionButtonContent
                                         icon={<PlayIcon className="w-6 h-6 fill-current" />}
                                         iconWrapperClassName="p-2 bg-white/20 rounded-full"
-                                        title="Start Game"
-                                        subtitle="เริ่มเกม"
-                                        subtitleClassName="text-xs font-semibold text-white font-thai mt-1"
+                                        title={t("game.startGame")}
                                     />
                                 </span>
                             </Button>
 
-                            {/* 1b. PLAY ALL LEVELS Button */}
                             <Button
                                 variant="default"
                                 size="lg"
@@ -137,18 +127,15 @@ export const GameMenuHome = memo(
                                 onClick={handlePlayAllLevels}
                                 disabled={!canPlayAllLevels}
                                 data-testid="play-all-levels-button"
-                                aria-label="Play All Levels"
+                                aria-label={t("game.playAllLevels")}
                             >
                                 <MenuActionButtonContent
                                     icon={<TrophyIcon className="w-6 h-6" />}
                                     iconWrapperClassName="p-2 bg-white/20 rounded-full"
-                                    title="Play All Levels"
-                                    subtitle={MENU_THAI_LABELS.playAllLevels}
-                                    subtitleClassName="text-xs font-semibold text-white font-thai mt-1"
+                                    title={t("game.playAllLevels")}
                                 />
                             </Button>
 
-                            {/* 2. LEVEL SELECT Button */}
                             <Button
                                 variant="default"
                                 size="lg"
@@ -156,13 +143,11 @@ export const GameMenuHome = memo(
                                 onClick={onShowLevels}
                                 onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
                                 data-testid="level-select-button"
-                                aria-label="Go to Level Selection"
+                                aria-label={t("game.levelSelect")}
                             >
                                 <MenuActionButtonContent
                                     icon={<GridIcon className="w-6 h-6" />}
-                                    title="Level Select"
-                                    subtitle={MENU_THAI_LABELS.levelSelect}
-                                    subtitleClassName="text-xs font-semibold text-white font-thai mt-1"
+                                    title={t("game.levelSelect")}
                                 />
                             </Button>
 

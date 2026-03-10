@@ -1,4 +1,6 @@
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { getCategoryTranslationKey } from '../lib/constants/category-translation'
 import type { GameCategory } from '../types/game'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
@@ -14,6 +16,9 @@ interface TargetDisplayProps {
 }
 
 export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier }: TargetDisplayProps) => {
+  const { t } = useTranslation()
+  const categoryKey = getCategoryTranslationKey(category.name)
+  const categoryLabel = categoryKey ? t(`categories.${categoryKey}`) : category.name
   // Determine if multiplier is active (greater than 1)
   const hasActiveMultiplier = multiplier && multiplier > 1
 
@@ -59,7 +64,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
             border: '1px solid rgba(59, 130, 246, 0.3)',
             fontWeight: '600'
           }}>
-          {category.name}
+          {categoryLabel}
         </Badge>
 
         <div className="text-center mb-1">
@@ -78,7 +83,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               textShadow: '0 1px 2px rgba(255,255,255,0.8)',
               letterSpacing: '0.01em'
             }}>
-            Find: {currentTarget}
+            {t('game.find')}: {currentTarget}
           </div>
         </div>
 
@@ -90,7 +95,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               fontWeight: '600',
               marginTop: '0.2rem'
             }}>
-            📝 In Order
+            📝 {t('game.inOrder')}
           </div>
         )}
 

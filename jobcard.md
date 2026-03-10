@@ -5,6 +5,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 ## Highlights
 
+- Competition polish: deterministic welcome start, localized core UI/a11y copy, and unified `English K1 Run` branding.
 - Audio system: ElevenLabs fallback chain, inventory validation, fade transitions, and size reduction.
 - Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, home menu audio gating.
 - Settings and accessibility: expanded settings coverage, reduced motion/high contrast, WCAG-aligned UI.
@@ -13,6 +14,15 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Audio stability: public sounds URL resolution, ElevenLabs stop integration, and SFX fallback guards.
 
 ## Timeline (Compressed)
+
+### 2026-03-10
+
+- Approved implementation after roadmap phase and executed the first single-player competition-polish slice.
+- Removed non-deterministic welcome auto-start paths; narration now begins from explicit user action in normal mode and from the E2E bypass path when `?e2e=1` is present.
+- Localized core visible UI and accessibility announcements: menu title/actions, target display labels, victory copy, gameplay ARIA labels, and level-select screen-reader announcements.
+- Unified the public-facing brand string to `English K1 Run` in runtime UI, locale files, and the menu title Playwright assertion.
+- Updated roadmap/docs/instructions to reflect the implementation slice and current verification blocker.
+- Validation: workspace diagnostics clean for touched files; terminal verification blocked because `node_modules/` is absent (`npm run test:e2e` previously exited 127).
 
 ### 2026-02-13
 
@@ -84,6 +94,8 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 ## Follow-ups
 
+- Install dependencies and rerun lint/build/Playwright verification.
+- Continue legacy documentation and inactive UI branding cleanup.
 - Home screen visual refactor (next session).
 - Extend audio fades to other transitions when needed.
 - Continue E2E stabilization after major UI updates.

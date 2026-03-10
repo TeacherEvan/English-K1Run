@@ -1,7 +1,15 @@
 {
   "game": {
-    "title": "カメレース",
+    "title": "English K1 Run",
     "startGame": "ゲームを始める",
+    "playAllLevels": "すべてのレベルで遊ぶ",
+    "levelSelect": "レベル選択",
+    "selectLevel": "レベルを選ぶ",
+    "back": "戻る",
+    "bestTime": "ベストタイム",
+    "continuousMode": "連続モード",
+    "find": "見つけよう",
+    "inOrder": "順番どおり",
     "settings": "設定",
     "resume": "再開",
     "quit": "ゲーム終了",
@@ -11,9 +19,10 @@
     "volume": "音量"
   },
   "menu": {
-    "welcome": "カメレースへようこそ!",
+    "welcome": "English K1 Run へようこそ!",
     "instructions": "落ちてくるオブジェクトをタップして、あなたのカメが勝つのを手伝ってください!",
     "tapToStart": "タップして開始",
+    "tapToContinue": "タップして続ける",
     "pressEnter": "ENTERキーを押して開始",
     "pressSpace": "SPACEキーを押して開始"
   },
@@ -24,10 +33,13 @@
     "shapes": "形と色",
     "animals": "動物と自然",
     "things": "動く乗り物",
-    "weather": "天気のふしぎ"
+    "weather": "天気のふしぎ",
+    "feelings": "気持ちと動き",
+    "body": "からだの部分"
   },
   "messages": {
     "gameWon": "あなたが勝ちました!素晴らしい!",
+    "victoryTitle": "きみの勝ち！",
     "gameOver": "ゲーム終了",
     "score": "スコア",
     "perfect": "完璧です!"
@@ -44,6 +56,8 @@
     "languageSelection": "言語選択",
     "gameBoard": "ゲームボード",
     "score": "現在のスコア",
-    "targetObject": "ターゲットオブジェクト"
+    "targetObject": "ターゲットオブジェクト",
+    "levelSelectionOpened": "レベル選択メニューを開きました",
+    "selectedLevel": "選択中のレベル: {{level}}"
   }
 }

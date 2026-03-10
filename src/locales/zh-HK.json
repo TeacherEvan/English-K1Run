@@ -1,7 +1,15 @@
 {
   "game": {
-    "title": "烏龜比賽",
+    "title": "English K1 Run",
     "startGame": "開始遊戲",
+    "playAllLevels": "遊玩全部關卡",
+    "levelSelect": "關卡選擇",
+    "selectLevel": "選擇關卡",
+    "back": "返回",
+    "bestTime": "最佳時間",
+    "continuousMode": "連續模式",
+    "find": "尋找",
+    "inOrder": "按順序",
     "settings": "設定",
     "resume": "繼續",
     "quit": "退出遊戲",
@@ -11,9 +19,10 @@
     "volume": "音量"
   },
   "menu": {
-    "welcome": "歡迎來到烏龜比賽!",
+    "welcome": "歡迎來到 English K1 Run!",
     "instructions": "點擊掉落的物體來幫助你的烏龜贏得比賽!",
     "tapToStart": "點擊開始",
+    "tapToContinue": "點擊繼續",
     "pressEnter": "按 ENTER 開始",
     "pressSpace": "按 SPACE 開始"
   },
@@ -24,10 +33,13 @@
     "shapes": "形狀和顏色",
     "animals": "動物和自然",
     "things": "移動的東西",
-    "weather": "天氣奇蹟"
+    "weather": "天氣奇蹟",
+    "feelings": "情緒與動作",
+    "body": "身體部位"
   },
   "messages": {
     "gameWon": "你贏了!做得很好!",
+    "victoryTitle": "你贏了！",
     "gameOver": "遊戲結束",
     "score": "分數",
     "perfect": "完美!"
@@ -44,6 +56,8 @@
     "languageSelection": "語言選擇",
     "gameBoard": "遊戲板",
     "score": "當前分數",
-    "targetObject": "目標對象"
+    "targetObject": "目標對象",
+    "levelSelectionOpened": "關卡選擇選單已開啟",
+    "selectedLevel": "已選擇關卡：{{level}}"
   }
 }

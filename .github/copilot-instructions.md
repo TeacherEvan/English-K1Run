@@ -1,22 +1,5 @@
 # Copilot Instructions – English-K1Run
 
-## Table of Contents
-
-- [Big Picture Architecture](#big-picture-architecture)
-- [Critical Conventions](#critical-conventions)
-- [Coding Standards](#coding-standards)
-- [UI Patterns](#ui-patterns)
-- [Audio, i18n, and Welcome Flow](#audio-i18n-and-welcome-flow)
-- [Gameplay Tuning and Continuous Mode](#gameplay-tuning-and-continuous-mode)
-- [Error Handling](#error-handling)
-- [Performance Optimization](#performance-optimization)
-- [Accessibility](#accessibility)
-- [Testing Practices](#testing-practices)
-- [Security Guidelines](#security-guidelines)
-- [Developer Workflows](#developer-workflows)
-- [Deployment Considerations](#deployment-considerations)
-- [Adding Content](#adding-content)
-
 ## Big Picture Architecture
 
 - **Single-player, touch-first classroom game**: Core state lives in `use-game-logic` in `src/hooks/use-game-logic.ts`(../src/hooks/use-game-logic.ts); do not create parallel state in components.
@@ -43,7 +26,7 @@
 
 ## UI Patterns
 
-- **Performance**: Frequently re-rendered components use `memo()` (example: `src/components/FallingObject.tsx'(../src/components/FallingObject.tsx)).
+- **Performance**: Frequently re-rendered components use `memo()` (example: `src/components/FallingObject.tsx`(../src/components/FallingObject.tsx)).
 - **Layout**: Game menu layout keeps header, grid (`flex-1`), and footer as siblings; avoid wrappers that break layout in `src/components/GameMenu.tsx`(../src/components/GameMenu.tsx).
 - **UI library**: Shadcn-style UI primitives and CVA variants live in `src/components/ui/`(../src/components/ui/).
 - **Styling**: Use CSS modules or styled-components for component-specific styles; theme variables for consistency.
@@ -53,10 +36,17 @@
 - **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in `src/lib/sound-manager.ts`(../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
 - **Audio asset location**: Runtime fallback resolves `/sounds/<key>.<ext>` from public assets when bundled sounds are missing.
 - **Home menu association audio**: Sangsom association lines must play only once per session when the home menu is first accessible (gate repeated replays on reopen/remount).
+- **Welcome start contract**: In normal mode, welcome narration must start only from explicit user gesture; do not auto-start from display-adjustment signals or fallback timers. Safety timers may unlock continue state, but must not trigger playback.
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
+- **Localized accessibility copy**: Screen-reader-only announcements must use translation keys under `accessibility.*`; do not leave English literals in gameplay/menu announcements.
 - **Welcome screen narration**: Four phases and respects reduced motion; e2e mode disables animations when `?e2e=1` is present.
+
+## Product Identity
+
+- **Public-facing brand**: Use `English K1 Run` in player-facing UI copy and current documentation.
+- **Repository/package identity**: Internal identifiers may remain `English-K1Run`/`kindergarten-race-game` unless the task explicitly includes package/manifest renames.
 
 ## Gameplay Tuning and Continuous Mode
 

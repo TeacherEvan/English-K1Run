@@ -12,7 +12,7 @@ test.describe("Game Menu", () => {
   });
 
   test("should show game title", async ({ gamePage }) => {
-    await expect(gamePage.menu.title).toContainText("Kindergarten Race");
+    await expect(gamePage.menu.title).toContainText("English K1 Run");
   });
 
   test("should display all 9 game categories as levels", async ({

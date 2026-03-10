@@ -16,7 +16,9 @@ import { useTargetTimer } from "./app/use-target-timer";
 import { useWebVitalsMonitor } from "./app/use-web-vitals-monitor";
 import { useDisplayAdjustment } from "./hooks/use-display-adjustment";
 import { GAME_CATEGORIES, useGameLogic } from "./hooks/use-game-logic";
+import { getCategoryTranslationKey } from "./lib/constants/category-translation";
 import { useLazyBackgroundPreloader } from "./lib/utils/background-preloader";
+import { useTranslation } from "react-i18next";
 
 const FireworksDisplay = lazy(() =>
   import("./components/FireworksDisplay").then((m) => ({
@@ -30,6 +32,7 @@ const EmojiRotationMonitor = lazy(() =>
 );
 
 function App() {
+  const { t } = useTranslation();
   const { displaySettings } = useDisplayAdjustment();
 
   useLazyBackgroundPreloader();
@@ -91,8 +94,12 @@ function App() {
   }, [selectedLevel, startGame]);
 
   const levelNames = useMemo(
-    () => GAME_CATEGORIES.map((cat) => cat.name),
-    [],
+    () =>
+      GAME_CATEGORIES.map((cat) => {
+        const categoryKey = getCategoryTranslationKey(cat.name);
+        return categoryKey ? t(`categories.${categoryKey}`) : cat.name;
+      }),
+    [t],
   );
 
   const handleWelcomeComplete = useCallback(() => {

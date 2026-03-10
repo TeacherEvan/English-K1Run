@@ -1,7 +1,15 @@
 {
   "game": {
-    "title": "Turtle Race",
+    "title": "English K1 Run",
     "startGame": "Start Game",
+    "playAllLevels": "Play All Levels",
+    "levelSelect": "Level Select",
+    "selectLevel": "Select Level",
+    "back": "Back",
+    "bestTime": "Best Time",
+    "continuousMode": "Continuous Mode",
+    "find": "Find",
+    "inOrder": "In Order",
     "settings": "Settings",
     "resume": "Resume",
     "quit": "Quit Game",
@@ -11,9 +19,10 @@
     "volume": "Volume"
   },
   "menu": {
-    "welcome": "Welcome to Turtle Race!",
+    "welcome": "Welcome to English K1 Run!",
     "instructions": "Tap the falling objects to help your turtle win!",
     "tapToStart": "Tap to start",
+    "tapToContinue": "Tap to continue",
     "pressEnter": "Press ENTER to start",
     "pressSpace": "Press SPACE to start"
   },
@@ -24,10 +33,13 @@
     "shapes": "Shapes & Colors",
     "animals": "Animals & Nature",
     "things": "Things That Go",
-    "weather": "Weather Wonders"
+    "weather": "Weather Wonders",
+    "feelings": "Feelings & Actions",
+    "body": "Body Parts"
   },
   "messages": {
     "gameWon": "You win! Great job!",
+    "victoryTitle": "You Win!",
     "gameOver": "Game Over",
     "score": "Score",
     "perfect": "Perfect!"
@@ -44,6 +56,8 @@
     "languageSelection": "Language Selection",
     "gameBoard": "Game Board",
     "score": "Current Score",
-    "targetObject": "Target Object"
+    "targetObject": "Target Object",
+    "levelSelectionOpened": "Level selection menu opened",
+    "selectedLevel": "Selected level: {{level}}"
   }
 }

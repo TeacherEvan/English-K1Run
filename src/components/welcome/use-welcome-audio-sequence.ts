@@ -5,10 +5,8 @@
 import { runWelcomeAudioSequence } from "@/components/welcome/welcome-audio-runner";
 import {
   DEFAULT_WELCOME_CONFIG,
-  isWelcomeSequencePlaying,
   type WelcomeAudioConfig,
 } from "@/lib/audio/welcome-audio-sequencer";
-import { subscribeDisplayAdjustmentSignal } from "@/lib/display-adjustment-signal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface UseWelcomeAudioSequenceOptions {
@@ -90,12 +88,6 @@ export const useWelcomeAudioSequence = ({
     }, 12000);
 
     let cancelled = false;
-    const autoStartFallbackTimer = setTimeout(() => {
-      if (!audioStartedRef.current && !cancelled && !readyRef.current) {
-        logDev("Auto-start fallback triggered for welcome audio");
-        startAudioSequenceRef.current?.();
-      }
-    }, 2500);
 
     const startAudioSequence = async () => {
       logDev("startAudioSequence called:", {
@@ -139,7 +131,6 @@ export const useWelcomeAudioSequence = ({
           error: err instanceof Error ? err.message : String(err),
           audioStarted: audioStartedRef.current,
           readyToContinue: readyRef.current,
-          wasPlaying: isWelcomeSequencePlaying(),
           timestamp: Date.now(),
         });
         if (err instanceof Error && err.message !== "Sequence cancelled") {
@@ -158,46 +149,13 @@ export const useWelcomeAudioSequence = ({
       void startAudioSequence();
     };
 
-    const stopDisplayAdjustmentSubscription = subscribeDisplayAdjustmentSignal(
-      (detail) => {
-        if (audioStartedRef.current || cancelled || readyRef.current) return;
-
-        logDev("Display adjustment triggered welcome audio", {
-          detail,
-          timestamp: Date.now(),
-        });
-
-        void startAudioSequence();
-      },
-      { replayLatest: true },
-    );
-
-    const handleDisplayAdjustment = () => {
-      if (audioStartedRef.current || cancelled || readyRef.current) return;
-
-      logDev("Display adjustment triggered welcome audio", {
-        detail: { cause: "legacy-event", timestamp: Date.now() },
-        timestamp: Date.now(),
-      });
-
-      void startAudioSequence();
-    };
-
-    window.addEventListener("k1-display-adjustment", handleDisplayAdjustment);
-
     return () => {
       cancelled = true;
-      clearTimeout(autoStartFallbackTimer);
       clearTimeout(safetyBtnTimer);
       clearTimeout(safetyEndTimer);
       startAudioSequenceRef.current = null;
-      window.removeEventListener(
-        "k1-display-adjustment",
-        handleDisplayAdjustment,
-      );
-      stopDisplayAdjustmentSubscription();
     };
-  }, [isE2E, logDev, mergedAudioConfig, readyToContinue]);
+  }, [isE2E, logDev, mergedAudioConfig]);
 
   useEffect(() => {
     readyRef.current = readyToContinue;

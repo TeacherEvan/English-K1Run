@@ -46,6 +46,7 @@ export const useWelcomeSequence = ({
     isSequencePlaying,
     currentAudioIndex,
     totalAudioCount,
+    requestStart,
     markReadyToContinue,
   } = useWelcomeAudioSequence({ audioConfig, isE2E });
 
@@ -63,11 +64,12 @@ export const useWelcomeSequence = ({
     }
 
     if (!readyToContinue) {
+      requestStart();
       return;
     }
 
     proceed();
-  }, [isE2E, proceed, readyToContinue]);
+  }, [isE2E, proceed, readyToContinue, requestStart]);
 
   useEffect(() => {
     if (!isE2E) return;
