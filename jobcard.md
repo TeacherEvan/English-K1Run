@@ -6,26 +6,26 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 ## Highlights
 
 - Competition polish: deterministic welcome start, localized core UI/a11y copy, and unified `English K1 Run` branding.
-- Audio system: ElevenLabs fallback chain, inventory validation, fade transitions, and size reduction.
-- Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, home menu audio gating.
-- Settings and accessibility: expanded settings coverage, reduced motion/high contrast, WCAG-aligned UI.
+- Audio pipeline: fallback-chain hardening, inventory validation, fade transitions, overlap guards, and public fallback stability.
+- Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, and home-menu audio gating.
+- Settings/accessibility: expanded settings coverage, reduced motion/high contrast, and WCAG-aligned UI.
 - E2E reliability: Playwright waits, navigation retry backoff, touch spec stability.
 - Tooling and docs: Copilot instructions expansion, clarified MCP tooling, build and lint stability.
-- Audio stability: public sounds URL resolution, ElevenLabs stop integration, and SFX fallback guards.
+- Gameplay polish: lighter HUD motion, quieter gameplay audio, and touch-first interaction fixes.
 
 ## Timeline (Compressed)
 
 ### 2026-03-10
 
 - Approved implementation after roadmap phase and executed the first single-player competition-polish slice.
-- Tightened gameplay HUD: reduced animation on `TargetDisplay` (multiplier badge hover-scale, narrower progress transition) and eliminated expanding/despanding motion.
-- Muted positive reinforcement audio; only incorrect taps produce a sound. Added central-audio-manager guards around target announcements to prevent overlap and track start/end events for auditing.
-- Added unit tests for tap feedback and announcement cancellation; updated existing audio call spec accordingly.
+- Tightened `TargetDisplay` motion and styling: removed pulse-heavy behavior, kept the HUD compact, and reduced countdown-bar motion.
+- Removed positive reinforcement gameplay audio; only target-description sentences should speak during play, with incorrect taps kept as lightweight SFX.
+- Added gameplay-audio tracking hooks around target announcements to help audit overlap and confirm only the target sentence is triggered.
 - Removed non-deterministic welcome auto-start paths; narration now begins from explicit user action in normal mode and from the E2E bypass path when `?e2e=1` is present.
 - Localized core visible UI and accessibility announcements: menu title/actions, target display labels, victory copy, gameplay ARIA labels, and level-select screen-reader announcements.
 - Unified the public-facing brand string to `English K1 Run` in runtime UI, locale files, and the menu title Playwright assertion.
 - Updated roadmap/docs/instructions to reflect the implementation slice and current verification blocker.
-- Validation: workspace diagnostics clean for touched files; terminal verification blocked because `node_modules/` is absent (`npm run test:e2e` previously exited 127).
+- Validation: workspace diagnostics clean for touched files; full terminal verification remains blocked when `node_modules/` is unavailable.
 
 ### 2026-02-13
 
@@ -94,6 +94,18 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - `npm run audio:validate` (2026-02-02) passed.
 - `npm run test:run`, `npm run check-types`, `npm run verify` (Dec 2025) passed.
+
+## Notes
+
+- Gameplay voice output should stay instruction-first: target-description sentences are the only intended spoken gameplay audio.
+- `centralAudioManager` and `eventTracker` are the preferred coordination points for overlap prevention and playback auditing.
+- Keep gameplay HUD overlays visually light and nonblocking; center-top target guidance is acceptable only when pointer-safe.
+
+## Recommendations
+
+- Reinstall dependencies and rerun `npm run verify` plus the local Playwright matrix before the next polish pass.
+- Add automated assertions for audio-overlap tracker events once the browser test harness can inspect them reliably.
+- Continue pruning stale historical docs so `README.md`, `AUDIO_SETUP.md`, and `jobcard.md` stay the fastest onboarding path.
 
 ## Follow-ups
 

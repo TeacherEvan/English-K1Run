@@ -95,6 +95,7 @@ plans/                Working plans and audits
 - Use percentage-based coordinates only for gameplay objects.
 - Route gameplay touch handling through `src/lib/touch-handler.ts`.
 - Keep audio singleton-based; do not instantiate ad-hoc audio managers.
+- Keep gameplay voice output instruction-first: target-description sentences are the intended spoken gameplay audio.
 - Welcome narration in normal mode must start from explicit user gesture.
 
 ## Current documentation entry points
@@ -114,6 +115,7 @@ plans/                Working plans and audits
 
 - Pre-generated assets are the recommended runtime path.
 - Browser-side premium TTS is optional and best treated as a dev-only fallback.
+- Use shared audio coordinators and tracking when changing playback behavior to avoid overlap regressions.
 - If audio behavior seems off, start with:
 
 ```bash

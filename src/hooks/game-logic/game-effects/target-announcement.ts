@@ -64,9 +64,9 @@ export const useTargetAnnouncement = (
         data: { target: currentTarget },
       });
 
-      // Use soundManager.playWord for the full fallback chain and cancel any
-      // previous word playback to avoid overlap in rapid category changes.
-      await soundManager.playWord(currentTarget, undefined, true);
+      // Use soundManager.playWord for the full fallback chain.
+      // The manager already stops queued/current word playback before speaking.
+      await soundManager.playWord(currentTarget, undefined);
 
       eventTracker.trackEvent({
         type: "info",
