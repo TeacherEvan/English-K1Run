@@ -1,10 +1,11 @@
 import { devices, expect, test } from "@playwright/test";
 
 const tabletDevice = (() => {
-  const { browserName, defaultBrowserType, ...deviceConfig } =
+  const { browserName, defaultBrowserType, isMobile, ...deviceConfig } =
     devices["iPad Pro 11"];
   void browserName;
   void defaultBrowserType;
+  void isMobile;
   return deviceConfig;
 })();
 
