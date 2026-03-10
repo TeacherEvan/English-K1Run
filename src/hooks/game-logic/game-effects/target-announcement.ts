@@ -1,7 +1,9 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect } from "react";
+import { centralAudioManager } from "../../../lib/audio/central-audio-manager";
 import { speechSynthesizer } from "../../../lib/audio/speech-synthesizer";
 import { getTargetSentence } from "../../../lib/audio/target-announcements";
+import { eventTracker } from "../../../lib/event-tracker";
 import { soundManager } from "../../../lib/sound-manager";
 import type { GameState } from "../../../types/game";
 
@@ -31,6 +33,19 @@ export const useTargetAnnouncement = (
 
     const announceTarget = async () => {
       speechSynthesizer.stop();
+
+      // stop any other managed audio so the sentence is isolated
+      centralAudioManager.stopAllManaged();
+      const active = centralAudioManager.getActiveChannels();
+      if (active.length > 0) {
+        eventTracker.trackEvent({
+          type: "warning",
+          category: "audio_overlap",
+          message: "active channels present before target announcement",
+          data: { active },
+        });
+      }
+
       const sentence = getTargetSentence(currentTarget, language);
       if (cancelled) return;
 
@@ -41,9 +56,24 @@ export const useTargetAnnouncement = (
         announcementSentence: sentence,
       }));
 
-      // Use soundManager.playWord for the full fallback chain:
-      // sentence template → speech synthesis → audio sprite → voice WAV → Web Speech API
-      await soundManager.playWord(currentTarget);
+      // track start/stop so we can audit that only target sentences are played
+      eventTracker.trackEvent({
+        type: "info",
+        category: "audio_announcement",
+        message: "start",
+        data: { target: currentTarget },
+      });
+
+      // Use soundManager.playWord for the full fallback chain and cancel any
+      // previous word playback to avoid overlap in rapid category changes.
+      await soundManager.playWord(currentTarget, undefined, true);
+
+      eventTracker.trackEvent({
+        type: "info",
+        category: "audio_announcement",
+        message: "end",
+        data: { target: currentTarget },
+      });
 
       if (!cancelled) {
         setGameState((prev) => ({

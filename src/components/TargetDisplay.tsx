@@ -42,15 +42,25 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
       <div className="text-center">
         {/* Multiplier Badge - shown when combo multiplier is active */}
         {hasActiveMultiplier && (
-          <Badge variant="default" className="mb-1 font-bold animate-pulse"
+          <Badge
+            variant="default"
+            className="mb-1 font-bold transition-transform duration-300 ease-in-out"
             style={{
               fontSize: `calc(0.55rem * var(--font-scale, 1))`,
               padding: `calc(0.1rem * var(--spacing-scale, 1)) calc(0.3rem * var(--spacing-scale, 1))`,
               backgroundColor: 'rgba(251, 191, 36, 0.9)',
               color: 'rgb(120, 53, 15)',
               border: '1px solid rgba(217, 119, 6, 0.5)',
-              fontWeight: '700'
-            }}>
+              fontWeight: '700',
+              transform: 'scale(1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
             🔥 {multiplier}x
           </Badge>
         )}
@@ -118,7 +128,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               }}
             >
               <div
-                className="h-full rounded-full transition-all duration-1000"
+                className="h-full rounded-full transition-[width] duration-500 ease-linear"
                 style={{
                   width: `${(timeRemaining / 10000) * 100}%`,
                   backgroundColor: 'rgb(34, 197, 94)',

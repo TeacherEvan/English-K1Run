@@ -5,9 +5,9 @@ import { soundManager } from "../../lib/sound-manager";
  * @param isCorrect - Whether the tap was on the correct target
  */
 export const playTapAudioFeedback = (isCorrect: boolean): void => {
-  const soundName = isCorrect ? "success" : "wrong";
-  const playbackRate = isCorrect ? 1.0 : 0.9;
-
-  // Fire-and-forget with void operator - errors handled by sound manager
-  void soundManager.playSound(soundName, playbackRate, 0.7);
+  // positive reinforcement audio has been removed per updated design;
+  // only play a sound when the tap is incorrect so children aren't distracted
+  if (!isCorrect) {
+    void soundManager.playSound("wrong", 0.9, 0.7);
+  }
 };

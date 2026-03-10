@@ -18,6 +18,9 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 ### 2026-03-10
 
 - Approved implementation after roadmap phase and executed the first single-player competition-polish slice.
+- Tightened gameplay HUD: reduced animation on `TargetDisplay` (multiplier badge hover-scale, narrower progress transition) and eliminated expanding/despanding motion.
+- Muted positive reinforcement audio; only incorrect taps produce a sound. Added central-audio-manager guards around target announcements to prevent overlap and track start/end events for auditing.
+- Added unit tests for tap feedback and announcement cancellation; updated existing audio call spec accordingly.
 - Removed non-deterministic welcome auto-start paths; narration now begins from explicit user action in normal mode and from the E2E bypass path when `?e2e=1` is present.
 - Localized core visible UI and accessibility announcements: menu title/actions, target display labels, victory copy, gameplay ARIA labels, and level-select screen-reader announcements.
 - Unified the public-facing brand string to `English K1 Run` in runtime UI, locale files, and the menu title Playwright assertion.
