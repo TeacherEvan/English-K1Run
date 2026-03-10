@@ -1,8 +1,7 @@
-/* Shared helpers for background stacking and motion. */
-.app > * {
-  position: relative;
-  /* z-index removed - allows UI_LAYER_MATRIX values to work correctly */
-}
+/* Shared helpers for background motion only.
+ * CRITICAL: Do not force positioning on `.app > *`.
+ * Scene roots such as `AppGameplayScene` rely on `absolute inset-0`.
+ */
 
 .app-bg-animated {
   animation: gentle-zoom 20s ease-in-out infinite alternate;

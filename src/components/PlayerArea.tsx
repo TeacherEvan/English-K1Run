@@ -59,7 +59,7 @@ export const PlayerArea = memo(({
   return (
     <Card
       data-testid={`player-area-${playerNumber}`}
-      className="relative h-full border-0 game-area overflow-hidden"
+      className="relative h-full rounded-none border-0 shadow-none transition-none hover:translate-y-0 hover:shadow-none game-area overflow-hidden"
       role="main"
       aria-label={`${t('accessibility.gameBoard')} ${playerNumber}`}
     >
@@ -84,11 +84,12 @@ export const PlayerArea = memo(({
       {/* 
         Primary Game Area
         Contains all interactive game elements (falling objects, worms, effects)
-        Top padding (pt-24) reserves space for target display
+        Top inset reserves space for the center-top target display without
+        introducing a padded overlay layer across the whole board.
       */}
       <div
         data-testid="game-area"
-        className="absolute inset-0 pt-24"
+        className="absolute inset-x-0 top-24 bottom-0"
         aria-live="polite"
         aria-atomic="false"
       >

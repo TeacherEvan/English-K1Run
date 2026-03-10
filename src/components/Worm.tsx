@@ -52,7 +52,7 @@ export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
     <div
       data-testid="worm"
       data-worm-id={worm.id}
-      className="absolute cursor-pointer select-none transition-opacity duration-200 hover:scale-110"
+      className="absolute cursor-pointer select-none transition-opacity duration-200"
       style={wormStyle}
       onClick={handleClick}
       onTouchStart={handleTouchStart}

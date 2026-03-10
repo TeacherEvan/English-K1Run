@@ -3,7 +3,6 @@ import { CategoryErrorBoundary } from "../../components/CategoryErrorBoundary";
 import { FallingObject } from "../../components/FallingObject";
 import { PlayerArea } from "../../components/PlayerArea";
 import { Stopwatch } from "../../components/Stopwatch";
-import { TargetAnnouncementOverlay } from "../../components/TargetAnnouncementOverlay";
 import { TargetDisplay } from "../../components/TargetDisplay";
 import { Worm } from "../../components/Worm";
 import type {
@@ -129,14 +128,6 @@ export const AppGameplayScene = ({
                         />
                     </div>
                 </div>
-            )}
-
-            {isActive && (
-                <TargetAnnouncementOverlay
-                    emoji={gameState.announcementEmoji || gameState.targetEmoji}
-                    sentence={gameState.announcementSentence || ""}
-                    isVisible={Boolean(gameState.announcementActive)}
-                />
             )}
 
             {isActive && continuousMode && (
