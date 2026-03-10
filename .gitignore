@@ -65,6 +65,10 @@ coverage
 # Temporary files
 *.tmp
 *.temp
+*.bak
+*.backup
+*.orig
+*.rej
 .tmp/
 .temp/
 
@@ -93,7 +97,6 @@ yarn.lock.backup
 # Development tools
 .vscode-test
 **/agent-eval-report*
-packages
 .file-manifest
 .devcontainer/
 .spark-workbench-id
@@ -107,7 +110,6 @@ playwright-report/
 .playwright-mcp/
 .next
 .nuxt
-jobcard.md
 
 # Local audit reports
 reports/
@@ -122,10 +124,7 @@ storybook-static
 # Sentry
 .sentryclirc
 e2e/test-results
-playwright-report
 
 .fake
 # Allure
 allure-results/
-package-lock.json
-package.json

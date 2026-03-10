@@ -31,6 +31,7 @@ These files are useful context, but they are not the primary source of truth for
 - `IMPLEMENTATION_SUMMARY_AUDIO_AND_LOADING.md`
 - `AUDIO_LOADING_FIXES_COMPLETED_JAN2026.md`
 - `LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md`
+- `archive/README.md`
 
 If a historical summary disagrees with current behavior:
 
@@ -41,6 +42,7 @@ If a historical summary disagrees with current behavior:
 ## Directory notes
 
 - `DOCS/` contains durable guides and compact summaries.
+- `DOCS/archive/` contains archived root-level reports and logs kept for historical reference.
 - `../plans/` contains planning and audit material.
 - Root-level markdown files are usually user-facing summaries or historical incident notes.
 
