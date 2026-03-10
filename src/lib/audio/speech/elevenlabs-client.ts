@@ -63,16 +63,13 @@ export interface ElevenLabsOptions {
  */
 function getApiKey(): string | null {
   if (typeof window === "undefined") return null;
-  const apiKey =
-    import.meta.env.VITE_ELEVENLABS_API_KEY ||
-    import.meta.env.ELEVENLABS_API_KEY ||
-    null;
+  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || null;
 
   if (!apiKey && import.meta.env.DEV) {
     console.warn(
-      "[ElevenLabs] API key not configured. Set VITE_ELEVENLABS_API_KEY in .env file.\n" +
-        "Audio will fall back to Web Speech API (robotic voice).\n" +
-        "See .env.example for configuration details.",
+      "[ElevenLabs] Live browser TTS is disabled. Set VITE_ELEVENLABS_API_KEY in .env only if you need on-demand ElevenLabs testing during development.\n" +
+        "Production and competition builds should prefer pre-generated audio assets.\n" +
+        "See AUDIO_SETUP.md and .env.example for the current setup.",
     );
   }
 

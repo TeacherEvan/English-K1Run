@@ -3,6 +3,8 @@
 
 interface ImportMetaEnv {
   readonly DEV: boolean;
+  /** Optional dev-only browser-side ElevenLabs key for live TTS testing. */
+  readonly VITE_ELEVENLABS_API_KEY?: string;
   /**
    * Optional feature flag to control the branded welcome splash screen.
    *

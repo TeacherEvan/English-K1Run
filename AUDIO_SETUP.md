@@ -1,261 +1,112 @@
 # Audio Setup Guide
 
-This guide explains how to set up the audio system for English-K1Run to use high-quality ElevenLabs voices instead of the robotic Web Speech API fallback.
+This project is happiest when audio is **pre-generated ahead of time** and checked with the repo. Browser-side ElevenLabs calls are still available for local development, but they are optional and not the recommended competition/deployment path.
 
-## Quick Start
+## Recommended model
 
-### 1. Get an ElevenLabs API Key
+1. Use `ELEVENLABS_*` variables for local audio-generation scripts.
+2. Generate or refresh audio assets into `sounds/`.
+3. Validate assets with `npm run audio:validate`.
+4. Treat `VITE_ELEVENLABS_API_KEY` as a **dev-only** opt-in for live browser TTS testing.
 
-1. Sign up at [ElevenLabs](https://elevenlabs.io)
-2. Navigate to your profile settings
-3. Copy your API key
+## Environment variables
 
-### 2. Configure Environment
-
-Create a `.env` file in the project root:
+Copy the template first:
 
 ```bash
-# Copy the example file
 cp .env.example .env
 ```
 
-Edit `.env` and add your API key:
+Then use this matrix:
 
-```env
-VITE_ELEVENLABS_API_KEY=your_api_key_here
-ELEVENLABS_VOICE_ID=zmcVlqmyk3Jpn5AVYcAL
-```
+| Variable                  | Purpose                          | Required           | Recommended use                   |
+| ------------------------- | -------------------------------- | ------------------ | --------------------------------- |
+| `ELEVENLABS_API_KEY`      | Node.js audio-generation scripts | Yes for generation | Local asset generation            |
+| `ELEVENLABS_MODEL_ID`     | Script model selection           | Usually yes        | Leave at `eleven_multilingual_v2` |
+| `ELEVENLABS_VOICE_ID*`    | Per-language generation voices   | Yes for generation | Match `.env.example`              |
+| `VITE_ELEVENLABS_API_KEY` | Browser-side live TTS            | No                 | Dev-only diagnostics/testing      |
 
-### 3. Generate Audio Files
+## Generate assets
 
-The application requires pre-generated audio files for optimal performance. Generate them using:
+Use the current scripts from `package.json`:
 
 ```bash
-# Generate welcome/intro audio files
+# Welcome / intro assets
 npm run audio:generate-welcome
 
-# Generate all game audio files (190+ files for emojis, numbers, letters)
+# Full sentence-audio pass
 npm run audio:generate
+
+# Validate inventory and naming
+npm run audio:validate
 ```
 
-This will create audio files in the `sounds/` directory.
+Notes:
 
-### 4. Start Development Server
+- Generated source assets live in `sounds/`.
+- Runtime audio URLs resolve under `/sounds/`.
+- For competition builds, prefer shipping assets instead of relying on browser-side premium TTS.
+
+## Development workflow
 
 ```bash
+npm install
+cp .env.example .env
+# Fill in ELEVENLABS_API_KEY and voice IDs as needed
+npm run audio:generate-welcome
+npm run audio:validate
 npm run dev
 ```
 
-## Audio System Architecture
+If you explicitly want live browser ElevenLabs calls during development, also add:
 
-### Audio Priority Chain
+```env
+VITE_ELEVENLABS_API_KEY=your_dev_only_key_here
+```
 
-The application uses a multi-tier audio system:
+## What to expect at runtime
 
-1. **Pre-generated Audio Files** (Preferred)
-   - Located in `public/sounds/` or `sounds/`
-   - High-quality ElevenLabs-generated MP3/WAV files
-   - Loaded and cached for instant playback
+The audio stack currently prefers:
 
-2. **Live ElevenLabs API** (Fallback #1)
-   - Requires `VITE_ELEVENLABS_API_KEY` in environment
-   - Generates audio on-demand if files are missing
-   - Caches generated audio in memory
+1. **Pre-generated assets** from the repo/runtime sound path
+2. **Live browser ElevenLabs** if `VITE_ELEVENLABS_API_KEY` is present
+3. **Web Speech API** fallback
 
-3. **Web Speech API** (Fallback #2)
-   - Browser's built-in text-to-speech
-   - Robotic voice quality
-   - Used when ElevenLabs is unavailable
-
-### Critical Audio Files
-
-#### Welcome Screen Audio
-- `sounds/welcome_evan_intro.mp3` - "Welcome to Teacher Evan's Super Student..."
-- Required for the initial welcome screen
-
-#### Home Menu Audio
-- `sounds/welcome_sangsom_association.mp3` - English association message
-- `sounds/welcome_sangsom_association_thai.mp3` - Thai association message
-- Plays automatically when entering the home menu
-
-#### Gameplay Audio (190+ files)
-- Emoji pronunciations: `emoji_apple.mp3`, `emoji_banana.mp3`, etc.
-- Number pronunciations: `number_1.mp3`, `number_2.mp3`, etc.
-- Letter pronunciations: `letter_a.mp3`, `letter_b.mp3`, etc.
-- Shape pronunciations: `shape_circle.mp3`, `shape_square.mp3`, etc.
+That means hearing Web Speech does **not** always mean the app is broken; it usually means live browser TTS is intentionally disabled or a requested asset is missing.
 
 ## Troubleshooting
 
-### "Robotic voice" issue
+### I hear Web Speech instead of ElevenLabs
 
-**Symptom**: Hearing robotic Web Speech API voice instead of natural ElevenLabs voice.
+- Confirm the requested asset exists in `sounds/`.
+- Run `npm run audio:validate`.
+- If you are testing browser-side live TTS, confirm `VITE_ELEVENLABS_API_KEY` is set and restart the dev server.
+- Check the console for `[ElevenLabs]` and `[SpeechSynthesizer]` messages.
 
-**Solution**:
-1. Check console for warnings about missing API key
-2. Verify `.env` file exists and contains `VITE_ELEVENLABS_API_KEY`
-3. Restart dev server after modifying `.env`
-4. Check browser console for ElevenLabs connection status
+### Script generation fails
 
-### "Wrong audio playing on home window"
+- Confirm `ELEVENLABS_API_KEY` is set in `.env`.
+- Run `npm run audio:list-voices` to verify the key.
+- Confirm the voice IDs in `.env` match the current language configuration.
 
-**Symptom**: Home menu plays incorrect or no audio.
+### Missing or mismatched audio files
 
-**Causes**:
-1. Missing audio files: `welcome_sangsom_association.mp3` and `welcome_sangsom_association_thai.mp3`
-2. Files exist but have wrong content
-3. Audio files not being loaded properly
-
-**Solution**:
 ```bash
-# Regenerate welcome audio files
-npm run audio:generate-welcome
-
-# Verify files exist
-ls -la sounds/welcome_*.mp3
-
-# Check console for detailed error messages
-```
-
-### API Key Not Working
-
-**Symptom**: Console shows "ElevenLabs API connection failed"
-
-**Checklist**:
-- [ ] API key is valid (not expired)
-- [ ] API key has sufficient credits
-- [ ] Network connection allows HTTPS to api.elevenlabs.io
-- [ ] No typos in the API key (spaces, quotes, etc.)
-
-**Test Connection**:
-```bash
-# List available voices (tests API key)
-npm run audio:list-voices
-```
-
-### Missing Audio Files
-
-**Symptom**: Console warnings about missing .mp3 or .wav files
-
-**Solution**:
-```bash
-# Validate which files are missing
 npm run audio:validate
-
-# Generate missing files
-npm run audio:generate
 ```
 
-## Console Messages
+If validation reports gaps, regenerate the welcome slice or the full audio set.
 
-### Expected Messages (Development Mode)
+## Production and competition guidance
 
-When everything is working correctly:
-```
-[ElevenLabs] API connection successful ✓
-[HomeMenuAudio] Playing English association message
-[HomeMenuAudio] Playing Thai association message
-[HomeMenuAudio] Audio sequence completed
-```
+- Do **not** depend on browser-side premium API keys for competition readiness.
+- Generate and verify assets ahead of deployment.
+- Keep `.env` uncommitted.
+- Use runtime browser TTS only as a local development fallback or diagnostic aid.
 
-### Warning Messages
+## Related references
 
-Missing API key:
-```
-[ElevenLabs] API key not configured. Set VITE_ELEVENLABS_API_KEY in .env file.
-Audio will fall back to Web Speech API (robotic voice).
-```
-
-Missing audio files:
-```
-[HomeMenuAudio] English association audio not available
-Make sure welcome_sangsom_association.mp3 exists in public/sounds/
-```
-
-## Production Deployment
-
-### Vercel / Netlify
-
-1. Add environment variable in dashboard:
-   - Key: `VITE_ELEVENLABS_API_KEY`
-   - Value: Your ElevenLabs API key
-
-2. Pre-generate all audio files before deploying:
-   ```bash
-   npm run audio:generate
-   git add sounds/
-   git commit -m "Add pre-generated audio files"
-   ```
-
-3. Deploy normally - audio files will be included in build
-
-### Docker
-
-Add API key to docker-compose.yml:
-```yaml
-environment:
-  - VITE_ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
-```
-
-Or pass directly:
-```bash
-docker run -e VITE_ELEVENLABS_API_KEY=your_key_here ...
-```
-
-## Scripts Reference
-
-```bash
-# List ElevenLabs voices available with your API key
-npm run audio:list-voices
-
-# Validate audio files exist and are properly named
-npm run audio:validate
-
-# Generate all audio files (requires API key)
-npm run audio:generate
-
-# Generate only welcome screen audio files
-npm run audio:generate-welcome
-```
-
-## File Locations
-
-```
-English-K1Run/
-├── .env                          # Your API key (DO NOT commit)
-├── .env.example                   # Template for .env
-├── sounds/                        # Generated audio files (git-ignored)
-│   ├── welcome_evan_intro.mp3
-│   ├── welcome_sangsom_association.mp3
-│   ├── welcome_sangsom_association_thai.mp3
-│   ├── emoji_*.mp3               # 70+ emoji audio files
-│   ├── number_*.mp3              # 15 number audio files
-│   ├── letter_*.mp3              # 26 letter audio files
-│   └── shape_*.mp3               # Shape audio files
-├── public/sounds/                 # Alternative location for audio
-└── scripts/
-    ├── generate-audio.cjs         # Main audio generation script
-    └── generate-missing-welcome-audio.cjs  # Welcome audio generator
-```
-
-## Cost Considerations
-
-- **ElevenLabs Pricing**: Pay-per-character TTS generation
-- **Free Tier**: 10,000 characters/month (enough for testing)
-- **Recommendation**: Pre-generate all audio files once, commit to repository
-- **Runtime Generation**: Disable in production to avoid API costs
-
-## Support
-
-If you encounter issues:
-
-1. Check browser console (F12) for detailed error messages
-2. Verify all files exist: `ls sounds/*.mp3`
-3. Test API key: `npm run audio:list-voices`
-4. Review this guide's troubleshooting section
-5. Check `.env` file is not committed to git (security)
-
-## Related Documentation
-
-- [ElevenLabs API Documentation](https://elevenlabs.io/docs)
-- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
-- Project Documentation: `DOCS/AUDIO_AND_LOADING_ENHANCEMENTS_PLAN.md`
+- `README.md` — concise onboarding and command map
+- `DOCS/A-README.md` — docs index
+- `DOCS/CODEBASE_INDEX.md` — codebase navigation guide
+- `CONSOLE_EXAMPLES.md` — current audio log reference
