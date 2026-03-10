@@ -23,7 +23,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
   const hasActiveMultiplier = multiplier && multiplier > 1
 
   return (
-    <Card data-testid="target-display" className="bg-transparent text-foreground cursor-pointer hover:scale-105 transition-transform"
+    <Card data-testid="target-display" className="bg-transparent text-foreground"
       onClick={onClick}
       style={{
         padding: `calc(0.3rem * var(--spacing-scale, 1))`,
@@ -37,7 +37,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         borderRadius: '8px',
         maxWidth: 'fit-content',
         minWidth: '85px',
-        pointerEvents: onClick ? 'auto' : 'none' // Enable clicks when handler is provided
+        pointerEvents: onClick ? 'auto' : 'none'
       }}>
       <div className="text-center">
         {/* Multiplier Badge - shown when combo multiplier is active */}
@@ -68,7 +68,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         </Badge>
 
         <div className="text-center mb-1">
-          <div data-testid="target-emoji" className="mb-1 bounce-in" key={targetEmoji}
+          <div data-testid="target-emoji" className="mb-1" key={targetEmoji}
             style={{
               fontSize: `calc(1.75rem * var(--object-scale, 1))`,
               lineHeight: '1',

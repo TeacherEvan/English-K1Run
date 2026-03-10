@@ -60,10 +60,9 @@ test.describe("Visual Screenshots", () => {
       contentType: "image/png",
     });
 
-    // Close settings (click close button)
-    const closeBtn = page.getByRole("button", { name: "Close" });
-    await closeBtn.waitFor({ state: "visible", timeout: 10000 });
-    await closeBtn.click({ force: true, timeout: 30000 });
+    // Close settings without a pointer click so we do not click through to
+    // the menu buttons underneath when the dialog unmounts.
+    await page.keyboard.press("Escape");
     await settingsTitle.waitFor({ state: "detached", timeout: 10000 });
 
     // 3. Level Select
@@ -132,12 +131,26 @@ test.describe("Visual Screenshots", () => {
       ]);
 
       if (await loadingScreen.isVisible()) {
-        try {
-          await skipBtn.waitFor({ state: "visible", timeout: 10000 });
-          await skipBtn.click({ force: true, timeout: 30000 });
-          await loadingScreen.waitFor({ state: "detached", timeout: 15000 });
-        } catch {
-          console.log("Loading screen skip bypassed in screenshot loop");
+        let skippedToGameplay = false;
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            await skipBtn.waitFor({ state: "visible", timeout: 10000 });
+            await skipBtn.click({ force: true, timeout: 30000 });
+            await Promise.race([
+              loadingScreen.waitFor({ state: "detached", timeout: 15000 }),
+              targetDisplay.waitFor({ state: "visible", timeout: 15000 }),
+            ]);
+            skippedToGameplay = true;
+            break;
+          } catch {
+            if (attempt === 2) {
+              console.log("Loading screen skip bypassed in screenshot loop");
+            }
+          }
+        }
+
+        if (!skippedToGameplay && (await loadingScreen.isVisible())) {
+          await targetDisplay.waitFor({ state: "visible", timeout: 45000 });
         }
       }
 

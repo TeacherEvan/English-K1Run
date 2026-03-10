@@ -35,7 +35,6 @@ interface AppGameplaySceneProps {
     onResetGame: () => void;
     onObjectTap: (objectId: string, playerSide: "left" | "right") => void;
     onWormTap: (wormId: string, playerSide: "left" | "right") => void;
-    onChangeTargetToVisibleEmoji: () => void;
 }
 
 /**
@@ -54,7 +53,6 @@ export const AppGameplayScene = ({
     onResetGame,
     onObjectTap,
     onWormTap,
-    onChangeTargetToVisibleEmoji,
 }: AppGameplaySceneProps) => {
     const isActive = gameState.gameStarted && !gameState.winner;
 
@@ -117,19 +115,16 @@ export const AppGameplayScene = ({
                         </button>
                     </div>
 
-                    <div className="absolute top-20 left-4 pointer-events-auto"
-                        style={{ maxWidth: '140px', width: 'auto' }}>
+                    <div
+                        className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none"
+                        style={{ maxWidth: "min(160px, calc(100vw - 8rem))", width: "auto" }}
+                    >
                         <TargetDisplay
                             currentTarget={gameState.currentTarget}
                             targetEmoji={gameState.targetEmoji}
                             category={currentCategory}
                             timeRemaining={
                                 currentCategory.requiresSequence ? undefined : timeRemaining
-                            }
-                            onClick={
-                                currentCategory.requiresSequence
-                                    ? undefined
-                                    : onChangeTargetToVisibleEmoji
                             }
                         />
                     </div>

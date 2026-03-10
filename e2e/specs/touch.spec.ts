@@ -1,7 +1,15 @@
 import { devices, expect, test } from "@playwright/test";
 
+const tabletDevice = (() => {
+  const { browserName, defaultBrowserType, ...deviceConfig } =
+    devices["iPad Pro 11"];
+  void browserName;
+  void defaultBrowserType;
+  return deviceConfig;
+})();
+
 // Use tablet device for touch testing
-test.use({ ...devices["iPad Pro 11"], hasTouch: true });
+test.use({ ...tabletDevice, hasTouch: true });
 
 /**
  * Retry page navigation with exponential backoff for transient server errors

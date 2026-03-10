@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 import "./App.css";
 
+import { useTranslation } from "react-i18next";
 import { pickRandomBackground } from "./app/backgrounds";
 import { AppGameplayScene } from "./app/components/AppGameplayScene";
 import { AppMenuOverlay } from "./app/components/AppMenuOverlay";
@@ -18,7 +19,6 @@ import { useDisplayAdjustment } from "./hooks/use-display-adjustment";
 import { GAME_CATEGORIES, useGameLogic } from "./hooks/use-game-logic";
 import { getCategoryTranslationKey } from "./lib/constants/category-translation";
 import { useLazyBackgroundPreloader } from "./lib/utils/background-preloader";
-import { useTranslation } from "react-i18next";
 
 const FireworksDisplay = lazy(() =>
   import("./components/FireworksDisplay").then((m) => ({
@@ -67,7 +67,6 @@ function App() {
     handleWormTap,
     startGame,
     resetGame,
-    changeTargetToVisibleEmoji,
     continuousModeHighScore,
   } = useGameLogic({
     fallSpeedMultiplier: displaySettings.fallSpeed,
@@ -110,6 +109,8 @@ function App() {
     setContinuousMode(enabled);
   }, []);
 
+  const appAnimationClass = gameState.gameStarted ? "" : "app-bg-animated";
+
   if (startupStep === "welcome" || isLoading) {
     return (
       <AppStartupGate
@@ -125,7 +126,7 @@ function App() {
   return (
     <>
       <div
-        className={`h-screen overflow-hidden relative isolate app app-bg-animated ${backgroundClass}`}
+        className={`h-screen overflow-hidden relative isolate app ${appAnimationClass} ${backgroundClass}`.trim()}
       >
         <AppGameplayScene
           gameState={gameState}
@@ -140,7 +141,6 @@ function App() {
           onResetGame={resetGame}
           onObjectTap={handleObjectTap}
           onWormTap={handleWormTap}
-          onChangeTargetToVisibleEmoji={changeTargetToVisibleEmoji}
         />
 
         {gameState.winner && (
