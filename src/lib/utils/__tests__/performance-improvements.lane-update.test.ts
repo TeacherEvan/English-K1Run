@@ -37,21 +37,27 @@ describe("Performance Improvements (Lane + Update)", () => {
     const objects = createObjects(30);
 
     const iterations = 1000;
+    let oldChecks = 0;
     const oldStart = performance.now();
     for (let iter = 0; iter < iterations; iter++) {
       for (let i = 0; i < 8; i++) {
         const lane = i % 2 === 0 ? "left" : "right";
-        const laneObjects = objects.filter((obj) => obj.lane === lane);
+        const laneObjects = objects.filter((obj) => {
+          oldChecks++;
+          return obj.lane === lane;
+        });
         void laneObjects.length;
       }
     }
     const oldTime = performance.now() - oldStart;
 
+    let newChecks = 0;
     const newStart = performance.now();
     for (let iter = 0; iter < iterations; iter++) {
       const leftObjects: GameObject[] = [];
       const rightObjects: GameObject[] = [];
       for (const obj of objects) {
+        newChecks++;
         (obj.lane === "left" ? leftObjects : rightObjects).push(obj);
       }
       for (let i = 0; i < 8; i++) {
@@ -61,8 +67,11 @@ describe("Performance Improvements (Lane + Update)", () => {
     }
     const newTime = performance.now() - newStart;
 
-    // Conservative threshold to avoid flaky tests.
-    expect(newTime).toBeLessThan(oldTime * 0.8);
+    // Deterministic: partitioning should inspect each object once per iteration,
+    // while repeated filtering rechecks every object for every lane access.
+    expect(newChecks).toBe(iterations * objects.length);
+    expect(oldChecks).toBe(iterations * objects.length * 8);
+    expect(newChecks).toBeLessThan(oldChecks / 4);
 
     if (import.meta.env.DEV) {
       console.log(

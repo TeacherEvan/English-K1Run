@@ -17,12 +17,9 @@ vi.mock("react", async () => {
 });
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  playSoundEffect,
-  soundManager,
-} from "../../lib/sound-manager";
-import { playTapAudioFeedback } from "../game-logic/tap-audio-effects";
+import { playSoundEffect, soundManager } from "../../lib/sound-manager";
 import { useTargetAnnouncement } from "../game-logic/game-effects/target-announcement";
+import { playTapAudioFeedback } from "../game-logic/tap-audio-effects";
 
 describe("Sound Manager Audio Call Behavior", () => {
   beforeEach(() => {
