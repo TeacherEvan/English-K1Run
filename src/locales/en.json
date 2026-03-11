@@ -59,7 +59,12 @@
     "associationThai": "ร่วมกับ",
     "learning": "Learning through games",
     "learningThai": "เรียนรู้ผ่านการเล่น",
-    "forEveryone": "for everyone!"
+    "forEveryone": "for everyone!",
+    "readyPrompt": "Tap once to begin",
+    "listening": "Listening...",
+    "listeningHint": "Please wait for the welcome audio",
+    "readyContinue": "Ready to continue",
+    "transitioning": "Opening menu..."
   },
   "accessibility": {
     "volumeControl": "Volume Control",

@@ -59,7 +59,12 @@
     "associationThai": "ร่วมกับ",
     "learning": "通過遊戲學習",
     "learningThai": "เรียนรู้ผ่านการเล่น",
-    "forEveryone": "為大家！"
+    "forEveryone": "為大家！",
+    "readyPrompt": "點一下即可開始",
+    "listening": "播放中...",
+    "listeningHint": "請等待歡迎音訊播放完畢",
+    "readyContinue": "可以繼續了",
+    "transitioning": "正在開啟選單..."
   },
   "accessibility": {
     "volumeControl": "音量控制",

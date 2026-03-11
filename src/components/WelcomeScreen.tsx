@@ -1,4 +1,5 @@
 import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
+import { isWelcomeInteractionLocked } from '@/components/welcome/welcome-phase'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
 import { memo } from 'react'
@@ -15,7 +16,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const { t } = useTranslation()
   const {
     fadeOut,
-    readyToContinue,
+    phase,
     isSequencePlaying,
     videoLoaded,
     showFallbackImage,
@@ -29,13 +30,38 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
   const videoSrc = '/New_welcome_video.mp4'
   const fallbackImageSrc = '/welcome-sangsom.png'
-  const actionLabel = readyToContinue ? t('menu.tapToContinue') : t('menu.tapToStart')
+  const interactionLocked = isWelcomeInteractionLocked(phase)
+
+  const actionLabel = (() => {
+    if (phase === 'playingNarration') return t('welcome.listening', { defaultValue: 'Listening...' })
+    if (phase === 'readyToContinue') return t('menu.tapToContinue')
+    if (phase === 'transitioningToMenu') return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
+    return t('menu.tapToStart')
+  })()
+
+  const statusLabel = (() => {
+    if (phase === 'playingNarration') {
+      return t('welcome.listeningHint', { defaultValue: 'Please wait for the welcome audio' })
+    }
+
+    if (phase === 'readyToContinue') {
+      return t('welcome.readyContinue', { defaultValue: 'Ready to continue' })
+    }
+
+    if (phase === 'transitioningToMenu') {
+      return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
+    }
+
+    return t('welcome.readyPrompt', { defaultValue: 'Tap once to begin' })
+  })()
 
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
         }`}
       data-testid="welcome-screen"
+      data-welcome-phase={phase}
+      aria-busy={interactionLocked}
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
         background: '#000',
@@ -71,26 +97,31 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         </>
       )}
 
-      <div className="welcome-image-overlay">
+      <div className={`welcome-image-overlay ${interactionLocked ? 'welcome-image-overlay--steady' : 'welcome-image-overlay--pulse'}`}>
         <button
           type="button"
-          className="welcome-image-button"
+          className={`welcome-image-button welcome-image-button--${phase}`}
           onClick={(event) => {
             event.stopPropagation()
             handlePrimaryAction()
           }}
           data-testid="welcome-primary-button"
+          aria-disabled={interactionLocked}
+          disabled={interactionLocked}
         >
           <span className="welcome-image-text" role="status" aria-live="polite">
             {actionLabel}
           </span>
         </button>
+        <p className="welcome-image-caption" data-testid="welcome-status-label">
+          {statusLabel}
+        </p>
       </div>
 
       {/* Audio progress indicator (subtle) */}
       {isSequencePlaying && totalAudioCount > 0 && (
         <div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          className="welcome-progress"
           style={{ zIndex: UI_LAYER_MATRIX.HUD_SECONDARY }}
         >
           <div className="flex gap-2">

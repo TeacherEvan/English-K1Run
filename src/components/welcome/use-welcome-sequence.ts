@@ -4,6 +4,11 @@
  */
 import { useWelcomeAudioSequence } from "@/components/welcome/use-welcome-audio-sequence";
 import {
+  getWelcomePhase,
+  isWelcomeInteractionLocked,
+  type WelcomePhase,
+} from "@/components/welcome/welcome-phase";
+import {
   stopWelcomeSequence,
   type WelcomeAudioConfig,
 } from "@/lib/audio/welcome-audio-sequencer";
@@ -17,6 +22,7 @@ interface WelcomeSequenceOptions {
 
 export interface WelcomeSequenceState {
   fadeOut: boolean;
+  phase: WelcomePhase;
   readyToContinue: boolean;
   isSequencePlaying: boolean;
   videoLoaded: boolean;
@@ -50,6 +56,12 @@ export const useWelcomeSequence = ({
     markReadyToContinue,
   } = useWelcomeAudioSequence({ audioConfig, isE2E });
 
+  const phase = getWelcomePhase({
+    fadeOut,
+    readyToContinue,
+    isSequencePlaying,
+  });
+
   const proceed = useCallback(() => {
     stopWelcomeSequence();
     soundManager.fadeOutAll(350);
@@ -58,6 +70,10 @@ export const useWelcomeSequence = ({
   }, [onComplete]);
 
   const handlePrimaryAction = useCallback(() => {
+    if (fadeOut || isWelcomeInteractionLocked(phase)) {
+      return;
+    }
+
     if (isE2E) {
       proceed();
       return;
@@ -69,7 +85,7 @@ export const useWelcomeSequence = ({
     }
 
     proceed();
-  }, [isE2E, proceed, readyToContinue, requestStart]);
+  }, [fadeOut, isE2E, phase, proceed, readyToContinue, requestStart]);
 
   useEffect(() => {
     if (!isE2E) return;
@@ -121,6 +137,7 @@ export const useWelcomeSequence = ({
 
   return {
     fadeOut,
+    phase,
     readyToContinue,
     isSequencePlaying,
     videoLoaded,

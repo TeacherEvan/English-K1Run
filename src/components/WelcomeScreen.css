@@ -24,7 +24,15 @@
   transform: translateX(-50%);
   z-index: 30;
   pointer-events: none;
+  text-align: center;
+}
+
+.welcome-image-overlay--pulse {
   animation: image-pulse 2s ease-in-out infinite;
+}
+
+.welcome-image-overlay--steady {
+  animation: none;
 }
 
 .welcome-image-text {
@@ -46,12 +54,44 @@
   backdrop-filter: blur(6px);
   cursor: pointer;
   pointer-events: auto;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    opacity 180ms ease;
 }
 
 .welcome-image-button:hover,
 .welcome-image-button:focus-visible {
   outline: none;
   transform: scale(1.03);
+}
+
+.welcome-image-button:disabled {
+  cursor: default;
+  opacity: 0.92;
+}
+
+.welcome-image-button--playingNarration {
+  background: rgba(17, 24, 39, 0.82);
+}
+
+.welcome-image-button--readyToContinue {
+  background: rgba(22, 101, 52, 0.78);
+}
+
+.welcome-image-caption {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.welcome-progress {
+  position: absolute;
+  bottom: 8rem;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 @media (orientation: landscape) {
@@ -62,6 +102,10 @@
 
   .welcome-image-button {
     padding: 0.8rem 1.4rem;
+  }
+
+  .welcome-image-caption {
+    font-size: 0.95rem;
   }
 }
 
