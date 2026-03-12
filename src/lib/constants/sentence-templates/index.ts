@@ -41,9 +41,3 @@ export function hasSentenceTemplate(phrase: string): boolean {
   const normalizedPhrase = phrase.toLowerCase().trim();
   return normalizedPhrase in ENGLISH_SENTENCE_TEMPLATES;
 }
-
-/**
- * Legacy export for backward compatibility
- * @deprecated Use getSentenceTemplate(phrase, language) instead
- */
-export const SENTENCE_TEMPLATES = ENGLISH_SENTENCE_TEMPLATES;
