@@ -161,7 +161,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         setGameState,
         spawnImmediateTargets,
       }),
-    [currentCategory, spawnImmediateTargets],
+    [
+      gameObjectsRef,
+      gameStateRef,
+      currentCategory,
+      setGameState,
+      spawnImmediateTargets,
+    ],
   );
 
   return {
