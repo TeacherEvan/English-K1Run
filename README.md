@@ -54,6 +54,7 @@ npm run test:coverage
 
 # E2E tests
 npm run test:e2e
+npm run test:e2e:deployment
 npm run test:e2e:ui
 npm run test:e2e:headed
 
@@ -108,6 +109,7 @@ plans/                Working plans and audits
 ## Testing notes
 
 - Local Playwright defaults are tuned for `chromium`, `firefox`, and `mobile`.
+- `npm run test:e2e` validates the local app only; deployment diagnostics are opt-in via `npm run test:e2e:deployment`.
 - Use `?e2e=1` to skip the welcome screen in E2E flows.
 - Run `npm run verify` before shipping changes.
 

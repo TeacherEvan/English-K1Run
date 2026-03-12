@@ -1,6 +1,27 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () => {
+const deploymentUrl = process.env.PLAYWRIGHT_DEPLOYMENT_URL;
+const deploymentSkipReason =
+  "Set PLAYWRIGHT_DEPLOYMENT_URL to run deployment diagnostics against a deployed app.";
+
+const gotoDeployment = async (page: import("@playwright/test").Page) => {
+  await page.goto(deploymentUrl!, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
+
+  await expect(page.locator("#root")).toHaveCount(1, {
+    timeout: 15000,
+  });
+
+  await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {
+    console.log("ℹ️ Deployment diagnostics continuing before networkidle");
+  });
+};
+
+test.describe("Deployment Diagnostics", () => {
+  test.skip(!deploymentUrl, deploymentSkipReason);
+
   test("should load without JavaScript errors", async ({ page }) => {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -19,14 +40,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
       errors.push(`Page error: ${error.message}`);
     });
 
-    // Navigate to deployed app
-    await page.goto("https://english-k1-run.vercel.app", {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-
-    // Wait a bit for all resources to load
-    await page.waitForTimeout(5000);
+    await gotoDeployment(page);
 
     // Check for critical JavaScript errors
     const criticalErrors = errors.filter(
@@ -46,19 +60,20 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
     // Assert no critical JavaScript errors
     expect(criticalErrors).toHaveLength(0);
 
-    // Verify the page loaded (should have root div).
-    // Note: The app may temporarily keep the root hidden during overlays/loading.
-    await expect(page.locator("#root")).toHaveCount(1);
-
-    // Check if the game menu appears (indicates React loaded successfully)
     try {
-      await page.waitForSelector('[data-testid="game-menu"]', {
-        timeout: 10000,
-      });
-      console.log("✅ Game menu loaded successfully");
+      await Promise.race([
+        page.locator('[data-testid="game-menu"]').waitFor({
+          state: "visible",
+          timeout: 10000,
+        }),
+        page.locator('[data-testid="welcome-screen"]').waitFor({
+          state: "visible",
+          timeout: 10000,
+        }),
+      ]);
+      console.log("✅ App shell loaded successfully");
     } catch {
-      console.log("❌ Game menu did not appear within timeout");
-      // This might be expected if there are loading issues
+      console.log("❌ App shell did not appear within timeout");
     }
   });
 
@@ -72,13 +87,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
       }
     });
 
-    await page.goto("https://english-k1-run.vercel.app", {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-
-    // Wait for bundles to load
-    await page.waitForTimeout(3000);
+    await gotoDeployment(page);
 
     console.log("Failed JS requests:", failedRequests);
 
@@ -102,12 +111,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
       }
     });
 
-    await page.goto("https://english-k1-run.vercel.app", {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-
-    await page.waitForTimeout(2000);
+    await gotoDeployment(page);
 
     console.log("Failed CSS requests:", failedRequests);
 
@@ -116,10 +120,7 @@ test.describe("Deployment Diagnostics - https://english-k1-run.vercel.app", () =
   });
 
   test("welcome audio cues should not overlap", async ({ page }) => {
-    await page.goto("https://english-k1-run.vercel.app", {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
+    await gotoDeployment(page);
 
     await page.waitForSelector('[data-testid="welcome-screen"]', {
       timeout: 10000,

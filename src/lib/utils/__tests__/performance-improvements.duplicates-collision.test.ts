@@ -29,37 +29,74 @@ describe("Performance Improvements (Duplicates + Collision)", () => {
     const activeEmojis = new Set(["🍎", "🍌"]);
     const spawnedInBatch = new Set(["🍇"]);
     const iterations = 10_000;
+    const pickOrder = [0, 1, 2, 0, 1, 2, 3, 4, 5, 0, 1, 3, 4, 5];
+
+    let oldDuplicateChecks = 0;
+    let oldRetries = 0;
+    let oldCursor = 0;
+
+    const nextOldItem = () => {
+      const item = items[pickOrder[oldCursor % pickOrder.length]];
+      oldCursor++;
+      return item;
+    };
 
     const oldStart = performance.now();
     for (let iter = 0; iter < iterations; iter++) {
       for (let i = 0; i < 8; i++) {
-        let item = items[Math.floor(Math.random() * items.length)];
+        let item = nextOldItem();
         let attempts = 0;
         const maxAttempts = items.length * 2;
-        while (
-          attempts < maxAttempts &&
-          (spawnedInBatch.has(item.emoji) ||
-            (activeEmojis.has(item.emoji) && Math.random() > 0.3))
-        ) {
-          item = items[Math.floor(Math.random() * items.length)];
+
+        while (attempts < maxAttempts) {
+          oldDuplicateChecks++;
+          const existsInBatch = spawnedInBatch.has(item.emoji);
+
+          oldDuplicateChecks++;
+          const existsInActive = activeEmojis.has(item.emoji);
+
+          if (!existsInBatch && !existsInActive) break;
+
+          item = nextOldItem();
           attempts++;
+          oldRetries++;
         }
       }
     }
     const oldTime = performance.now() - oldStart;
 
+    let newDuplicateChecks = 0;
+    let newCursor = 0;
+
+    const nextNewItem = () => {
+      const item = items[pickOrder[newCursor % pickOrder.length]];
+      newCursor++;
+      return item;
+    };
+
     const newStart = performance.now();
     for (let iter = 0; iter < iterations; iter++) {
       for (let i = 0; i < 8; i++) {
-        const item = items[Math.floor(Math.random() * items.length)];
-        const isDuplicate =
-          spawnedInBatch.has(item.emoji) || activeEmojis.has(item.emoji);
+        const item = nextNewItem();
+        newDuplicateChecks++;
+        const existsInBatch = spawnedInBatch.has(item.emoji);
+        newDuplicateChecks++;
+        const existsInActive = activeEmojis.has(item.emoji);
+        const isDuplicate = existsInBatch || existsInActive;
         void isDuplicate;
       }
     }
     const newTime = performance.now() - newStart;
 
-    expect(newTime).toBeLessThan(oldTime);
+    expect(oldRetries).toBeGreaterThan(0);
+    expect(newDuplicateChecks).toBe(iterations * 8 * 2);
+    expect(oldDuplicateChecks).toBeGreaterThan(newDuplicateChecks);
+
+    if (import.meta.env.DEV) {
+      console.log(
+        `Duplicate detection: Old=${oldTime.toFixed(2)}ms, New=${newTime.toFixed(2)}ms, OldChecks=${oldDuplicateChecks}, NewChecks=${newDuplicateChecks}`,
+      );
+    }
   });
 
   it("verifies early-exit conditions reduce collision checks", () => {

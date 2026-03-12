@@ -18,6 +18,7 @@ Use this page as the main landing point for repository documentation.
 | Audio/env           | `../AUDIO_SETUP.md`    | You need current ElevenLabs or asset guidance          |
 | Recent history      | `../jobcard.md`        | You need the shortest reliable summary of recent work  |
 | Codebase navigation | `CODEBASE_INDEX.md`    | You need to find the right module quickly              |
+| Deployment checks   | `../README.md`         | You need the opt-in deployed-site Playwright command   |
 | Integration details | `INTEGRATION_GUIDE.md` | You are wiring utilities or shared infrastructure      |
 | Best practices      | `BEST_PRACTICES.md`    | You are changing code patterns or contributor workflow |
 | Security            | `SECURITY.md`          | You are reviewing deployment/security posture          |
@@ -69,6 +70,7 @@ If a historical summary disagrees with current behavior:
 1. `../plans/competition-readiness-roadmap-2026-03-10.md`
 2. `CODEBASE_INDEX.md`
 3. `SECURITY.md`
+4. `../README.md` for the deployed-site diagnostic test entry point
 
 ## Maintenance rule
 
