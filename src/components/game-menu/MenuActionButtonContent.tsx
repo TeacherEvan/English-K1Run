@@ -25,12 +25,12 @@ export const MenuActionButtonContent = memo(
                 ) : (
                     icon
                 )}
-                <div className={textClassName ?? "flex flex-col items-start leading-none"}>
+                <div className={textClassName ?? "flex flex-col items-start leading-tight"}>
                     <span>{title}</span>
                     {subtitle && (
                         <span
                             className={
-                                subtitleClassName ?? "text-xs font-normal opacity-90 font-thai mt-1"
+                                subtitleClassName ?? "mt-1 text-xs font-normal text-muted-foreground/80"
                             }
                         >
                             {subtitle}

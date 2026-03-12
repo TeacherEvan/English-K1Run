@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../../context/settings-context";
 import type { ResolutionScale } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import {
@@ -12,6 +13,7 @@ import {
 } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { SettingsIcon } from "./icons";
+import { getMenuActionLabel } from "./menu-action-labels";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 import { AccessibilitySettings } from "./settings-sections/AccessibilitySettings";
 import { AudioSettings } from "./settings-sections/AudioSettings";
@@ -33,6 +35,8 @@ export const GameMenuSettingsDialog = memo(
         onToggleContinuousMode,
     }: GameMenuSettingsDialogProps) => {
         const { t } = useTranslation();
+        const { gameplayLanguage } = useSettings();
+        const settingsLabel = getMenuActionLabel("game.settings", gameplayLanguage);
 
         return (
             <Dialog>
@@ -46,7 +50,8 @@ export const GameMenuSettingsDialog = memo(
                     >
                         <MenuActionButtonContent
                             icon={<SettingsIcon className="w-6 h-6 text-primary" />}
-                            title={t("game.settings")}
+                            title={settingsLabel.title}
+                            subtitle={settingsLabel.subtitle}
                         />
                     </Button>
                 </DialogTrigger>
@@ -60,7 +65,7 @@ export const GameMenuSettingsDialog = memo(
                             {t("settings.description")}
                         </DialogDescription>
                     </DialogHeader>
-                    <Tabs defaultValue="audio" className="py-4">
+                    <Tabs defaultValue="controls" className="py-4">
                         <TabsList className="w-full justify-between">
                             <TabsTrigger value="audio">{t("settings.tabs.audio")}</TabsTrigger>
                             <TabsTrigger value="visual">{t("settings.tabs.visual")}</TabsTrigger>

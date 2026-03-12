@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import {
     Dialog,
@@ -9,6 +10,7 @@ import {
     DialogTitle,
 } from "../ui/dialog";
 import { LogOutIcon } from "./icons";
+import { getMenuActionLabel } from "./menu-action-labels";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuExitDialogProps {
@@ -18,7 +20,9 @@ interface GameMenuExitDialogProps {
 export const GameMenuExitDialog = memo(
     ({ onResetGame }: GameMenuExitDialogProps) => {
         const { t } = useTranslation();
+        const { gameplayLanguage } = useSettings();
         const [showExitDialog, setShowExitDialog] = useState(false);
+        const exitLabel = getMenuActionLabel("game.exit", gameplayLanguage);
 
         const handleExit = () => {
             setShowExitDialog(true);
@@ -45,7 +49,8 @@ export const GameMenuExitDialog = memo(
                 >
                     <MenuActionButtonContent
                         icon={<LogOutIcon className="w-5 h-5" />}
-                        title={t("game.exit")}
+                        title={exitLabel.title}
+                        subtitle={exitLabel.subtitle}
                     />
                 </Button>
 

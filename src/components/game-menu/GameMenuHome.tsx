@@ -1,5 +1,6 @@
 import { memo, useCallback, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../../context/settings-context";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useHomeMenuAudio } from "../../hooks/use-home-menu-audio";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
@@ -9,6 +10,7 @@ import { GameMenuCreditsDialog } from "./GameMenuCreditsDialog";
 import { GameMenuExitDialog } from "./GameMenuExitDialog";
 import { GameMenuSettingsDialog } from "./GameMenuSettingsDialog";
 import { GridIcon, PlayIcon, TrophyIcon } from "./icons";
+import { getMenuActionLabel } from "./menu-action-labels";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
@@ -34,7 +36,14 @@ export const GameMenuHome = memo(
         onResetGame,
     }: GameMenuHomeProps) => {
         const { t } = useTranslation();
+        const { gameplayLanguage } = useSettings();
         useHomeMenuAudio();
+        const startGameLabel = getMenuActionLabel("game.startGame", gameplayLanguage);
+        const playAllLevelsLabel = getMenuActionLabel(
+            "game.playAllLevels",
+            gameplayLanguage,
+        );
+        const levelSelectLabel = getMenuActionLabel("game.levelSelect", gameplayLanguage);
 
         const canPlayAllLevels = Boolean(onToggleContinuousMode);
         const handlePlayAllLevels = useCallback(() => {
@@ -115,7 +124,8 @@ export const GameMenuHome = memo(
                                     <MenuActionButtonContent
                                         icon={<PlayIcon className="w-6 h-6 fill-current" />}
                                         iconWrapperClassName="p-2 bg-white/20 rounded-full"
-                                        title={t("game.startGame")}
+                                        title={startGameLabel.title}
+                                        subtitle={startGameLabel.subtitle}
                                     />
                                 </span>
                             </Button>
@@ -132,7 +142,8 @@ export const GameMenuHome = memo(
                                 <MenuActionButtonContent
                                     icon={<TrophyIcon className="w-6 h-6" />}
                                     iconWrapperClassName="p-2 bg-white/20 rounded-full"
-                                    title={t("game.playAllLevels")}
+                                    title={playAllLevelsLabel.title}
+                                    subtitle={playAllLevelsLabel.subtitle}
                                 />
                             </Button>
 
@@ -147,7 +158,8 @@ export const GameMenuHome = memo(
                             >
                                 <MenuActionButtonContent
                                     icon={<GridIcon className="w-6 h-6" />}
-                                    title={t("game.levelSelect")}
+                                    title={levelSelectLabel.title}
+                                    subtitle={levelSelectLabel.subtitle}
                                 />
                             </Button>
 
