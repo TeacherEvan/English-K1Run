@@ -159,11 +159,11 @@ test.describe("Game Menu", () => {
         element.click();
       });
 
-    await expect(gamePage.menu.startButton).toContainText("เริ่มเกม");
+    await expect(gamePage.menu.startButton).toContainText("Start Game");
     await expect(gamePage.menu.playAllLevelsButton).toContainText(
-      "เล่นทุกระดับ",
+      "Play All Levels",
     );
-    await expect(gamePage.menu.settingsButton).toContainText("ตั้งค่า");
+    await expect(gamePage.menu.settingsButton).toContainText("Settings");
 
     await openSettingsDialog();
     await openControlsTab();
@@ -183,7 +183,12 @@ test.describe("Game Menu", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
     await gamePage.waitForReady();
 
-    await expect(gamePage.menu.startButton).toContainText("เริ่มเกม");
+    await expect(
+      gamePage.menu.startButton.getByText("Start Game", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      gamePage.menu.startButton.getByText("เริ่มเกม", { exact: true }),
+    ).toBeVisible();
 
     const reloadedSettingsDialog = await openSettingsDialog();
     await openControlsTab();
