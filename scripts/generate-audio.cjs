@@ -386,6 +386,7 @@ const AUDIO_PHRASES = [
 
   // NEW: Teacher Evan Introduction (Welcome Screen)
   "welcome_evan_intro", // "Welcome to Teacher Evan's Super Student, lets have fun learning together!"
+  "welcome_evan_intro_thai", // Thai translation
 
   // NEW: Sangsom Association Messages (Home Menu)
   "welcome_sangsom_association", // "In association with Sangsom Kindergarten"
@@ -407,6 +408,8 @@ const PHRASE_TEXT_MAPPING = {
   // NEW: Teacher Evan's Introduction
   welcome_evan_intro:
     "Welcome to Teacher Evan's Super Student, lets have fun learning together!",
+  welcome_evan_intro_thai:
+    "ยินดีต้อนรับสู่ Super Student ของคุณครูอีแวน มาเรียนอย่างสนุกด้วยกันนะ!",
 
   // NEW: Sangsom Association
   welcome_sangsom_association: "In association with Sangsom Kindergarten",
@@ -463,7 +466,9 @@ function generateAudio(
     });
 
     const isThaiWelcome =
-      text === "welcome_association_thai" || text === "welcome_learning_thai";
+      text === "welcome_association_thai" ||
+      text === "welcome_learning_thai" ||
+      text === "welcome_evan_intro_thai";
     const voiceIdToUse =
       voiceId || (isThaiWelcome && VOICE_ID_THAI ? VOICE_ID_THAI : VOICE_ID);
 

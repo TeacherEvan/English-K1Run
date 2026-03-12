@@ -27,6 +27,89 @@
   text-align: center;
 }
 
+.welcome-language-panel {
+  position: absolute;
+  top: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 28rem);
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  z-index: 35;
+  text-align: center;
+}
+
+.welcome-language-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+}
+
+.welcome-language-description {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.welcome-language-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.welcome-language-button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.9rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.welcome-language-button:hover,
+.welcome-language-button:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.welcome-language-button:disabled {
+  cursor: default;
+  opacity: 0.68;
+}
+
+.welcome-language-button--selected {
+  background: rgba(34, 197, 94, 0.24);
+  border-color: rgba(74, 222, 128, 0.7);
+}
+
+.welcome-language-button-label,
+.welcome-language-button-native {
+  display: block;
+}
+
+.welcome-language-button-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.welcome-language-button-native {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .welcome-image-overlay--pulse {
   animation: image-pulse 2s ease-in-out infinite;
 }
@@ -102,6 +185,11 @@
 
   .welcome-image-button {
     padding: 0.8rem 1.4rem;
+  }
+
+  .welcome-language-panel {
+    top: 1rem;
+    width: min(34rem, 92vw);
   }
 
   .welcome-image-caption {

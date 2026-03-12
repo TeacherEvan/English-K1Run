@@ -60,6 +60,8 @@
     "learning": "Learning through games",
     "learningThai": "เรียนรู้ผ่านการเล่น",
     "forEveryone": "for everyone!",
+    "languageTitle": "Choose your language",
+    "languageDescription": "Pick English or Thai before the welcome audio starts. You can change it later in Settings.",
     "readyPrompt": "Tap once to begin",
     "listening": "Listening...",
     "listeningHint": "Please wait for the welcome audio",

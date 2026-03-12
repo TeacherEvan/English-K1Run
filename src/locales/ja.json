@@ -60,6 +60,8 @@
     "learning": "ゲームを通じて学ぶ",
     "learningThai": "เรียนรู้ผ่านการเล่น",
     "forEveryone": "みんなのために！",
+    "languageTitle": "言語を選んでください",
+    "languageDescription": "ウェルカム音声が始まる前に英語またはタイ語を選べます。あとで設定から変更することもできます。",
     "readyPrompt": "1回タップしてはじめる",
     "listening": "再生中...",
     "listeningHint": "ウェルカム音声が終わるまで待ってください",

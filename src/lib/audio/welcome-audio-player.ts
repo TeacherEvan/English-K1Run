@@ -87,7 +87,7 @@ export async function playAudioSequence(
           );
         }
         try {
-          const langCode = asset.key.includes("_thai") ? "th" : "en";
+          const langCode = asset.language ?? "en";
           await speechSynthesizer.speakAsync(asset.fallbackText, {
             langCode,
           });

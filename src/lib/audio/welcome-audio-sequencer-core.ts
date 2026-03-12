@@ -7,7 +7,7 @@ import { WELCOME_AUDIO_ASSETS } from "./welcome-audio-assets";
 import { playAudioSequence } from "./welcome-audio-player";
 import {
   DEFAULT_WELCOME_CONFIG,
-  PRIMARY_WELCOME_AUDIO_KEY,
+  getPrimaryWelcomeAudioKey,
   type AudioAssetMetadata,
   type WelcomeAudioConfig,
 } from "./welcome-audio-types";
@@ -62,6 +62,33 @@ export class WelcomeAudioSequencer {
       });
   }
 
+  private filterByLanguage(
+    assets: AudioAssetMetadata[],
+    language?: WelcomeAudioConfig["language"],
+  ): {
+    assets: AudioAssetMetadata[];
+    language: WelcomeAudioConfig["language"];
+  } {
+    if (!language) {
+      return {
+        assets: assets.filter((asset) => asset.language === "en"),
+        language: "en",
+      };
+    }
+
+    const localizedAssets = assets.filter(
+      (asset) => asset.language === language,
+    );
+    if (localizedAssets.length > 0) {
+      return { assets: localizedAssets, language };
+    }
+
+    return {
+      assets: assets.filter((asset) => asset.language === "en"),
+      language: "en",
+    };
+  }
+
   getWelcomeAudioSequence(
     config: Partial<WelcomeAudioConfig> = {},
   ): AudioAssetMetadata[] {
@@ -69,6 +96,9 @@ export class WelcomeAudioSequencer {
 
     let assets = [...WELCOME_AUDIO_ASSETS];
     assets = this.filterBySourcePriority(assets, fullConfig.sourcePriority);
+
+    const filtered = this.filterByLanguage(assets, fullConfig.language);
+    assets = filtered.assets;
 
     if (fullConfig.filterActiveTargets) {
       assets = assets.filter(
@@ -78,9 +108,8 @@ export class WelcomeAudioSequencer {
 
     assets = this.sortByDuration(assets, fullConfig.durationSortOrder);
 
-    const primaryIndex = assets.findIndex(
-      (asset) => asset.key === PRIMARY_WELCOME_AUDIO_KEY,
-    );
+    const primaryKey = getPrimaryWelcomeAudioKey(filtered.language ?? "en");
+    const primaryIndex = assets.findIndex((asset) => asset.key === primaryKey);
     if (primaryIndex > 0) {
       const [primaryAsset] = assets.splice(primaryIndex, 1);
       assets.unshift(primaryAsset);

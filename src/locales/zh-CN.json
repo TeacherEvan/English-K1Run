@@ -60,6 +60,8 @@
     "learning": "通过游戏学习",
     "learningThai": "เรียนรู้ผ่านการเล่น",
     "forEveryone": "为大家！",
+    "languageTitle": "选择你的语言",
+    "languageDescription": "请在欢迎音频开始前选择英语或泰语，之后也可以在设置中更改。",
     "readyPrompt": "点击一次即可开始",
     "listening": "正在播放...",
     "listeningHint": "请等待欢迎音频播放完毕",

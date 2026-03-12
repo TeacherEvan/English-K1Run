@@ -15,6 +15,7 @@ export const AUDIO_PRIORITIES: Record<AudioPriority, string[]> = {
     "welcome",
     // NEW: Teacher Evan's welcome intro (Welcome Screen)
     "welcome_evan_intro",
+    "welcome_evan_intro_thai",
     // NEW: Sangsom association messages (Home Menu)
     "welcome_sangsom_association",
     "welcome_sangsom_association_thai",

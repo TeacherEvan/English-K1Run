@@ -1,45 +1,55 @@
 import { getAudioUrl } from "./audio-registry";
 import { WELCOME_AUDIO_ASSETS } from "./welcome-audio-assets";
-import { PRIMARY_WELCOME_AUDIO_KEY } from "./welcome-audio-types";
+import {
+  getPrimaryWelcomeAudioKey,
+  type WelcomeAudioConfig,
+} from "./welcome-audio-types";
 
 interface WelcomeAudioIntegrityResult {
   isValid: boolean;
   reason?: string;
 }
 
-let cachedResult: WelcomeAudioIntegrityResult | null = null;
+const cachedResults = new Map<string, WelcomeAudioIntegrityResult>();
 
 /**
  * Validates that the primary welcome audio reference exists and resolves.
  */
-export async function validateWelcomeAudioIntegrity(): Promise<WelcomeAudioIntegrityResult> {
+export async function validateWelcomeAudioIntegrity(
+  language?: WelcomeAudioConfig["language"],
+): Promise<WelcomeAudioIntegrityResult> {
+  const primaryKey = getPrimaryWelcomeAudioKey(language ?? "en");
+  const cachedResult = cachedResults.get(primaryKey);
   if (cachedResult) return cachedResult;
 
   const duplicatePrimaryCount = WELCOME_AUDIO_ASSETS.filter(
-    (asset) => asset.key === PRIMARY_WELCOME_AUDIO_KEY,
+    (asset) => asset.key === primaryKey,
   ).length;
 
   if (duplicatePrimaryCount !== 1) {
-    cachedResult = {
+    const result = {
       isValid: false,
       reason: `Primary welcome asset count must be 1, received ${duplicatePrimaryCount}`,
     };
-    return cachedResult;
+    cachedResults.set(primaryKey, result);
+    return result;
   }
 
-  const audioUrl = await getAudioUrl(PRIMARY_WELCOME_AUDIO_KEY);
+  const audioUrl = await getAudioUrl(primaryKey);
   if (!audioUrl) {
-    cachedResult = {
+    const result = {
       isValid: false,
-      reason: `Unable to resolve audio URL for '${PRIMARY_WELCOME_AUDIO_KEY}'`,
+      reason: `Unable to resolve audio URL for '${primaryKey}'`,
     };
-    return cachedResult;
+    cachedResults.set(primaryKey, result);
+    return result;
   }
 
-  cachedResult = { isValid: true };
-  return cachedResult;
+  const result = { isValid: true };
+  cachedResults.set(primaryKey, result);
+  return result;
 }
 
 export function resetWelcomeAudioIntegrityCache(): void {
-  cachedResult = null;
+  cachedResults.clear();
 }

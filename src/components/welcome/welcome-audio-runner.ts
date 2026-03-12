@@ -40,7 +40,7 @@ export const runWelcomeAudioSequence = async ({
   );
 
   const runSequence = async () => {
-    const integrity = await validateWelcomeAudioIntegrity();
+    const integrity = await validateWelcomeAudioIntegrity(config.language);
     if (!integrity.isValid) {
       console.warn(
         `[WelcomeAudioRunner] Welcome audio integrity check failed: ${integrity.reason ?? "unknown reason"}`,

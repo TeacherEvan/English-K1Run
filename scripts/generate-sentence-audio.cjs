@@ -155,6 +155,8 @@ async function main() {
     welcome: "Welcome to the game.",
     welcome_evan_intro:
       "Welcome to Teacher Evan's Super Student English Program.",
+    welcome_evan_intro_thai:
+      "ยินดีต้อนรับสู่ Super Student ของคุณครูอีแวน มาเรียนอย่างสนุกด้วยกันนะ!",
     welcome_sangsom_association: "In association with Sangsom Kindergarten.",
     welcome_sangsom_association_thai: "ร่วมกับโรงเรียนอนุบาลสังสม",
     welcome_association: "In association with Sangsom Kindergarten.",
@@ -201,6 +203,7 @@ async function main() {
     .filter((name) => name.endsWith(".wav"));
   const welcomeMp3 = [
     "welcome_evan_intro.mp3",
+    "welcome_evan_intro_thai.mp3",
     "welcome_sangsom_association.mp3",
     "welcome_sangsom_association_thai.mp3",
   ].filter((name) => fs.existsSync(path.join(soundsDir, name)));

@@ -11,14 +11,25 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 4.5,
     source: "elevenlabs",
     category: "welcome",
+    language: "en",
     fallbackText:
       "Welcome to Teacher Evan's Super Student! Let's have fun learning together!",
+  },
+  {
+    key: "welcome_evan_intro_thai",
+    duration: 4.8,
+    source: "elevenlabs",
+    category: "welcome",
+    language: "th",
+    fallbackText:
+      "ยินดีต้อนรับสู่ Super Student ของคุณครูอีแวน มาเรียนอย่างสนุกด้วยกันนะ!",
   },
   {
     key: "welcome_sangsom_association",
     duration: 4.8,
     source: "elevenlabs",
     category: "association",
+    language: "en",
     fallbackText:
       "In association with Sangsom Kindergarten. Learning through games for everyone.",
   },
@@ -27,6 +38,7 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 3.8,
     source: "elevenlabs",
     category: "association",
+    language: "th",
     fallbackText: "ร่วมกับโรงเรียนอนุบาลสังสม",
   },
   {
@@ -34,6 +46,7 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 2.8,
     source: "generated",
     category: "association",
+    language: "en",
     fallbackText: "Welcome to Super Student!",
   },
   {
@@ -41,6 +54,7 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 3.0,
     source: "generated",
     category: "learning",
+    language: "en",
     fallbackText: "Let's learn together!",
   },
   {
@@ -48,11 +62,13 @@ export const WELCOME_AUDIO_ASSETS: AudioAssetMetadata[] = [
     duration: 3.2,
     source: "generated",
     category: "association",
+    language: "th",
   },
   {
     key: "welcome_learning_thai",
     duration: 3.4,
     source: "generated",
     category: "learning",
+    language: "th",
   },
 ];

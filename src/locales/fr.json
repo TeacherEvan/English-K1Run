@@ -60,6 +60,8 @@
     "learning": "Apprendre par le jeu",
     "learningThai": "เรียนรู้ผ่านการเล่น",
     "forEveryone": "pour tous!",
+    "languageTitle": "Choisissez votre langue",
+    "languageDescription": "Choisissez l'anglais ou le thaï avant le lancement de l'audio d'accueil. Vous pourrez la modifier plus tard dans les paramètres.",
     "readyPrompt": "Touchez une fois pour commencer",
     "listening": "Lecture en cours...",
     "listeningHint": "Veuillez attendre la fin de l'audio d'accueil",

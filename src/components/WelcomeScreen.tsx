@@ -1,8 +1,10 @@
 import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
 import { isWelcomeInteractionLocked } from '@/components/welcome/welcome-phase'
+import { WelcomeLanguagePicker } from '@/components/welcome/WelcomeLanguagePicker'
+import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.css'
 
@@ -14,6 +16,11 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
   const { t } = useTranslation()
+  const { gameplayLanguage } = useSettings()
+  const welcomeAudioConfig = useMemo(
+    () => ({ ...audioConfig, language: gameplayLanguage }),
+    [audioConfig, gameplayLanguage],
+  )
   const {
     fadeOut,
     phase,
@@ -26,7 +33,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     handleVideoCanPlay,
     handleVideoEnded,
     handleVideoError,
-  } = useWelcomeSequence({ onComplete, audioConfig })
+  } = useWelcomeSequence({ onComplete, audioConfig: welcomeAudioConfig })
 
   const videoSrc = '/New_welcome_video.mp4'
   const fallbackImageSrc = '/welcome-sangsom.png'
@@ -96,6 +103,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           />
         </>
       )}
+
+      <WelcomeLanguagePicker disabled={phase !== 'readyToStart'} />
 
       <div className={`welcome-image-overlay ${interactionLocked ? 'welcome-image-overlay--steady' : 'welcome-image-overlay--pulse'}`}>
         <button
