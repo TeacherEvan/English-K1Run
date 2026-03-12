@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { CategoryErrorBoundary } from "../../components/CategoryErrorBoundary";
 import { FallingObject } from "../../components/FallingObject";
 import { PlayerArea } from "../../components/PlayerArea";
@@ -53,6 +54,7 @@ export const AppGameplayScene = ({
     onObjectTap,
     onWormTap,
 }: AppGameplaySceneProps) => {
+    const { t } = useTranslation();
     const isActive = gameState.gameStarted && !gameState.winner;
 
     return (
@@ -110,7 +112,7 @@ export const AppGameplayScene = ({
                                 padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`,
                             }}
                         >
-                            ← Back to Levels
+                            ← {t("game.backToLevels")}
                         </button>
                     </div>
 

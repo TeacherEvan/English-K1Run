@@ -6,6 +6,7 @@
     "levelSelect": "Level Select",
     "selectLevel": "Select Level",
     "back": "Back",
+    "backToLevels": "Back to Levels",
     "bestTime": "Best Time",
     "continuousMode": "Continuous Mode",
     "find": "Find",
@@ -82,6 +83,15 @@
     "off": "Off",
     "cancel": "Cancel",
     "close": "Close"
+  },
+  "loading": {
+    "wormTitle": "Catch the Worms!",
+    "wormReady": "Great job! Getting ready...",
+    "wormRemainingOne": "1 worm remaining...",
+    "wormRemainingMany": "{{count}} worms remaining...",
+    "wormComplete": "All worms caught! Starting game...",
+    "skipToGame": "Skip to Game (or catch all worms!)",
+    "skipToGameAria": "Skip to game immediately without catching worms"
   },
   "settings": {
     "title": "Settings",

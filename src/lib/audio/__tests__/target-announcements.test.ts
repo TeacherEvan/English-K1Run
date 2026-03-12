@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { GAME_CATEGORIES } from "../../constants/game-categories";
+import { THAI_SENTENCE_TEMPLATES } from "../../constants/sentence-templates/th";
 import { speechSynthesizer } from "../speech-synthesizer";
 import { getTargetSentence, playTargetSentence } from "../target-announcements";
 
@@ -8,7 +10,7 @@ describe("getTargetSentence", () => {
       "The strawberry is red and juicy.",
     );
     expect(getTargetSentence("strawberry", "th")).toBe(
-      "สตรอเบอร์รี่สีแดงและฉ่ำ",
+      "สตรอเบอร์รี่ผลนี้สีแดงและฉ่ำ",
     );
     expect(getTargetSentence("strawberry", "zh-CN")).toBe(
       "草莓是红色的，很多汁。",
@@ -20,6 +22,24 @@ describe("getTargetSentence", () => {
       "Find the rocket ship.",
     );
   });
+
+  it("covers every live gameplay target with a Thai sentence template", () => {
+    const targetNames = [
+      ...new Set(
+        GAME_CATEGORIES.flatMap((category) =>
+          category.items.map((item) => item.name.toLowerCase().trim()),
+        ),
+      ),
+    ];
+
+    const missing = targetNames.filter(
+      (name) => !(name in THAI_SENTENCE_TEMPLATES),
+    );
+    expect(missing).toEqual([]);
+    expect(getTargetSentence("fire truck", "th")).toBe(
+      "รถดับเพลิงคันนี้มีเสียงไซเรนดัง",
+    );
+  });
 });
 
 describe("playTargetSentence", () => {
@@ -29,9 +49,9 @@ describe("playTargetSentence", () => {
       .mockResolvedValue(true);
 
     await expect(playTargetSentence("strawberry", "th")).resolves.toBe(
-      "สตรอเบอร์รี่สีแดงและฉ่ำ",
+      "สตรอเบอร์รี่ผลนี้สีแดงและฉ่ำ",
     );
-    expect(speakAsync).toHaveBeenCalledWith("สตรอเบอร์รี่สีแดงและฉ่ำ", {
+    expect(speakAsync).toHaveBeenCalledWith("สตรอเบอร์รี่ผลนี้สีแดงและฉ่ำ", {
       langCode: "th",
     });
 

@@ -1,6 +1,8 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSettings } from '../context/settings-context'
 import { getCategoryTranslationKey } from '../lib/constants/category-translation'
+import { getTargetDisplayLabel } from '../lib/constants/target-labels'
 import type { GameCategory } from '../types/game'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
@@ -17,8 +19,10 @@ interface TargetDisplayProps {
 
 export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier }: TargetDisplayProps) => {
   const { t } = useTranslation()
+  const { gameplayLanguage } = useSettings()
   const categoryKey = getCategoryTranslationKey(category.name)
   const categoryLabel = categoryKey ? t(`categories.${categoryKey}`) : category.name
+  const targetLabel = getTargetDisplayLabel(currentTarget, gameplayLanguage, category.name)
   // Determine if multiplier is active (greater than 1)
   const hasActiveMultiplier = multiplier && multiplier > 1
 
@@ -93,7 +97,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               textShadow: '0 1px 2px rgba(255,255,255,0.8)',
               letterSpacing: '0.01em'
             }}>
-            {t('game.find')}: {currentTarget}
+            {t('game.find')}: {targetLabel}
           </div>
         </div>
 

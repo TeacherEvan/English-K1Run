@@ -6,6 +6,7 @@
     "levelSelect": "เลือกระดับ",
     "selectLevel": "เลือกด่าน",
     "back": "กลับ",
+    "backToLevels": "กลับไปยังหน้าด่าน",
     "bestTime": "เวลาที่ดีที่สุด",
     "continuousMode": "โหมดต่อเนื่อง",
     "find": "หา",
@@ -82,6 +83,15 @@
     "off": "ปิด",
     "cancel": "ยกเลิก",
     "close": "ปิด"
+  },
+  "loading": {
+    "wormTitle": "จับหนอนกันเถอะ!",
+    "wormReady": "เก่งมาก! กำลังเตรียมเกม...",
+    "wormRemainingOne": "เหลือหนอนอีก 1 ตัว...",
+    "wormRemainingMany": "เหลือหนอนอีก {{count}} ตัว...",
+    "wormComplete": "จับหนอนได้ครบแล้ว! กำลังเริ่มเกม...",
+    "skipToGame": "ข้ามไปเล่นเกมเลย (หรือจับหนอนให้ครบ!)",
+    "skipToGameAria": "ข้ามไปยังเกมทันทีโดยไม่ต้องจับหนอน"
   },
   "settings": {
     "title": "ตั้งค่า",

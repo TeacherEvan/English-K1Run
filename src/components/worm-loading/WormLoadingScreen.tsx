@@ -3,6 +3,7 @@
  */
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { UI_LAYER_MATRIX } from '../../lib/constants/ui-layer-matrix'
 import '../WormLoadingScreen.css'
 import {
@@ -17,6 +18,7 @@ import { createInitialWorms } from './worm-utils'
 import { WormEntity } from './WormEntity'
 
 export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: WormLoadingScreenProps) => {
+    const { t } = useTranslation()
     const [worms, setWorms] = useState<Worm[]>(createInitialWorms)
     const [splats, setSplats] = useState<Splat[]>([])
     const [speedMultiplier, setSpeedMultiplier] = useState(1)
@@ -132,14 +134,18 @@ export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: Worm
         >
             <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
                 <h2 className="text-3xl font-bold text-green-800 mb-2">
-                    🐛 Catch the Worms! 🐛
+                    🐛 {t('loading.wormTitle')} 🐛
                 </h2>
                 <p className="text-lg text-green-600">
                     {completionVisible
-                        ? 'Great job! Getting ready...'
+                        ? t('loading.wormReady')
                         : aliveWorms.length > 0
-                            ? `${aliveWorms.length} worm${aliveWorms.length !== 1 ? 's' : ''} remaining...`
-                            : 'All worms caught! Starting game...'}
+                            ? aliveWorms.length === 1
+                                ? t('loading.wormRemainingOne')
+                                : t('loading.wormRemainingMany', {
+                                    count: aliveWorms.length,
+                                })
+                            : t('loading.wormComplete')}
                 </p>
             </div>
 
@@ -162,7 +168,7 @@ export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: Worm
                         className="text-xl text-green-700 font-bold animate-pulse bg-white/80 px-6 py-3 rounded-lg shadow-lg"
                         data-testid="worm-completion-message"
                     >
-                        🎯 All worms caught! Starting game...
+                        🎯 {t('loading.wormComplete')}
                     </p>
                 </div>
             )}
@@ -174,9 +180,9 @@ export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: Worm
                     onComplete()
                 }}
                 className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all hover:scale-105"
-                aria-label="Skip to game immediately without catching worms"
+                aria-label={t('loading.skipToGameAria')}
             >
-                Skip to Game (or catch all worms!)
+                {t('loading.skipToGame')}
             </button>
         </div>
     )
