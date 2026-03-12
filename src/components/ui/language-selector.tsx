@@ -32,10 +32,6 @@ interface LanguageSelectorProps {
     languageType?: 'display' | 'gameplay'
 }
 
-/**
- * Accessible language selector dropdown
- * Uses Radix UI Select for built-in WCAG compliance
- */
 export const LanguageSelector = React.forwardRef<
     HTMLButtonElement,
     LanguageSelectorProps
@@ -131,7 +127,7 @@ export const LanguageSelector = React.forwardRef<
                 <SelectPrimitive.Portal>
                     <SelectPrimitive.Content
                         className={cn(
-                            'relative z-50 max-w-xs overflow-hidden rounded-md border border-input bg-popover shadow-md',
+                            'relative z-[170] max-w-xs overflow-hidden rounded-md border border-input bg-popover shadow-md',
                             'animate-in fade-in-80 zoom-in-95 data-[side=bottom]:slide-in-from-top-2',
                             'data-[side=top]:slide-in-from-bottom-2'
                         )}

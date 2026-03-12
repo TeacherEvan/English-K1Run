@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "../../context/settings-context";
 import type { ResolutionScale } from "../../context/settings-context";
+import { useSettings } from "../../context/settings-context";
 import { Button } from "../ui/button";
 import {
     Dialog,
@@ -55,7 +55,7 @@ export const GameMenuSettingsDialog = memo(
                         />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl">
+                <DialogContent className="border-border/80 bg-background/98 shadow-2xl backdrop-blur-sm sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-2xl flex items-center gap-2">
                             <SettingsIcon className="w-6 h-6" />
@@ -66,7 +66,7 @@ export const GameMenuSettingsDialog = memo(
                         </DialogDescription>
                     </DialogHeader>
                     <Tabs defaultValue="controls" className="py-4">
-                        <TabsList className="w-full justify-between">
+                        <TabsList className="w-full justify-between bg-muted/90">
                             <TabsTrigger value="audio">{t("settings.tabs.audio")}</TabsTrigger>
                             <TabsTrigger value="visual">{t("settings.tabs.visual")}</TabsTrigger>
                             <TabsTrigger value="controls">{t("settings.tabs.controls")}</TabsTrigger>
@@ -74,7 +74,7 @@ export const GameMenuSettingsDialog = memo(
                                 {t("settings.tabs.accessibility")}
                             </TabsTrigger>
                         </TabsList>
-                        <div className="mt-6 rounded-lg border bg-card/50 p-4">
+                        <div className="mt-6 rounded-lg border border-border/80 bg-card/95 p-4 shadow-sm backdrop-blur-sm">
                             <TabsContent value="audio">
                                 <AudioSettings />
                             </TabsContent>

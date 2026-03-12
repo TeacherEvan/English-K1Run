@@ -14,7 +14,7 @@ export const ControlSettings = memo(
 
         return (
             <div className="space-y-4">
-                <div className="space-y-4 rounded-lg border bg-card/50 p-4">
+                <div className="space-y-4 rounded-lg border border-border/80 bg-card/95 p-4 shadow-sm">
                     <div className="space-y-1">
                         <h4 className="font-medium leading-none">
                             {t("settings.controls.languageSectionTitle")}
@@ -26,7 +26,7 @@ export const ControlSettings = memo(
                     <LanguageSelector className="w-full" languageType="display" />
                     <LanguageSelector className="w-full" languageType="gameplay" />
                 </div>
-                <div className="flex items-center justify-between rounded-lg border bg-card/50 p-4">
+                <div className="flex items-center justify-between rounded-lg border border-border/80 bg-card/95 p-4 shadow-sm">
                     <div className="space-y-1">
                         <h4 className="font-medium leading-none">
                             {t("game.continuousMode")}
