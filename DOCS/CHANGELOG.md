@@ -4,6 +4,15 @@ This file consolidates major changes, bug fixes, and enhancements made to the pr
 
 ## March 2026 - Competition Polish Slice
 
+### Documentation & Navigation Spring Clean (Mar 16, 2026)
+
+- **Documentation consolidation**: Reduced the active documentation surface to a smaller trusted set headed by `README.md`, `AUDIO_SETUP.md`, `jobcard.md`, `DOCS/A-README.md`, and `DOCS/CODEBASE_INDEX.md`.
+- **Redundant-doc cleanup**: Removed stale root-level summaries and an outdated roadmap-style TODO file that duplicated or contradicted current guidance.
+- **Navigation improvements**: Expanded the docs landing page and codebase index with clearer reading order, system maps, directory roles, and search tips.
+- **Reference repair**: Updated stale links in repo guidance to point at maintained docs instead of deleted or nonexistent files.
+- **Validation**: `npm run lint`, `npm run build`, and `npm run test:run` pass after the cleanup.
+
+
 ### Welcome, Localization & Branding (Mar 10, 2026)
 
 - **Deterministic Welcome Start**: Removed non-deterministic auto-start paths so welcome narration begins from explicit user interaction in normal mode.

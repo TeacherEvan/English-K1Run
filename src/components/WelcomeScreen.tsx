@@ -97,9 +97,10 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           <img
             src={fallbackImageSrc}
             alt={t('game.title')}
-            className={`absolute inset-0 w-full h-full object-cover ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
             style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_EFFECTS }}
             data-testid="welcome-screen-fallback"
+            aria-hidden="true"
           />
         </>
       )}

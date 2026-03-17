@@ -538,7 +538,7 @@ soundManager.stopAllAudio();
 
 ### Appendix D: References
 
-- **Architecture Doc:** `DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md`
+- **Architecture Doc:** `README.md` and `DOCS/CODEBASE_INDEX.md`
 - **Audio Module Refactoring:** `DOCS/AUDIO_MODULE_REFACTORING_REPORT.md`
 - **Collision Detection:** Practical follow-up guidance now lives in `jobcard.md` and `.github/copilot-instructions.md`
 - **E2E Test Fixes:** `DOCS/E2E_TEST_FIXES_JAN2026.md`

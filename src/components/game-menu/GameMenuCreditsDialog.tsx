@@ -19,7 +19,7 @@ export const GameMenuCreditsDialog = memo(() => {
                 <Button
                     variant="link"
                     size="sm"
-                    className="text-muted-foreground/60 h-auto p-0 text-xs mt-2"
+                    className="text-foreground h-auto p-0 text-xs mt-2 hover:text-primary"
                     data-testid="credits-button"
                 >
                     {t("menu.credits.title")}

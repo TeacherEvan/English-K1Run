@@ -233,18 +233,20 @@ After audio completes, waits for user tap/Enter/Space. Fallback timer enables co
 ## Gotchas
 
 - **Node Version**: Must be 20.18+ or 22.12+ (Vite 7)
-- **React 19 Types**: Keep `--noCheck` until `@types/react` v19 stabilizes
+- **Type Checking**: Build and verify flows should keep full TypeScript checking enabled; do not reintroduce `--noCheck` as a permanent bypass
 - **Percentage Coordinates**: Always use 5-95% range, never pixels
 - **Audio Init**: Requires user interaction; context starts `suspended`
 - **Singletons**: Never `new` the trackers—they init on import
 
 ## Key Documentation
 
-- `DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md` - Major architectural choices
-- `DOCS/MULTI_TOUCH_IMPLEMENTATION.md` - Touch handling for QBoard
+- `README.md` - Onboarding, commands, and repo conventions
+- `DOCS/CODEBASE_INDEX.md` - Fast navigation map for the codebase
+- `AUDIO_SETUP.md` - Current audio, asset, and environment guidance
+- `jobcard.md` - Compressed recent history and practical repo notes
 - `DOCS/TEST_FAILURES_FIX_JAN2026.md` - E2E test reliability fixes for WormLoadingScreen race conditions
 - `plans/test-failures-analysis-jan2026.md` - Detailed analysis of 53 test failures
-- `C-JOB_CARD_AUDIO_AUDIT_JAN2026.md` - Audio system audit & refactoring status
+- `DOCS/BEST_PRACTICES.md` - Engineering patterns and maintenance guidance
 
 ## Code Quality Standards
 

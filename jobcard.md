@@ -15,6 +15,14 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 ## Timeline (Compressed)
 
+### 2026-03-16
+
+- Spring-cleaned the documentation set so the trusted entry points are now `README.md`, `AUDIO_SETUP.md`, `jobcard.md`, `DOCS/A-README.md`, and `DOCS/CODEBASE_INDEX.md`.
+- Removed redundant root-level status summaries and stale roadmap-style TODO docs that had drifted from the current codebase.
+- Tightened codebase navigation docs with clearer system maps, directory roles, and guidance on generated artifacts vs source files.
+- Updated stale doc references in legacy guidance to point at current maintained docs instead of deleted or nonexistent files.
+- Validation: `npm run lint`, `npm run build`, and `npm run test:run` all pass locally.
+
 ### 2026-03-10
 
 - Approved implementation after roadmap phase and executed the first single-player competition-polish slice.
@@ -107,7 +115,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - Reinstall dependencies and rerun `npm run verify` plus the local Playwright matrix before the next polish pass.
 - Add automated assertions for audio-overlap tracker events once the browser test harness can inspect them reliably.
-- Continue pruning stale historical docs so `README.md`, `AUDIO_SETUP.md`, and `jobcard.md` stay the fastest onboarding path.
+- Keep routing new long-lived guidance into `README.md`, `AUDIO_SETUP.md`, `jobcard.md`, or the `DOCS/` index files instead of adding one-off root summaries.
 
 ## Follow-ups
 
