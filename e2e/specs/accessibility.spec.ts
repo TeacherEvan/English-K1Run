@@ -1,6 +1,8 @@
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, Page, test } from "@playwright/test";
 
+import { skipWormLoadingIfPresent } from "../utils/worm-loading";
+
 /**
  * Sets up the page for accessibility testing by emulating reduced motion preferences
  * and navigating to the test environment with necessary waits.
@@ -43,19 +45,6 @@ const setupAccessibilityTestPage = async (page: Page) => {
 };
 
 test.describe("Accessibility", () => {
-  const skipWormLoadingIfPresent = async (page: Page) => {
-    const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
-    const skipButton = page.locator('[data-testid="skip-loading-button"]');
-
-    try {
-      await skipButton.waitFor({ state: "visible", timeout: 5_000 });
-      await skipButton.click({ force: true, timeout: 30000 });
-      await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
-    } catch {
-      // No-op: loading screen not shown
-    }
-  };
-
   test.beforeEach(async ({ page }) => {
     await setupAccessibilityTestPage(page);
   });
