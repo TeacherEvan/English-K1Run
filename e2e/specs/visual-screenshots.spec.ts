@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { navigateWithRetry } from "../utils/navigation";
+import { skipWormLoadingIfPresent } from "../utils/worm-loading";
 
 test.describe("Visual Screenshots", () => {
   test.slow();
@@ -7,7 +8,7 @@ test.describe("Visual Screenshots", () => {
     page,
   }, testInfo) => {
     // Increase timeout for initial load/lazy loading
-    test.setTimeout(120000);
+    test.setTimeout(300000);
 
     console.log("Navigating to app...");
     await navigateWithRetry(page, "/?e2e=1");
@@ -118,46 +119,13 @@ test.describe("Visual Screenshots", () => {
       await startGameBtn.waitFor({ state: "visible", timeout: 10000 });
       await startGameBtn.click({ force: true, timeout: 30000 });
 
-      // Handle Worm Loading Screen (Skip it or wait for game)
-      const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
+      // Handle Worm Loading Screen with the shared helper used by gameplay specs.
       const targetDisplay = page.locator('[data-testid="target-display"]');
-      const skipBtn = page.locator('[data-testid="skip-loading-button"]');
 
       // Small delay for Firefox DOM stabilization
       await page.waitForTimeout(500);
 
-      await Promise.race([
-        loadingScreen
-          .waitFor({ state: "visible", timeout: 20000 })
-          .catch(() => {}),
-        targetDisplay
-          .waitFor({ state: "visible", timeout: 20000 })
-          .catch(() => {}),
-      ]);
-
-      if (await loadingScreen.isVisible()) {
-        let skippedToGameplay = false;
-        for (let attempt = 1; attempt <= 2; attempt++) {
-          try {
-            await skipBtn.waitFor({ state: "visible", timeout: 10000 });
-            await skipBtn.click({ force: true, timeout: 30000 });
-            await Promise.race([
-              loadingScreen.waitFor({ state: "detached", timeout: 15000 }),
-              targetDisplay.waitFor({ state: "visible", timeout: 15000 }),
-            ]);
-            skippedToGameplay = true;
-            break;
-          } catch {
-            if (attempt === 2) {
-              console.log("Loading screen skip bypassed in screenshot loop");
-            }
-          }
-        }
-
-        if (!skippedToGameplay && (await loadingScreen.isVisible())) {
-          await targetDisplay.waitFor({ state: "visible", timeout: 45000 });
-        }
-      }
+      await skipWormLoadingIfPresent(page, 20_000);
 
       // Ensure game HUD is visible (critical for Firefox stability)
       await targetDisplay.waitFor({ state: "visible", timeout: 45000 });

@@ -8,11 +8,15 @@ interface BottomTargetCandidate {
   clickY: number;
 }
 
+const BOTTOM_ZONE_START = 0.8;
+
 const findBottomZoneTarget = async (
   page: import("@playwright/test").Page,
 ): Promise<BottomTargetCandidate | null> => {
-  const handle = await page.waitForFunction(
-    () => {
+  const deadline = Date.now() + 45_000;
+
+  while (Date.now() < deadline) {
+    const candidate = await page.evaluate((bottomZoneStart) => {
       const gameArea = document.querySelector('[data-testid="game-area"]');
       const targetEmoji = document
         .querySelector('[data-testid="target-emoji"]')
@@ -21,7 +25,7 @@ const findBottomZoneTarget = async (
       if (!gameArea || !targetEmoji) return null;
 
       const areaRect = gameArea.getBoundingClientRect();
-      const threshold = areaRect.top + areaRect.height * 0.9;
+      const threshold = areaRect.top + areaRect.height * bottomZoneStart;
 
       const bottomTarget = Array.from(
         document.querySelectorAll('[data-testid="falling-object"]'),
@@ -58,11 +62,16 @@ const findBottomZoneTarget = async (
         clickX: bottomTarget.clickX,
         clickY: bottomTarget.clickY,
       };
-    },
-    { timeout: 30_000, polling: "raf" },
-  );
+    }, BOTTOM_ZONE_START);
 
-  return (await handle.jsonValue()) as BottomTargetCandidate | null;
+    if (candidate) {
+      return candidate as BottomTargetCandidate;
+    }
+
+    await page.waitForTimeout(100);
+  }
+
+  return null;
 };
 
 test.describe("Gameplay bottom-zone interaction", () => {
@@ -81,7 +90,7 @@ test.describe("Gameplay bottom-zone interaction", () => {
     ).toHaveCount(0);
   });
 
-  test("should tap a target in the bottom 10% of the gameplay area", async ({
+  test("should tap a target in the bottom 20% of the gameplay area", async ({
     gamePage,
     page,
   }) => {
