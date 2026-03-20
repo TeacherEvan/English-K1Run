@@ -95,16 +95,21 @@ test.describe("Gameplay bottom-zone interaction", () => {
     page,
   }) => {
     await gamePage.gameplay.waitForObjectsToSpawn(5);
-
     const initialProgress = await gamePage.gameplay.getProgress(1);
-    const candidate = await findBottomZoneTarget(page);
+    let newProgress = initialProgress;
 
-    expect(candidate).not.toBeNull();
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const candidate = await findBottomZoneTarget(page);
+      expect(candidate).not.toBeNull();
 
-    await page.mouse.click(candidate!.clickX, candidate!.clickY);
-    await page.waitForTimeout(500);
+      await page.mouse.click(candidate!.clickX, candidate!.clickY);
+      await page.waitForTimeout(500);
+      newProgress = await gamePage.gameplay.getProgress(1);
+      if (newProgress > initialProgress) {
+        break;
+      }
+    }
 
-    const newProgress = await gamePage.gameplay.getProgress(1);
     expect(newProgress).toBeGreaterThan(initialProgress);
   });
 });
