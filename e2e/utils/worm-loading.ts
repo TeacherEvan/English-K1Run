@@ -27,6 +27,7 @@ export async function skipWormLoadingIfPresent(
 
   await skipButton.waitFor({ state: "visible", timeout: 10_000 });
   await skipButton.click({ force: true, timeout: 30_000 });
+  await page.waitForTimeout(250);
 
   if (await loadingScreen.isVisible().catch(() => false)) {
     await skipButton.evaluate((button: HTMLButtonElement) => {

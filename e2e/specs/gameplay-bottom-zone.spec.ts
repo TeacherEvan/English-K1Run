@@ -8,7 +8,7 @@ interface BottomTargetCandidate {
   clickY: number;
 }
 
-const BOTTOM_ZONE_START = 0.8;
+const BOTTOM_ZONE_START = 0.9;
 
 const findBottomZoneTarget = async (
   page: import("@playwright/test").Page,
@@ -90,7 +90,7 @@ test.describe("Gameplay bottom-zone interaction", () => {
     ).toHaveCount(0);
   });
 
-  test("should tap a target in the bottom 20% of the gameplay area", async ({
+  test("should tap a target in the bottom 10% of the gameplay area", async ({
     gamePage,
     page,
   }) => {
