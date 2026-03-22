@@ -68,11 +68,14 @@ VITE_ELEVENLABS_API_KEY=your_dev_only_key_here
 
 The audio stack currently prefers:
 
-1. **Pre-generated assets** from the repo/runtime sound path
+1. **Pre-generated assets** from `sounds/`, fetched by the browser from `/sounds/<key>.<ext>`
 2. **Live browser ElevenLabs** if `VITE_ELEVENLABS_API_KEY` is present
 3. **Web Speech API** fallback
 
+If a target sentence is missing a localized template, the code falls back to English text before playback. That is a repo/content issue, not a Vercel issue.
+
 That means hearing Web Speech does **not** always mean the app is broken; it usually means live browser TTS is intentionally disabled or a requested asset is missing.
+Missing `/sounds/*` files also return Web Speech fallback after the browser receives a 404 from the static host.
 
 ## Troubleshooting
 
@@ -100,7 +103,8 @@ If validation reports gaps, regenerate the welcome slice or the full audio set.
 ## Production and competition guidance
 
 - Do **not** depend on browser-side premium API keys for competition readiness.
-- Generate and verify assets ahead of deployment.
+- Generate and verify assets ahead of deployment with `npm run audio:validate`.
+- Keep the `sounds/` inventory complete before deploying to Vercel; missing files are served as 404s and then masked by speech fallback.
 - Keep `.env` uncommitted.
 - Use runtime browser TTS only as a local development fallback or diagnostic aid.
 

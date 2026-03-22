@@ -139,6 +139,8 @@ Then check `CONSOLE_EXAMPLES.md` and `AUDIO_SETUP.md`.
 ## Deployment notes
 
 - Primary targets: static hosting, Vercel, Docker/nginx
+- Vercel serves static audio from `sounds/` as `/sounds/*` at runtime; the browser fetches those files on demand.
+- Missing audio files are repo-side issues, not hosting issues. If a requested `/sounds/*` file is absent, playback falls back to speech synthesis.
 - Do not rely on client-side premium API secrets for competition readiness
 - Validate audio assets before deployment
 

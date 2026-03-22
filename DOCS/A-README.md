@@ -54,6 +54,8 @@ If two docs disagree:
 2. `../CONSOLE_EXAMPLES.md`
 3. `CODEBASE_INDEX.md`
 
+Audio note: the browser fetches static files from `/sounds/*` at runtime, so missing audio usually means a repo asset or localization gap rather than a Vercel issue.
+
 ### Competition-readiness work
 
 1. `../plans/competition-readiness-roadmap-2026-03-10.md`
