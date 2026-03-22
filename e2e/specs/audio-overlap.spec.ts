@@ -8,7 +8,7 @@ test.describe("Audio overlap", () => {
       timeout: 10000,
     });
 
-    await page.click('[data-testid="welcome-screen"]');
+    await page.click('[data-testid="welcome-screen"]', { force: true });
 
     await page.waitForFunction(() => "__audioDebug" in window, undefined, {
       timeout: 10000,

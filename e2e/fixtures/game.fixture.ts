@@ -161,7 +161,7 @@ export class GamePage {
 
   // Trigger user interaction to enable audio/fullscreen
   async triggerUserInteraction() {
-    await this.page.click("body");
+    await this.page.click("body", { force: true });
   }
 
   // Get menu
