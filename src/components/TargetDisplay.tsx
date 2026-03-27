@@ -15,9 +15,11 @@ interface TargetDisplayProps {
   onClick?: () => void
   /** Current point multiplier from combo system */
   multiplier?: number
+  /** In continuous mode the target emoji is hidden to rely on audio */
+  continuousMode?: boolean
 }
 
-export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier }: TargetDisplayProps) => {
+export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier, continuousMode }: TargetDisplayProps) => {
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
   const categoryKey = getCategoryTranslationKey(category.name)
@@ -82,13 +84,14 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         </Badge>
 
         <div className="text-center mb-1">
-          <div data-testid="target-emoji" className="mb-1" key={targetEmoji}
+          <div data-testid="target-emoji" className="mb-1" key={continuousMode ? 'hidden' : targetEmoji}
             style={{
               fontSize: `calc(1.75rem * var(--object-scale, 1))`,
               lineHeight: '1',
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))'
+              filter: continuousMode ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))',
+              opacity: continuousMode ? 0.85 : 1,
             }}>
-            {targetEmoji}
+            {continuousMode ? '❓' : targetEmoji}
           </div>
           <div data-testid="target-name" className="font-bold"
             style={{

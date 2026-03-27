@@ -178,11 +178,6 @@
 }
 
 @media (orientation: landscape) {
-  .welcome-video {
-    object-fit: contain;
-    background: linear-gradient(180deg, #7ec8ff 0%, #eaf5ff 45%, #b7e07a 100%);
-  }
-
   .welcome-image-button {
     padding: 0.8rem 1.4rem;
   }
