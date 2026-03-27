@@ -27,6 +27,8 @@ export const useWelcomeAudioSequence = ({
   audioConfig,
   isE2E,
 }: UseWelcomeAudioSequenceOptions): WelcomeAudioSequenceState => {
+  const WELCOME_SEQUENCE_TIMEOUT_MS = 30000;
+
   const [readyToContinue, setReadyToContinue] = useState(false);
   const [isSequencePlaying, setIsSequencePlaying] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
@@ -70,24 +72,8 @@ export const useWelcomeAudioSequence = ({
   useEffect(() => {
     if (isE2E) return;
 
-    const safetyBtnTimer = setTimeout(() => {
-      console.log(
-        "[WelcomeScreen] Safety timer: Enabling interaction fallback",
-      );
-      setReadyToContinue(true);
-    }, 8000);
-
-    const safetyEndTimer = setTimeout(() => {
-      if (!sequenceFinishedRef.current) {
-        console.warn(
-          "[WelcomeScreen] Safety timer triggered - forcing sequence completion",
-        );
-        sequenceFinishedRef.current = true;
-        setReadyToContinue(true);
-      }
-    }, 12000);
-
     let cancelled = false;
+    let safetyEndTimer: ReturnType<typeof setTimeout> | undefined;
 
     const startAudioSequence = async () => {
       logDev("startAudioSequence called:", {
@@ -105,6 +91,16 @@ export const useWelcomeAudioSequence = ({
       audioStartedRef.current = true;
 
       setIsSequencePlaying(true);
+      safetyEndTimer = setTimeout(() => {
+        if (cancelled || sequenceFinishedRef.current) return;
+        console.warn(
+          "[WelcomeScreen] Safety timer triggered - forcing sequence completion",
+        );
+        sequenceFinishedRef.current = true;
+        readyRef.current = true;
+        setReadyToContinue(true);
+        setIsSequencePlaying(false);
+      }, WELCOME_SEQUENCE_TIMEOUT_MS);
 
       try {
         await runWelcomeAudioSequence({
@@ -119,12 +115,14 @@ export const useWelcomeAudioSequence = ({
           onDevLog: (message, data) => logDev(message, data),
         });
 
-        if (!cancelled && !readyRef.current) {
-          logDev("Sequence finished normally");
-          readyRef.current = true;
-          setReadyToContinue(true);
+        if (!cancelled) {
           sequenceFinishedRef.current = true;
           setIsSequencePlaying(false);
+          if (!readyRef.current) {
+            logDev("Sequence finished normally");
+            readyRef.current = true;
+            setReadyToContinue(true);
+          }
         }
       } catch (err) {
         logDev("Audio sequence error:", {
@@ -142,6 +140,10 @@ export const useWelcomeAudioSequence = ({
           sequenceFinishedRef.current = true;
           setIsSequencePlaying(false);
         }
+      } finally {
+        if (safetyEndTimer) {
+          clearTimeout(safetyEndTimer);
+        }
       }
     };
 
@@ -151,11 +153,12 @@ export const useWelcomeAudioSequence = ({
 
     return () => {
       cancelled = true;
-      clearTimeout(safetyBtnTimer);
-      clearTimeout(safetyEndTimer);
+      if (safetyEndTimer) {
+        clearTimeout(safetyEndTimer);
+      }
       startAudioSequenceRef.current = null;
     };
-  }, [isE2E, logDev, mergedAudioConfig]);
+  }, [WELCOME_SEQUENCE_TIMEOUT_MS, isE2E, logDev, mergedAudioConfig]);
 
   useEffect(() => {
     readyRef.current = readyToContinue;

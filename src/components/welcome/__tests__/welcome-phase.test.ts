@@ -23,6 +23,16 @@ describe("welcome-phase", () => {
     ).toBe("playingNarration");
   });
 
+  it("keeps narration phase locked when ready and playing are both true", () => {
+    expect(
+      getWelcomePhase({
+        fadeOut: false,
+        readyToContinue: true,
+        isSequencePlaying: true,
+      }),
+    ).toBe("playingNarration");
+  });
+
   it("locks interaction only while playing or transitioning", () => {
     expect(isWelcomeInteractionLocked("readyToStart")).toBe(false);
     expect(isWelcomeInteractionLocked("readyToContinue")).toBe(false);

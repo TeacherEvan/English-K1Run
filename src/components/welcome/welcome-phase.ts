@@ -19,12 +19,12 @@ export const getWelcomePhase = ({
     return "transitioningToMenu";
   }
 
-  if (readyToContinue) {
-    return "readyToContinue";
-  }
-
   if (isSequencePlaying) {
     return "playingNarration";
+  }
+
+  if (readyToContinue) {
+    return "readyToContinue";
   }
 
   return "readyToStart";
