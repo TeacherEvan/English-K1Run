@@ -84,7 +84,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
         </Badge>
 
         <div className="text-center mb-1">
-          <div data-testid="target-emoji" className="mb-1" key={continuousMode ? 'hidden' : targetEmoji}
+          <div data-testid="target-emoji" className="mb-1" key={targetEmoji}
             style={{
               fontSize: `calc(1.75rem * var(--object-scale, 1))`,
               lineHeight: '1',
