@@ -50,6 +50,9 @@
   "messages": {
     "gameWon": "你赢了!做得很好!",
     "victoryTitle": "你赢了！",
+    "completionTitle": "做得好！",
+    "completionDescription": "试试其他关卡吧！",
+    "completionButton": "去试试其他关卡",
     "gameOver": "游戏结束",
     "score": "分数",
     "perfect": "完美!"
@@ -75,7 +78,8 @@
     "score": "当前分数",
     "targetObject": "目标对象",
     "levelSelectionOpened": "关卡选择菜单已打开",
-    "selectedLevel": "已选择关卡：{{level}}"
+    "selectedLevel": "已选择关卡：{{level}}",
+    "completionDialogAnnouncement": "做得好！试试其他关卡吧！"
   },
   "common": {
     "on": "开启",

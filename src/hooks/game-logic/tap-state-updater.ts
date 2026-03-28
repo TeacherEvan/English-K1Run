@@ -1,5 +1,10 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
+import {
+  DEFAULT_MODE_PROGRESS_INCREMENT,
+  DEFAULT_MODE_PROGRESS_PENALTY,
+  PROGRESS_MAX,
+} from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
 import type { GameState, GameCategory } from "../../types/game";
 import { handleProgressWin } from "./tap-handlers-object-win";
@@ -8,7 +13,10 @@ export interface TapStateUpdateDependencies {
   gameState: GameState;
   currentCategory: GameCategory;
   reducedMotion: boolean;
-  generateRandomTarget: (levelOverride?: number) => { name: string; emoji: string };
+  generateRandomTarget: (levelOverride?: number) => {
+    name: string;
+    emoji: string;
+  };
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
   continuousModeTargetCount: MutableRefObject<number>;
@@ -50,8 +58,10 @@ export const updateStateOnTap = (
     if (isCorrect) {
       newState.streak += 1;
 
-      const basePoints = 20;
-      newState.progress = Math.min(prev.progress + basePoints, 100);
+      newState.progress = Math.min(
+        prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
+        PROGRESS_MAX,
+      );
 
       if (newState.progress >= 100) {
         handleProgressWin({
@@ -100,7 +110,10 @@ export const updateStateOnTap = (
       }
     } else {
       newState.streak = 0;
-      newState.progress = Math.max(prev.progress - 20, 0);
+      newState.progress = Math.max(
+        prev.progress - DEFAULT_MODE_PROGRESS_PENALTY,
+        0,
+      );
       eventTracker.trackGameStateChange(
         { ...prev },
         { ...newState },

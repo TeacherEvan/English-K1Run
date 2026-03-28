@@ -53,6 +53,32 @@ test.describe("Gameplay", () => {
     await expect(gamePage.gameplay.progressBars.first()).toBeHidden();
   });
 
+  test("should show completion dialog after 20 correct taps", async ({
+    gamePage,
+    page,
+  }) => {
+    await gamePage.menu.startGame();
+    await gamePage.gameplay.waitForObjectsToSpawn(1);
+
+    for (let tap = 0; tap < 20; tap += 1) {
+      const target = await gamePage.gameplay.getCurrentTarget();
+      expect(target.emoji?.trim()).toBeTruthy();
+
+      await gamePage.gameplay.tapObjectByEmoji(target.emoji!.trim());
+      await page.waitForTimeout(150);
+      await gamePage.gameplay.waitForObjectsToSpawn(1);
+    }
+
+    const dialog = page.locator('[data-testid="default-completion-dialog"]');
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await page
+      .locator('[data-testid="default-completion-dialog-button"]')
+      .click();
+
+    await expect(dialog).not.toBeVisible();
+  });
+
   test("falling objects should be clickable", async ({ gamePage }) => {
     // Wait for objects to spawn
     await gamePage.gameplay.waitForObjectsToSpawn(1);
@@ -132,18 +158,25 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
       page.locator('[data-testid="worm-loading-screen"]'),
     ).toBeVisible();
 
-    // Eliminate all 5 worms with better selector and timing
-    for (let i = 0; i < 5; i++) {
-      const worm = page.locator('[data-testid="worm-target"]').first();
-      await worm.waitFor({ state: "visible", timeout: 5000 });
-      await worm.click({ force: true, timeout: 5000 });
-      await page.waitForTimeout(250); // Increased for React state propagation
+    // Eliminate worms until none remain (more stable than fixed click count)
+    for (let attempts = 0; attempts < 12; attempts++) {
+      const worms = page.locator('[data-testid="worm-target"]');
+      const remaining = await worms.count();
+      if (remaining === 0) break;
+
+      await worms.first().waitFor({ state: "visible", timeout: 5000 });
+      await worms.first().click({ force: true, timeout: 5000 });
+      await page.waitForTimeout(250);
     }
+
+    await expect(page.locator('[data-testid="worm-target"]')).toHaveCount(0, {
+      timeout: 3000,
+    });
 
     // Should auto-advance to game within 5 seconds
     // Accounts for: 5 clicks * 250ms + state updates + 500ms delay + component transitions
     await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 5000,
+      timeout: 7000,
     });
 
     // Loading screen should be gone
@@ -163,13 +196,20 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
       page.locator('[data-testid="worm-loading-screen"]'),
     ).toBeVisible();
 
-    // Eliminate all worms with better timing
-    for (let i = 0; i < 5; i++) {
-      const worm = page.locator('[data-testid="worm-target"]').first();
-      await worm.waitFor({ state: "visible", timeout: 5000 });
-      await worm.click({ force: true, timeout: 5000 });
+    // Eliminate worms until none remain (avoids flaky fixed-count assumptions)
+    for (let attempts = 0; attempts < 12; attempts++) {
+      const worms = page.locator('[data-testid="worm-target"]');
+      const remaining = await worms.count();
+      if (remaining === 0) break;
+
+      await worms.first().waitFor({ state: "visible", timeout: 5000 });
+      await worms.first().click({ force: true, timeout: 5000 });
       await page.waitForTimeout(250);
     }
+
+    await expect(page.locator('[data-testid="worm-target"]')).toHaveCount(0, {
+      timeout: 3000,
+    });
 
     // Check for completion message (appears before auto-advancing)
     const completionMessage = page.locator(

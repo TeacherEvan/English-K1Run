@@ -50,6 +50,9 @@
   "messages": {
     "gameWon": "Vous gagnez! Excellent travail!",
     "victoryTitle": "Victoire !",
+    "completionTitle": "Bravo !",
+    "completionDescription": "Essayez d'autres niveaux !",
+    "completionButton": "Voir d'autres niveaux",
     "gameOver": "Fin du Jeu",
     "score": "Score",
     "perfect": "Parfait!"
@@ -75,7 +78,8 @@
     "score": "Score Actuel",
     "targetObject": "Objet Cible",
     "levelSelectionOpened": "Menu de sélection des niveaux ouvert",
-    "selectedLevel": "Niveau sélectionné : {{level}}"
+    "selectedLevel": "Niveau sélectionné : {{level}}",
+    "completionDialogAnnouncement": "Bravo ! Essayez d'autres niveaux !"
   },
   "common": {
     "on": "Activé",

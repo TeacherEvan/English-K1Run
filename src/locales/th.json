@@ -51,6 +51,9 @@
   "messages": {
     "gameWon": "คุณชนะ! ทำได้ดีมากขอบคุณ!",
     "victoryTitle": "คุณชนะ!",
+    "completionTitle": "เก่งมาก!",
+    "completionDescription": "ลองไปเล่นด่านอื่น ๆ ดูสิ!",
+    "completionButton": "ลองด่านอื่น",
     "gameOver": "สิ้นสุดเกม",
     "score": "คะแนน",
     "perfect": "สมบูรณ์แบบ!"
@@ -76,7 +79,8 @@
     "score": "คะแนนปัจจุบัน",
     "targetObject": "วัตถุเป้าหมาย",
     "levelSelectionOpened": "เปิดเมนูเลือกด่านแล้ว",
-    "selectedLevel": "ด่านที่เลือก: {{level}}"
+    "selectedLevel": "ด่านที่เลือก: {{level}}",
+    "completionDialogAnnouncement": "เก่งมาก! ลองไปเล่นด่านอื่น ๆ ดูสิ!"
   },
   "common": {
     "on": "เปิด",

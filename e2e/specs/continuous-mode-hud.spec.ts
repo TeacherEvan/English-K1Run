@@ -23,4 +23,16 @@ test.describe("Continuous mode HUD target secrecy", () => {
     const target = await gamePage.gameplay.getCurrentTarget();
     expect(target.emoji?.trim()).toBe("❓");
   });
+
+  test("does not show default completion dialog in continuous mode", async ({
+    gamePage,
+    page,
+  }) => {
+    await gamePage.menu.playAllLevels();
+    await gamePage.gameplay.targetDisplay.waitFor({ state: "visible" });
+
+    await expect(
+      page.locator('[data-testid="default-completion-dialog"]'),
+    ).toHaveCount(0);
+  });
 });

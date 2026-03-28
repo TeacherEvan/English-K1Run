@@ -127,10 +127,16 @@ export const TARGET_CHANGE_TIMEOUT_MS = 10000;
 // ============================================================================
 
 /** Progress increment per correct object tap (percentage points) */
-export const PROGRESS_INCREMENT = 20;
+export const DEFAULT_MODE_PROGRESS_INCREMENT = 5;
+
+/** Number of correct targets required to complete a default-mode level */
+export const DEFAULT_MODE_TARGETS_TO_COMPLETE = 20;
 
 /** Progress penalty per incorrect object tap (percentage points) */
-export const PROGRESS_PENALTY = 20;
+export const DEFAULT_MODE_PROGRESS_PENALTY = 5;
+
+/** Number of targets needed to advance a continuous-mode level */
+export const CONTINUOUS_MODE_TARGETS_TO_ADVANCE = 5;
 
 /** Maximum progress value to win the game (100%) */
 export const PROGRESS_MAX = 100;

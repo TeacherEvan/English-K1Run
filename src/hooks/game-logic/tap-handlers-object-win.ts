@@ -1,5 +1,9 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
+import {
+  CONTINUOUS_MODE_TARGETS_TO_ADVANCE,
+  TARGET_CHANGE_TIMEOUT_MS,
+} from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
 import type { GameState } from "../../types/game";
 
@@ -42,7 +46,9 @@ export const handleProgressWin = ({
     newState.winner = false;
     newState.lastMilestone = 0;
 
-    if (continuousModeTargetCount.current >= 5) {
+    if (
+      continuousModeTargetCount.current >= CONTINUOUS_MODE_TARGETS_TO_ADVANCE
+    ) {
       continuousModeTargetCount.current = 0;
       const nextLevel = (prev.level + 1) % GAME_CATEGORIES.length;
       newState.level = nextLevel;
@@ -78,7 +84,7 @@ export const handleProgressWin = ({
     const nextTarget = generateRandomTarget(newState.level);
     newState.currentTarget = nextTarget.name;
     newState.targetEmoji = nextTarget.emoji;
-    newState.targetChangeTime = Date.now() + 10000;
+    newState.targetChangeTime = Date.now() + TARGET_CHANGE_TIMEOUT_MS;
 
     setTimeout(() => spawnImmediateTargets(), 0);
   } else {

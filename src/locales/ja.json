@@ -50,6 +50,9 @@
   "messages": {
     "gameWon": "あなたが勝ちました!素晴らしい!",
     "victoryTitle": "きみの勝ち！",
+    "completionTitle": "よくできました！",
+    "completionDescription": "ほかのレベルもやってみましょう！",
+    "completionButton": "ほかのレベルへ",
     "gameOver": "ゲーム終了",
     "score": "スコア",
     "perfect": "完璧です!"
@@ -75,7 +78,8 @@
     "score": "現在のスコア",
     "targetObject": "ターゲットオブジェクト",
     "levelSelectionOpened": "レベル選択メニューを開きました",
-    "selectedLevel": "選択中のレベル: {{level}}"
+    "selectedLevel": "選択中のレベル: {{level}}",
+    "completionDialogAnnouncement": "よくできました！ほかのレベルもやってみましょう！"
   },
   "common": {
     "on": "オン",

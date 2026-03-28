@@ -20,6 +20,12 @@ import { GAME_CATEGORIES, useGameLogic } from "./hooks/use-game-logic";
 import { getCategoryTranslationKey } from "./lib/constants/category-translation";
 import { useLazyBackgroundPreloader } from "./lib/utils/background-preloader";
 
+const DefaultModeCompletionDialog = lazy(() =>
+  import("./components/game-completion/DefaultModeCompletionDialog").then(
+    (m) => ({ default: m.DefaultModeCompletionDialog }),
+  ),
+);
+
 const FireworksDisplay = lazy(() =>
   import("./components/FireworksDisplay").then((m) => ({
     default: m.FireworksDisplay,
@@ -149,6 +155,12 @@ function App() {
               isVisible={!!gameState.winner}
               winner={gameState.winner}
             />
+          </Suspense>
+        )}
+
+        {gameState.winner && !continuousMode && (
+          <Suspense fallback={null}>
+            <DefaultModeCompletionDialog isVisible={!!gameState.winner} />
           </Suspense>
         )}
 

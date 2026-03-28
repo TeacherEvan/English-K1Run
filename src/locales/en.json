@@ -51,6 +51,9 @@
   "messages": {
     "gameWon": "You win! Great job!",
     "victoryTitle": "You Win!",
+    "completionTitle": "Well done!",
+    "completionDescription": "Try some of the other levels!",
+    "completionButton": "Try other levels",
     "gameOver": "Game Over",
     "score": "Score",
     "perfect": "Perfect!"
@@ -76,7 +79,8 @@
     "score": "Current Score",
     "targetObject": "Target Object",
     "levelSelectionOpened": "Level selection menu opened",
-    "selectedLevel": "Selected level: {{level}}"
+    "selectedLevel": "Selected level: {{level}}",
+    "completionDialogAnnouncement": "Well done! Try some of the other levels!"
   },
   "common": {
     "on": "On",
