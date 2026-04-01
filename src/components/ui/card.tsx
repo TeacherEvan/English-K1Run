@@ -1,19 +1,24 @@
-import { type ComponentProps } from "react"
+import { type ComponentProps, forwardRef } from "react"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card"
-      className={cn(
-        "bg-card text-card-foreground flex flex-col rounded-xl border shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:border-primary/20",
-        className
-      )}
-      {...props}
-    />
-  )
-}
+const Card = forwardRef<HTMLDivElement, ComponentProps<"div">>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        data-slot="card"
+        className={cn(
+          "bg-card text-card-foreground flex flex-col rounded-xl border shadow-lg",
+          className
+        )}
+        {...props}
+      />
+    )
+  }
+)
+
+Card.displayName = "Card"
 
 function CardHeader({ className, ...props }: ComponentProps<"div">) {
   return (

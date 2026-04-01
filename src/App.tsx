@@ -40,15 +40,7 @@ const EmojiRotationMonitor = lazy(() =>
 function App() {
   const { t } = useTranslation();
   const { displaySettings } = useDisplayAdjustment();
-
-  useLazyBackgroundPreloader();
-  useAppBootSignal();
-  useWebVitalsMonitor();
-  useRenderMeasurement();
-  usePreloadResources();
-
   const isE2E = useE2EMode();
-  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
   const [timeRemaining, setTimeRemaining] = useState(10000);
   const [selectedLevel, setSelectedLevel] = useState(0);
@@ -61,6 +53,14 @@ function App() {
     isE2E ? "menu" : "welcome",
   );
   const [debugVisible, setDebugVisible] = useState(false);
+
+  useLazyBackgroundPreloader(startupStep === "menu");
+  useAppBootSignal();
+  useWebVitalsMonitor();
+  useRenderMeasurement();
+  usePreloadResources();
+
+  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
   const {
     gameObjects,

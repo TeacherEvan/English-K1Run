@@ -6,9 +6,8 @@ import {
     moveFocusToAdjacentElement,
 } from "@/lib/accessibility-utils";
 import { UI_LAYER_MATRIX } from "@/lib/constants/ui-layer-matrix";
-import { measureComponentRenderTime } from "@/lib/performance-monitor-utils";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -34,19 +33,6 @@ export const GameMenuLevelSelect = memo(
     }: GameMenuLevelSelectProps) => {
         const { t } = useTranslation();
         const modalRef = useRef<HTMLDivElement>(null);
-        const stopRenderMeasurement = useMemo(
-            () => measureComponentRenderTime("GameMenuLevelSelect"),
-            []
-        );
-
-        useEffect(() => {
-            const duration = stopRenderMeasurement();
-            if (import.meta.env.DEV && duration !== null) {
-                console.log(
-                    `[Performance] GameMenuLevelSelect rendered in ${duration.toFixed(2)}ms`
-                );
-            }
-        }, [stopRenderMeasurement]);
 
         useEffect(() => {
             announceToScreenReader(t("accessibility.levelSelectionOpened"), "polite");
@@ -98,7 +84,7 @@ export const GameMenuLevelSelect = memo(
 
         return (
             <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center animate-in fade-in slide-in-from-right-8 duration-300 pointer-events-auto"
+                className="fixed inset-0 flex items-start justify-center overflow-x-hidden overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(96,165,250,0.14),_rgba(255,250,240,0.95)_28%,_rgba(248,250,252,0.96)_100%)] px-4 py-6 pointer-events-auto sm:px-6 sm:py-8 lg:items-center"
                 style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
                 data-testid="level-select-menu"
                 role="dialog"
@@ -108,14 +94,14 @@ export const GameMenuLevelSelect = memo(
             >
                 <Card
                     ref={modalRef}
-                    className="w-full max-w-6xl mx-4 bg-card/95 border-4 border-primary/20 shadow-2xl h-[90vh] flex flex-col"
+                    className="mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(51,65,85,0.16)]"
                 >
-                    <div className="flex items-center justify-between px-8 py-6 border-b bg-card rounded-t-xl shrink-0">
+                    <div className="flex shrink-0 items-center justify-between border-b border-slate-200/80 bg-[rgba(255,248,237,0.94)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
                             variant="ghost"
                             size="lg"
                             onClick={onBack}
-                            className="gap-2 text-xl hover:bg-primary/10"
+                            className="gap-2 rounded-full px-4 text-lg font-semibold text-slate-700 hover:bg-slate-900/5"
                             data-testid="back-to-menu-button"
                             aria-label={t("game.back")}
                         >
@@ -123,22 +109,22 @@ export const GameMenuLevelSelect = memo(
                             <span className="font-bold">{t("game.back")}</span>
                         </Button>
                         <div className="text-center">
-                            <h2 className="text-3xl md:text-4xl font-bold text-primary">
+                            <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-[-0.035em] text-slate-900">
                                 {t("game.selectLevel")}
                             </h2>
                         </div>
-                        <div className="w-32"></div>
+                        <div className="w-12 sm:w-32"></div>
                     </div>
 
-                    <div className="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div className="custom-scrollbar flex-1 overflow-y-auto p-6 md:p-8">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 xl:grid-cols-4">
                             {levels.map((level, index) => (
                                 <Button
                                     key={level}
                                     variant={selectedLevel === index ? "default" : "outline"}
-                                    className={`h-40 xl:h-48 text-xl font-bold flex flex-col gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 whitespace-normal ${selectedLevel === index
-                                        ? "bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/30"
-                                        : "hover:border-primary/50 hover:shadow-md bg-card"
+                                    className={`flex h-40 flex-col gap-3 rounded-[1.5rem] border text-xl font-bold whitespace-normal transition-all duration-200 active:scale-[0.98] motion-reduce:transform-none xl:h-48 ${selectedLevel === index
+                                        ? "border-slate-900 bg-slate-900 text-white shadow-[0_18px_30px_rgba(15,23,42,0.18)] ring-4 ring-amber-200/60"
+                                        : "bg-[#fffaf0] text-slate-900 shadow-[0_12px_22px_rgba(71,85,105,0.12)] hover:-translate-y-1 hover:border-slate-300 hover:bg-[#f6eee0] hover:shadow-[0_18px_28px_rgba(71,85,105,0.16)]"
                                         }`}
                                     onClick={() => onSelectLevel(index)}
                                     data-testid="level-button"
@@ -148,7 +134,7 @@ export const GameMenuLevelSelect = memo(
                                         {levelIcons[index]}
                                     </span>
                                     <div className="flex flex-col items-center w-full px-2">
-                                        <span className="text-center w-full truncate text-lg md:text-xl">
+                                        <span className="w-full break-words text-center text-lg leading-tight md:text-xl">
                                             {level}
                                         </span>
                                     </div>
@@ -158,10 +144,10 @@ export const GameMenuLevelSelect = memo(
                     </div>
 
                     {/* Footer - Fixed properties */}
-                    <div className="px-8 py-6 border-t bg-card/50 rounded-b-xl flex justify-center shrink-0">
+                    <div className="flex shrink-0 justify-center border-t border-slate-200/70 bg-[rgba(255,248,237,0.8)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
                             size="lg"
-                            className="w-full max-w-md h-20 text-3xl font-bold shadow-xl animate-pulse hover:animate-none hover:scale-105 transition-transform bg-linear-to-r from-primary to-primary/80"
+                            className="h-20 w-full max-w-md rounded-[1.75rem] bg-emerald-600 text-[clamp(1.5rem,3vw,2.25rem)] font-black text-white shadow-[0_18px_30px_rgba(22,163,74,0.22)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_36px_rgba(22,163,74,0.24)]"
                             onClick={onStartGame}
                             data-testid="start-button"
                             aria-label={t("game.startGame")}

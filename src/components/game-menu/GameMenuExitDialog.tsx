@@ -33,9 +33,7 @@ export const GameMenuExitDialog = memo(
             onResetGame?.();
             try {
                 window.close();
-            } catch {
-                console.log("[GameMenu] window.close() blocked by browser");
-            }
+            } catch { }
         };
 
         return (
@@ -43,12 +41,13 @@ export const GameMenuExitDialog = memo(
                 <Button
                     variant="destructive"
                     size="lg"
-                    className="h-14 text-lg font-semibold justify-start px-8 gap-4 mt-2 bg-red-700 hover:bg-red-800"
+                    className="mt-1 h-[4.75rem] justify-start gap-4 rounded-[1.5rem] border border-red-900/10 bg-red-600 px-6 text-lg font-semibold shadow-[0_16px_24px_rgba(220,38,38,0.18)] hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_20px_28px_rgba(220,38,38,0.22)]"
                     onClick={handleExit}
                     data-testid="exit-button"
                 >
                     <MenuActionButtonContent
                         icon={<LogOutIcon className="w-5 h-5" />}
+                        subtitleClassName="mt-1 text-sm font-medium text-white/78"
                         title={exitLabel.title}
                         subtitle={exitLabel.subtitle}
                     />

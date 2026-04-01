@@ -44,12 +44,13 @@ export const GameMenuSettingsDialog = memo(
                     <Button
                         variant="outline"
                         size="lg"
-                        className="h-16 text-xl font-semibold justify-start px-8 gap-4 hover:bg-primary/5 border-2"
+                        className="h-[4.75rem] justify-start gap-4 rounded-[1.5rem] border border-slate-200 bg-[#fbf6ea] px-6 text-lg font-semibold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.08)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.12)]"
                         data-testid="settings-button"
                         role="button"
                     >
                         <MenuActionButtonContent
-                            icon={<SettingsIcon className="w-6 h-6 text-primary" />}
+                            icon={<SettingsIcon className="h-6 w-6 text-slate-700" />}
+                            subtitleClassName="mt-1 text-sm font-medium text-slate-600"
                             title={settingsLabel.title}
                             subtitle={settingsLabel.subtitle}
                         />

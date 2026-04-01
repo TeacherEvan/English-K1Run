@@ -47,15 +47,6 @@ export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
       triggerFullscreen();
     };
 
-    const attemptImmediateFullscreen = () => {
-      setTimeout(() => {
-        if (!document.fullscreenElement) {
-          requestFullscreen();
-        }
-      }, 100);
-    };
-    attemptImmediateFullscreen();
-
     const events = [
       "click",
       "touchstart",
@@ -70,16 +61,6 @@ export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
         passive: true,
       });
     });
-
-    const handleVisibilityChange = () => {
-      if (
-        document.visibilityState === "visible" &&
-        !document.fullscreenElement
-      ) {
-        requestFullscreen();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     const preventDefaultTouch = (e: TouchEvent) => {
       if (gameStarted && e.cancelable) {
@@ -104,7 +85,6 @@ export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
       events.forEach((event) => {
         document.removeEventListener(event, handleInteraction);
       });
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
       document.removeEventListener("touchmove", preventDefaultTouch);
       document.removeEventListener("touchstart", preventMultiTouch);
     };

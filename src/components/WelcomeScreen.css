@@ -82,6 +82,7 @@
   outline: none;
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.28);
 }
 
 .welcome-language-button:disabled {
@@ -147,6 +148,7 @@
 .welcome-image-button:focus-visible {
   outline: none;
   transform: scale(1.03);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.28);
 }
 
 .welcome-image-button:disabled {
@@ -189,34 +191,5 @@
 
   .welcome-image-caption {
     font-size: 0.95rem;
-  }
-}
-
-@keyframes fallback-pop {
-  0% {
-    clip-path: circle(0% at 50% 50%);
-    transform: scale(0.98);
-    opacity: 0;
-  }
-  60% {
-    clip-path: circle(45% at 50% 50%);
-    opacity: 1;
-  }
-  100% {
-    clip-path: circle(75% at 50% 50%);
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes image-pulse {
-  0%,
-  100% {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.05);
   }
 }

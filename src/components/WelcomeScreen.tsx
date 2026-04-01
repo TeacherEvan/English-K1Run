@@ -7,6 +7,7 @@ import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.css'
+import './WelcomeScreen.motion.css'
 
 interface WelcomeScreenProps {
   onComplete: () => void
@@ -71,7 +72,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       aria-busy={interactionLocked}
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
-        background: '#000',
+        background: 'oklch(0.24 0.03 250)',
         zIndex: UI_LAYER_MATRIX.WELCOME_OVERLAY,
       }}
       onClick={handlePrimaryAction}
@@ -83,7 +84,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         autoPlay
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
         onCanPlay={handleVideoCanPlay}
         onEnded={handleVideoEnded}
         onError={handleVideoError}

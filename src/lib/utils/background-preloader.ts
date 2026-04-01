@@ -69,36 +69,26 @@ export async function preloadBackgroundImages(
 /**
  * Hook to lazily preload background images when they become likely to be used
  */
-export function useLazyBackgroundPreloader() {
+export function useLazyBackgroundPreloader(enabled = true) {
   const [isPreloading, setIsPreloading] = useState(false);
 
   useEffect(() => {
-    // Preload critical backgrounds immediately (welcome screen)
-    const criticalBackgrounds = [
-      "app-bg-mountain-sunrise",
-      "app-bg-ocean-sunset",
-      "app-bg-forest-path",
-    ];
+    if (!enabled) return;
 
-    preloadBackgroundImages(criticalBackgrounds).catch(console.warn);
-
-    // Preload remaining backgrounds after a delay to prioritize initial load
-    const timer = setTimeout(() => {
+    // Defer non-visible backgrounds until the menu is already interactive.
+    // The active background is loaded by CSS when rendered, so preloading can wait.
+    const timer = window.setTimeout(() => {
       setIsPreloading(true);
-      const allBackgrounds = Object.keys(BACKGROUND_IMAGE_MAP);
-      const remaining = allBackgrounds.filter(
-        (bg) => !criticalBackgrounds.includes(bg),
-      );
 
-      preloadBackgroundImages(remaining, 1)
+      preloadBackgroundImages(Object.keys(BACKGROUND_IMAGE_MAP), 1)
         .catch(console.warn)
         .finally(() => {
           setIsPreloading(false);
         });
-    }, 2000); // 2 seconds after mount
+    }, 5000);
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => window.clearTimeout(timer);
+  }, [enabled]);
 
   return { isPreloading };
 }
