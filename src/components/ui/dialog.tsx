@@ -64,7 +64,7 @@ const DialogOverlay = forwardRef<
       data-slot="dialog-overlay"
       style={{ zIndex: DIALOG_LAYER }}
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-black/38 supports-backdrop-filter:backdrop-blur-[3px] dark:bg-black/52",
         className
       )}
       {...props}
@@ -93,7 +93,7 @@ const DialogContent = forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+        <DialogPrimitive.Close className="ring-offset-background focus-visible:ring-ring/70 absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-full border border-border/70 bg-background/88 text-foreground/72 opacity-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:text-foreground hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none touch-manipulation supports-backdrop-filter:backdrop-blur-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
           <XIcon />
           <span className="sr-only">{t("common.close")}</span>
         </DialogPrimitive.Close>

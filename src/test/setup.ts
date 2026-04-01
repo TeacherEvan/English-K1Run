@@ -2,15 +2,19 @@
  * Test setup for Vitest
  */
 
+(
+  globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
+
 // Mock Web Audio API
 global.AudioContext = class MockAudioContext {
-  state = 'running'
+  state = "running";
   createGain() {
     return {
       gain: { value: 1, setValueAtTime: () => {} },
       connect: () => {},
-      disconnect: () => {}
-    }
+      disconnect: () => {},
+    };
   }
   createBufferSource() {
     return {
@@ -18,27 +22,27 @@ global.AudioContext = class MockAudioContext {
       connect: () => {},
       start: () => {},
       stop: () => {},
-      addEventListener: () => {}
-    }
+      addEventListener: () => {},
+    };
   }
   decodeAudioData() {
-    return Promise.resolve({})
+    return Promise.resolve({});
   }
   resume() {
-    return Promise.resolve()
+    return Promise.resolve();
   }
   get currentTime() {
-    return 0
+    return 0;
   }
   get destination() {
-    return {}
+    return {};
   }
-} as unknown as typeof AudioContext
+} as unknown as typeof AudioContext;
 
 // Mock HTMLAudioElement
-HTMLAudioElement.prototype.play = () => Promise.resolve()
-HTMLAudioElement.prototype.pause = () => {}
-HTMLAudioElement.prototype.load = () => {}
+HTMLAudioElement.prototype.play = () => Promise.resolve();
+HTMLAudioElement.prototype.pause = () => {};
+HTMLAudioElement.prototype.load = () => {};
 
 // Mock SpeechSynthesis
 global.speechSynthesis = {
@@ -52,5 +56,5 @@ global.speechSynthesis = {
   paused: false,
   addEventListener: () => {},
   removeEventListener: () => {},
-  dispatchEvent: () => true
-} as unknown as SpeechSynthesis
+  dispatchEvent: () => true,
+} as unknown as SpeechSynthesis;

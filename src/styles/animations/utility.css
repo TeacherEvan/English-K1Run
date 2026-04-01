@@ -1,4 +1,18 @@
 /* Animation utilities shared across the UI. */
+@keyframes completion-countdown {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.animate-completion-countdown {
+  animation: completion-countdown 4s linear forwards;
+}
+
 .animate-in {
   animation-fill-mode: both;
 }
