@@ -17,6 +17,7 @@ vi.mock("react", async () => {
 });
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as targetAnnouncements from "../../lib/audio/target-announcements";
 import { playSoundEffect, soundManager } from "../../lib/sound-manager";
 import { useTargetAnnouncement } from "../game-logic/game-effects/target-announcement";
 import { playTapAudioFeedback } from "../game-logic/tap-audio-effects";
@@ -95,16 +96,16 @@ describe("Sound Manager Audio Call Behavior", () => {
   });
 
   describe("target announcement audio", () => {
-    it("plays the target sentence through soundManager word playback", async () => {
+    it("plays the target sentence through the strict-language target helper", async () => {
       const playSpy = vi
-        .spyOn(soundManager, "playWord")
-        .mockResolvedValue(undefined);
+        .spyOn(targetAnnouncements, "playTargetSentence")
+        .mockResolvedValue("I eat a red apple.");
       const setState = vi.fn();
 
       useTargetAnnouncement(true, "apple", "🍎", setState);
       await Promise.resolve();
 
-      expect(playSpy).toHaveBeenCalledWith("apple", undefined);
+      expect(playSpy).toHaveBeenCalledWith("apple", "en");
     });
   });
 });

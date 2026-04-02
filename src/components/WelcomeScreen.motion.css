@@ -1,10 +1,14 @@
 @media (prefers-reduced-motion: reduce) {
   .welcome-fallback-pop,
-  .welcome-image-overlay--pulse,
-  .welcome-image-button,
+  .welcome-status-panel--pulse,
+  .welcome-primary-button,
   .welcome-language-button {
     animation: none !important;
     transition: none !important;
+  }
+
+  .welcome-primary-button,
+  .welcome-language-button {
     transform: none !important;
   }
 }
@@ -26,14 +30,14 @@
   }
 }
 
-@keyframes image-pulse {
+@keyframes welcome-panel-pulse {
   0%,
   100% {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1);
+    opacity: 0.92;
+    transform: translateX(-50%) translateY(0) scale(1);
   }
   50% {
     opacity: 1;
-    transform: translateX(-50%) scale(1.05);
+    transform: translateX(-50%) translateY(-2px) scale(1.01);
   }
 }

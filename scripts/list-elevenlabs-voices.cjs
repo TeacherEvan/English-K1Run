@@ -12,39 +12,19 @@
  */
 
 const https = require("https");
-const fs = require("fs");
-const path = require("path");
-
-function loadDotEnvIfPresent() {
-  try {
-    const envPath = path.join(__dirname, "..", ".env");
-    if (!fs.existsSync(envPath)) return;
-    const raw = fs.readFileSync(envPath, "utf8");
-    for (const line of raw.split(/\r?\n/)) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const eq = trimmed.indexOf("=");
-      if (eq <= 0) continue;
-      const key = trimmed.slice(0, eq).trim();
-      if (!key) continue;
-      if (process.env[key]) continue;
-      let value = trimmed.slice(eq + 1).trim();
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
-        value = value.slice(1, -1);
-      }
-      process.env[key] = value;
-    }
-  } catch {
-    // Ignore .env load errors and fall back to real env vars.
-  }
-}
+const {
+  describeVoice,
+  fetchElevenLabsVoices,
+  getVerifiedThaiVoices,
+  loadDotEnvIfPresent,
+  readFlagValue,
+} = require("./audio-script-utils.cjs");
 
 loadDotEnvIfPresent();
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
+const currentThaiVoiceId = process.env.ELEVENLABS_VOICE_ID_TH || "";
+const requestedLanguage = readFlagValue("--lang");
 
 if (!ELEVENLABS_API_KEY) {
   console.error(
@@ -53,52 +33,64 @@ if (!ELEVENLABS_API_KEY) {
   process.exit(1);
 }
 
-function httpGetJson({ hostname, path, headers }) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(
-      {
-        hostname,
-        port: 443,
-        path,
-        method: "GET",
-        headers,
-      },
-      (res) => {
-        let data = "";
-        res.on("data", (chunk) => (data += chunk));
-        res.on("end", () => {
-          if (res.statusCode !== 200) {
-            reject(new Error(`HTTP ${res.statusCode}: ${data}`));
-            return;
-          }
-          try {
-            resolve(JSON.parse(data));
-          } catch (err) {
-            reject(err);
-          }
-        });
-      },
-    );
-
-    req.on("error", reject);
-    req.end();
-  });
-}
-
 (async () => {
   try {
-    const result = await httpGetJson({
-      hostname: "api.elevenlabs.io",
-      path: "/v1/voices",
-      headers: {
-        Accept: "application/json",
-        "xi-api-key": ELEVENLABS_API_KEY,
-      },
-    });
-
-    const voices = Array.isArray(result?.voices) ? result.voices : [];
+    const voices = await fetchElevenLabsVoices(ELEVENLABS_API_KEY);
     if (voices.length === 0) {
       console.log("No voices returned. Check your ElevenLabs account/API key.");
+      process.exit(0);
+    }
+
+    const thaiVoices = getVerifiedThaiVoices(voices);
+    const currentThaiVoice = voices.find(
+      (voice) => voice?.voice_id === currentThaiVoiceId,
+    );
+
+    if (requestedLanguage === "th") {
+      console.log("\nVerified Thai ElevenLabs voices:");
+      console.log("-".repeat(72));
+      if (thaiVoices.length === 0) {
+        console.log(
+          "No verified Thai voices returned for this account right now.",
+        );
+      } else {
+        console.log(`${"Name".padEnd(42)}  voice_id`);
+        console.log("-".repeat(72));
+        for (const voice of thaiVoices) {
+          const name = String(voice?.name ?? "(unnamed)");
+          const voiceId = String(voice?.voice_id ?? "");
+          console.log(`${name.slice(0, 42).padEnd(42)}  ${voiceId}`);
+        }
+      }
+
+      console.log("-".repeat(72));
+      if (!currentThaiVoiceId) {
+        console.log("Current ELEVENLABS_VOICE_ID_TH is empty.");
+      } else if (!currentThaiVoice) {
+        console.log(
+          `Current ELEVENLABS_VOICE_ID_TH (${currentThaiVoiceId}) is not present in this account list.`,
+        );
+      } else if (
+        thaiVoices.some((voice) => voice.voice_id === currentThaiVoiceId)
+      ) {
+        console.log(
+          `Current ELEVENLABS_VOICE_ID_TH is valid: ${describeVoice(currentThaiVoice)}`,
+        );
+      } else {
+        console.log(
+          `Current ELEVENLABS_VOICE_ID_TH is not Thai-verified: ${describeVoice(currentThaiVoice)}`,
+        );
+      }
+
+      if (thaiVoices.length > 0) {
+        console.log(
+          "\nCopy one of these voice_id values into ELEVENLABS_VOICE_ID_TH, then rerun npm run audio:generate-welcome:th.",
+        );
+      } else {
+        console.log(
+          "\nAdd or clone a Thai voice in ElevenLabs, then rerun npm run audio:list-voices:th.",
+        );
+      }
       process.exit(0);
     }
 
@@ -115,8 +107,9 @@ function httpGetJson({ hostname, path, headers }) {
     }
 
     console.log("-".repeat(72));
+    console.log(`Thai-verified voices in this account: ${thaiVoices.length}`);
     console.log(
-      "\nPick the voice_id you want and copy it into .env.example/.env using the ELEVENLABS_VOICE_ID_* variables (for Thai, use ELEVENLABS_VOICE_ID_TH).",
+      "\nPick the voice_id you want and copy it into .env.example/.env using the ELEVENLABS_VOICE_ID_* variables (for Thai, use ELEVENLABS_VOICE_ID_TH, and prefer npm run audio:list-voices:th).",
     );
   } catch (err) {
     console.error("❌ Failed to list voices:", err?.message || err);

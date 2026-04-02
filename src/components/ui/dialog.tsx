@@ -64,7 +64,7 @@ const DialogOverlay = forwardRef<
       data-slot="dialog-overlay"
       style={{ zIndex: DIALOG_LAYER }}
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-black/38 supports-backdrop-filter:backdrop-blur-[3px] dark:bg-black/52",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-[color-mix(in_oklch,var(--foreground)_14%,white)]/38 supports-backdrop-filter:backdrop-blur-xs dark:bg-black/52",
         className
       )}
       {...props}
@@ -87,7 +87,7 @@ const DialogContent = forwardRef<
         data-slot="dialog-content"
         style={{ zIndex: DIALOG_LAYER }}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+          "bg-[color-mix(in_oklch,var(--background)_94%,oklch(0.96_0.02_92))] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-3xl border border-[color-mix(in_oklch,var(--border)_78%,oklch(0.87_0.05_95))] p-6 shadow-[0_24px_60px_rgba(51,65,85,0.18)] duration-200 sm:max-w-lg",
           className
         )}
         {...props}

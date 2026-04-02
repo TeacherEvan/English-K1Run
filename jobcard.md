@@ -1,10 +1,11 @@
 # JOBCARD
 
-Repo: TeacherEvan/English-K1Run (branch: main)
+Repo: TeacherEvan/English-K1Run (default branch: main)
 Purpose: Compressed history of work that helps future agents ramp quickly.
 
 ## Highlights
 
+- Classroom design alignment: warm, light-first menu and welcome shells, shared brand constants, refreshed manifest/icon metadata, and focused design regressions.
 - Competition polish: deterministic welcome start, localized core UI/a11y copy, and unified `English K1 Run` branding.
 - Audio pipeline: fallback-chain hardening, inventory validation, fade transitions, overlap guards, and public fallback stability.
 - Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, and home-menu audio gating.
@@ -14,6 +15,16 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Gameplay polish: lighter HUD motion, quieter gameplay audio, and touch-first interaction fixes.
 
 ## Timeline (Compressed)
+
+### 2026-04-02
+
+- Aligned the startup and menu shell to the warm classroom design brief: shared `CLASSROOM_BRAND` constants, OKLCH-tinted theme variables, branded hero/action surfaces, and readable welcome status/language shells.
+- Updated player-facing metadata and identity assets so the PWA manifest and icon now reinforce the `English K1 Run` turtle-and-nature branding.
+- Added focused regression coverage for the classroom surfaces with `classroom-brand` and metadata unit tests plus Playwright checks for menu and welcome viewport/readability behavior.
+- Tightened startup/runtime polish with safer background preloading, gameplay audio-key prefetching at session start, and improved speech playback language/timeout handling.
+- Expanded gameplay localization coverage so non-Thai gameplay HUD/completion text now respects `gameplayLanguage`, with localized target labels and richer French/Japanese/Mandarin/Cantonese sentence coverage.
+- Reworked Thai welcome playback to match gameplay voice behavior: skip the incorrect prerecorded male Thai clip, prefer native Thai speech, surface a visible silent-fallback diagnostic, and harden the ElevenLabs tooling with Thai-specific voice inspection/regeneration commands.
+- Validation: `npm run verify`, `npm run test:run`, and `PLAYWRIGHT_PROJECTS=chromium,mobile npm run test:e2e -- e2e/specs/menu-design.spec.ts e2e/specs/welcome-design.spec.ts` passed locally.
 
 ### 2026-03-16
 
@@ -55,7 +66,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Stopped ElevenLabs/WebSpeech playback when stopping all audio to prevent overlap across screens.
 - Disabled speech fallback for normal SFX playback to avoid incorrect or stacked audio.
 - Simplified audio-public-resolver to eliminate network check spam (returns .mp3/.wav directly).
-- Next: home screen visual refactor.
+- Next: broader visual/a11y regression sweep after the classroom shell changes settle.
 
 ### 2026-02-03
 
@@ -121,6 +132,6 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - Install dependencies and rerun lint/build/Playwright verification.
 - Continue legacy documentation and inactive UI branding cleanup.
-- Home screen visual refactor (next session).
+- Run the broader menu/accessibility Playwright matrix before merge if the branch picks up more UI changes.
 - Extend audio fades to other transitions when needed.
 - Continue E2E stabilization after major UI updates.

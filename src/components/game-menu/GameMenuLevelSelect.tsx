@@ -5,6 +5,7 @@ import {
     KeyboardKeys,
     moveFocusToAdjacentElement,
 } from "@/lib/accessibility-utils";
+import { CLASSROOM_BRAND } from "@/lib/constants/classroom-brand";
 import { UI_LAYER_MATRIX } from "@/lib/constants/ui-layer-matrix";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { memo, useCallback, useEffect, useRef } from "react";
@@ -84,7 +85,7 @@ export const GameMenuLevelSelect = memo(
 
         return (
             <div
-                className="fixed inset-0 flex items-start justify-center overflow-x-hidden overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(96,165,250,0.14),_rgba(255,250,240,0.95)_28%,_rgba(248,250,252,0.96)_100%)] px-4 py-6 pointer-events-auto sm:px-6 sm:py-8 lg:items-center"
+                className="fixed inset-0 flex items-start justify-center overflow-x-hidden overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.14),rgba(255,250,240,0.95)_28%,rgba(248,250,252,0.96)_100%)] px-4 py-6 pointer-events-auto sm:px-6 sm:py-8 lg:items-center"
                 style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
                 data-testid="level-select-menu"
                 role="dialog"
@@ -94,7 +95,7 @@ export const GameMenuLevelSelect = memo(
             >
                 <Card
                     ref={modalRef}
-                    className="mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(51,65,85,0.16)]"
+                    className="mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-4xl border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(51,65,85,0.16)]"
                 >
                     <div className="flex shrink-0 items-center justify-between border-b border-slate-200/80 bg-[rgba(255,248,237,0.94)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
@@ -109,6 +110,12 @@ export const GameMenuLevelSelect = memo(
                             <span className="font-bold">{t("game.back")}</span>
                         </Button>
                         <div className="text-center">
+                            <div
+                                data-testid="level-select-heading-chip"
+                                className="mb-3 inline-flex items-center rounded-full border border-amber-200/80 bg-amber-50/90 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-900 shadow-sm"
+                            >
+                                {CLASSROOM_BRAND.signature}
+                            </div>
                             <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-[-0.035em] text-slate-900">
                                 {t("game.selectLevel")}
                             </h2>
@@ -122,7 +129,7 @@ export const GameMenuLevelSelect = memo(
                                 <Button
                                     key={level}
                                     variant={selectedLevel === index ? "default" : "outline"}
-                                    className={`flex h-40 flex-col gap-3 rounded-[1.5rem] border text-xl font-bold whitespace-normal transition-all duration-200 active:scale-[0.98] motion-reduce:transform-none xl:h-48 ${selectedLevel === index
+                                    className={`flex h-40 flex-col gap-3 rounded-3xl border text-xl font-bold whitespace-normal transition-all duration-200 active:scale-[0.98] motion-reduce:transform-none xl:h-48 ${selectedLevel === index
                                         ? "border-slate-900 bg-slate-900 text-white shadow-[0_18px_30px_rgba(15,23,42,0.18)] ring-4 ring-amber-200/60"
                                         : "bg-[#fffaf0] text-slate-900 shadow-[0_12px_22px_rgba(71,85,105,0.12)] hover:-translate-y-1 hover:border-slate-300 hover:bg-[#f6eee0] hover:shadow-[0_18px_28px_rgba(71,85,105,0.16)]"
                                         }`}
@@ -134,7 +141,7 @@ export const GameMenuLevelSelect = memo(
                                         {levelIcons[index]}
                                     </span>
                                     <div className="flex flex-col items-center w-full px-2">
-                                        <span className="w-full break-words text-center text-lg leading-tight md:text-xl">
+                                        <span className="w-full wrap-break-word text-center text-lg leading-tight md:text-xl">
                                             {level}
                                         </span>
                                     </div>

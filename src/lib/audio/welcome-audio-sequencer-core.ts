@@ -10,6 +10,7 @@ import {
   getPrimaryWelcomeAudioKey,
   type AudioAssetMetadata,
   type WelcomeAudioConfig,
+  type WelcomePlaybackDiagnostic,
 } from "./welcome-audio-types";
 import { loadAudioWithDuration } from "./welcome-audio-utils";
 
@@ -62,6 +63,17 @@ export class WelcomeAudioSequencer {
       });
   }
 
+  private dedupeByCategory(assets: AudioAssetMetadata[]): AudioAssetMetadata[] {
+    const seenCategories = new Set<AudioAssetMetadata["category"]>();
+    return assets.filter((asset) => {
+      if (seenCategories.has(asset.category)) {
+        return false;
+      }
+      seenCategories.add(asset.category);
+      return true;
+    });
+  }
+
   private filterByLanguage(
     assets: AudioAssetMetadata[],
     language?: WelcomeAudioConfig["language"],
@@ -106,6 +118,8 @@ export class WelcomeAudioSequencer {
       );
     }
 
+    assets = this.dedupeByCategory(assets);
+
     assets = this.sortByDuration(assets, fullConfig.durationSortOrder);
 
     const primaryKey = getPrimaryWelcomeAudioKey(filtered.language ?? "en");
@@ -133,6 +147,7 @@ export class WelcomeAudioSequencer {
       total: number,
       asset: AudioAssetMetadata,
     ) => void,
+    onDiagnostic?: (diagnostic: WelcomePlaybackDiagnostic) => void,
   ): Promise<void> {
     if (this.isPlaying) {
       if (import.meta.env.DEV) {
@@ -159,7 +174,7 @@ export class WelcomeAudioSequencer {
       currentProgress: this.currentProgress,
     };
 
-    await playAudioSequence(assets, config, state, onProgress);
+    await playAudioSequence(assets, config, state, onProgress, onDiagnostic);
 
     this.isPlaying = state.isPlaying;
   }

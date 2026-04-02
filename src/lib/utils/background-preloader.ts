@@ -7,16 +7,16 @@ import { useEffect, useState } from "react";
 
 // Map CSS class names to their background image URLs
 const BACKGROUND_IMAGE_MAP: Record<string, string> = {
-  "app-bg-mountain-sunrise": "/mountain-landscape.jpg",
-  "app-bg-ocean-sunset": "/ocean-view.jpg",
-  "app-bg-forest-path": "/meadow-flowers.jpg",
-  "app-bg-lavender-field": "/meadow-flowers.jpg", // Reuse similar image
-  "app-bg-aurora-night": "/starry-night.jpg",
-  "app-bg-nebula-galaxy": "/Gemini_Generated_Image_895eeq895eeq895e.png",
-  "app-bg-tropical-waterfall": "/meadow-flowers.jpg", // Placeholder
-  "app-bg-colorful-buildings": "/welcome-sangsom.png", // Placeholder
-  "app-bg-cherry-blossom": "/meadow-flowers.jpg", // Placeholder
-  "app-bg-starry-art": "/starry-night.jpg", // Reuse
+  "app-bg-mountain-sunrise": "/backgrounds/mountain-sunrise.jpg",
+  "app-bg-ocean-sunset": "/backgrounds/ocean-sunset.jpg",
+  "app-bg-forest-path": "/backgrounds/forest-path.jpg",
+  "app-bg-lavender-field": "/backgrounds/lavender-field.jpg",
+  "app-bg-aurora-night": "/backgrounds/aurora-night.jpg",
+  "app-bg-nebula-galaxy": "/backgrounds/nebula-galaxy.jpg",
+  "app-bg-tropical-waterfall": "/backgrounds/tropical-waterfall.jpg",
+  "app-bg-colorful-buildings": "/backgrounds/colorful-buildings.jpg",
+  "app-bg-cherry-blossom": "/backgrounds/cherry-blossom.jpg",
+  "app-bg-starry-art": "/backgrounds/starry-art.jpg",
 };
 
 // Cache for loaded images
@@ -54,6 +54,7 @@ function preloadBackgroundImage(className: string): Promise<void> {
 export async function preloadBackgroundImages(
   classNames: string[],
   concurrency = 2,
+  shouldContinue: () => boolean = () => true,
 ): Promise<void> {
   const toLoad = classNames.filter((name) => !loadedImages.has(name));
 
@@ -61,6 +62,10 @@ export async function preloadBackgroundImages(
 
   // Load in batches to avoid overwhelming the network
   for (let i = 0; i < toLoad.length; i += concurrency) {
+    if (!shouldContinue()) {
+      return;
+    }
+
     const batch = toLoad.slice(i, i + concurrency);
     await Promise.allSettled(batch.map(preloadBackgroundImage));
   }
@@ -74,20 +79,30 @@ export function useLazyBackgroundPreloader(enabled = true) {
 
   useEffect(() => {
     if (!enabled) return;
+    let cancelled = false;
 
     // Defer non-visible backgrounds until the menu is already interactive.
     // The active background is loaded by CSS when rendered, so preloading can wait.
     const timer = window.setTimeout(() => {
       setIsPreloading(true);
 
-      preloadBackgroundImages(Object.keys(BACKGROUND_IMAGE_MAP), 1)
+      preloadBackgroundImages(
+        Object.keys(BACKGROUND_IMAGE_MAP),
+        1,
+        () => !cancelled,
+      )
         .catch(console.warn)
         .finally(() => {
+          if (cancelled) return;
           setIsPreloading(false);
         });
     }, 5000);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      setIsPreloading(false);
+    };
   }, [enabled]);
 
   return { isPreloading };

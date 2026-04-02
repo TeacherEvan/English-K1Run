@@ -54,7 +54,6 @@ function App() {
   );
   const [debugVisible, setDebugVisible] = useState(false);
 
-  useLazyBackgroundPreloader(startupStep === "menu");
   useAppBootSignal();
   useWebVitalsMonitor();
   useRenderMeasurement();
@@ -78,6 +77,10 @@ function App() {
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode,
   });
+
+  useLazyBackgroundPreloader(
+    startupStep === "menu" && !isLoading && !gameState.gameStarted,
+  );
 
   useFullscreenGuard(gameState.gameStarted, isE2E);
   useDebugToggle(setDebugVisible);

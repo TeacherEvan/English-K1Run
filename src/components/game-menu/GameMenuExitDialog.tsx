@@ -33,7 +33,9 @@ export const GameMenuExitDialog = memo(
             onResetGame?.();
             try {
                 window.close();
-            } catch { }
+            } catch (error) {
+                console.error("[GameMenuExitDialog] Failed to close window", error);
+            }
         };
 
         return (

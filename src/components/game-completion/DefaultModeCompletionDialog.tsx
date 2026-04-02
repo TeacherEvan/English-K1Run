@@ -1,5 +1,6 @@
 import { type CSSProperties, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../../context/settings-context";
 import { announceToScreenReader } from "../../lib/accessibility-utils";
 import { Button } from "../ui/button";
 import {
@@ -58,11 +59,14 @@ export function DefaultModeCompletionDialog({
   isVisible,
 }: DefaultModeCompletionDialogProps) {
   const { t } = useTranslation();
+  const { gameplayLanguage } = useSettings();
   const [dismissed, setDismissed] = useState(false);
 
   const open = isVisible && !dismissed;
   const dismissDialog = () => setDismissed(true);
-  const completionAnnouncement = t("accessibility.completionDialogAnnouncement");
+  const completionAnnouncement = t("accessibility.completionDialogAnnouncement", {
+    lng: gameplayLanguage,
+  });
 
   useEffect(() => {
     if (!open) {
@@ -138,19 +142,19 @@ export function DefaultModeCompletionDialog({
               style={BADGE_STYLE}
             >
               <span aria-hidden="true">✦</span>
-              <span>{t("messages.victoryTitle")}</span>
+              <span>{t("messages.victoryTitle", { lng: gameplayLanguage })}</span>
             </div>
             <DialogTitle
               className="max-w-[10ch] text-balance text-[clamp(2rem,4.5vw,3rem)] font-black leading-[0.95] tracking-[-0.05em]"
               style={TITLE_STYLE}
             >
-              {t("messages.completionTitle")}
+              {t("messages.completionTitle", { lng: gameplayLanguage })}
             </DialogTitle>
             <DialogDescription
               className="max-w-[26ch] text-pretty text-[clamp(1rem,2vw,1.15rem)] leading-relaxed"
               style={DESCRIPTION_STYLE}
             >
-              {t("messages.completionDescription")}
+              {t("messages.completionDescription", { lng: gameplayLanguage })}
             </DialogDescription>
           </DialogHeader>
 
@@ -163,7 +167,7 @@ export function DefaultModeCompletionDialog({
               onClick={dismissDialog}
               autoFocus
             >
-              {t("messages.completionButton")}
+              {t("messages.completionButton", { lng: gameplayLanguage })}
             </Button>
           </DialogFooter>
         </div>

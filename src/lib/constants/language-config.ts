@@ -53,9 +53,9 @@ export const LANGUAGE_CONFIGS: Record<SupportedLanguage, LanguageConfig> = {
     code: "th",
     name: "Thai",
     nativeName: "ไทย",
-    elevenLabsVoiceId: "onwK4e9ZLuTAKqWW03F9", // Daniel - softer, warmer voice
+    elevenLabsVoiceId: "", // Live Thai ElevenLabs TTS stays disabled until a verified Thai-capable voice is configured
     languageCode: "th",
-    voiceName: "Thai",
+    voiceName: "Thai (pending verified ElevenLabs voice)",
     fallbackLocale: "th-TH",
     direction: "ltr",
     fontFamily: "Noto Sans Thai, sans-serif",
@@ -91,7 +91,7 @@ export const LANGUAGE_OPTIONS = Object.values(LANGUAGE_CONFIGS).map(
     value: config.code,
     label: config.name,
     nativeLabel: config.nativeName,
-  })
+  }),
 );
 
 /**

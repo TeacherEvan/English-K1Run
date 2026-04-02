@@ -1,13 +1,13 @@
 {
-  "name": "Kindergarten Race - Educational Game",
-  "short_name": "K-Race",
-  "description": "An engaging educational racing game where students compete by identifying falling objects. Perfect for kindergarten students to learn pattern recognition while having fun!",
+  "name": "English K1 Run",
+  "short_name": "English K1 Run",
+  "description": "A teacher-launched, child-played classroom vocabulary game for kindergarten learners to build listening, recognition, and confidence through quick touch-friendly rounds.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "landscape",
-  "theme_color": "#6366f1",
-  "background_color": "#ffffff",
+  "theme_color": "#fff8ed",
+  "background_color": "#fff8ed",
   "categories": ["education", "games", "kids"],
   "lang": "en-US",
   "dir": "ltr",
@@ -23,7 +23,7 @@
     {
       "name": "Start Game",
       "short_name": "Play",
-      "description": "Jump straight into the game",
+      "description": "Jump straight into English K1 Run",
       "url": "/?action=play",
       "icons": []
     }

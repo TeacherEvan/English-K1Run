@@ -23,8 +23,12 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
   const categoryKey = getCategoryTranslationKey(category.name)
-  const categoryLabel = categoryKey ? t(`categories.${categoryKey}`) : category.name
+  const categoryLabel = categoryKey
+    ? t(`categories.${categoryKey}`, { lng: gameplayLanguage })
+    : category.name
   const targetLabel = getTargetDisplayLabel(currentTarget, gameplayLanguage, category.name)
+  const findLabel = t('game.find', { lng: gameplayLanguage })
+  const inOrderLabel = t('game.inOrder', { lng: gameplayLanguage })
   // Determine if multiplier is active (greater than 1)
   const hasActiveMultiplier = multiplier && multiplier > 1
 
@@ -100,7 +104,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               textShadow: '0 1px 2px rgba(255,255,255,0.8)',
               letterSpacing: '0.01em'
             }}>
-            {t('game.find')}: {targetLabel}
+            {findLabel}: {targetLabel}
           </div>
         </div>
 
@@ -112,7 +116,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               fontWeight: '600',
               marginTop: '0.2rem'
             }}>
-            📝 {t('game.inOrder')}
+            📝 {inOrderLabel}
           </div>
         )}
 

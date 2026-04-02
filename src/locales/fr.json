@@ -6,7 +6,9 @@
     "levelSelect": "Choix du niveau",
     "selectLevel": "Sélectionner un niveau",
     "back": "Retour",
+    "backToLevels": "Retour aux niveaux",
     "bestTime": "Meilleur temps",
+    "currentTime": "Temps actuel",
     "continuousMode": "Mode continu",
     "find": "Trouve",
     "inOrder": "Dans l'ordre",
@@ -68,6 +70,7 @@
     "readyPrompt": "Touchez une fois pour commencer",
     "listening": "Lecture en cours...",
     "listeningHint": "Veuillez attendre la fin de l'audio d'accueil",
+    "thaiVoiceUnavailable": "La voix d'accueil thaïe n'est pas disponible sur cet appareil, poursuite silencieuse.",
     "readyContinue": "Prêt à continuer",
     "transitioning": "Ouverture du menu..."
   },

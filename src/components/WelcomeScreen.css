@@ -1,10 +1,6 @@
-/* Welcome Screen Styles - Video Background */
-
-/* ===== VIDEO BACKGROUND ===== */
 .welcome-video {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -17,82 +13,132 @@
   clip-path: circle(0% at 50% 50%);
 }
 
-.welcome-image-overlay {
+.welcome-scrim {
   position: absolute;
-  bottom: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
+  inset: 0;
   pointer-events: none;
-  text-align: center;
+  z-index: 20;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.18) 0%,
+      rgba(15, 23, 42, 0.04) 34%,
+      rgba(15, 23, 42, 0.5) 100%
+    ),
+    radial-gradient(
+      circle at top,
+      rgba(253, 224, 71, 0.22),
+      rgba(255, 248, 237, 0) 46%
+    );
 }
 
-.welcome-language-panel {
+.welcome-language-shell,
+.welcome-status-panel {
   position: absolute;
-  top: 1.25rem;
   left: 50%;
   transform: translateX(-50%);
-  width: min(92vw, 28rem);
-  padding: 0.9rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 1rem;
-  background: rgba(15, 23, 42, 0.7);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(10px);
+  width: min(92vw, 32rem);
+  border: 1px solid rgba(253, 224, 71, 0.5);
+  border-radius: 1.75rem;
+  background: rgba(255, 248, 237, 0.92);
+  box-shadow: 0 20px 48px rgba(51, 65, 85, 0.2);
+  backdrop-filter: blur(14px);
   z-index: 35;
+}
+
+.welcome-language-shell {
+  top: max(1rem, env(safe-area-inset-top));
+  padding: 1rem 1rem 1.1rem;
   text-align: center;
 }
 
-.welcome-language-title {
+.welcome-status-panel {
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  padding: 1.1rem;
+  text-align: center;
+}
+
+.welcome-language-shell__pill,
+.welcome-status-panel__eyebrow {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: white;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #92400e;
 }
 
-.welcome-language-description {
-  margin: 0.35rem 0 0;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.8);
+.welcome-language-shell__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(254, 243, 199, 0.96);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
-.welcome-language-buttons {
+.welcome-language-shell__title,
+.welcome-status-panel__label {
+  margin: 0.7rem 0 0;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.welcome-language-shell__title {
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
+}
+
+.welcome-status-panel__label {
+  font-size: clamp(1.1rem, 2.7vw, 1.35rem);
+  line-height: 1.35;
+}
+
+.welcome-language-shell__description {
+  margin: 0.45rem auto 0;
+  max-width: 26rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(51, 65, 85, 0.88);
+}
+
+.welcome-language-picker {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
-  margin-top: 0.85rem;
+  margin-top: 1rem;
 }
 
 .welcome-language-button {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 0.9rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 1rem;
+  padding: 0.85rem 0.75rem;
+  background: rgba(255, 255, 255, 0.75);
+  color: #0f172a;
   cursor: pointer;
   transition:
     transform 180ms ease,
     background-color 180ms ease,
-    border-color 180ms ease;
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .welcome-language-button:hover,
 .welcome-language-button:focus-visible {
   outline: none;
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.28);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
 }
 
 .welcome-language-button:disabled {
   cursor: default;
-  opacity: 0.68;
+  opacity: 0.72;
 }
 
 .welcome-language-button--selected {
-  background: rgba(34, 197, 94, 0.24);
-  border-color: rgba(74, 222, 128, 0.7);
+  background: rgba(220, 252, 231, 0.95);
+  border-color: rgba(34, 197, 94, 0.52);
 }
 
 .welcome-language-button-label,
@@ -101,95 +147,22 @@
 }
 
 .welcome-language-button-label {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .welcome-language-button-native {
   margin-top: 0.2rem;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.welcome-image-overlay--pulse {
-  animation: image-pulse 2s ease-in-out infinite;
-}
-
-.welcome-image-overlay--steady {
-  animation: none;
-}
-
-.welcome-image-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  text-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 215, 0, 0.4);
-  letter-spacing: 0.04em;
-}
-
-.welcome-image-button {
-  border: 0;
-  border-radius: 9999px;
-  padding: 0.9rem 1.6rem;
-  background: rgba(15, 23, 42, 0.72);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(6px);
-  cursor: pointer;
-  pointer-events: auto;
-  transition:
-    transform 180ms ease,
-    background-color 180ms ease,
-    opacity 180ms ease;
-}
-
-.welcome-image-button:hover,
-.welcome-image-button:focus-visible {
-  outline: none;
-  transform: scale(1.03);
-  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.28);
-}
-
-.welcome-image-button:disabled {
-  cursor: default;
-  opacity: 0.92;
-}
-
-.welcome-image-button--playingNarration {
-  background: rgba(17, 24, 39, 0.82);
-}
-
-.welcome-image-button--readyToContinue {
-  background: rgba(22, 101, 52, 0.78);
-}
-
-.welcome-image-caption {
-  margin-top: 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-}
-
-.welcome-progress {
-  position: absolute;
-  bottom: 8rem;
-  left: 50%;
-  transform: translateX(-50%);
+  font-size: 0.82rem;
+  color: rgba(51, 65, 85, 0.72);
 }
 
 @media (orientation: landscape) {
-  .welcome-image-button {
-    padding: 0.8rem 1.4rem;
+  .welcome-language-shell {
+    width: min(30rem, 92vw);
   }
 
-  .welcome-language-panel {
-    top: 1rem;
-    width: min(34rem, 92vw);
-  }
-
-  .welcome-image-caption {
-    font-size: 0.95rem;
+  .welcome-status-panel {
+    width: min(28rem, 92vw);
   }
 }

@@ -5,8 +5,8 @@
  * single-word audio clips.
  */
 
-import { getSentenceTemplate } from "../constants/sentence-templates";
 import type { SupportedLanguage } from "../constants/language-config";
+import { getLocalizedSentenceTemplate } from "../constants/sentence-templates";
 import { speechSynthesizer } from "./speech-synthesizer";
 
 const MIN_WORD_COUNT = 2;
@@ -58,7 +58,15 @@ export const getTargetSentence = (
   targetName: string,
   language: SupportedLanguage,
 ): string => {
-  const template = getSentenceTemplate(targetName, language) || "";
+  const template = getLocalizedSentenceTemplate(targetName, language) || "";
+  if (!template && language !== "en") {
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[TargetAnnouncements] Missing ${language} sentence template for "${targetName}"; skipping English audio fallback.`,
+      );
+    }
+    return "";
+  }
   return ensureSentence(template, targetName);
 };
 

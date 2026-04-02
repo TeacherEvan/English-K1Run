@@ -8,6 +8,7 @@
     "back": "Back",
     "backToLevels": "Back to Levels",
     "bestTime": "Best Time",
+    "currentTime": "Current Time",
     "continuousMode": "Continuous Mode",
     "find": "Find",
     "inOrder": "In Order",
@@ -69,6 +70,7 @@
     "readyPrompt": "Tap once to begin",
     "listening": "Listening...",
     "listeningHint": "Please wait for the welcome audio",
+    "thaiVoiceUnavailable": "Thai welcome voice unavailable on this device, continuing silently.",
     "readyContinue": "Ready to continue",
     "transitioning": "Opening menu..."
   },

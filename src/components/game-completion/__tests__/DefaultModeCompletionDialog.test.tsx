@@ -7,11 +7,19 @@ const { announceToScreenReader } = vi.hoisted(() => ({
     announceToScreenReader: vi.fn(),
 }));
 
+vi.mock("../../../context/settings-context", () => ({
+    useSettings: () => ({
+        gameplayLanguage: "ja",
+        displayLanguage: "en",
+    }),
+}));
+
 vi.mock("react-i18next", () => ({
     useTranslation: () => ({
-        t: (key: string) =>
-            (
-                {
+        t: (key: string, options?: { lng?: string }) => {
+            const language = options?.lng ?? "en";
+            const translations: Record<string, Record<string, string>> = {
+                en: {
                     "messages.victoryTitle": "You Win!",
                     "messages.completionTitle": "Well done!",
                     "messages.completionDescription": "Try some of the other levels!",
@@ -19,8 +27,20 @@ vi.mock("react-i18next", () => ({
                     "accessibility.completionDialogAnnouncement":
                         "Well done! Try some of the other levels!",
                     "common.close": "Close",
-                } as Record<string, string>
-            )[key] ?? key,
+                },
+                ja: {
+                    "messages.victoryTitle": "きみの勝ち！",
+                    "messages.completionTitle": "よくできました！",
+                    "messages.completionDescription": "ほかのレベルもやってみましょう！",
+                    "messages.completionButton": "ほかのレベルへ",
+                    "accessibility.completionDialogAnnouncement":
+                        "よくできました！ほかのレベルもやってみましょう！",
+                    "common.close": "閉じる",
+                },
+            };
+
+            return translations[language]?.[key] ?? key;
+        },
     }),
 }));
 
@@ -62,11 +82,11 @@ describe("DefaultModeCompletionDialog", () => {
         expect(
             document.querySelector('[data-testid="default-completion-dialog"]'),
         ).not.toBeNull();
-        expect(document.body.textContent).toContain("You Win!");
-        expect(document.body.textContent).toContain("Well done!");
-        expect(document.body.textContent).toContain("Try other levels");
+        expect(document.body.textContent).toContain("きみの勝ち！");
+        expect(document.body.textContent).toContain("よくできました！");
+        expect(document.body.textContent).toContain("ほかのレベルへ");
         expect(announceToScreenReader).toHaveBeenCalledWith(
-            "Well done! Try some of the other levels!",
+            "よくできました！ほかのレベルもやってみましょう！",
             "assertive",
         );
     });

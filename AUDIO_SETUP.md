@@ -31,8 +31,14 @@ Then use this matrix:
 Use the current scripts from `package.json`:
 
 ```bash
+# Inspect the current account list for verified Thai voices
+npm run audio:list-voices:th
+
 # Welcome / intro assets
 npm run audio:generate-welcome
+
+# Thai-only welcome regeneration (overwrites existing Thai welcome assets)
+npm run audio:generate-welcome:th
 
 # Full sentence-audio pass
 npm run audio:generate
@@ -90,7 +96,9 @@ Missing `/sounds/*` files also return Web Speech fallback after the browser rece
 
 - Confirm `ELEVENLABS_API_KEY` is set in `.env`.
 - Run `npm run audio:list-voices` to verify the key.
+- Run `npm run audio:list-voices:th` to see whether this account currently has any Thai-verified voices.
 - Confirm the voice IDs in `.env` match the current language configuration.
+- `ELEVENLABS_VOICE_ID_TH` must be a verified Thai-capable voice. The legacy `onwK4e9ZLuTAKqWW03F9` value is British English (`Daniel`) and is intentionally rejected for Thai regeneration.
 
 ### Missing or mismatched audio files
 

@@ -1,3 +1,5 @@
+import { FRENCH_GAMEPLAY_COMPLETION_TEMPLATES } from "./fr-gameplay-completions";
+
 export const FRENCH_SENTENCE_TEMPLATES: Record<string, string> = {
   // Fruits & Vegetables
   apple: "Je mange une pomme rouge",
@@ -100,4 +102,5 @@ export const FRENCH_SENTENCE_TEMPLATES: Record<string, string> = {
   x: "X comme Xylophone",
   y: "Y comme Yaourt",
   z: "Z comme Zèbre",
+  ...FRENCH_GAMEPLAY_COMPLETION_TEMPLATES,
 };

@@ -6,6 +6,7 @@ import { PlayerArea } from "../../components/PlayerArea";
 import { Stopwatch } from "../../components/Stopwatch";
 import { TargetDisplay } from "../../components/TargetDisplay";
 import { Worm } from "../../components/Worm";
+import { useSettings } from "../../context/settings-context";
 import type {
     FairyTransformObject,
     GameCategory,
@@ -55,6 +56,7 @@ export const AppGameplayScene = ({
     onWormTap,
 }: AppGameplaySceneProps) => {
     const { t } = useTranslation();
+    const { gameplayLanguage } = useSettings();
     const isActive = gameState.gameStarted && !gameState.winner;
 
     return (
@@ -112,7 +114,7 @@ export const AppGameplayScene = ({
                                 padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`,
                             }}
                         >
-                            ← {t("game.backToLevels")}
+                            ← {t("game.backToLevels", { lng: gameplayLanguage })}
                         </button>
                     </div>
 

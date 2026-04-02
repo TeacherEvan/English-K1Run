@@ -1,8 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="16" fill="#3B82F6"/>
-    <circle cx="16" cy="12" r="4" fill="#FFF"/>
-    <path d="M12 18c0-2.2 1.8-4 4-4s4 1.8 4 4v6H12v-6z" fill="#FFF"/>
-    <circle cx="13" cy="11" r="1" fill="#3B82F6"/>
-    <circle cx="19" cy="11" r="1" fill="#3B82F6"/>
-    <path d="M14 13c0.5 0.5 1.5 0.5 2 0s1.5 0.5 2 0" stroke="#3B82F6" stroke-width="1" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" fill="none">
+    <title>English K1 Run icon</title>
+    <rect width="64" height="64" rx="20" fill="#FFF8ED"/>
+    <circle cx="49" cy="15" r="7" fill="#FACC15"/>
+    <path d="M6 47C13.5 37.5 23 33 34 33C45 33 53 37.5 58 47V64H6V47Z" fill="#C7E9A6"/>
+    <path d="M8 51C15 43.5 23.5 39.5 33.5 39.5C43 39.5 50.5 43 56 50.5V64H8V51Z" fill="#8FD19E"/>
+    <ellipse cx="31.5" cy="34.5" rx="15.5" ry="11.5" fill="#34D399"/>
+    <ellipse cx="31.5" cy="34.5" rx="10.5" ry="7.5" fill="#D9F99D"/>
+    <circle cx="47.5" cy="34.5" r="5.5" fill="#6EE7B7"/>
+    <circle cx="49.5" cy="33.5" r="0.95" fill="#1F2937"/>
+    <path d="M45.2 41.5C42.4 41.4 40.7 39.5 39.7 37.8" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="22.5" cy="48.5" rx="3" ry="2.5" fill="#34D399"/>
+    <ellipse cx="40.5" cy="48.5" rx="3" ry="2.5" fill="#34D399"/>
+    <ellipse cx="20.5" cy="22.5" rx="3" ry="2.5" fill="#34D399"/>
+    <ellipse cx="41.5" cy="22.5" rx="3" ry="2.5" fill="#34D399"/>
 </svg>

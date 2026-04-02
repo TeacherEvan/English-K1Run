@@ -44,7 +44,7 @@ export const GameMenuSettingsDialog = memo(
                     <Button
                         variant="outline"
                         size="lg"
-                        className="h-[4.75rem] justify-start gap-4 rounded-[1.5rem] border border-slate-200 bg-[#fbf6ea] px-6 text-lg font-semibold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.08)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.12)]"
+                        className="h-19 justify-start gap-4 rounded-3xl border border-slate-200 bg-[#fbf6ea] px-6 text-lg font-semibold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.08)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.12)]"
                         data-testid="settings-button"
                         role="button"
                     >
@@ -75,7 +75,10 @@ export const GameMenuSettingsDialog = memo(
                                 {t("settings.tabs.accessibility")}
                             </TabsTrigger>
                         </TabsList>
-                        <div className="mt-6 rounded-lg border border-border/80 bg-card/95 p-4 shadow-sm backdrop-blur-sm">
+                        <div
+                            data-testid="settings-surface-panel"
+                            className="mt-6 rounded-3xl border border-amber-200/70 bg-[rgba(255,250,240,0.94)] p-4 shadow-[0_18px_32px_rgba(71,85,105,0.1)] backdrop-blur-sm"
+                        >
                             <TabsContent value="audio">
                                 <AudioSettings />
                             </TabsContent>

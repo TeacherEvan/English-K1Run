@@ -6,6 +6,7 @@ import { runWelcomeAudioSequence } from "@/components/welcome/welcome-audio-runn
 import {
   DEFAULT_WELCOME_CONFIG,
   type WelcomeAudioConfig,
+  type WelcomePlaybackDiagnostic,
 } from "@/lib/audio/welcome-audio-sequencer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -19,6 +20,7 @@ export interface WelcomeAudioSequenceState {
   isSequencePlaying: boolean;
   currentAudioIndex: number;
   totalAudioCount: number;
+  lastDiagnostic: WelcomePlaybackDiagnostic | null;
   requestStart: () => void;
   markReadyToContinue: () => void;
 }
@@ -33,6 +35,8 @@ export const useWelcomeAudioSequence = ({
   const [isSequencePlaying, setIsSequencePlaying] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
   const [totalAudioCount, setTotalAudioCount] = useState(0);
+  const [lastDiagnostic, setLastDiagnostic] =
+    useState<WelcomePlaybackDiagnostic | null>(null);
   const readyRef = useRef(false);
   const sequenceFinishedRef = useRef(false);
   const audioStartedRef = useRef(false);
@@ -45,7 +49,7 @@ export const useWelcomeAudioSequence = ({
       durationSortOrder: "desc",
       filterActiveTargets: true,
       sequentialDelayMs: 500,
-      maxSequenceLength: 5,
+      maxSequenceLength: 2,
       ...audioConfig,
     }),
     [audioConfig],
@@ -89,6 +93,7 @@ export const useWelcomeAudioSequence = ({
         return;
       }
       audioStartedRef.current = true;
+      setLastDiagnostic(null);
 
       setIsSequencePlaying(true);
       safetyEndTimer = setTimeout(() => {
@@ -111,6 +116,10 @@ export const useWelcomeAudioSequence = ({
             setCurrentAudioIndex(current);
             setTotalAudioCount(total);
             logDev(`Playing ${current}/${total}: ${key} (${duration}s)`);
+          },
+          onDiagnostic: (diagnostic) => {
+            setLastDiagnostic(diagnostic);
+            logDev("Welcome playback diagnostic", diagnostic);
           },
           onDevLog: (message, data) => logDev(message, data),
         });
@@ -169,6 +178,7 @@ export const useWelcomeAudioSequence = ({
     isSequencePlaying,
     currentAudioIndex,
     totalAudioCount,
+    lastDiagnostic,
     requestStart,
     markReadyToContinue,
   };

@@ -6,7 +6,9 @@
     "levelSelect": "關卡選擇",
     "selectLevel": "選擇關卡",
     "back": "返回",
+    "backToLevels": "返回關卡選擇",
     "bestTime": "最佳時間",
+    "currentTime": "目前時間",
     "continuousMode": "連續模式",
     "find": "尋找",
     "inOrder": "按順序",
@@ -68,6 +70,7 @@
     "readyPrompt": "點一下即可開始",
     "listening": "播放中...",
     "listeningHint": "請等待歡迎音訊播放完畢",
+    "thaiVoiceUnavailable": "此裝置不支援泰語歡迎語音，將以靜音方式繼續。",
     "readyContinue": "可以繼續了",
     "transitioning": "正在開啟選單..."
   },

@@ -1,8 +1,10 @@
+import { WelcomeLanguageShell } from '@/components/welcome/WelcomeLanguageShell'
+import { WelcomeStatusPanel } from '@/components/welcome/WelcomeStatusPanel'
 import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
 import { isWelcomeInteractionLocked } from '@/components/welcome/welcome-phase'
-import { WelcomeLanguagePicker } from '@/components/welcome/WelcomeLanguagePicker'
 import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
+import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -30,6 +32,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     showFallbackImage,
     currentAudioIndex,
     totalAudioCount,
+    lastDiagnostic,
     handlePrimaryAction,
     handleVideoCanPlay,
     handleVideoEnded,
@@ -41,15 +44,26 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const interactionLocked = isWelcomeInteractionLocked(phase)
 
   const actionLabel = (() => {
-    if (phase === 'playingNarration') return t('welcome.listening', { defaultValue: 'Listening...' })
-    if (phase === 'readyToContinue') return t('menu.tapToContinue')
-    if (phase === 'transitioningToMenu') return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
+    if (phase === 'playingNarration') {
+      return t('welcome.listening', { defaultValue: 'Listening...' })
+    }
+
+    if (phase === 'readyToContinue') {
+      return t('menu.tapToContinue')
+    }
+
+    if (phase === 'transitioningToMenu') {
+      return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
+    }
+
     return t('menu.tapToStart')
   })()
 
   const statusLabel = (() => {
     if (phase === 'playingNarration') {
-      return t('welcome.listeningHint', { defaultValue: 'Please wait for the welcome audio' })
+      return t('welcome.listeningHint', {
+        defaultValue: 'Please wait for the welcome audio',
+      })
     }
 
     if (phase === 'readyToContinue') {
@@ -63,21 +77,27 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     return t('welcome.readyPrompt', { defaultValue: 'Tap once to begin' })
   })()
 
+  const diagnosticLabel =
+    lastDiagnostic?.type === 'thai-voice-unavailable'
+      ? t('welcome.thaiVoiceUnavailable', {
+          defaultValue:
+            'Thai welcome voice unavailable on this device, continuing silently.',
+        })
+      : null
+
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
-        }`}
+      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
       data-testid="welcome-screen"
       data-welcome-phase={phase}
       aria-busy={interactionLocked}
       style={{
         animation: fadeOut ? 'fadeOut 0.5s ease-out' : 'fadeIn 0.5s ease-in',
-        background: 'oklch(0.24 0.03 250)',
+        background: CLASSROOM_BRAND.palette.ink,
         zIndex: UI_LAYER_MATRIX.WELCOME_OVERLAY,
       }}
       onClick={handlePrimaryAction}
     >
-      {/* Video Background - Full Screen with autoplay */}
       <video
         className="welcome-video"
         src={videoSrc}
@@ -92,63 +112,30 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         data-testid="welcome-video"
       />
 
-      {/* Fallback static image if video fails to load */}
       {(!videoLoaded || showFallbackImage) && (
-        <>
-          <img
-            src={fallbackImageSrc}
-            alt={t('game.title')}
-            className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
-            style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_EFFECTS }}
-            data-testid="welcome-screen-fallback"
-            aria-hidden="true"
-          />
-        </>
+        <img
+          src={fallbackImageSrc}
+          alt={t('game.title')}
+          className={`absolute inset-0 h-full w-full object-cover pointer-events-none ${showFallbackImage ? 'welcome-fallback-pop' : ''}`}
+          style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_EFFECTS }}
+          data-testid="welcome-screen-fallback"
+          aria-hidden="true"
+        />
       )}
 
-      <WelcomeLanguagePicker disabled={phase !== 'readyToStart'} />
-
-      <div className={`welcome-image-overlay ${interactionLocked ? 'welcome-image-overlay--steady' : 'welcome-image-overlay--pulse'}`}>
-        <button
-          type="button"
-          className={`welcome-image-button welcome-image-button--${phase}`}
-          onClick={(event) => {
-            event.stopPropagation()
-            handlePrimaryAction()
-          }}
-          data-testid="welcome-primary-button"
-          aria-disabled={interactionLocked}
-          disabled={interactionLocked}
-        >
-          <span className="welcome-image-text" role="status" aria-live="polite">
-            {actionLabel}
-          </span>
-        </button>
-        <p className="welcome-image-caption" data-testid="welcome-status-label">
-          {statusLabel}
-        </p>
-      </div>
-
-      {/* Audio progress indicator (subtle) */}
-      {isSequencePlaying && totalAudioCount > 0 && (
-        <div
-          className="welcome-progress"
-          style={{ zIndex: UI_LAYER_MATRIX.HUD_SECONDARY }}
-        >
-          <div className="flex gap-2">
-            {Array.from({ length: totalAudioCount }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-2 h-2 rounded-full transition-colors duration-300 ${i < currentAudioIndex ? 'bg-green-400' :
-                  i === currentAudioIndex ? 'bg-yellow-400 animate-pulse' :
-                    'bg-white/30'
-                  }`}
-                data-testid={`audio-progress-${i}`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="welcome-scrim" aria-hidden="true" />
+      <WelcomeLanguageShell disabled={phase !== 'readyToStart'} />
+      <WelcomeStatusPanel
+        actionLabel={actionLabel}
+        statusLabel={statusLabel}
+        phase={phase}
+        interactionLocked={interactionLocked}
+        isSequencePlaying={isSequencePlaying}
+        currentAudioIndex={currentAudioIndex}
+        totalAudioCount={totalAudioCount}
+        diagnosticLabel={diagnosticLabel}
+        onPrimaryAction={handlePrimaryAction}
+      />
 
       <style>{`
         @keyframes fadeIn {
@@ -161,7 +148,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           to { opacity: 0; }
         }
       `}</style>
-    </div >
+    </div>
   )
 })
 

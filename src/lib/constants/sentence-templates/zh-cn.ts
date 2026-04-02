@@ -1,3 +1,5 @@
+import { MANDARIN_GAMEPLAY_COMPLETION_TEMPLATES } from "./zh-cn-gameplay-completions";
+
 export const MANDARIN_SENTENCE_TEMPLATES: Record<string, string> = {
   // Fruits & Vegetables
   apple: "我吃一个红苹果。",
@@ -61,4 +63,5 @@ export const MANDARIN_SENTENCE_TEMPLATES: Record<string, string> = {
   c: "C是猫的C。",
   d: "D是狗的D。",
   e: "E是大象的E。",
+  ...MANDARIN_GAMEPLAY_COMPLETION_TEMPLATES,
 };

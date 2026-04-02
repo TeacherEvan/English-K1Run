@@ -6,7 +6,9 @@
     "levelSelect": "レベル選択",
     "selectLevel": "レベルを選ぶ",
     "back": "戻る",
+    "backToLevels": "レベル一覧へ戻る",
     "bestTime": "ベストタイム",
+    "currentTime": "現在のタイム",
     "continuousMode": "連続モード",
     "find": "見つけよう",
     "inOrder": "順番どおり",
@@ -68,6 +70,7 @@
     "readyPrompt": "1回タップしてはじめる",
     "listening": "再生中...",
     "listeningHint": "ウェルカム音声が終わるまで待ってください",
+    "thaiVoiceUnavailable": "この端末ではタイ語のウェルカム音声が使えないため、無音で続行します。",
     "readyContinue": "つづけられます",
     "transitioning": "メニューをひらいています..."
   },

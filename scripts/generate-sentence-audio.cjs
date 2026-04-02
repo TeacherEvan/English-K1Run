@@ -238,7 +238,7 @@ async function main() {
       outputPath,
       voiceId,
       settings,
-      isThai ? undefined : "en",
+      isThai ? "th" : "en",
     );
     console.log(" ✓");
     await sleep(250);
@@ -259,7 +259,7 @@ async function main() {
       outputPath,
       voiceId,
       voiceSettingsSoft,
-      isThai ? undefined : "en",
+      isThai ? "th" : "en",
     );
     console.log(" ✓");
     await sleep(250);

@@ -1,5 +1,6 @@
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
+import { soundManager } from "../../lib/sound-manager";
 import { multiTouchHandler } from "../../lib/touch-handler";
 import { setupContinuousMode } from "./continuous-mode-initialization";
 import type { GameSessionDependencies } from "./game-session-types";
@@ -60,6 +61,10 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
 
       // Generate initial target and reset game objects
       const target = generateRandomTarget(safeLevel);
+      void soundManager.prefetchAudioKeys([target.name]);
+      void soundManager.prefetchAudioKeys(
+        currentCategory.items.map((item) => item.name),
+      );
       setGameObjects([]);
       setFairyTransforms([]);
       setScreenShake(false);
