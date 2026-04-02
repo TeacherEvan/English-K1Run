@@ -3,7 +3,11 @@
  * Respects accessibility preferences for animations
  */
 export const userPrefersReducedMotion = (): boolean => {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 };
 
 /**
@@ -11,7 +15,11 @@ export const userPrefersReducedMotion = (): boolean => {
  * Useful for optimizing resource loading
  */
 export const userPrefersReducedData = (): boolean => {
-  return window.matchMedia("(prefers-reduced-data: reduce)").matches;
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-data: reduce)").matches
+  );
 };
 
 /**
@@ -19,7 +27,11 @@ export const userPrefersReducedData = (): boolean => {
  * Respects system-level color scheme preference
  */
 export const userPrefersDarkMode = (): boolean => {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
 };
 
 /**
@@ -27,5 +39,9 @@ export const userPrefersDarkMode = (): boolean => {
  * Important for accessibility compliance
  */
 export const userPrefersHighContrast = (): boolean => {
-  return window.matchMedia("(prefers-contrast: high)").matches;
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-contrast: high)").matches
+  );
 };

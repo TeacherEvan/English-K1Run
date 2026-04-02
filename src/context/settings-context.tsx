@@ -3,6 +3,7 @@ import {
   isSupportedLanguage,
   type SupportedLanguage,
 } from '@/lib/constants/language-config'
+import { userPrefersReducedMotion } from '@/lib/accessibility/user-preferences'
 import { soundManager } from '@/lib/sound-manager'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
@@ -35,39 +36,41 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 const STORAGE_KEY = 'k1-settings'
 
+const buildDefaultSettings = (): SettingsState => ({
+  theme: 'colorful',
+  highContrast: false,
+  reducedMotion: userPrefersReducedMotion(),
+  resolutionScale: 'auto',
+  gameplayLanguage: DEFAULT_LANGUAGE,
+  displayLanguage: DEFAULT_LANGUAGE,
+  volume: 0.6,
+  soundEnabled: true,
+})
+
 const sanitizeLanguage = (value: unknown): SupportedLanguage =>
   typeof value === 'string' && isSupportedLanguage(value)
     ? value
     : DEFAULT_LANGUAGE
 
 const sanitizeStoredSettings = (value: unknown): SettingsState => {
+  const defaults = buildDefaultSettings()
+
   if (!value || typeof value !== 'object') {
-    return DEFAULT_SETTINGS
+    return defaults
   }
 
   const stored = value as Partial<SettingsState>
   return {
-    ...DEFAULT_SETTINGS,
+    ...defaults,
     ...stored,
     gameplayLanguage: sanitizeLanguage(stored.gameplayLanguage),
     displayLanguage: sanitizeLanguage(stored.displayLanguage),
   }
 }
 
-const DEFAULT_SETTINGS: SettingsState = {
-  theme: 'colorful',
-  highContrast: false,
-  reducedMotion: false,
-  resolutionScale: 'auto',
-  gameplayLanguage: DEFAULT_LANGUAGE,
-  displayLanguage: DEFAULT_LANGUAGE,
-  volume: 0.6,
-  soundEnabled: true,
-}
-
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<SettingsState>(() => {
-    if (typeof window === 'undefined') return DEFAULT_SETTINGS
+    if (typeof window === 'undefined') return buildDefaultSettings()
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       try {
@@ -76,7 +79,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         console.error('Failed to parse settings', e)
       }
     }
-    return DEFAULT_SETTINGS
+    return buildDefaultSettings()
   })
 
   useEffect(() => {

@@ -18,6 +18,13 @@ const localFilteredMatrix = !isCI && playwrightProjects.size > 0;
 const configuredWorkers = process.env.PLAYWRIGHT_WORKERS
   ? Number(process.env.PLAYWRIGHT_WORKERS)
   : undefined;
+const configuredRetries = process.env.PLAYWRIGHT_RETRIES
+  ? Number(process.env.PLAYWRIGHT_RETRIES)
+  : undefined;
+const localRetryProjects = new Set(["firefox", "webkit", "tablet", "mobile"]);
+const shouldUseLocalRetries =
+  !isCI &&
+  [...playwrightProjects].some((project) => localRetryProjects.has(project));
 const shouldIncludeProject = (name: string) => {
   if (playwrightProjects.size > 0 && !playwrightProjects.has(name))
     return false;
@@ -109,7 +116,7 @@ export default defineConfig({
   forbidOnly: isCI,
 
   // Retry failed tests on CI
-  retries: isCI ? 2 : 0,
+  retries: configuredRetries ?? (isCI ? 2 : shouldUseLocalRetries ? 1 : 0),
 
   // Workers - limit parallelism on CI
   workers:

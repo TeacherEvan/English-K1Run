@@ -3,7 +3,7 @@
  *
  * Tests verify that the game uses the correct audio playback methods:
  * - Target announcements use full sentences (playSoundEffect.voice)
- * - Single-word tap feedback has been removed per December 2025 requirements
+ * - Tap feedback uses non-verbal sound effects through the sound manager
  */
 
 vi.mock("react", async () => {
@@ -57,17 +57,18 @@ describe("Sound Manager Audio Call Behavior", () => {
     }).not.toThrow();
   });
 
-  it("should only export voice, welcome, stopAll, and targetMiss", () => {
+  it("should export the expected sound effect helpers", () => {
     // Verify that we only have the expected sound effects and control methods
     // voiceWordOnly was removed in December 2025 per issue requirements
     // welcome method added in December 2025 for welcome screen audio
     // targetMiss retained for game audio feedback
     const exportedMethods = Object.keys(playSoundEffect);
-    expect(exportedMethods).toHaveLength(4);
+    expect(exportedMethods).toHaveLength(5);
     expect(exportedMethods).toContain("voice");
     expect(exportedMethods).toContain("welcome");
     expect(exportedMethods).toContain("stopAll");
     expect(exportedMethods).toContain("targetMiss");
+    expect(exportedMethods).toContain("byName");
     expect(exportedMethods).not.toContain("voiceWordOnly");
     expect(exportedMethods).not.toContain("sticker");
   });
@@ -82,16 +83,16 @@ describe("Sound Manager Audio Call Behavior", () => {
   });
 
   describe("tap audio feedback helper", () => {
-    it("plays nothing when the tap is correct", () => {
+    it("plays the success sound when the tap is correct", () => {
       const spy = vi.spyOn(soundManager, "playSound");
       playTapAudioFeedback(true);
-      expect(spy).not.toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith("success", 1);
     });
 
-    it("plays nothing when the tap is incorrect", () => {
+    it("plays the wrong sound when the tap is incorrect", () => {
       const spy = vi.spyOn(soundManager, "playSound");
       playTapAudioFeedback(false);
-      expect(spy).not.toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith("wrong", 0.8);
     });
   });
 

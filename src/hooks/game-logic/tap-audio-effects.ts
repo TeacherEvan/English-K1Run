@@ -1,5 +1,11 @@
+import { playSoundEffect } from "../../lib/sound-manager";
+
 /**
- * Gameplay tap audio is intentionally disabled.
- * Only target-description announcements should speak during gameplay.
+ * Plays non-verbal feedback for object taps.
  */
-export const playTapAudioFeedback = (_isCorrect: boolean): void => undefined;
+export const playTapAudioFeedback = (isCorrect: boolean): void => {
+  const soundName = isCorrect ? "success" : "wrong";
+  const playbackRate = isCorrect ? 1 : 0.8;
+
+  void playSoundEffect.byName(soundName, playbackRate);
+};

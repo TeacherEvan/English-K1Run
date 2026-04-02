@@ -1,5 +1,7 @@
 import type { Page } from "@playwright/test";
 
+import { scaleTimeout, waitForBrowserDelay } from "../fixtures/game.fixture";
+
 export async function navigateWithRetry(
   page: Page,
   url: string,
@@ -14,7 +16,7 @@ export async function navigateWithRetry(
       );
       await page.goto(url, {
         waitUntil: "domcontentloaded",
-        timeout: 30000,
+        timeout: scaleTimeout(page, 30_000),
       });
       console.log(`[Screenshots] Navigation successful on attempt ${attempt}`);
       return;
@@ -28,7 +30,7 @@ export async function navigateWithRetry(
       if (attempt < maxRetries) {
         const delay = attempt * 2000;
         console.log(`[Screenshots] Retrying in ${delay}ms...`);
-        await page.waitForTimeout(delay);
+        await waitForBrowserDelay(page, delay);
       }
     }
   }
