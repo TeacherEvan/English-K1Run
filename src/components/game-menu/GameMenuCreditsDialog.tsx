@@ -19,13 +19,13 @@ export const GameMenuCreditsDialog = memo(() => {
                 <Button
                     variant="link"
                     size="sm"
-                    className="mt-1 h-auto self-start p-0 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                    className="menu-support-link mt-1 h-auto self-start p-0 text-sm font-semibold text-slate-600 hover:text-slate-900"
                     data-testid="credits-button"
                 >
                     {t("menu.credits.title")}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="menu-compact-dialog sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle className="text-2xl flex items-center gap-2">
                         <InfoIcon className="w-6 h-6" />

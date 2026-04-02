@@ -133,10 +133,12 @@ export const useWelcomeSequence = ({
 
   const handleVideoCanPlay = useCallback(() => setVideoLoaded(true), []);
   const handleVideoEnded = useCallback(() => {
-    setShowFallbackImage(true);
     markReadyToContinue();
   }, [markReadyToContinue]);
-  const handleVideoError = useCallback(() => setVideoLoaded(false), []);
+  const handleVideoError = useCallback(() => {
+    setVideoLoaded(false);
+    setShowFallbackImage(true);
+  }, []);
 
   return {
     fadeOut,

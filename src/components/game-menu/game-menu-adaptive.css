@@ -1,0 +1,214 @@
+.menu-home-panel,
+.level-select-panel {
+  container-type: inline-size;
+}
+
+.menu-settings-dialog,
+.menu-compact-dialog {
+  max-height: calc(100dvh - 1.5rem);
+  overflow-y: auto;
+}
+
+.menu-settings-tabs-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  height: auto;
+  gap: 0.45rem;
+  padding: 0.4rem;
+}
+
+.menu-settings-tab {
+  min-height: 2.9rem;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+}
+
+@container (max-width: 50rem) {
+  .menu-home-panel {
+    padding: clamp(1rem, 3.5cqw, 1.5rem);
+  }
+
+  .menu-home-layout {
+    gap: clamp(1rem, 3.5cqw, 1.5rem);
+  }
+
+  .menu-home-actions {
+    max-width: 100%;
+  }
+}
+
+@container (max-width: 42rem) {
+  .level-select-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 26rem) {
+  .level-select-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-height: 44rem) {
+  .menu-home-panel {
+    padding: clamp(0.9rem, 2vh, 1.3rem);
+  }
+
+  .menu-home-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem);
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .menu-home-hero {
+    gap: 0.8rem;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+  }
+
+  .menu-home-mascot {
+    font-size: clamp(3rem, 10vh, 4.6rem);
+  }
+
+  .menu-home-heading {
+    font-size: clamp(2.05rem, 6.5vh, 3rem);
+  }
+
+  .menu-home-instructions {
+    max-width: 20rem;
+    font-size: clamp(0.95rem, 2.2vh, 1.05rem);
+  }
+
+  .menu-best-time-card {
+    margin-top: 0.25rem;
+    max-width: 100%;
+    padding: 0.95rem 1rem;
+  }
+
+  .menu-home-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+    align-content: start;
+  }
+
+  .menu-home-actions > :first-child,
+  .menu-home-actions .menu-support-link {
+    grid-column: 1 / -1;
+  }
+
+  .menu-home-actions .menu-support-link {
+    justify-self: start;
+  }
+
+  .menu-primary-action {
+    min-height: 4.3rem;
+  }
+
+  .menu-secondary-action,
+  .menu-tertiary-action,
+  .menu-support-action {
+    min-height: 3.65rem;
+  }
+
+  .menu-action-copy {
+    gap: 0.1rem;
+  }
+
+  .menu-action-copy > span:first-child {
+    font-size: 1rem;
+  }
+
+  .menu-action-copy > span:last-child {
+    font-size: 0.76rem;
+  }
+
+  .level-select-panel {
+    height: min(94vh, 31rem);
+    border-radius: 1.75rem;
+  }
+
+  .level-select-header,
+  .level-select-footer,
+  .level-select-scroll {
+    padding: 0.9rem 1rem;
+  }
+
+  .level-select-heading-chip {
+    margin-bottom: 0.4rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .level-select-title {
+    font-size: clamp(1.5rem, 5vh, 2.25rem);
+  }
+
+  .level-select-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .level-select-tile {
+    height: auto;
+    min-height: 6.8rem;
+    gap: 0.45rem;
+    padding: 0.8rem 0.65rem;
+  }
+
+  .level-select-emoji {
+    margin-bottom: 0;
+    font-size: clamp(2rem, 6vh, 3rem);
+  }
+
+  .level-select-label {
+    font-size: clamp(0.95rem, 2.4vh, 1.1rem);
+  }
+
+  .level-select-start {
+    height: 4rem;
+    min-height: 4rem;
+  }
+
+  .menu-settings-dialog,
+  .menu-compact-dialog {
+    inset: 0.75rem 1rem auto !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+    max-width: none !important;
+    transform: none !important;
+    max-height: calc(100dvh - 1.5rem);
+    padding: 1rem;
+  }
+
+  .menu-settings-surface {
+    margin-top: 0.9rem;
+    max-height: min(54vh, 22rem);
+    overflow-y: auto;
+  }
+}
+
+@media (max-height: 28rem) {
+  .menu-home-panel {
+    border-radius: 1.6rem;
+  }
+
+  .menu-home-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(11.5rem, 15rem);
+  }
+
+  .menu-home-brand-pill {
+    padding: 0.35rem 0.65rem;
+  }
+
+  .menu-home-copy {
+    gap: 0.5rem;
+  }
+
+  .level-select-back {
+    padding-inline: 0.75rem;
+    font-size: 1rem;
+  }
+}

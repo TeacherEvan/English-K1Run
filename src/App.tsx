@@ -57,7 +57,6 @@ function App() {
   useAppBootSignal();
   useWebVitalsMonitor();
   useRenderMeasurement();
-  usePreloadResources();
 
   const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
@@ -77,6 +76,8 @@ function App() {
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode,
   });
+
+  usePreloadResources(startupStep === "menu" && !isLoading);
 
   useLazyBackgroundPreloader(
     startupStep === "menu" && !isLoading && !gameState.gameStarted,

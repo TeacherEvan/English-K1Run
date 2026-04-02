@@ -6,7 +6,7 @@ import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
-import { memo, useMemo } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.css'
 import './WelcomeScreen.motion.css'
@@ -20,6 +20,7 @@ interface WelcomeScreenProps {
 export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
+  const videoRef = useRef<HTMLVideoElement>(null)
   const welcomeAudioConfig = useMemo(
     () => ({ ...audioConfig, language: gameplayLanguage }),
     [audioConfig, gameplayLanguage],
@@ -28,7 +29,6 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     fadeOut,
     phase,
     isSequencePlaying,
-    videoLoaded,
     showFallbackImage,
     currentAudioIndex,
     totalAudioCount,
@@ -42,6 +42,22 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const videoSrc = '/New_welcome_video.mp4'
   const fallbackImageSrc = '/welcome-sangsom.png'
   const interactionLocked = isWelcomeInteractionLocked(phase)
+  const shouldLoadVideo = isSequencePlaying || showFallbackImage
+
+  useEffect(() => {
+    if (!shouldLoadVideo) {
+      return
+    }
+
+    const video = videoRef.current
+    if (!video || !video.paused) {
+      return
+    }
+
+    void video.play().catch(() => {
+      // Ignore autoplay interruptions; the welcome flow remains usable.
+    })
+  }, [shouldLoadVideo])
 
   const actionLabel = (() => {
     if (phase === 'playingNarration') {
@@ -80,9 +96,9 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const diagnosticLabel =
     lastDiagnostic?.type === 'thai-voice-unavailable'
       ? t('welcome.thaiVoiceUnavailable', {
-          defaultValue:
-            'Thai welcome voice unavailable on this device, continuing silently.',
-        })
+        defaultValue:
+          'Thai welcome voice unavailable on this device, continuing silently.',
+      })
       : null
 
   return (
@@ -98,21 +114,23 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       }}
       onClick={handlePrimaryAction}
     >
+      <div className="welcome-stage" aria-hidden="true" />
+
       <video
+        ref={videoRef}
         className="welcome-video"
-        src={videoSrc}
-        autoPlay
+        src={shouldLoadVideo ? videoSrc : undefined}
+        autoPlay={shouldLoadVideo}
         muted
         playsInline
-        preload="metadata"
+        preload={shouldLoadVideo ? 'metadata' : 'none'}
         onCanPlay={handleVideoCanPlay}
         onEnded={handleVideoEnded}
         onError={handleVideoError}
-        poster={fallbackImageSrc}
         data-testid="welcome-video"
       />
 
-      {(!videoLoaded || showFallbackImage) && (
+      {showFallbackImage && (
         <img
           src={fallbackImageSrc}
           alt={t('game.title')}
@@ -124,18 +142,20 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       )}
 
       <div className="welcome-scrim" aria-hidden="true" />
-      <WelcomeLanguageShell disabled={phase !== 'readyToStart'} />
-      <WelcomeStatusPanel
-        actionLabel={actionLabel}
-        statusLabel={statusLabel}
-        phase={phase}
-        interactionLocked={interactionLocked}
-        isSequencePlaying={isSequencePlaying}
-        currentAudioIndex={currentAudioIndex}
-        totalAudioCount={totalAudioCount}
-        diagnosticLabel={diagnosticLabel}
-        onPrimaryAction={handlePrimaryAction}
-      />
+      <div className="welcome-panels">
+        <WelcomeLanguageShell disabled={phase !== 'readyToStart'} />
+        <WelcomeStatusPanel
+          actionLabel={actionLabel}
+          statusLabel={statusLabel}
+          phase={phase}
+          interactionLocked={interactionLocked}
+          isSequencePlaying={isSequencePlaying}
+          currentAudioIndex={currentAudioIndex}
+          totalAudioCount={totalAudioCount}
+          diagnosticLabel={diagnosticLabel}
+          onPrimaryAction={handlePrimaryAction}
+        />
+      </div>
 
       <style>{`
         @keyframes fadeIn {

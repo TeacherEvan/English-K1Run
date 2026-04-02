@@ -4,6 +4,8 @@ import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import { formatBestTime } from "../lib/utils";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
+import "./game-menu/game-menu-adaptive.css";
+import "./game-menu/game-menu-storybook.css";
 import { GameMenuHome } from "./game-menu/GameMenuHome";
 import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
 
