@@ -3,7 +3,8 @@
  * Lazily loads background images to improve LCP and reduce initial bundle size.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { isLimitedBandwidth } from "../resource-preloader/bandwidth-detection";
 
 // Map CSS class names to their background image URLs
 const BACKGROUND_IMAGE_MAP: Record<string, string> = {
@@ -21,6 +22,7 @@ const BACKGROUND_IMAGE_MAP: Record<string, string> = {
 
 // Cache for loaded images
 const loadedImages = new Set<string>();
+const BACKGROUND_PRELOAD_DELAY_MS = 8000;
 
 /**
  * Preload a background image
@@ -75,37 +77,54 @@ export async function preloadBackgroundImages(
  * Hook to lazily preload background images when they become likely to be used
  */
 export function useLazyBackgroundPreloader(enabled = true) {
-  const [isPreloading, setIsPreloading] = useState(false);
-
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || isLimitedBandwidth()) return;
+
     let cancelled = false;
+    let idleId: number | null = null;
 
-    // Defer non-visible backgrounds until the menu is already interactive.
-    // The active background is loaded by CSS when rendered, so preloading can wait.
-    const timer = window.setTimeout(() => {
-      setIsPreloading(true);
+    const startPreload = () => {
+      if (cancelled || document.visibilityState === "hidden") {
+        return;
+      }
 
-      preloadBackgroundImages(
+      void preloadBackgroundImages(
         Object.keys(BACKGROUND_IMAGE_MAP),
         1,
         () => !cancelled,
       )
         .catch(console.warn)
         .finally(() => {
-          if (cancelled) return;
-          setIsPreloading(false);
+          idleId = null;
         });
-    }, 5000);
+    };
+
+    const queuePreload = () => {
+      if (cancelled) {
+        return;
+      }
+
+      if ("requestIdleCallback" in window) {
+        idleId = window.requestIdleCallback(startPreload, {
+          timeout: 2500,
+        });
+        return;
+      }
+
+      startPreload();
+    };
+
+    // Wait until the menu has been stable for a while before warming decorative images.
+    const timer = window.setTimeout(queuePreload, BACKGROUND_PRELOAD_DELAY_MS);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
-      setIsPreloading(false);
+      if (idleId !== null && "cancelIdleCallback" in window) {
+        window.cancelIdleCallback(idleId);
+      }
     };
   }, [enabled]);
-
-  return { isPreloading };
 }
 
 /**
