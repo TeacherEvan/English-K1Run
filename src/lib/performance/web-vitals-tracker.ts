@@ -1,9 +1,5 @@
 import { generateUniqueIdentifier } from "../semantic-utils";
-import type {
-  LayoutShift,
-  PerformanceEventTiming,
-  WebVitalMetric,
-} from "./types";
+import type { WebVitalMetric } from "./types";
 
 /**
  * Track Core Web Vitals metrics
@@ -17,6 +13,17 @@ export const trackWebVitals = (
   // This is a simplified implementation for demonstration
 
   if (typeof PerformanceObserver === "undefined") return;
+
+  const reportMetric = (metric: Metric) => {
+    onMetric({
+      name: metric.name,
+      value: metric.value,
+      id: metric.id,
+      rating: metric.rating,
+      delta: metric.delta,
+      navigationType: metric.navigationType,
+    });
+  };
 
   const supportedEntryTypes = Array.isArray(
     PerformanceObserver.supportedEntryTypes,

@@ -42,6 +42,7 @@
     "test:e2e:allure": "allure generate allure-results --clean && allure open",
     "vercel:build": "npx vercel build",
     "vercel:deploy": "npx vercel deploy --prebuilt",
+    "verify:welcome-assets": "node scripts/check-welcome-build-assets.cjs",
     "dashboard:server": "node dashboard-server.js",
     "dashboard:ui": "cd dashboard-ui && npm start",
     "dashboard": "concurrently \"npm run dashboard:server\" \"npm run dashboard:ui\""

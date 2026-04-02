@@ -6,12 +6,14 @@ import { trackWebVitals } from "../lib/performance-monitor-utils";
  */
 export const useWebVitalsMonitor = () => {
   useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return
+    }
+
     trackWebVitals((metric) => {
-      if (import.meta.env.DEV) {
-        console.log(
-          `[Web Vitals] ${metric.name}: ${metric.value.toFixed(2)}ms (${metric.rating})`,
-        );
-      }
+      console.log(
+        `[Web Vitals] ${metric.name}: ${metric.value.toFixed(2)}ms (${metric.rating})`,
+      );
     });
   }, []);
 };
