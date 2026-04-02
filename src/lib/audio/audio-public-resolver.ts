@@ -1,13 +1,54 @@
 /**
  * Public audio resolver utilities.
  *
- * Optimized for static hosting (Vercel) - returns best-effort URL
- * without checking existence to avoid 404 spam. Browser handles
- * missing files naturally via its own 404 handling.
+ * Optimized for static hosting (Vercel) - resolves only public assets
+ * that actually exist, while supporting both underscored keys and
+ * repo filenames that still contain spaces.
  */
 
 /** Cache for resolved URLs */
 const publicUrlCache = new Map<string, string | null>();
+const publicUrlExistsCache = new Map<string, boolean>();
+
+const buildFileNameCandidates = (key: string): string[] => {
+  const trimmed = key.trim().toLowerCase();
+  if (!trimmed) return [];
+
+  const variants = new Set<string>([trimmed]);
+
+  if (trimmed.includes("_")) {
+    variants.add(trimmed.replace(/_/g, " "));
+    variants.add(trimmed.replace(/_/g, ""));
+  }
+
+  if (trimmed.includes(" ")) {
+    variants.add(trimmed.replace(/\s+/g, "_"));
+    variants.add(trimmed.replace(/\s+/g, ""));
+  }
+
+  if (trimmed.startsWith("emoji_")) {
+    const phrase = trimmed.slice(6);
+    variants.add(`emoji_${phrase.replace(/_/g, " ")}`);
+  }
+
+  return Array.from(variants);
+};
+
+const canLoadPublicUrl = async (url: string): Promise<boolean> => {
+  if (publicUrlExistsCache.has(url)) {
+    return publicUrlExistsCache.get(url) ?? false;
+  }
+
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    const exists = response.ok;
+    publicUrlExistsCache.set(url, exists);
+    return exists;
+  } catch {
+    publicUrlExistsCache.set(url, false);
+    return false;
+  }
+};
 
 /**
  * Get preferred format order based on what's in public/sounds/
@@ -40,8 +81,9 @@ export function getPreferredFormatOrder(): string[] {
 }
 
 /**
- * Resolve public audio URL without checking existence.
- * Returns first preferred format URL and lets browser handle 404s.
+ * Resolve public audio URL using existing static files only.
+ * Tries known filename variants to support both underscored keys and
+ * repo-side files that still use spaces in the public path.
  */
 export async function resolvePublicAudioUrl(
   key: string,
@@ -67,11 +109,29 @@ export async function resolvePublicAudioUrl(
     return null;
   }
 
-  // Return first preferred format - browser will 404 if missing
-  const url = `/sounds/${key}.${preferredFormats[0]}`;
-  if (import.meta.env.DEV) {
-    console.log(`[PublicResolver] Resolved "${key}" → ${url}`);
+  const fileNameCandidates = buildFileNameCandidates(key);
+
+  for (const fileName of fileNameCandidates) {
+    for (const format of preferredFormats) {
+      const url = `/sounds/${fileName}.${format}`;
+      if (await canLoadPublicUrl(url)) {
+        if (import.meta.env.DEV) {
+          console.log(`[PublicResolver] Resolved "${key}" → ${url}`);
+        }
+        publicUrlCache.set(key, url);
+        return url;
+      }
+    }
   }
-  publicUrlCache.set(key, url);
-  return url;
+
+  if (import.meta.env.DEV) {
+    console.warn(`[PublicResolver] No public audio file found for "${key}"`);
+  }
+  publicUrlCache.set(key, null);
+  return null;
+}
+
+export function resetPublicAudioResolverCache(): void {
+  publicUrlCache.clear();
+  publicUrlExistsCache.clear();
 }

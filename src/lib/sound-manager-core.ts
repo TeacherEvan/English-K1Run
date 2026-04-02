@@ -78,7 +78,6 @@ class SoundManager {
       this.userInteractionReceived = true;
       void this.startProgressiveLoading();
     });
-    void audioContextManager.ensureInitialized();
     audioContextManager.onReady(() => {
       void audioPreloader.preloadAudioByPriority(AudioPriority.CRITICAL);
     });
