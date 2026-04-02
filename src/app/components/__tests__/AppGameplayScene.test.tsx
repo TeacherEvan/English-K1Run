@@ -62,11 +62,14 @@ describe('AppGameplayScene', () => {
             root.render(
                 <AppGameplayScene
                     gameState={{
-                        gameStarted: true,
-                        winner: null,
                         progress: 0,
                         currentTarget: 'cat',
                         targetEmoji: '🐱',
+                        level: 0,
+                        gameStarted: true,
+                        winner: false,
+                        targetChangeTime: 4000,
+                        streak: 0,
                     }}
                     currentCategory={{
                         name: 'Animals & Nature',

@@ -55,14 +55,11 @@ export const useWelcomeAudioSequence = ({
     [audioConfig],
   );
 
-  const logDev = useCallback(
-    (message: string, data?: Record<string, unknown>) => {
-      if (import.meta.env.DEV) {
-        console.log(`[WelcomeScreen] ${message}`, data);
-      }
-    },
-    [],
-  );
+  const logDev = useCallback((message: string, data?: unknown) => {
+    if (import.meta.env.DEV) {
+      console.log(`[WelcomeScreen] ${message}`, data);
+    }
+  }, []);
 
   const markReadyToContinue = useCallback(() => {
     readyRef.current = true;
