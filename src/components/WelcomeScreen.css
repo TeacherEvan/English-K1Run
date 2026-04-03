@@ -89,9 +89,12 @@
   inset: 0;
   z-index: 35;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, auto);
+  align-content: center;
   justify-items: center;
-  gap: clamp(0.75rem, 2vh, 1.25rem);
+  justify-content: center;
+  gap: clamp(0.9rem, 2.2vh, 1.35rem);
   padding: max(1rem, env(safe-area-inset-top)) clamp(0.85rem, 2vw, 1.5rem)
     max(1.25rem, env(safe-area-inset-bottom));
   pointer-events: none;
@@ -115,13 +118,13 @@
 .welcome-language-shell {
   padding: 1rem 1rem 1.1rem;
   text-align: center;
-  align-self: start;
+  align-self: center;
 }
 
 .welcome-status-panel {
   padding: 1.1rem;
   text-align: center;
-  align-self: end;
+  align-self: center;
 }
 
 .welcome-language-shell__pill,

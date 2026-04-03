@@ -18,64 +18,82 @@ export const trackWebVitals = (
 
   if (typeof PerformanceObserver === "undefined") return;
 
+  const supportedEntryTypes = Array.isArray(
+    PerformanceObserver.supportedEntryTypes,
+  )
+    ? PerformanceObserver.supportedEntryTypes
+    : [];
+  const supportsEntryType = (entryType: string) =>
+    supportedEntryTypes.length === 0 || supportedEntryTypes.includes(entryType);
+
   try {
     // Largest Contentful Paint (LCP)
-    const lcpObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      const lastEntry = entries[entries.length - 1] as PerformanceEntry;
+    if (supportsEntryType("largest-contentful-paint")) {
+      const lcpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lastEntry = entries[entries.length - 1] as PerformanceEntry;
 
-      onMetric({
-        name: "LCP",
-        value: lastEntry.startTime,
-        id: generateUniqueIdentifier("lcp"),
-        rating:
-          lastEntry.startTime < 2500
-            ? "good"
-            : lastEntry.startTime < 4000
-              ? "needs-improvement"
-              : "poor",
-      });
-    });
-    lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
-
-    // First Input Delay (FID)
-    const fidObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries() as PerformanceEventTiming[];
-      entries.forEach((entry) => {
-        const delay = entry.processingStart - entry.startTime;
         onMetric({
-          name: "FID",
-          value: delay,
-          id: generateUniqueIdentifier("fid"),
+          name: "LCP",
+          value: lastEntry.startTime,
+          id: generateUniqueIdentifier("lcp"),
           rating:
-            delay < 100 ? "good" : delay < 300 ? "needs-improvement" : "poor",
+            lastEntry.startTime < 2500
+              ? "good"
+              : lastEntry.startTime < 4000
+                ? "needs-improvement"
+                : "poor",
         });
       });
-    });
-    fidObserver.observe({ entryTypes: ["first-input"] });
+      lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
+    }
+
+    // First Input Delay (FID)
+    if (supportsEntryType("first-input")) {
+      const fidObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries() as PerformanceEventTiming[];
+        entries.forEach((entry) => {
+          const delay = entry.processingStart - entry.startTime;
+          onMetric({
+            name: "FID",
+            value: delay,
+            id: generateUniqueIdentifier("fid"),
+            rating:
+              delay < 100 ? "good" : delay < 300 ? "needs-improvement" : "poor",
+          });
+        });
+      });
+      fidObserver.observe({ entryTypes: ["first-input"] });
+    }
 
     // Cumulative Layout Shift (CLS)
-    let clsValue = 0;
-    const clsObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries() as LayoutShift[];
-      entries.forEach((entry) => {
-        if (!entry.hadRecentInput) {
-          clsValue += entry.value;
-          onMetric({
-            name: "CLS",
-            value: clsValue,
-            id: generateUniqueIdentifier("cls"),
-            rating:
-              clsValue < 0.1
-                ? "good"
-                : clsValue < 0.25
-                  ? "needs-improvement"
-                  : "poor",
-          });
-        }
+    if (supportsEntryType("layout-shift")) {
+      let clsValue = 0;
+      const clsObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries() as LayoutShift[];
+        entries.forEach((entry) => {
+          if (!entry.hadRecentInput) {
+            clsValue += entry.value;
+            onMetric({
+              name: "CLS",
+              value: clsValue,
+              id: generateUniqueIdentifier("cls"),
+              rating:
+                clsValue < 0.1
+                  ? "good"
+                  : clsValue < 0.25
+                    ? "needs-improvement"
+                    : "poor",
+            });
+          }
+        });
       });
-    });
-    clsObserver.observe({ entryTypes: ["layout-shift"] });
+      clsObserver.observe({ entryTypes: ["layout-shift"] });
+    } else if (import.meta.env.DEV) {
+      console.info(
+        "[PerformanceMonitor] Skipping CLS tracking because layout-shift is unsupported in this browser.",
+      );
+    }
   } catch (error) {
     if (import.meta.env.DEV) {
       console.warn(

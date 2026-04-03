@@ -34,10 +34,10 @@
   0%,
   100% {
     opacity: 0.92;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateY(0) scale(1);
   }
   50% {
     opacity: 1;
-    transform: translateX(-50%) translateY(-2px) scale(1.01);
+    transform: translateY(-2px) scale(1.01);
   }
 }

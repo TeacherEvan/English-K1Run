@@ -20,6 +20,55 @@ export class AudioPreloader {
   private loadedPriorities = new Set<AudioPriority>();
   private preloadInProgress = false;
   private preloadConcurrency = 4;
+  private deferredPriorities = new Set<AudioPriority>();
+  private progressiveLoadRequested = false;
+  private readyFlushRegistered = false;
+  private hasLoggedDeferredPreload = false;
+
+  private deferUntilAudioReady(priority?: AudioPriority): void {
+    if (typeof priority === "number") {
+      this.deferredPriorities.add(priority);
+    }
+
+    if (!this.hasLoggedDeferredPreload && import.meta.env.DEV) {
+      console.info(
+        "[AudioPreloader] Deferring preload until audio is unlocked.",
+      );
+      this.hasLoggedDeferredPreload = true;
+    }
+
+    if (this.readyFlushRegistered) {
+      return;
+    }
+
+    this.readyFlushRegistered = true;
+    audioContextManager.onReady(() => {
+      this.readyFlushRegistered = false;
+      void this.flushDeferredLoads();
+    });
+  }
+
+  private async flushDeferredLoads(): Promise<void> {
+    const deferredPriorities = [...this.deferredPriorities].sort(
+      (a, b) => a - b,
+    );
+    const shouldResumeProgressiveLoad = this.progressiveLoadRequested;
+
+    this.deferredPriorities.clear();
+    this.progressiveLoadRequested = false;
+    this.hasLoggedDeferredPreload = false;
+
+    for (const priority of deferredPriorities) {
+      if (this.loadedPriorities.has(priority)) {
+        continue;
+      }
+      await this.preloadAudioByPriority(priority);
+    }
+
+    if (shouldResumeProgressiveLoad) {
+      await this.startProgressiveLoading();
+    }
+  }
 
   /**
    * Preload audio files for a specific priority level
@@ -36,6 +85,11 @@ export class AudioPreloader {
 
     const audioKeys = AUDIO_PRIORITIES[priority];
     if (!audioKeys || audioKeys.length === 0) {
+      return;
+    }
+
+    if (!audioContextManager.isInitialized()) {
+      this.deferUntilAudioReady(priority);
       return;
     }
 
@@ -60,11 +114,6 @@ export class AudioPreloader {
    */
   async prefetchAudioKeys(keys: string[]): Promise<void> {
     if (!audioContextManager.isInitialized()) {
-      if (import.meta.env.DEV) {
-        console.warn(
-          "[AudioPreloader] Cannot prefetch - audio context not initialized",
-        );
-      }
       return;
     }
 
@@ -88,6 +137,12 @@ export class AudioPreloader {
       if (import.meta.env.DEV) {
         console.log("[AudioPreloader] Progressive loading already in progress");
       }
+      return;
+    }
+
+    if (!audioContextManager.isInitialized()) {
+      this.progressiveLoadRequested = true;
+      this.deferUntilAudioReady();
       return;
     }
 

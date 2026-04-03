@@ -1,6 +1,20 @@
 import { useEffect } from "react";
 
+const hasActiveUserGesture = () => {
+  if (typeof navigator === "undefined") return true;
+
+  const activation = (
+    navigator as Navigator & {
+      userActivation?: { isActive?: boolean };
+    }
+  ).userActivation;
+
+  return activation?.isActive ?? true;
+};
+
 const requestFullscreen = () => {
+  if (typeof document === "undefined" || !hasActiveUserGesture()) return;
+
   const elem = document.documentElement as HTMLElement & {
     mozRequestFullScreen?: () => Promise<void>;
     webkitRequestFullscreen?: () => Promise<void>;
@@ -28,40 +42,12 @@ const requestFullscreen = () => {
 };
 
 /**
- * Enables fullscreen aggressively on user interaction unless in E2E mode.
+ * Keeps touch interactions controlled during gameplay.
+ * Fullscreen itself is requested from explicit user actions.
  */
 export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
   useEffect(() => {
     if (isE2E) return;
-
-    let fullscreenTriggered = false;
-
-    const triggerFullscreen = () => {
-      if (!fullscreenTriggered) {
-        fullscreenTriggered = true;
-        requestFullscreen();
-      }
-    };
-
-    const handleInteraction = () => {
-      triggerFullscreen();
-    };
-
-    const events = [
-      "click",
-      "touchstart",
-      "touchend",
-      "mousedown",
-      "keydown",
-      "keypress",
-    ];
-    events.forEach((event) => {
-      document.addEventListener(event, handleInteraction, {
-        once: true,
-        passive: true,
-        capture: true,
-      });
-    });
 
     const preventDefaultTouch = (e: TouchEvent) => {
       if (gameStarted && e.cancelable) {
@@ -83,11 +69,6 @@ export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
     });
 
     return () => {
-      events.forEach((event) => {
-        document.removeEventListener(event, handleInteraction, {
-          capture: true,
-        });
-      });
       document.removeEventListener("touchmove", preventDefaultTouch);
       document.removeEventListener("touchstart", preventMultiTouch);
     };

@@ -37,12 +37,6 @@ export class AudioContextManager {
     const ua = navigator.userAgent.toLowerCase();
     this.isMobile =
       /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
-
-    if (this.isMobile && import.meta.env.DEV) {
-      console.log(
-        "[AudioContextManager] Mobile device detected - using Web Audio API",
-      );
-    }
   }
 
   /**
@@ -54,12 +48,6 @@ export class AudioContextManager {
     const handleInteraction = () => {
       if (this.userInteractionReceived) return;
       this.userInteractionReceived = true;
-
-      if (import.meta.env.DEV) {
-        console.log(
-          "[AudioContextManager] User interaction detected, initializing...",
-        );
-      }
 
       this.initializeAudioContext();
       if (this.audioContext && this.audioContext.state === "suspended") {
@@ -114,13 +102,6 @@ export class AudioContextManager {
 
       this.audioContext = new ContextClass();
 
-      if (import.meta.env.DEV) {
-        console.log(
-          "[AudioContextManager] Audio context created, state:",
-          this.audioContext.state,
-        );
-      }
-
       // Share context with buffer loader
       audioBufferLoader.setAudioContext(this.audioContext);
 
@@ -144,9 +125,6 @@ export class AudioContextManager {
     if (this.audioContext && this.audioContext.state === "suspended") {
       try {
         await this.audioContext.resume();
-        if (import.meta.env.DEV) {
-          console.log("[AudioContextManager] Audio context resumed");
-        }
       } catch (error) {
         console.error("[AudioContextManager] Failed to resume:", error);
       }
