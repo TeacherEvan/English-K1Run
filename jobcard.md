@@ -16,6 +16,16 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 ## Timeline (Compressed)
 
+### 2026-04-03
+
+- Moved the desktop welcome UI into a compact right-side dock so the hero background/video stays visually dominant, while preserving the centered stacked mobile layout.
+- Reduced the welcome scrim intensity to better respect the classroom artwork instead of burying it under a dark overlay.
+- Added explicit target-clear progression telemetry with `trackTargetClearProgress`, while keeping `targetsClearedThisLevel` as the gameplay source of truth for default-mode level completion.
+- Clarified emoji lifecycle removal reasons so correct-target clears and incorrect removals can be audited separately in tests and telemetry.
+- Stabilized the countdown-first transition flow by replacing timing-based Playwright taps with the state-aware `tapCurrentTargetAndWaitForResolution()` helper.
+- Added focused regressions for desktop/mobile welcome composition and 10-clear level transitions in `e2e/specs/welcome-layout.spec.ts` and `e2e/specs/level-transition-countdown.spec.ts`.
+- Validation: `npm --prefer-ipv4 run test:run -- src/hooks/game-logic/__tests__/tap-handlers-object.test.ts src/hooks/game-logic/__tests__/tap-state-updater.test.ts src/hooks/game-logic/__tests__/inter-level-transition.test.ts src/components/welcome/__tests__/WelcomeStatusPanel.test.tsx`, `PLAYWRIGHT_PROJECTS=chromium,mobile npm --prefer-ipv4 run test:e2e -- e2e/specs/welcome-layout.spec.ts e2e/specs/level-transition-countdown.spec.ts`, `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm --prefer-ipv4 run test:e2e -- e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps"`, and `npm --prefer-ipv4 run verify` passed locally.
+
 ### 2026-04-02
 
 - Aligned the startup and menu shell to the warm classroom design brief: shared `CLASSROOM_BRAND` constants, OKLCH-tinted theme variables, branded hero/action surfaces, and readable welcome status/language shells.
@@ -106,12 +116,15 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - Audio: src/lib/audio/_, src/lib/sound-manager_, public/sounds/\*
 - Menu/UI: src/components/game-menu/_, src/components/WelcomeScreen_
+- Gameplay flow: src/hooks/game-logic/\_, src/lib/event-tracker/event-tracker.ts
 - Settings: src/context/settings-context.tsx, src/components/ui/\*
 - E2E: e2e/fixtures/_, e2e/specs/_, improved-testServer.js
 - Tooling/docs: .github/copilot-instructions.md, eslint.config.js, .vscode/settings.json
 
 ## Validation
 
+- `npm --prefer-ipv4 run verify` (2026-04-03) passed.
+- `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm --prefer-ipv4 run test:e2e -- e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps"` (2026-04-03) passed.
 - `npm run audio:validate` (2026-02-02) passed.
 - `npm run test:run`, `npm run check-types`, `npm run verify` (Dec 2025) passed.
 
@@ -119,18 +132,20 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 
 - Gameplay voice output should stay instruction-first: target-description sentences are the only intended spoken gameplay audio.
 - `centralAudioManager` and `eventTracker` are the preferred coordination points for overlap prevention and playback auditing.
+- `trackTargetClearProgress` is telemetry only; default-mode progression must continue to derive from `targetsClearedThisLevel` inside `useGameLogic`.
 - Worms are distractors that cull only the targets they physically touch; collision updates should preserve all other falling targets.
 - Keep gameplay HUD overlays visually light and nonblocking; center-top target guidance is acceptable only when pointer-safe.
 
 ## Recommendations
 
-- Reinstall dependencies and rerun `npm run verify` plus the local Playwright matrix before the next polish pass.
-- Add automated assertions for audio-overlap tracker events once the browser test harness can inspect them reliably.
+- Before the next welcome/gameplay polish pass, rerun `npm --prefer-ipv4 run verify` plus the focused Playwright matrix for `welcome-layout`, `level-transition-countdown`, and the 10-clear gameplay transition case.
+- Add automated assertions for audio-overlap tracker events once the browser test harness can inspect `eventTracker`/audio diagnostics reliably.
 - Keep routing new long-lived guidance into `README.md`, `AUDIO_SETUP.md`, `jobcard.md`, or the `DOCS/` index files instead of adding one-off root summaries.
 
 ## Follow-ups
 
-- Install dependencies and rerun lint/build/Playwright verification.
+- Broaden the Playwright matrix again before merge if welcome layout, countdown flow, or moving-target interactions change.
+- Explore a safe E2E hook for reading audio-overlap diagnostics without coupling gameplay to telemetry internals.
 - Continue legacy documentation and inactive UI branding cleanup.
 - Run the broader menu/accessibility Playwright matrix before merge if the branch picks up more UI changes.
 - Extend audio fades to other transitions when needed.

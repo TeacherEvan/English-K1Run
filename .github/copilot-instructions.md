@@ -37,6 +37,7 @@
 - **Audio asset location**: Source `.wav` files live in `sounds/`; at runtime the browser fetches `/sounds/<key>.<ext>` from the static host. Missing files are repo-side issues that fall through to speech fallback.
 - **Home menu association audio**: Sangsom association lines must play only once per session when the home menu is first accessible (gate repeated replays on reopen/remount).
 - **Welcome start contract**: In normal mode, welcome narration must start only from explicit user gesture; do not auto-start from display-adjustment signals or fallback timers. Safety timers may unlock continue state, but must not trigger playback.
+- **Welcome desktop layout**: On large screens, keep welcome controls in the compact dock layout so the hero background/video stays visually dominant; preserve the centered stacked layout on mobile.
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
@@ -52,6 +53,8 @@
 ## Gameplay Tuning and Continuous Mode
 
 - **Tuning constants**: Live in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts).
+- **Default-mode progression authority**: `targetsClearedThisLevel` in `useGameLogic` remains the source of truth for level completion; telemetry must observe progression, not drive it.
+- **Target-clear telemetry**: Use `eventTracker.trackTargetClearProgress(...)` only to mirror correct-target progression for auditing and tests.
 - **Worm collisions**: In gameplay, worms remove only the falling targets they touch; non-colliding raining targets must continue unchanged. Do not reintroduce bounce/push-away behavior.
 - **Continuous mode state**: In SettingsContext with persistence (localStorage key `continuousModeHighScore`); see `src/context/settings-context.tsx`(../src/context/settings-context.tsx).
 
@@ -82,6 +85,8 @@
 - **Unit tests**: Use Jest for hooks and utilities; cover critical logic in `src/hooks/__tests__/`(../src/hooks/**tests**/).
 - **Integration tests**: Test component interactions and state changes.
 - **E2E tests**: Use Playwright for full user flows; fixtures in `e2e/fixtures/`(../e2e/fixtures/); specs in `e2e/specs/`(../e2e/specs/).
+- **State-based waits**: For moving targets and transition flows, prefer state-aware helpers over fixed delays. Use `tapCurrentTargetAndWaitForResolution()` for countdown-first level-complete coverage.
+- **Regression specs**: Keep `e2e/specs/welcome-layout.spec.ts` and `e2e/specs/level-transition-countdown.spec.ts` aligned with welcome dock and transition-flow changes.
 - **Coverage**: Aim for 80%+ coverage; focus on error paths and edge cases.
 
 ## Security Guidelines
@@ -94,7 +99,7 @@
 
 ## Developer Workflows
 
-- **Dev server**: `npm run dev`. Verification: `npm run verify` (lint + typecheck + build). Build uses `--noCheck` due to React 19 types.
+- **Dev server**: `npm run dev`. Verification: `npm run verify` (lint + build). Type checking is available separately via `npm run check-types`; build currently runs `tsc -b && vite build`.
 - **Automated formatting**: Runs via `code_review.ps1` every 5 minutes; do not disable it.
 - **E2E**: Use `?e2e=1` to skip the welcome screen. Page objects/fixtures are in `e2e/fixtures/game.fixture.ts`(../e2e/fixtures/game.fixture.ts); prefer `gamePage.menu.startGame()` patterns. Tests live in `e2e/specs/`(../e2e/specs/).
 

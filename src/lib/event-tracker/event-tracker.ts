@@ -141,6 +141,22 @@ export class EventTracker {
     });
   }
 
+  public trackTargetClearProgress(data: {
+    level: number;
+    clearsThisLevel: number;
+    threshold: number;
+    targetName: string;
+    targetEmoji: string;
+    phase: "progressing" | "threshold-reached";
+  }) {
+    this.trackEvent({
+      type: "info",
+      category: "target_progress",
+      message: "Target clear progress updated",
+      data,
+    });
+  }
+
   public trackError(error: Error, context: string) {
     this.trackEvent({
       type: "error",

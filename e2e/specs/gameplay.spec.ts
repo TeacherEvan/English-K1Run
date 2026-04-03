@@ -91,11 +91,13 @@ test.describe("Gameplay", () => {
     await gamePage.gameplay.waitForObjectsToSpawn(1);
 
     for (let tap = 0; tap < 10; tap += 1) {
-      const target = await gamePage.gameplay.getCurrentTarget();
-      expect(target.emoji?.trim()).toBeTruthy();
+      const resolution =
+        await gamePage.gameplay.tapCurrentTargetAndWaitForResolution();
 
-      await gamePage.gameplay.tapObjectByEmoji(target.emoji!.trim());
-      await page.waitForTimeout(150);
+      if (tap === 9) {
+        expect(resolution).toBe("popup");
+      }
+
       if (tap < 9) {
         await gamePage.gameplay.waitForObjectsToSpawn(1);
       }

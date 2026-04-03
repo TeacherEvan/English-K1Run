@@ -88,7 +88,12 @@ export const createHandleObjectTap = (
             phase: "removed",
             position: { x: removedObj.x, y: removedObj.y },
             playerSide: tappedObject.lane,
-            data: { reason: "tapped", isCorrect },
+            data: {
+              reason: isCorrect
+                ? "correct-target-cleared"
+                : "incorrect-object-removed",
+              isCorrect,
+            },
           });
         }
         return prev.filter((obj) => obj.id !== objectId);

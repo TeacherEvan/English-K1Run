@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.adaptive.css'
 import './WelcomeScreen.controls.css'
 import './WelcomeScreen.css'
+import './WelcomeScreen.dock.css'
 import './WelcomeScreen.motion.css'
 import './WelcomeScreen.ultrawide.css'
 

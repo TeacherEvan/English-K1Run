@@ -6,6 +6,7 @@ import { updateStateOnTap } from "../tap-state-updater";
 vi.mock("../../../lib/event-tracker", () => ({
   eventTracker: {
     trackGameStateChange: vi.fn(),
+    trackTargetClearProgress: vi.fn(),
   },
 }));
 

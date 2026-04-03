@@ -71,6 +71,20 @@ export const updateStateOnTap = (
           prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
           PROGRESS_MAX,
         );
+
+        const updatedClears = newState.targetsClearedThisLevel ?? 0;
+
+        eventTracker.trackTargetClearProgress({
+          level: prev.level,
+          clearsThisLevel: updatedClears,
+          threshold: DEFAULT_MODE_TARGETS_TO_COMPLETE,
+          targetName: prev.currentTarget,
+          targetEmoji: prev.targetEmoji,
+          phase:
+            updatedClears >= DEFAULT_MODE_TARGETS_TO_COMPLETE
+              ? "threshold-reached"
+              : "progressing",
+        });
       }
 
       const reachedDefaultGoal =

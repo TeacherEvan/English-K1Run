@@ -73,13 +73,13 @@
   background:
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.18) 0%,
-      rgba(15, 23, 42, 0.04) 34%,
-      rgba(15, 23, 42, 0.5) 100%
+      rgba(15, 23, 42, 0.08) 0%,
+      rgba(15, 23, 42, 0.02) 34%,
+      rgba(15, 23, 42, 0.22) 100%
     ),
     radial-gradient(
       circle at top,
-      rgba(253, 224, 71, 0.22),
+      rgba(253, 224, 71, 0.1),
       rgba(255, 248, 237, 0) 46%
     );
 }

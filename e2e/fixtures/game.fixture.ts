@@ -404,7 +404,59 @@ export class GameplayPage {
 
   async tapObjectByEmoji(emoji: string) {
     const obj = this.fallingObjects.filter({ hasText: emoji }).first();
-    await obj.click({ force: true });
+    await obj.waitFor({ state: "visible", timeout: 5_000 });
+    await obj.click({ force: true, timeout: 5_000 });
+  }
+
+  async tapCurrentTargetAndWaitForResolution() {
+    const targetEmoji = (await this.targetEmoji.textContent())?.trim();
+    if (!targetEmoji) {
+      throw new Error("No current target emoji found");
+    }
+
+    const beforeProgress = await this.getProgress(1);
+    const beforeTarget = (await this.targetName.textContent())?.trim() ?? "";
+    const popup = this.page.locator('[data-testid="level-complete-popup"]');
+    const countdown = this.page.locator(
+      '[data-testid="level-countdown-overlay"]',
+    );
+
+    const attemptedObjectIds = new Set<string>();
+    const deadline = Date.now() + 8_000;
+
+    while (Date.now() < deadline) {
+      if (await popup.isVisible().catch(() => false)) return "popup";
+      if (await countdown.isVisible().catch(() => false)) return "countdown";
+
+      const afterProgress = await this.getProgress(1);
+      const afterTarget = (await this.targetName.textContent())?.trim() ?? "";
+
+      if (afterProgress > beforeProgress) return "progress";
+      if (afterTarget && afterTarget !== beforeTarget) return "target-changed";
+
+      const matchingObjects = this.fallingObjects.filter({
+        hasText: targetEmoji,
+      });
+      const count = await matchingObjects.count();
+
+      for (let index = 0; index < count; index += 1) {
+        const candidate = matchingObjects.nth(index);
+        const objectId = await candidate.getAttribute("data-object-id");
+
+        if (!objectId || attemptedObjectIds.has(objectId)) continue;
+
+        attemptedObjectIds.add(objectId);
+        await candidate.waitFor({ state: "visible", timeout: 1_000 });
+        await candidate.click({ force: true, timeout: 2_000 });
+        break;
+      }
+
+      await this.page.waitForTimeout(150);
+    }
+
+    throw new Error(
+      `Target tap for ${targetEmoji} did not resolve within 8000ms`,
+    );
   }
 
   async tapWorm(index: number) {
@@ -441,8 +493,6 @@ export class GameplayPage {
  * Audio Mock - Prevents actual audio playback during tests
  */
 export class AudioMock {
-  private playedSounds: string[] = [];
-
   constructor(private page: Page) {}
 
   async setup() {
