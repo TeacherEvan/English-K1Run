@@ -1,6 +1,5 @@
 import { expect, test } from "../fixtures/game.fixture";
 
-const THAI_LANGUAGE_TITLE = "เลือกภาษาของคุณ";
 const THAI_READY_PROMPT = /แตะ.*เริ่ม/;
 
 test.describe("Welcome language picker", () => {
@@ -26,19 +25,16 @@ test.describe("Welcome language picker", () => {
   }) => {
     const englishButton = page.getByTestId("welcome-language-en");
     const thaiButton = page.getByTestId("welcome-language-th");
+    const languagePicker = page.getByTestId("welcome-language-picker");
 
-    await expect(
-      page.getByText("Choose your language", { exact: true }),
-    ).toBeVisible();
+    await expect(languagePicker).toBeVisible();
     await expect(englishButton).toBeEnabled();
     await expect(thaiButton).toBeEnabled();
     await expect(thaiButton).toHaveAttribute("aria-pressed", "false");
 
     await thaiButton.click();
 
-    await expect(
-      page.getByText(THAI_LANGUAGE_TITLE, { exact: true }),
-    ).toBeVisible();
+    await expect(languagePicker).toBeVisible();
     await expect(page.getByTestId("welcome-status-label")).toContainText(
       THAI_READY_PROMPT,
     );
@@ -91,13 +87,15 @@ test.describe("Welcome language picker", () => {
     await page.reload({ waitUntil: "domcontentloaded", timeout: 60_000 });
 
     const thaiButton = page.getByTestId("welcome-language-th");
+    const languagePicker = page.getByTestId("welcome-language-picker");
     await page.waitForSelector('[data-testid="welcome-language-picker"]', {
       timeout: 15_000,
     });
+    await expect(languagePicker).toBeVisible();
     await expect(thaiButton).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      page.getByText(THAI_LANGUAGE_TITLE, { exact: true }),
-    ).toBeVisible();
+    await expect(page.getByTestId("welcome-status-label")).toContainText(
+      THAI_READY_PROMPT,
+    );
 
     await page
       .getByTestId("welcome-primary-button")

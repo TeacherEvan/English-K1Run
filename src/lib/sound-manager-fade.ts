@@ -2,6 +2,8 @@
  * Fade-aware playback helper for SoundManager.
  */
 
+import { eventTracker } from "./event-tracker";
+
 export interface SoundFadeDependencies {
   isEnabled: () => boolean;
   ensureInitialized: () => Promise<void>;
@@ -76,6 +78,7 @@ export class SoundFadePlayback {
     fadeInMs = 150,
   ): Promise<void> {
     if (!this.deps.isEnabled()) return;
+    const startTime = performance.now();
     this.deps.trackPlaybackStart(soundName);
     try {
       await this.deps.ensureInitialized();
@@ -98,6 +101,13 @@ export class SoundFadePlayback {
         volumeOverride,
         fadeInMs,
       );
+      eventTracker.trackAudioPlayback({
+        audioKey: soundName,
+        targetName: soundName,
+        method: "web-audio",
+        success: true,
+        duration: performance.now() - startTime,
+      });
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
     } finally {

@@ -24,6 +24,8 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Clarified emoji lifecycle removal reasons so correct-target clears and incorrect removals can be audited separately in tests and telemetry.
 - Stabilized the countdown-first transition flow by replacing timing-based Playwright taps with the state-aware `tapCurrentTargetAndWaitForResolution()` helper.
 - Added focused regressions for desktop/mobile welcome composition and 10-clear level transitions in `e2e/specs/welcome-layout.spec.ts` and `e2e/specs/level-transition-countdown.spec.ts`.
+- Added browser-side audio diagnostics assertions for welcome overlap by reading `window.gameEventTracker` plus `window.__audioDebug`, and backfilled Web Audio success tracking so fade-based welcome playback is auditable in E2E.
+- Updated welcome-language, visual welcome, and mobile screenshot Playwright specs to match the current docked welcome UI and reuse the shared page-object flow for more reliable mobile level screenshots.
 - Validation: `npm --prefer-ipv4 run test:run -- src/hooks/game-logic/__tests__/tap-handlers-object.test.ts src/hooks/game-logic/__tests__/tap-state-updater.test.ts src/hooks/game-logic/__tests__/inter-level-transition.test.ts src/components/welcome/__tests__/WelcomeStatusPanel.test.tsx`, `PLAYWRIGHT_PROJECTS=chromium,mobile npm --prefer-ipv4 run test:e2e -- e2e/specs/welcome-layout.spec.ts e2e/specs/level-transition-countdown.spec.ts`, `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm --prefer-ipv4 run test:e2e -- e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps"`, and `npm --prefer-ipv4 run verify` passed locally.
 
 ### 2026-04-02

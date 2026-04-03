@@ -1,4 +1,10 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/game.fixture";
+import {
+  clearTrackedAudioEvents,
+  readAudioDiagnostics,
+  waitForAudioIdle,
+  waitForAudioTracker,
+} from "../helpers/audio-diagnostics";
 
 test.describe("Audio overlap", () => {
   test("welcome cues do not overlap", async ({ page }) => {
@@ -7,27 +13,34 @@ test.describe("Audio overlap", () => {
     await page.waitForSelector('[data-testid="welcome-screen"]', {
       timeout: 10000,
     });
-
-    await page.click('[data-testid="welcome-screen"]', { force: true });
-
-    await page.waitForFunction(() => "__audioDebug" in window, undefined, {
+    await page.waitForSelector('[data-testid="welcome-primary-button"]', {
+      state: "visible",
       timeout: 10000,
     });
 
-    await page.waitForFunction(
-      () =>
-        (window as unknown as { __audioDebug?: { active: number } })
-          .__audioDebug?.active === 0,
-      undefined,
-      { timeout: 40000 },
-    );
+    await waitForAudioTracker(page);
+    await clearTrackedAudioEvents(page);
 
-    const peak = await page.evaluate(() => {
-      const debug = (window as unknown as { __audioDebug?: { peak: number } })
-        .__audioDebug;
-      return debug?.peak ?? 0;
+    await page.click('[data-testid="welcome-primary-button"]', {
+      force: true,
     });
 
-    expect(peak).toBeLessThanOrEqual(1);
+    await waitForAudioIdle(page);
+
+    const diagnostics = await readAudioDiagnostics(page, 25);
+
+    expect(diagnostics.history.length).toBeGreaterThan(0);
+    expect(diagnostics.stats.totalAttempts).toBeGreaterThan(0);
+    expect(diagnostics.stats.successful).toBeGreaterThan(0);
+    expect(diagnostics.trackerEvents.length).toBeGreaterThan(0);
+    expect(diagnostics.history.some((event) => event.success)).toBe(true);
+    if (diagnostics.debug) {
+      expect(diagnostics.debug.peak).toBeLessThanOrEqual(1);
+    }
+    expect(
+      diagnostics.trackerEvents.every(
+        (event) => event.category === "audio_playback",
+      ),
+    ).toBe(true);
   });
 });

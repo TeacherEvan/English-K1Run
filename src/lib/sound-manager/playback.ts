@@ -5,6 +5,7 @@
 import { describeIfEnabled } from "../audio/audio-accessibility";
 import { audioSpritePlayer } from "../audio/audio-sprite";
 import { SoundPlaybackEngine } from "../audio/sound-playback-engine";
+import { eventTracker } from "../event-tracker";
 
 export interface SoundPlaybackDependencies {
   isEnabled: () => boolean;
@@ -90,6 +91,7 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
     volumeOverride?: number,
   ): Promise<void> => {
     if (!deps.isEnabled()) return;
+    const startTime = performance.now();
     deps.trackPlaybackStart(soundName);
     try {
       if (deps.useAudioSprite() && audioSpritePlayer.isConfigured()) {
@@ -147,6 +149,13 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
         playbackRate,
         volumeOverride,
       );
+      eventTracker.trackAudioPlayback({
+        audioKey: soundName,
+        targetName: soundName,
+        method: "web-audio",
+        success: true,
+        duration: performance.now() - startTime,
+      });
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
       describeIfEnabled(`Sound failed: ${soundName}`);

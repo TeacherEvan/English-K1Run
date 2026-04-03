@@ -1,12 +1,13 @@
-import { expect, test } from "@playwright/test";
+import { expect, GamePage, test } from "../fixtures/game.fixture";
 import { navigateWithRetry } from "../utils/navigation";
-import { skipWormLoadingIfPresent } from "../utils/worm-loading";
 
 test.describe("Visual Screenshots", () => {
   test.slow();
   test("Capture screenshots of menu, windows, and levels", async ({
     page,
   }, testInfo) => {
+    const gamePage = new GamePage(page);
+
     // Increase timeout for initial load/lazy loading
     test.setTimeout(300000);
 
@@ -28,8 +29,7 @@ test.describe("Visual Screenshots", () => {
 
     // 1. Main Menu
     console.log("Waiting for Game Menu...");
-    // Wait for connection/loading to finish
-    await page.waitForSelector('[data-testid="game-menu"]', { timeout: 30000 });
+    await gamePage.waitForReady();
 
     const menuScreenshot = await page.screenshot({
       path: testInfo.outputPath("menu-screen.png"),
@@ -111,27 +111,33 @@ test.describe("Visual Screenshots", () => {
         .replace(/[^a-z0-9]/gi, "_")
         .toLowerCase()}`;
 
-      // Select level
-      await levelButtons.nth(i).click({ force: true, timeout: 30000 });
+      let gameplayStarted = false;
 
-      // Click Start Game
-      const startGameBtn = page.locator('[data-testid="start-button"]');
-      await startGameBtn.waitFor({ state: "visible", timeout: 10000 });
-      await startGameBtn.click({ force: true, timeout: 30000 });
+      for (let attempt = 1; attempt <= 2; attempt += 1) {
+        await gamePage.menu.selectLevel(i);
+        await gamePage.menu.startGame();
 
-      // Handle Worm Loading Screen with the shared helper used by gameplay specs.
-      const targetDisplay = page.locator('[data-testid="target-display"]');
+        const targetDisplayVisible = await gamePage.gameplay.targetDisplay
+          .waitFor({ state: "visible", timeout: 45000 })
+          .then(() => true)
+          .catch(() => false);
 
-      // Small delay for Firefox DOM stabilization
-      await page.waitForTimeout(500);
+        if (targetDisplayVisible) {
+          gameplayStarted = true;
+          break;
+        }
 
-      await skipWormLoadingIfPresent(page, 20_000);
+        if (attempt === 2) {
+          throw new Error(`Gameplay did not start for level ${i + 1}`);
+        }
 
-      // Ensure game HUD is visible (critical for Firefox stability)
-      await targetDisplay.waitFor({ state: "visible", timeout: 45000 });
+        await navigateWithRetry(page, "/?e2e=1");
+        await gamePage.waitForReady();
+      }
 
-      // Wait for game to be fully ready (Back button appears)
-      await page.waitForSelector('[data-testid="back-button"]', {
+      expect(gameplayStarted).toBe(true);
+      await gamePage.gameplay.backButton.waitFor({
+        state: "visible",
         timeout: 45000,
       });
 
@@ -146,28 +152,15 @@ test.describe("Visual Screenshots", () => {
         contentType: "image/png",
       });
 
-      // Go back
-      const backBtn = page.locator('[data-testid="back-button"]');
-      await backBtn.waitFor({ state: "visible", timeout: 5000 });
-      await backBtn.click({ force: true, timeout: 30000 });
+      await gamePage.gameplay.goBack();
+      await gamePage.waitForReady();
 
       // Reload page to ensure clean state for next level
       // This prevents state pollution across multiple game starts
       if (i < count - 1) {
         await navigateWithRetry(page, "/?e2e=1");
-        await page.waitForSelector('[data-testid="game-menu"]', {
-          timeout: 10000,
-        });
-
-        // Navigate to level select
-        const levelSelectBtn = page.locator(
-          '[data-testid="level-select-button"]',
-        );
-        await levelSelectBtn.waitFor({ state: "visible", timeout: 10000 });
-        await levelSelectBtn.click({ timeout: 30000 });
-        await page.waitForSelector('[data-testid="level-select-menu"]', {
-          timeout: 15000,
-        });
+        await gamePage.waitForReady();
+        await gamePage.menu.openLevelSelect();
       }
     }
 

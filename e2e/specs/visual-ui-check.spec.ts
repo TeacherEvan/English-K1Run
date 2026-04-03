@@ -29,8 +29,11 @@ test.describe("Visual UI Verification - User Perspective", () => {
       const welcomeScreen = document.querySelector(
         '[data-testid="welcome-screen"]',
       );
-      const tapToContinue = Array.from(document.querySelectorAll("*")).find(
-        (el) => el.textContent?.includes("Tap to continue"),
+      const primaryButton = document.querySelector(
+        '[data-testid="welcome-primary-button"]',
+      );
+      const statusLabel = document.querySelector(
+        '[data-testid="welcome-status-label"]',
       );
       const video = document.querySelector('[data-testid="welcome-video"]');
       const fallback = document.querySelector(
@@ -39,10 +42,12 @@ test.describe("Visual UI Verification - User Perspective", () => {
 
       return {
         welcomeScreenExists: !!welcomeScreen,
-        tapToContinueExists: !!tapToContinue,
-        tapToContinueVisible: tapToContinue
-          ? getComputedStyle(tapToContinue).display !== "none"
+        primaryButtonExists: !!primaryButton,
+        primaryButtonVisible: primaryButton
+          ? getComputedStyle(primaryButton).display !== "none"
           : false,
+        primaryButtonText: primaryButton?.textContent?.trim() ?? null,
+        statusLabelText: statusLabel?.textContent?.trim() ?? null,
         videoExists: !!video,
         fallbackExists: !!fallback,
         videoReadyState: video ? (video as HTMLVideoElement).readyState : "N/A",
@@ -56,14 +61,13 @@ test.describe("Visual UI Verification - User Perspective", () => {
       JSON.stringify(welcomeState, null, 2),
     );
 
-    // FIX: Wait for "Tap to continue" to appear before checking visibility
-    // The button appears after audio completes (or 3s safety timer)
-    console.log("⏱️  DIAGNOSTIC: Waiting for 'Tap to continue' to appear...");
-    const tapToContinue = page.locator("text=Tap to continue");
+    console.log("⏱️  DIAGNOSTIC: Waiting for welcome primary button...");
+    const primaryButton = page.getByTestId("welcome-primary-button");
+    const statusLabel = page.getByTestId("welcome-status-label");
 
-    // Wait up to 15 seconds for button to appear (safety timer is 10s in E2E mode)
-    await tapToContinue.waitFor({ state: "visible", timeout: 15000 });
-    console.log("✅ DIAGNOSTIC: 'Tap to continue' appeared!");
+    await primaryButton.waitFor({ state: "visible", timeout: 15000 });
+    await statusLabel.waitFor({ state: "visible", timeout: 15000 });
+    console.log("✅ DIAGNOSTIC: Welcome primary button is visible!");
 
     // VISUAL CHECK: Take screenshot of what user actually sees
     await page.screenshot({
@@ -71,11 +75,13 @@ test.describe("Visual UI Verification - User Perspective", () => {
       fullPage: false, // Only capture viewport - what user sees!
     });
 
-    // Check if "Tap to continue" is VISIBLE in viewport
-    const isVisible = await tapToContinue.isVisible();
+    const isVisible = await primaryButton.isVisible();
+    const buttonText = await primaryButton.textContent();
 
-    console.log("👁️  USER VIEW: Tap to continue visible?", isVisible);
+    console.log("👁️  USER VIEW: Welcome primary button visible?", isVisible);
+    console.log("👁️  USER VIEW: Welcome primary button text:", buttonText);
     expect(isVisible).toBe(true);
+    await expect(primaryButton).toContainText(/Tap to (start|continue)|Listening/i);
   });
 
   test("should capture menu screen and verify UI is IN VIEWPORT", async ({

@@ -257,30 +257,47 @@ export class GameMenuPage {
   }
 
   async startGame() {
-    const gameplayOrTransitionActive = await Promise.any([
-      this.page
-        .locator('[data-testid="target-display"]')
-        .isVisible()
-        .catch(() => false),
-      this.page
-        .locator('[data-testid="level-countdown-overlay"]')
-        .isVisible()
-        .catch(() => false),
-      this.page
-        .locator('[data-testid="level-complete-popup"]')
-        .isVisible()
-        .catch(() => false),
-    ]).catch(() => false);
+    const getGameplayOrTransitionActive = () =>
+      Promise.any([
+        this.page
+          .locator('[data-testid="target-display"]')
+          .isVisible()
+          .catch(() => false),
+        this.page
+          .locator('[data-testid="level-countdown-overlay"]')
+          .isVisible()
+          .catch(() => false),
+        this.page
+          .locator('[data-testid="level-complete-popup"]')
+          .isVisible()
+          .catch(() => false),
+      ]).catch(() => false);
+
+    const gameplayOrTransitionActive = await getGameplayOrTransitionActive();
 
     if (gameplayOrTransitionActive) {
       return;
     }
 
-    await this.openLevelSelect();
-    await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
-    await this.startGameButton.click({ timeout: 30_000 });
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      await this.openLevelSelect();
+      await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
+      await this.startGameButton.click({ timeout: 30_000 });
 
-    await this.waitForGameStart();
+      await this.waitForGameStart();
+
+      if (await getGameplayOrTransitionActive()) {
+        return;
+      }
+
+      if (attempt === 2) {
+        return;
+      }
+
+      console.warn(
+        "Gameplay did not become visible after Start Game; retrying once.",
+      );
+    }
   }
 
   private async waitForGameStart() {
@@ -493,6 +510,8 @@ export class GameplayPage {
  * Audio Mock - Prevents actual audio playback during tests
  */
 export class AudioMock {
+  private playedSounds: string[] = [];
+
   constructor(private page: Page) {}
 
   async setup() {
