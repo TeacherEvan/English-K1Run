@@ -1,0 +1,86 @@
+@media (orientation: landscape) {
+  .welcome-language-shell {
+    width: min(30rem, 92vw);
+  }
+
+  .welcome-status-panel {
+    width: min(28rem, 92vw);
+  }
+}
+
+@media (max-width: 34rem) {
+  .welcome-language-shell,
+  .welcome-status-panel {
+    border-radius: 1.35rem;
+  }
+
+  .welcome-language-shell {
+    padding: 0.9rem 0.9rem 1rem;
+  }
+
+  .welcome-status-panel {
+    padding: 1rem;
+  }
+
+  .welcome-language-button {
+    padding: 0.75rem 0.65rem;
+  }
+}
+
+@media (max-height: 42rem) {
+  .welcome-panels {
+    gap: 0.75rem;
+    padding-block: max(0.8rem, env(safe-area-inset-top))
+      max(0.9rem, env(safe-area-inset-bottom));
+  }
+
+  .welcome-language-shell {
+    padding: 0.85rem 0.9rem 0.95rem;
+  }
+
+  .welcome-status-panel {
+    padding: 0.9rem;
+  }
+
+  .welcome-language-shell__title,
+  .welcome-status-panel__label {
+    font-size: clamp(1rem, 2.8vw, 1.25rem);
+  }
+
+  .welcome-language-shell__description {
+    font-size: 0.88rem;
+  }
+
+  .welcome-primary-button {
+    margin-top: 0.7rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .welcome-primary-button__text {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-height: 31rem) and (min-width: 30rem) {
+  .welcome-panels {
+    grid-template-columns: minmax(15rem, 1fr) minmax(14rem, 22rem);
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .welcome-language-shell,
+  .welcome-status-panel {
+    width: min(100%, 24rem);
+  }
+
+  .welcome-language-shell {
+    align-self: center;
+    justify-self: end;
+  }
+
+  .welcome-status-panel {
+    align-self: center;
+    justify-self: start;
+  }
+}

@@ -8,8 +8,11 @@ import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import './WelcomeScreen.adaptive.css'
+import './WelcomeScreen.controls.css'
 import './WelcomeScreen.css'
 import './WelcomeScreen.motion.css'
+import './WelcomeScreen.ultrawide.css'
 
 interface WelcomeScreenProps {
   onComplete: () => void
