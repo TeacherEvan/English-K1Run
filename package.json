@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "kill": "fuser -k 5000/tcp",
-    "build": "tsc -b && vite build",
+    "build": "npm run audio:validate && tsc -b && vite build",
     "check-types": "tsc -b --noCheck",
     "lint": "eslint .",
     "audit:loc": "node scripts/loc-audit.cjs",
@@ -37,6 +37,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "test:e2e:allure": "allure generate allure-results --clean && allure open",
+    "verify:welcome-assets": "node scripts/check-welcome-build-assets.cjs",
     "dashboard:server": "node dashboard-server.js",
     "dashboard:ui": "cd dashboard-ui && npm start",
     "dashboard": "concurrently \"npm run dashboard:server\" \"npm run dashboard:ui\""

@@ -91,7 +91,7 @@ export const GameMenuHome = memo(
                         <GameMenuActionStack className="menu-home-actions">
                             <Button
                                 size="lg"
-                                className="menu-action-card menu-action-card--start menu-primary-action h-21 gap-4 rounded-3xl border border-emerald-900/10 bg-emerald-600 px-5 text-[1.35rem] font-bold text-white shadow-[0_18px_28px_rgba(22,163,74,0.24)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_34px_rgba(22,163,74,0.26)] focus-visible:ring-emerald-200/70 sm:px-6"
+                                className="menu-action-card menu-action-card--start menu-primary-action min-h-[5.25rem] gap-4 rounded-3xl border border-emerald-900/10 bg-emerald-600 px-5 text-[1.35rem] font-bold text-white shadow-[0_18px_28px_rgba(22,163,74,0.24)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_34px_rgba(22,163,74,0.26)] focus-visible:ring-emerald-200/70 sm:px-6"
                                 onClick={onStartGame}
                                 data-testid="start-game-button"
                                 aria-label={t("game.startGame")}
@@ -114,7 +114,7 @@ export const GameMenuHome = memo(
                             <Button
                                 variant="default"
                                 size="lg"
-                                className="menu-action-card menu-action-card--challenge menu-secondary-action h-19 gap-4 rounded-3xl border border-blue-950/10 bg-blue-600 text-xl font-bold text-white shadow-[0_16px_24px_rgba(37,99,235,0.2)] hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-[0_20px_30px_rgba(37,99,235,0.24)]"
+                                className="menu-action-card menu-action-card--challenge menu-secondary-action min-h-[4.75rem] gap-4 rounded-3xl border border-blue-950/10 bg-blue-600 text-xl font-bold text-white shadow-[0_16px_24px_rgba(37,99,235,0.2)] hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-[0_20px_30px_rgba(37,99,235,0.24)]"
                                 onClick={handlePlayAllLevels}
                                 disabled={!canPlayAllLevels}
                                 data-testid="play-all-levels-button"
@@ -133,7 +133,7 @@ export const GameMenuHome = memo(
                             <Button
                                 variant="default"
                                 size="lg"
-                                className="menu-action-card menu-action-card--map menu-tertiary-action h-19 gap-4 rounded-3xl border border-slate-200 bg-[#fbf6ea] text-xl font-bold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.12)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.16)]"
+                                className="menu-action-card menu-action-card--map menu-tertiary-action min-h-[4.75rem] gap-4 rounded-3xl border border-stone-200 bg-[#fbf6ea] text-xl font-bold text-stone-900 shadow-[0_10px_18px_rgba(87,83,78,0.12)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(87,83,78,0.16)]"
                                 onClick={onShowLevels}
                                 onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
                                 data-testid="level-select-button"
@@ -142,7 +142,7 @@ export const GameMenuHome = memo(
                                 <MenuActionButtonContent
                                     icon={<GridIcon className="w-6 h-6" />}
                                     iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
-                                    subtitleClassName="mt-1 text-sm font-medium text-slate-600"
+                                    subtitleClassName="mt-1 text-sm font-medium text-stone-600"
                                     textClassName="menu-action-copy flex flex-col items-start leading-tight"
                                     title={levelSelectLabel.title}
                                     subtitle={levelSelectLabel.subtitle}

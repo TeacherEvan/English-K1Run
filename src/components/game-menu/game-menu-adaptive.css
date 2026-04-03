@@ -50,15 +50,46 @@
   }
 }
 
-@media (max-height: 44rem) {
-  .menu-home-panel {
-    padding: clamp(0.9rem, 2vh, 1.3rem);
+/* Narrow-portrait phones (≤ 544px wide): maintain single-column vertical stack
+   per guidelines, but adjust padding and font sizes to accommodate narrow viewports. */
+@media (max-width: 34rem) {
+  .menu-home-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    align-items: stretch;
   }
 
+  .menu-primary-action {
+    height: 4.5rem !important;
+  }
+
+  .menu-secondary-action,
+  .menu-tertiary-action,
+  .menu-support-action {
+    height: 4rem !important;
+  }
+
+  .menu-action-copy > span:first-child {
+    font-size: 1.15rem;
+  }
+
+  .menu-action-copy > span:last-child {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-height: 44rem) and (min-width: 48rem) {
   .menu-home-layout {
     grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem);
     gap: 1rem;
     align-items: stretch;
+  }
+}
+
+@media (max-height: 44rem) {
+  .menu-home-panel {
+    padding: clamp(0.9rem, 2vh, 1.3rem);
   }
 
   .menu-home-hero {
@@ -88,29 +119,22 @@
   }
 
   .menu-home-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem;
-    align-content: start;
-  }
-
-  .menu-home-actions > :first-child,
-  .menu-home-actions .menu-support-link {
-    grid-column: 1 / -1;
-  }
-
-  .menu-home-actions .menu-support-link {
-    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
   }
 
   .menu-primary-action {
-    min-height: 4.3rem;
+    height: 4rem !important;
+    min-height: auto;
   }
 
   .menu-secondary-action,
   .menu-tertiary-action,
   .menu-support-action {
-    min-height: 3.65rem;
+    height: 3.5rem !important;
+    min-height: auto;
   }
 
   .menu-action-copy {
@@ -190,13 +214,15 @@
   }
 }
 
+@media (max-height: 28rem) and (orientation: landscape) {
+  .menu-home-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(11.5rem, 15rem);
+  }
+}
+
 @media (max-height: 28rem) {
   .menu-home-panel {
     border-radius: 1.6rem;
-  }
-
-  .menu-home-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(11.5rem, 15rem);
   }
 
   .menu-home-brand-pill {

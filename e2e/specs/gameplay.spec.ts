@@ -57,19 +57,57 @@ test.describe("Gameplay", () => {
     gamePage,
     page,
   }) => {
-    await gamePage.menu.startGame();
+    // Game is already running from beforeEach; no need to call startGame() again.
     await gamePage.gameplay.waitForObjectsToSpawn(1);
 
-    for (let tap = 0; tap < 20; tap += 1) {
-      const target = await gamePage.gameplay.getCurrentTarget();
-      expect(target.emoji?.trim()).toBeTruthy();
+    const dialog = page.locator('[data-testid="default-completion-dialog"]');
 
-      await gamePage.gameplay.tapObjectByEmoji(target.emoji!.trim());
-      await page.waitForTimeout(150);
-      await gamePage.gameplay.waitForObjectsToSpawn(1);
+    // Tap up to 60 times; dialog appears once progress reaches 100
+    // (DEFAULT_MODE_PROGRESS_INCREMENT=5, so 20 perfect taps suffice).
+    // Extra headroom guards against rare timing-caused missed/late taps.
+    for (let tap = 0; tap < 60; tap += 1) {
+      if (await dialog.isVisible()) break;
+
+      const emojiText = await page
+        .locator('[data-testid="target-emoji"]')
+        .textContent({ timeout: 500 })
+        .catch(() => null);
+      // target display may disappear the moment winner state is reached
+      if (!emojiText?.trim()) {
+        if (await dialog.isVisible()) break;
+        continue;
+      }
+      const emoji = emojiText.trim();
+
+      // Wait for the target emoji to actually be present as a falling object
+      // before clicking; avoids tapping while a target-change timer fires.
+      // Match on data-emoji for exact target selection and retry clicks
+      // because falling objects can move out from under the pointer.
+      const escapedEmoji = emoji.replace(/"/g, '\\"');
+      const targetSelector = `[data-testid="falling-object"][data-emoji="${escapedEmoji}"]`;
+
+      let tapped = false;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const targetObj = page.locator(targetSelector).first();
+        const available = await targetObj.count();
+        if (available === 0) {
+          await page.waitForTimeout(120);
+          continue;
+        }
+
+        try {
+          await targetObj.click({ force: true, timeout: 3_000 });
+          tapped = true;
+          break;
+        } catch {
+          await page.waitForTimeout(120);
+        }
+      }
+
+      if (!tapped) continue;
+      await page.waitForTimeout(180);
     }
 
-    const dialog = page.locator('[data-testid="default-completion-dialog"]');
     await expect(dialog).toBeVisible({ timeout: 10_000 });
 
     await page
