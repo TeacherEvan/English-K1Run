@@ -257,6 +257,25 @@ export class GameMenuPage {
   }
 
   async startGame() {
+    const gameplayOrTransitionActive = await Promise.any([
+      this.page
+        .locator('[data-testid="target-display"]')
+        .isVisible()
+        .catch(() => false),
+      this.page
+        .locator('[data-testid="level-countdown-overlay"]')
+        .isVisible()
+        .catch(() => false),
+      this.page
+        .locator('[data-testid="level-complete-popup"]')
+        .isVisible()
+        .catch(() => false),
+    ]).catch(() => false);
+
+    if (gameplayOrTransitionActive) {
+      return;
+    }
+
     await this.openLevelSelect();
     await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
     await this.startGameButton.click({ timeout: 30_000 });

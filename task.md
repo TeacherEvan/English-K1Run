@@ -2,7 +2,7 @@
 
 ## Design Context
 
-_This section synthesizes the current codebase, repository documentation, live UI patterns, and confirmed UX guidance gathered through 2026-04-03. It should be treated as the standing design brief for future UI work unless a newer product decision replaces it._
+_This section synthesizes the current codebase, repository documentation, manifest/brand tokens, and live UI patterns verified through 2026-04-03. It should be treated as the standing design brief for future UI work unless a newer product decision replaces it._
 
 ### Users
 
@@ -21,6 +21,8 @@ Lean into a touch-first, nature-backed, toy-like classroom aesthetic with polish
 The preferred emotional balance is playful excitement with classroom control: energetic enough to feel like an adventure, but never noisy enough to feel like a frantic mobile game.
 
 The memorable signature should be a warm nature-meets-playroom world: real outdoor backdrops, a cheerful turtle mascot, soft cream panels, and oversized tactile controls that feel made for small hands.
+
+Typography should stay friendly, rounded, and highly legible at distance. Display type can feel toy-like and cheerful, but body copy must remain clean, simple, and easy for teachers to scan quickly. Avoid sterile system-default vibes, developer-ish monospace shortcuts, or trendy luxury typography that fights the classroom context.
 
 Current implementation cues worth preserving:
 
@@ -67,3 +69,4 @@ Color guardrails:
 4. **Playful excitement, never chaos.** Let the interface feel lively and rewarding, but avoid noisy mobile-game energy or cluttered reward spam.
 5. **One brand, one story.** Future UI work should consolidate around the `English K1 Run` name and its turtle-and-nature identity instead of inheriting older generic game branding.
 6. **Light-first by default.** Design for bright classroom readability first; support dark mode where helpful, but do not let dark styling drive the core aesthetic.
+7. **Accessible motion and contrast.** Preserve reduced-motion respect, WCAG-minded contrast, and interaction clarity for shared classrooms, distance viewing, and early readers.

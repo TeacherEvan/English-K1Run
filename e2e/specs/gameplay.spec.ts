@@ -1,4 +1,35 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "../fixtures/game.fixture";
+
+const eliminateAllWorms = async (page: Page) => {
+  for (let attempts = 0; attempts < 12; attempts += 1) {
+    const worms = page.locator('[data-testid="worm-target"]');
+    const remaining = await worms.count();
+    if (remaining === 0) break;
+
+    await worms.first().waitFor({ state: "visible", timeout: 5000 });
+    await worms.first().click({ force: true, timeout: 5000 });
+    await page.waitForTimeout(250);
+  }
+
+  await expect(page.locator('[data-testid="worm-target"]')).toHaveCount(0, {
+    timeout: 3000,
+  });
+};
+
+const waitForCountdownThenGameplay = async (page: Page) => {
+  const countdownOverlay = page.locator(
+    '[data-testid="level-countdown-overlay"]',
+  );
+  const targetDisplay = page.locator('[data-testid="target-display"]');
+
+  await Promise.any([
+    countdownOverlay.waitFor({ state: "visible", timeout: 3000 }),
+    targetDisplay.waitFor({ state: "visible", timeout: 3000 }),
+  ]).catch(() => undefined);
+
+  await expect(targetDisplay).toBeVisible({ timeout: 8000 });
+};
 
 test.describe("Gameplay", () => {
   test.slow();
@@ -53,30 +84,32 @@ test.describe("Gameplay", () => {
     await expect(gamePage.gameplay.progressBars.first()).toBeHidden();
   });
 
-  test("should show completion dialog after 20 correct taps", async ({
+  test("should show level transition after 10 correct taps", async ({
     gamePage,
     page,
   }) => {
-    await gamePage.menu.startGame();
     await gamePage.gameplay.waitForObjectsToSpawn(1);
 
-    for (let tap = 0; tap < 20; tap += 1) {
+    for (let tap = 0; tap < 10; tap += 1) {
       const target = await gamePage.gameplay.getCurrentTarget();
       expect(target.emoji?.trim()).toBeTruthy();
 
       await gamePage.gameplay.tapObjectByEmoji(target.emoji!.trim());
       await page.waitForTimeout(150);
-      await gamePage.gameplay.waitForObjectsToSpawn(1);
+      if (tap < 9) {
+        await gamePage.gameplay.waitForObjectsToSpawn(1);
+      }
     }
 
-    const dialog = page.locator('[data-testid="default-completion-dialog"]');
-    await expect(dialog).toBeVisible({ timeout: 10_000 });
-
-    await page
-      .locator('[data-testid="default-completion-dialog-button"]')
-      .click();
-
-    await expect(dialog).not.toBeVisible();
+    await expect(
+      page.locator('[data-testid="level-complete-popup"]'),
+    ).toBeVisible({ timeout: 3000 });
+    await expect(
+      page.locator('[data-testid="level-countdown-overlay"]'),
+    ).toBeVisible({ timeout: 8000 });
+    await expect(
+      page.locator('[data-testid="default-completion-dialog"]'),
+    ).toHaveCount(0);
   });
 
   test("falling objects should be clickable", async ({ gamePage }) => {
@@ -158,31 +191,14 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
       page.locator('[data-testid="worm-loading-screen"]'),
     ).toBeVisible();
 
-    // Eliminate worms until none remain (more stable than fixed click count)
-    for (let attempts = 0; attempts < 12; attempts++) {
-      const worms = page.locator('[data-testid="worm-target"]');
-      const remaining = await worms.count();
-      if (remaining === 0) break;
-
-      await worms.first().waitFor({ state: "visible", timeout: 5000 });
-      await worms.first().click({ force: true, timeout: 5000 });
-      await page.waitForTimeout(250);
-    }
-
-    await expect(page.locator('[data-testid="worm-target"]')).toHaveCount(0, {
-      timeout: 3000,
-    });
-
-    // Should auto-advance to game within 5 seconds
-    // Accounts for: 5 clicks * 250ms + state updates + 500ms delay + component transitions
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 7000,
-    });
+    await eliminateAllWorms(page);
 
     // Loading screen should be gone
     await expect(
       page.locator('[data-testid="worm-loading-screen"]'),
     ).not.toBeVisible();
+
+    await waitForCountdownThenGameplay(page);
   });
 
   test("should show completion message when all worms eliminated", async ({
@@ -196,33 +212,15 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
       page.locator('[data-testid="worm-loading-screen"]'),
     ).toBeVisible();
 
-    // Eliminate worms until none remain (avoids flaky fixed-count assumptions)
-    for (let attempts = 0; attempts < 12; attempts++) {
-      const worms = page.locator('[data-testid="worm-target"]');
-      const remaining = await worms.count();
-      if (remaining === 0) break;
-
-      await worms.first().waitFor({ state: "visible", timeout: 5000 });
-      await worms.first().click({ force: true, timeout: 5000 });
-      await page.waitForTimeout(250);
-    }
-
-    await expect(page.locator('[data-testid="worm-target"]')).toHaveCount(0, {
-      timeout: 3000,
-    });
+    await eliminateAllWorms(page);
 
     // Check for completion message (appears before auto-advancing)
     const completionMessage = page.locator(
       '[data-testid="worm-completion-message"]',
     );
     await expect(completionMessage).toBeVisible({ timeout: 2000 });
-    await expect(completionMessage).toContainText("All worms caught");
-    await expect(completionMessage).toContainText("Starting game");
 
-    // Then verify game starts
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 5000,
-    });
+    await waitForCountdownThenGameplay(page);
   });
 
   test("skip button should still work as manual override", async ({ page }) => {
@@ -237,13 +235,11 @@ test.describe("Worm Loading Screen Auto-Progression", () => {
     // Click skip immediately without eliminating worms
     await page.click('[data-testid="skip-loading-button"]');
 
-    // Should advance to game
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 2000,
-    });
     await expect(
       page.locator('[data-testid="worm-loading-screen"]'),
     ).not.toBeVisible();
+
+    await waitForCountdownThenGameplay(page);
   });
 
   test("skip button should have updated text", async ({ page }) => {

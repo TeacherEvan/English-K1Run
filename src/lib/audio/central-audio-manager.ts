@@ -17,6 +17,8 @@ interface PlayManagedOptions {
   expectedDurationMs?: number;
 }
 
+const PLAYBACK_TIMEOUT_BUFFER_MS = 750;
+
 /**
  * CentralAudioManager
  *
@@ -107,8 +109,43 @@ export class CentralAudioManager {
     this.clearChannelTimer(channel);
     this.channelState.set(channel, { key, priority });
 
+    let playbackTimeout: ReturnType<typeof setTimeout> | undefined;
+
     try {
-      await soundManager.playSoundWithFadeAsync(key, playbackRate, volume, fadeInMs);
+      const playbackResult =
+        expectedDurationMs && expectedDurationMs > 0
+          ? await Promise.race<boolean>([
+              soundManager
+                .playSoundWithFadeAsync(key, playbackRate, volume, fadeInMs)
+                .then(() => true),
+              new Promise<boolean>((resolve) => {
+                playbackTimeout = setTimeout(() => {
+                  resolve(false);
+                }, expectedDurationMs + PLAYBACK_TIMEOUT_BUFFER_MS);
+              }),
+            ])
+          : (await soundManager.playSoundWithFadeAsync(
+              key,
+              playbackRate,
+              volume,
+              fadeInMs,
+            ),
+            true);
+
+      if (!playbackResult) {
+        if (this.isCurrentToken(channel, token)) {
+          soundManager.fadeOutKey(key, 80);
+          this.clearChannel(channel);
+        }
+        if (import.meta.env.DEV) {
+          console.warn("[CentralAudioManager] Managed playback timed out", {
+            key,
+            channel,
+            expectedDurationMs,
+          });
+        }
+        return false;
+      }
     } catch (error) {
       if (this.isCurrentToken(channel, token)) {
         this.clearChannel(channel);
@@ -121,6 +158,10 @@ export class CentralAudioManager {
         });
       }
       return false;
+    } finally {
+      if (playbackTimeout) {
+        clearTimeout(playbackTimeout);
+      }
     }
 
     if (!this.isCurrentToken(channel, token)) {
@@ -128,14 +169,7 @@ export class CentralAudioManager {
       return false;
     }
 
-    if (expectedDurationMs && expectedDurationMs > 0) {
-      const timer = setTimeout(() => {
-        if (this.isCurrentToken(channel, token)) {
-          this.clearChannel(channel);
-        }
-      }, expectedDurationMs);
-      this.channelTimers.set(channel, timer);
-    }
+    this.clearChannel(channel);
 
     return true;
   }
