@@ -16,14 +16,16 @@ vi.mock("react-i18next", () => ({
             const language = options?.lng ?? "en";
             const translations: Record<string, Record<string, string>> = {
                 en: {
-                    "messages.victoryTitle": "You Win!",
-                    "messages.completionTitle": "Well done!",
-                    "messages.completionDescription": "Try some of the other levels!",
+                    "transition.upNext": "Up next",
+                    "transition.levelCompleteTitle": "Level complete!",
+                    "transition.levelCompleteDescription": "Next level is getting ready.",
+                    "accessibility.levelCompleteAnnouncement": "Level complete! Next level is getting ready.",
                 },
                 ja: {
-                    "messages.victoryTitle": "きみの勝ち！",
-                    "messages.completionTitle": "よくできました！",
-                    "messages.completionDescription": "ほかのレベルもやってみましょう！",
+                    "transition.upNext": "つぎのレベル",
+                    "transition.levelCompleteTitle": "レベルクリア！",
+                    "transition.levelCompleteDescription": "つぎのレベルをじゅんびしています。",
+                    "accessibility.levelCompleteAnnouncement": "レベルクリア！つぎのレベルをじゅんびしています。",
                 },
             };
 
@@ -58,9 +60,9 @@ describe("LevelCompletePopup", () => {
         });
 
         const text = document.body.textContent ?? "";
-        expect(text).toContain("きみの勝ち！");
-        expect(text).toContain("よくできました！");
-        expect(text).toContain("ほかのレベルもやってみましょう！");
+        expect(text).toContain("つぎのレベル");
+        expect(text).toContain("レベルクリア！");
+        expect(text).toContain("つぎのレベルをじゅんびしています。");
     });
 
     it("requests dismissal after the auto-close timeout", () => {

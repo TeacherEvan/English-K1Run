@@ -5,6 +5,16 @@ import {
   resolvePublicAudioUrl,
 } from "../audio-public-resolver";
 
+const createResponse = (ok: boolean, contentType?: string) =>
+  ({
+    ok,
+    headers: {
+      get: vi.fn((name: string) =>
+        name.toLowerCase() === "content-type" ? (contentType ?? null) : null,
+      ),
+    },
+  }) as unknown as Response;
+
 describe("resolvePublicAudioUrl", () => {
   const fetchMock = vi.fn<typeof fetch>();
   let canPlayTypeSpy: { mockRestore: () => void } | undefined;
@@ -23,8 +33,8 @@ describe("resolvePublicAudioUrl", () => {
 
   it("falls back to mp3 when the preferred wav welcome file is missing", async () => {
     fetchMock
-      .mockResolvedValueOnce({ ok: false } as Response)
-      .mockResolvedValueOnce({ ok: true } as Response);
+      .mockResolvedValueOnce(createResponse(true, "text/html"))
+      .mockResolvedValueOnce(createResponse(true, "audio/mpeg"));
 
     await expect(
       resolvePublicAudioUrl("welcome_evan_intro_thai"),
@@ -48,9 +58,9 @@ describe("resolvePublicAudioUrl", () => {
 
   it("resolves space-based filenames for normalized multi-word keys", async () => {
     fetchMock
-      .mockResolvedValueOnce({ ok: false } as Response)
-      .mockResolvedValueOnce({ ok: false } as Response)
-      .mockResolvedValueOnce({ ok: true } as Response);
+      .mockResolvedValueOnce(createResponse(false))
+      .mockResolvedValueOnce(createResponse(false))
+      .mockResolvedValueOnce(createResponse(true, "audio/wav"));
 
     await expect(resolvePublicAudioUrl("fire_truck")).resolves.toBe(
       "/sounds/fire truck.wav",
@@ -62,7 +72,15 @@ describe("resolvePublicAudioUrl", () => {
   });
 
   it("returns null when no public candidate exists", async () => {
-    fetchMock.mockResolvedValue({ ok: false } as Response);
+    fetchMock.mockResolvedValue(createResponse(false));
+
+    await expect(
+      resolvePublicAudioUrl("missing_sound_key"),
+    ).resolves.toBeNull();
+  });
+
+  it("rejects html responses that masquerade as successful audio paths", async () => {
+    fetchMock.mockResolvedValue(createResponse(true, "text/html"));
 
     await expect(
       resolvePublicAudioUrl("missing_sound_key"),

@@ -34,6 +34,27 @@ const buildFileNameCandidates = (key: string): string[] => {
   return Array.from(variants);
 };
 
+const isAudioLikeResponse = (response: Response): boolean => {
+  if (!response.ok) {
+    return false;
+  }
+
+  const contentType =
+    response.headers?.get("content-type")?.toLowerCase() ?? "";
+  if (!contentType) {
+    return true;
+  }
+
+  if (
+    contentType.startsWith("audio/") ||
+    contentType === "application/octet-stream"
+  ) {
+    return true;
+  }
+
+  return !contentType.includes("text/html");
+};
+
 const canLoadPublicUrl = async (url: string): Promise<boolean> => {
   if (publicUrlExistsCache.has(url)) {
     return publicUrlExistsCache.get(url) ?? false;
@@ -41,7 +62,7 @@ const canLoadPublicUrl = async (url: string): Promise<boolean> => {
 
   try {
     const response = await fetch(url, { method: "HEAD" });
-    const exists = response.ok;
+    const exists = isAudioLikeResponse(response);
     publicUrlExistsCache.set(url, exists);
     return exists;
   } catch {

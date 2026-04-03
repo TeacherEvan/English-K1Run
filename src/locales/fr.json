@@ -82,7 +82,16 @@
     "targetObject": "Objet Cible",
     "levelSelectionOpened": "Menu de sélection des niveaux ouvert",
     "selectedLevel": "Niveau sélectionné : {{level}}",
-    "completionDialogAnnouncement": "Bravo ! Essayez d'autres niveaux !"
+    "completionDialogAnnouncement": "Bravo ! Essayez d'autres niveaux !",
+    "levelCompleteAnnouncement": "Niveau terminé ! Le niveau suivant se prépare.",
+    "levelCountdownAnnouncement": "{{level}} commence dans {{count}}."
+  },
+  "transition": {
+    "getReady": "Prépare-toi",
+    "upNext": "À suivre",
+    "startingIn": "Départ dans {{count}}",
+    "levelCompleteTitle": "Niveau terminé !",
+    "levelCompleteDescription": "Le niveau suivant se prépare."
   },
   "common": {
     "on": "Activé",

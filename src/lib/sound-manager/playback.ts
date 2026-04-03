@@ -32,6 +32,32 @@ export interface SoundPlaybackDependencies {
 }
 
 export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
+  const tryHtmlAudioFallback = async (
+    soundName: string,
+    playbackRate: number,
+    volumeOverride?: number,
+  ): Promise<boolean> => {
+    const candidates = deps.resolveCandidates(soundName);
+
+    for (const candidate of candidates) {
+      const url = await deps.getUrl(candidate);
+      if (!url) continue;
+
+      const played = await deps.playbackEngine.playWithHtmlAudio(
+        candidate,
+        url,
+        playbackRate,
+        undefined,
+        volumeOverride,
+      );
+      if (played) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const playVoiceClip = async (
     name: string,
     playbackRate = 1.0,
@@ -93,11 +119,21 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
       }
       await deps.ensureInitialized();
       if (!deps.getAudioContext()) {
+        if (
+          await tryHtmlAudioFallback(soundName, playbackRate, volumeOverride)
+        ) {
+          return;
+        }
         console.warn(`[SoundPlayback] No audio context for "${soundName}"`);
         return;
       }
       const buffer = await deps.loadBufferForName(soundName, false);
       if (!buffer) {
+        if (
+          await tryHtmlAudioFallback(soundName, playbackRate, volumeOverride)
+        ) {
+          return;
+        }
         console.warn(
           `[SoundPlayback] Failed to load buffer for "${soundName}"`,
         );

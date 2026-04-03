@@ -82,7 +82,16 @@
     "targetObject": "ターゲットオブジェクト",
     "levelSelectionOpened": "レベル選択メニューを開きました",
     "selectedLevel": "選択中のレベル: {{level}}",
-    "completionDialogAnnouncement": "よくできました！ほかのレベルもやってみましょう！"
+    "completionDialogAnnouncement": "よくできました！ほかのレベルもやってみましょう！",
+    "levelCompleteAnnouncement": "レベルクリア！つぎのレベルをじゅんびしています。",
+    "levelCountdownAnnouncement": "{{level}} が {{count}} びょうでスタートします。"
+  },
+  "transition": {
+    "getReady": "じゅんびしよう",
+    "upNext": "つぎのレベル",
+    "startingIn": "{{count}}びょうでスタート",
+    "levelCompleteTitle": "レベルクリア！",
+    "levelCompleteDescription": "つぎのレベルをじゅんびしています。"
   },
   "common": {
     "on": "オン",

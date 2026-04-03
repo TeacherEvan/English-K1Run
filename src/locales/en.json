@@ -82,7 +82,16 @@
     "targetObject": "Target Object",
     "levelSelectionOpened": "Level selection menu opened",
     "selectedLevel": "Selected level: {{level}}",
-    "completionDialogAnnouncement": "Well done! Try some of the other levels!"
+    "completionDialogAnnouncement": "Well done! Try some of the other levels!",
+    "levelCompleteAnnouncement": "Level complete! Next level is getting ready.",
+    "levelCountdownAnnouncement": "{{level}} starts in {{count}}."
+  },
+  "transition": {
+    "getReady": "Get ready",
+    "upNext": "Up next",
+    "startingIn": "Starting in {{count}}",
+    "levelCompleteTitle": "Level complete!",
+    "levelCompleteDescription": "Next level is getting ready."
   },
   "common": {
     "on": "On",

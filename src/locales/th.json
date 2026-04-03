@@ -82,7 +82,16 @@
     "targetObject": "วัตถุเป้าหมาย",
     "levelSelectionOpened": "เปิดเมนูเลือกด่านแล้ว",
     "selectedLevel": "ด่านที่เลือก: {{level}}",
-    "completionDialogAnnouncement": "เก่งมาก! ลองไปเล่นด่านอื่น ๆ ดูสิ!"
+    "completionDialogAnnouncement": "เก่งมาก! ลองไปเล่นด่านอื่น ๆ ดูสิ!",
+    "levelCompleteAnnouncement": "ผ่านด่านแล้ว! กำลังเตรียมด่านถัดไป",
+    "levelCountdownAnnouncement": "{{level}} จะเริ่มในอีก {{count}}"
+  },
+  "transition": {
+    "getReady": "เตรียมตัว",
+    "upNext": "ด่านถัดไป",
+    "startingIn": "เริ่มในอีก {{count}}",
+    "levelCompleteTitle": "ผ่านด่านแล้ว!",
+    "levelCompleteDescription": "กำลังเตรียมด่านถัดไป"
   },
   "common": {
     "on": "เปิด",

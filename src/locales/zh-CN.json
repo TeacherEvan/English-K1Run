@@ -82,7 +82,16 @@
     "targetObject": "目标对象",
     "levelSelectionOpened": "关卡选择菜单已打开",
     "selectedLevel": "已选择关卡：{{level}}",
-    "completionDialogAnnouncement": "做得好！试试其他关卡吧！"
+    "completionDialogAnnouncement": "做得好！试试其他关卡吧！",
+    "levelCompleteAnnouncement": "本关完成！正在准备下一关。",
+    "levelCountdownAnnouncement": "{{level}} 将在 {{count}} 后开始。"
+  },
+  "transition": {
+    "getReady": "准备好",
+    "upNext": "下一关",
+    "startingIn": "{{count}} 后开始",
+    "levelCompleteTitle": "本关完成！",
+    "levelCompleteDescription": "正在准备下一关。"
   },
   "common": {
     "on": "开启",

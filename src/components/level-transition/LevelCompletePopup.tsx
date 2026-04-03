@@ -15,6 +15,10 @@ export const LevelCompletePopup = ({
 }: LevelCompletePopupProps) => {
     const { t } = useTranslation();
     const { gameplayLanguage } = useSettings();
+    const announcement = t("accessibility.levelCompleteAnnouncement", {
+        lng: gameplayLanguage,
+        defaultValue: "Level complete! Next level is getting ready.",
+    });
 
     useEffect(() => {
         if (!isVisible || !onDismiss) return;
@@ -32,15 +36,27 @@ export const LevelCompletePopup = ({
             data-testid="level-complete-popup"
             style={{ zIndex: UI_LAYER_MATRIX.HUD_CRITICAL }}
         >
-            <div className="w-full max-w-md rounded-4xl border border-amber-200/80 bg-[rgba(255,250,240,0.96)] px-6 py-5 text-center shadow-[0_24px_60px_rgba(120,53,15,0.18)] backdrop-blur-md">
-                <div className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-amber-700/80">
-                    {t("messages.victoryTitle", { lng: gameplayLanguage })}
+            <div className="w-full max-w-md rounded-4xl border border-[color-mix(in_oklch,var(--accent)_40%,transparent)] bg-[color-mix(in_oklch,var(--background)_86%,oklch(0.96_0.04_95))] px-6 py-5 text-center shadow-[0_24px_60px_oklch(0.45_0.09_65_/_0.18)] backdrop-blur-md">
+                <div role="status" aria-live="polite" className="sr-only">
+                    {announcement}
                 </div>
-                <div className="text-3xl font-black tracking-[-0.04em] text-amber-950 sm:text-4xl">
-                    {t("messages.completionTitle", { lng: gameplayLanguage })}
+                <div className="mb-2 text-xs font-black uppercase tracking-[0.22em] text-[color-mix(in_oklch,var(--foreground)_56%,var(--accent))]">
+                    {t("transition.upNext", {
+                        lng: gameplayLanguage,
+                        defaultValue: "Up next",
+                    })}
                 </div>
-                <div className="mt-2 text-sm font-medium text-amber-900/75 sm:text-base">
-                    {t("messages.completionDescription", { lng: gameplayLanguage })}
+                <div className="text-3xl font-black tracking-[-0.04em] text-[color-mix(in_oklch,var(--foreground)_94%,oklch(0.5_0.07_70))] sm:text-4xl">
+                    {t("transition.levelCompleteTitle", {
+                        lng: gameplayLanguage,
+                        defaultValue: "Level complete!",
+                    })}
+                </div>
+                <div className="mt-2 text-sm font-medium text-[color-mix(in_oklch,var(--foreground)_72%,var(--accent))] sm:text-base">
+                    {t("transition.levelCompleteDescription", {
+                        lng: gameplayLanguage,
+                        defaultValue: "Next level is getting ready.",
+                    })}
                 </div>
                 <div aria-hidden="true" className="mt-3 text-2xl opacity-70">
                     ✨ 🐢 ✨

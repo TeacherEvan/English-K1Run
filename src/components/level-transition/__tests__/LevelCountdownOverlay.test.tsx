@@ -12,16 +12,20 @@ vi.mock("../../../context/settings-context", () => ({
 
 vi.mock("react-i18next", () => ({
     useTranslation: () => ({
-        t: (key: string, options?: { lng?: string; level?: string }) => {
+        t: (key: string, options?: { lng?: string; level?: string; count?: number }) => {
             const language = options?.lng ?? "en";
             const translations: Record<string, Record<string, string>> = {
                 en: {
-                    "welcome.readyContinue": "Ready to continue",
-                    "accessibility.selectedLevel": `Selected level: ${options?.level ?? ""}`,
+                    "transition.getReady": "Get ready",
+                    "transition.upNext": "Up next",
+                    "transition.startingIn": `Starting in ${options?.count ?? 0}`,
+                    "accessibility.levelCountdownAnnouncement": `${options?.level ?? ""} starts in ${options?.count ?? 0}.`,
                 },
                 ja: {
-                    "welcome.readyContinue": "つづけられます",
-                    "accessibility.selectedLevel": `選択中のレベル: ${options?.level ?? ""}`,
+                    "transition.getReady": "じゅんびしよう",
+                    "transition.upNext": "つぎのレベル",
+                    "transition.startingIn": `${options?.count ?? 0}びょうでスタート`,
+                    "accessibility.levelCountdownAnnouncement": `${options?.level ?? ""} が ${options?.count ?? 0} びょうでスタートします。`,
                 },
             };
 
@@ -62,9 +66,11 @@ describe("LevelCountdownOverlay", () => {
             );
         });
 
-        expect(document.body.textContent).toContain("つづけられます");
+        expect(document.body.textContent).toContain("じゅんびしよう");
+        expect(document.body.textContent).toContain("つぎのレベル");
         expect(document.body.textContent).toContain("5");
         expect(document.body.textContent).toContain("動物と自然");
+        expect(document.body.textContent).toContain("5びょうでスタート");
     });
 
     it("counts down toward one as time advances", () => {

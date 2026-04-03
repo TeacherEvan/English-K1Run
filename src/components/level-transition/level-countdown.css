@@ -1,17 +1,23 @@
 .level-countdown-shell {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(186, 230, 253, 0.9);
+  border: 1px solid color-mix(in oklch, var(--primary) 28%, oklch(0.97 0.02 95));
   background:
-    radial-gradient(circle at top, rgba(125, 211, 252, 0.2), transparent 34%),
+    radial-gradient(circle at top, oklch(0.9 0.05 230 / 0.35), transparent 34%),
+    radial-gradient(
+      circle at 84% 18%,
+      oklch(0.9 0.07 105 / 0.28),
+      transparent 22%
+    ),
     linear-gradient(
       180deg,
-      rgba(255, 251, 235, 0.97),
-      rgba(248, 250, 252, 0.97)
+      color-mix(in oklch, var(--background) 82%, oklch(0.98 0.04 95)),
+      color-mix(in oklch, var(--card) 88%, oklch(0.96 0.03 225))
     );
   box-shadow:
-    0 32px 90px rgba(15, 23, 42, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    0 32px 90px oklch(0.25 0.03 250 / 0.16),
+    inset 0 1px 0 oklch(1 0 0 / 0.9);
+  animation: level-countdown-arrive 420ms cubic-bezier(0.19, 1, 0.22, 1) both;
 }
 
 .level-countdown-shell::after {
@@ -28,7 +34,7 @@
   inset: 1rem 1.25rem auto;
   display: flex;
   justify-content: space-between;
-  color: rgba(14, 116, 144, 0.36);
+  color: oklch(0.62 0.09 230 / 0.36);
 }
 
 .level-countdown-stars span {
@@ -48,15 +54,79 @@
   line-height: 0.9;
   font-weight: 900;
   letter-spacing: -0.08em;
-  color: #0f172a;
+  color: oklch(0.24 0.03 250);
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8),
-    0 10px 30px rgba(56, 189, 248, 0.18);
-  animation: level-countdown-glow 1.8s ease-in-out infinite;
+    0 1px 0 oklch(1 0 0 / 0.8),
+    0 10px 30px oklch(0.83 0.08 230 / 0.26);
+  animation:
+    level-countdown-glow 1.8s ease-in-out infinite,
+    level-countdown-pop 360ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.level-countdown-brow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.level-countdown-kicker {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: oklch(0.46 0.09 230);
+}
+
+.level-countdown-chip {
+  border: 1px solid color-mix(in oklch, var(--accent) 48%, transparent);
+  background: color-mix(in oklch, var(--accent) 22%, white);
+  color: color-mix(in oklch, var(--foreground) 88%, var(--accent));
+  padding: 0.38rem 0.78rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .level-countdown-label {
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  max-width: 18ch;
+  margin-inline: auto;
+  text-shadow: 0 1px 0 oklch(1 0 0 / 0.6);
+}
+
+.level-countdown-support {
+  margin-top: 0.55rem;
+  color: color-mix(in oklch, var(--foreground) 66%, var(--primary));
+  font-size: clamp(0.98rem, 1.4vw, 1.12rem);
+  font-weight: 600;
+}
+
+.level-countdown-progress {
+  margin-top: 1.35rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--primary) 12%, white);
+  box-shadow: inset 0 1px 2px oklch(0.38 0.03 250 / 0.12);
+}
+
+.level-countdown-progress-bar {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    oklch(0.78 0.09 150),
+    oklch(0.76 0.11 215),
+    oklch(0.86 0.08 95)
+  );
+  transform: scaleX(var(--countdown-progress, 0));
+  transform-origin: left center;
+  transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 @keyframes level-countdown-glow {
@@ -72,6 +142,30 @@
   }
 }
 
+@keyframes level-countdown-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes level-countdown-pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 @keyframes level-countdown-twinkle {
   0%,
   100% {
@@ -84,8 +178,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .level-countdown-shell,
   .level-countdown-value,
   .level-countdown-stars span {
     animation: none;
+  }
+
+  .level-countdown-progress-bar {
+    transition: none;
   }
 }
