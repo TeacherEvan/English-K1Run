@@ -44,8 +44,6 @@ DOCS/
 **/*.spec.ts
 **/*.spec.tsx
 
-# Scripts
-scripts/
 deploy.sh
 deploy.ps1
 verify-quality.sh
