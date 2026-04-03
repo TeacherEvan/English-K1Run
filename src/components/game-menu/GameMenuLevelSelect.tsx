@@ -96,9 +96,9 @@ export const GameMenuLevelSelect = memo(
             >
                 <Card
                     ref={modalRef}
-                    className="level-select-panel mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-4xl border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(51,65,85,0.16)]"
+                    className="level-select-panel mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-4xl border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(68,64,60,0.16)]"
                 >
-                    <div className="level-select-header flex shrink-0 items-center justify-between border-b border-slate-200/80 bg-[rgba(255,248,237,0.94)] px-5 py-5 sm:px-8 sm:py-6">
+                    <div className="level-select-header flex shrink-0 items-center justify-between border-b border-stone-200/80 bg-[rgba(255,248,237,0.94)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
                             variant="ghost"
                             size="lg"
@@ -152,7 +152,7 @@ export const GameMenuLevelSelect = memo(
                     </div>
 
                     {/* Footer - Fixed properties */}
-                    <div className="level-select-footer flex shrink-0 justify-center border-t border-slate-200/70 bg-[rgba(255,248,237,0.8)] px-5 py-5 sm:px-8 sm:py-6">
+                    <div className="level-select-footer flex shrink-0 justify-center border-t border-stone-200/70 bg-[rgba(255,248,237,0.8)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
                             size="lg"
                             className="level-select-start h-20 w-full max-w-md whitespace-normal rounded-[1.75rem] bg-emerald-600 px-4 text-[clamp(1.5rem,3vw,2.25rem)] font-black leading-tight text-white shadow-[0_18px_30px_rgba(22,163,74,0.22)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_36px_rgba(22,163,74,0.24)]"
