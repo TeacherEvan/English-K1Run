@@ -95,14 +95,14 @@ export const GameMenuLevelSelect = memo(
             >
                 <Card
                     ref={modalRef}
-                    className="level-select-panel mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-4xl border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(51,65,85,0.16)]"
+                    className="level-select-panel mx-auto flex h-[min(90vh,58rem)] w-full max-w-6xl flex-col overflow-hidden rounded-4xl border border-sky-100 bg-[rgba(255,250,240,0.95)] shadow-[0_28px_80px_rgba(68,64,60,0.16)]"
                 >
-                    <div className="level-select-header flex shrink-0 items-center justify-between border-b border-slate-200/80 bg-[rgba(255,248,237,0.94)] px-5 py-5 sm:px-8 sm:py-6">
+                    <div className="level-select-header flex shrink-0 items-center justify-between border-b border-stone-200/80 bg-[rgba(255,248,237,0.94)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
                             variant="ghost"
                             size="lg"
                             onClick={onBack}
-                            className="level-select-back gap-2 rounded-full px-4 text-lg font-semibold text-slate-700 hover:bg-slate-900/5"
+                            className="level-select-back gap-2 rounded-full px-4 text-lg font-semibold text-stone-700 hover:bg-stone-900/5"
                             data-testid="back-to-menu-button"
                             aria-label={t("game.back")}
                         >
@@ -116,7 +116,7 @@ export const GameMenuLevelSelect = memo(
                             >
                                 {CLASSROOM_BRAND.signature}
                             </div>
-                            <h2 className="level-select-title text-[clamp(2rem,4vw,3rem)] font-black tracking-[-0.035em] text-slate-900">
+                            <h2 className="level-select-title text-[clamp(2rem,4vw,3rem)] font-black tracking-[-0.035em] text-stone-900">
                                 {t("game.selectLevel")}
                             </h2>
                         </div>
@@ -129,9 +129,9 @@ export const GameMenuLevelSelect = memo(
                                 <Button
                                     key={level}
                                     variant={selectedLevel === index ? "default" : "outline"}
-                                    className={`level-select-tile flex h-40 flex-col gap-3 rounded-3xl border text-xl font-bold whitespace-normal transition-all duration-200 active:scale-[0.98] motion-reduce:transform-none xl:h-48 ${selectedLevel === index
-                                        ? "border-slate-900 bg-slate-900 text-white shadow-[0_18px_30px_rgba(15,23,42,0.18)] ring-4 ring-amber-200/60"
-                                        : "bg-[#fffaf0] text-slate-900 shadow-[0_12px_22px_rgba(71,85,105,0.12)] hover:-translate-y-1 hover:border-slate-300 hover:bg-[#f6eee0] hover:shadow-[0_18px_28px_rgba(71,85,105,0.16)]"
+                                    className={`level-select-tile flex h-40 flex-col gap-3 rounded-3xl border text-xl font-bold whitespace-normal transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] motion-reduce:transform-none xl:h-48 ${selectedLevel === index
+                                        ? "border-stone-900 bg-stone-900 text-white shadow-[0_18px_30px_rgba(15,23,42,0.18)] ring-4 ring-amber-200/60"
+                                        : "bg-[#fffaf0] text-stone-900 shadow-[0_12px_22px_rgba(87,83,78,0.12)] hover:-translate-y-1 hover:border-stone-300 hover:bg-[#f6eee0] hover:shadow-[0_18px_28px_rgba(87,83,78,0.16)]"
                                         }`}
                                     onClick={() => onSelectLevel(index)}
                                     data-testid="level-button"
@@ -151,7 +151,7 @@ export const GameMenuLevelSelect = memo(
                     </div>
 
                     {/* Footer - Fixed properties */}
-                    <div className="level-select-footer flex shrink-0 justify-center border-t border-slate-200/70 bg-[rgba(255,248,237,0.8)] px-5 py-5 sm:px-8 sm:py-6">
+                    <div className="level-select-footer flex shrink-0 justify-center border-t border-stone-200/70 bg-[rgba(255,248,237,0.8)] px-5 py-5 sm:px-8 sm:py-6">
                         <Button
                             size="lg"
                             className="level-select-start h-20 w-full max-w-md rounded-[1.75rem] bg-emerald-600 text-[clamp(1.5rem,3vw,2.25rem)] font-black text-white shadow-[0_18px_30px_rgba(22,163,74,0.22)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_36px_rgba(22,163,74,0.24)]"

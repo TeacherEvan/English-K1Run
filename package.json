@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "kill": "fuser -k 5000/tcp",
-    "build": "tsc -b && vite build",
+    "build": "npm run audio:validate && tsc -b && vite build",
     "check-types": "tsc -b --noCheck",
     "lint": "eslint .",
     "audit:loc": "node scripts/loc-audit.cjs",

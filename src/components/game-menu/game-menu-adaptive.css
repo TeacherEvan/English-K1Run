@@ -89,6 +89,8 @@
 
 @media (max-height: 44rem) {
   .menu-home-panel {
+    padding: clamp(0.9rem, 2vh, 1.3rem);
+  }
 
   .menu-home-hero {
     gap: 0.8rem;

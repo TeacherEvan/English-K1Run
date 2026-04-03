@@ -41,7 +41,7 @@ export function GameMenuHero({
                     />
                 ))}
                 <div className="menu-storybook-mascot">
-                    <div className="menu-home-mascot cursor-default select-none text-[clamp(4.5rem,11vw,6.5rem)] leading-none drop-shadow-[0_12px_20px_rgba(71,85,105,0.18)] motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1 motion-reduce:transform-none">
+                    <div className="menu-home-mascot cursor-default select-none text-[clamp(4.5rem,11vw,6.5rem)] leading-none drop-shadow-[0_12px_20px_rgba(87,83,78,0.18)] motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:hover:-translate-y-2 motion-reduce:transform-none">
                         🐢
                     </div>
                 </div>
@@ -49,12 +49,12 @@ export function GameMenuHero({
 
             <div className="menu-home-copy space-y-3">
                 <h1
-                    className="menu-home-heading text-[clamp(2.75rem,6vw,4.5rem)] font-black leading-[0.95] tracking-[-0.045em] text-slate-900"
+                    className="menu-home-heading text-[clamp(2.75rem,6vw,4.5rem)] font-black leading-[0.95] tracking-[-0.045em] text-stone-900"
                     data-testid="game-title"
                 >
                     {t("game.title")}
                 </h1>
-                <p className="menu-home-instructions mx-auto max-w-[24rem] text-[clamp(1rem,2.2vw,1.2rem)] font-medium leading-[1.45] text-slate-700 lg:mx-0">
+                <p className="menu-home-instructions mx-auto max-w-[24rem] text-[clamp(1rem,2.2vw,1.2rem)] font-medium leading-[1.45] text-stone-700 lg:mx-0">
                     {t("menu.instructions")}
                 </p>
             </div>
