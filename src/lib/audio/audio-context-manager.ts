@@ -51,7 +51,7 @@ export class AudioContextManager {
   private setupUserInteractionListener(): void {
     if (typeof document === "undefined") return;
 
-    const handleInteraction = async () => {
+    const handleInteraction = () => {
       if (this.userInteractionReceived) return;
       this.userInteractionReceived = true;
 
@@ -61,27 +61,47 @@ export class AudioContextManager {
         );
       }
 
-      await this.ensureInitialized();
+      this.initializeAudioContext();
+      if (this.audioContext && this.audioContext.state === "suspended") {
+        this.audioContext.resume().catch((error) => {
+          console.error("[AudioContextManager] Failed to resume:", error);
+        });
+      }
 
       // Notify callbacks
       this.onReadyCallbacks.forEach((callback) => callback());
       this.onReadyCallbacks = [];
 
       // Remove listeners
-      document.removeEventListener("click", handleInteraction);
-      document.removeEventListener("touchstart", handleInteraction);
-      document.removeEventListener("keydown", handleInteraction);
+      document.removeEventListener("click", handleInteraction, {
+        capture: true,
+      });
+      document.removeEventListener("touchstart", handleInteraction, {
+        capture: true,
+      });
+      document.removeEventListener("keydown", handleInteraction, {
+        capture: true,
+      });
     };
 
-    document.addEventListener("click", handleInteraction, { once: true });
-    document.addEventListener("touchstart", handleInteraction, { once: true });
-    document.addEventListener("keydown", handleInteraction, { once: true });
+    document.addEventListener("click", handleInteraction, {
+      once: true,
+      capture: true,
+    });
+    document.addEventListener("touchstart", handleInteraction, {
+      once: true,
+      capture: true,
+    });
+    document.addEventListener("keydown", handleInteraction, {
+      once: true,
+      capture: true,
+    });
   }
 
   /**
    * Initialize the AudioContext
    */
-  private async initializeAudioContext(): Promise<void> {
+  private initializeAudioContext(): void {
     if (this.audioContext || this.initAttempted) return;
     if (typeof window === "undefined") return;
     this.initAttempted = true;
@@ -119,7 +139,7 @@ export class AudioContextManager {
    * Ensure AudioContext is initialized and running
    */
   async ensureInitialized(): Promise<void> {
-    await this.initializeAudioContext();
+    this.initializeAudioContext();
 
     if (this.audioContext && this.audioContext.state === "suspended") {
       try {

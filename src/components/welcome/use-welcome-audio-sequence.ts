@@ -29,7 +29,6 @@ export const useWelcomeAudioSequence = ({
   audioConfig,
   isE2E,
 }: UseWelcomeAudioSequenceOptions): WelcomeAudioSequenceState => {
-  const WELCOME_READY_DELAY_MS = 4500;
   const WELCOME_SEQUENCE_TIMEOUT_MS = 30000;
 
   const [readyToContinue, setReadyToContinue] = useState(false);
@@ -170,32 +169,6 @@ export const useWelcomeAudioSequence = ({
   useEffect(() => {
     readyRef.current = readyToContinue;
   }, [readyToContinue]);
-
-  useEffect(() => {
-    if (isE2E || readyToContinue || isSequencePlaying) {
-      return;
-    }
-
-    const readyTimer = setTimeout(() => {
-      if (audioStartedRef.current || readyRef.current) {
-        return;
-      }
-
-      logDev("Safety timer unlocked continue state without autoplay");
-      markReadyToContinue();
-    }, WELCOME_READY_DELAY_MS);
-
-    return () => {
-      clearTimeout(readyTimer);
-    };
-  }, [
-    WELCOME_READY_DELAY_MS,
-    isE2E,
-    isSequencePlaying,
-    logDev,
-    markReadyToContinue,
-    readyToContinue,
-  ]);
 
   return {
     readyToContinue,
