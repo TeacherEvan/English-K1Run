@@ -59,6 +59,7 @@ export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
       document.addEventListener(event, handleInteraction, {
         once: true,
         passive: true,
+        capture: true,
       });
     });
 
@@ -83,7 +84,9 @@ export const useFullscreenGuard = (gameStarted: boolean, isE2E: boolean) => {
 
     return () => {
       events.forEach((event) => {
-        document.removeEventListener(event, handleInteraction);
+        document.removeEventListener(event, handleInteraction, {
+          capture: true,
+        });
       });
       document.removeEventListener("touchmove", preventDefaultTouch);
       document.removeEventListener("touchstart", preventMultiTouch);
