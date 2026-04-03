@@ -1,7 +1,7 @@
 @media (min-width: 96rem) and (min-height: 52rem) {
   .menu-home-shell {
-    max-width: min(96rem, calc(100vw - 5rem));
-    padding: clamp(2rem, 3vw, 3rem);
+    max-width: min(98rem, calc(100vw - 6rem));
+    padding: clamp(2.2rem, 3.4vw, 4rem);
     border-radius: 2.75rem;
   }
 
@@ -22,20 +22,20 @@
   }
 
   .menu-home-layout {
-    grid-template-columns: minmax(0, 1.45fr) minmax(24rem, 29rem);
-    gap: clamp(2.75rem, 4.4vw, 6rem);
+    grid-template-columns: minmax(0, 1.5fr) minmax(26rem, 31rem);
+    gap: clamp(3.5rem, 4.9vw, 7.5rem);
     align-items: start;
   }
 
   .menu-home-hero {
-    gap: 1.4rem;
+    gap: 1.65rem;
     align-items: flex-start;
     text-align: left;
   }
 
   .menu-storybook-stage {
-    width: min(100%, 46rem);
-    min-height: clamp(19rem, 22vw, 24rem);
+    width: min(100%, 49rem);
+    min-height: clamp(20rem, 20vw, 25rem);
     border-radius: 2.4rem;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.92),
@@ -76,58 +76,59 @@
   }
 
   .menu-home-heading {
-    max-width: 11ch;
-    font-size: clamp(4rem, 4.6vw, 5.75rem);
+    max-width: 10ch;
+    font-size: clamp(4.35rem, 3.9vw, 6.2rem);
   }
 
   .menu-home-instructions {
-    max-width: 34rem;
-    font-size: clamp(1.08rem, 1.15vw, 1.34rem);
+    max-width: 36rem;
+    font-size: clamp(1.12rem, 0.96vw, 1.35rem);
+    line-height: 1.52;
   }
 
   .menu-best-time-card {
-    max-width: 28rem;
-    margin-left: clamp(1rem, 2.6vw, 3rem);
-    padding: 1.35rem 1.6rem;
+    max-width: 29rem;
+    margin-left: clamp(1.5rem, 2.8vw, 3.6rem);
+    padding: 1.45rem 1.75rem;
   }
 
   .menu-home-actions {
     align-self: end;
-    max-width: 29rem;
-    gap: 0.9rem;
-    padding: 1rem;
+    max-width: 30.5rem;
+    gap: 1rem;
+    padding: 1.2rem;
     border: 1px solid rgba(255, 237, 213, 0.7);
-    border-radius: 2rem;
+    border-radius: 2.15rem;
     background: color-mix(in oklch, oklch(0.985 0.018 95) 90%, white);
     box-shadow: 0 24px 60px rgba(51, 65, 85, 0.09);
   }
 
   .menu-primary-action {
-    min-height: 5.4rem;
+    min-height: 5.6rem;
   }
 
   .menu-secondary-action,
   .menu-tertiary-action,
   .menu-support-action {
-    min-height: 4.8rem;
+    min-height: 5rem;
   }
 
   .menu-action-copy > span:first-child {
-    font-size: 1.1rem;
+    font-size: 1.16rem;
   }
 
   .menu-action-copy > span:last-child {
-    font-size: 0.82rem;
+    font-size: 0.86rem;
   }
 
   .menu-support-link {
-    margin-top: 0.35rem;
-    padding-left: 0.25rem;
+    margin-top: 0.55rem;
+    padding-left: 0.35rem;
   }
 
   .level-select-panel {
-    max-width: min(104rem, calc(100vw - 5rem));
-    height: min(88vh, 60rem);
+    max-width: min(106rem, calc(100vw - 6rem));
+    height: min(86vh, 61rem);
     border-radius: 2.6rem;
   }
 
@@ -135,7 +136,7 @@
     display: grid;
     grid-template-columns: auto 1fr minmax(8rem, 12rem);
     align-items: start;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .level-select-header > :nth-child(2) {
@@ -145,12 +146,12 @@
 
   .level-select-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 1.1rem;
   }
 
   .level-select-tile {
-    min-height: 12rem;
-    padding: 1rem 0.85rem;
+    min-height: 12.75rem;
+    padding: 1.1rem 0.95rem;
   }
 
   .level-select-emoji {
@@ -158,34 +159,38 @@
   }
 
   .level-select-label {
-    font-size: 1.12rem;
+    font-size: 1.16rem;
   }
 
   .level-select-start {
-    max-width: 32rem;
+    max-width: 34rem;
   }
 }
 
 @media (min-width: 140rem) and (min-height: 70rem) {
   .menu-home-shell {
-    max-width: min(104rem, calc(100vw - 7rem));
+    max-width: min(108rem, calc(100vw - 8rem));
   }
 
   .menu-home-layout {
-    grid-template-columns: minmax(0, 1.55fr) minmax(25rem, 31rem);
-    gap: clamp(4rem, 5vw, 7rem);
+    grid-template-columns: minmax(0, 1.62fr) minmax(26rem, 32rem);
+    gap: clamp(4.5rem, 5.4vw, 8.5rem);
   }
 
   .menu-storybook-stage {
-    width: min(100%, 51rem);
-    min-height: clamp(22rem, 20vw, 27rem);
+    width: min(100%, 54rem);
+    min-height: clamp(24rem, 18vw, 28rem);
   }
 
   .menu-best-time-card {
-    margin-left: clamp(2rem, 3vw, 4rem);
+    margin-left: clamp(2.5rem, 3.4vw, 5rem);
+  }
+
+  .menu-home-actions {
+    max-width: 32rem;
   }
 
   .level-select-panel {
-    max-width: min(110rem, calc(100vw - 7rem));
+    max-width: min(112rem, calc(100vw - 8rem));
   }
 }
