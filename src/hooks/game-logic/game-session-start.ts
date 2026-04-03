@@ -1,10 +1,12 @@
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
+import { LEVEL_START_COUNTDOWN_MS } from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
 import { soundManager } from "../../lib/sound-manager";
 import { multiTouchHandler } from "../../lib/touch-handler";
+import type { GameState } from "../../types/game";
 import { setupContinuousMode } from "./continuous-mode-initialization";
+import { createDefaultModeLevelQueue } from "./default-mode-level-queue";
 import type { GameSessionDependencies } from "./game-session-types";
-import { initializeWormSpawning } from "./worm-initialization";
 
 /**
  * Creates the start game handler.
@@ -14,14 +16,9 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
     clampLevel,
     gameStateLevel,
     continuousMode,
-    generateRandomTarget,
-    spawnImmediateTargets,
     lastEmojiAppearance,
     targetPool,
     continuousModeTargetCount,
-    progressiveSpawnTimeoutRefs,
-    recurringSpawnIntervalRef,
-    wormSpeedMultiplier,
     setContinuousModeStartTime,
     setGameObjects,
     setWorms,
@@ -33,6 +30,9 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
   return (levelIndex?: number) => {
     try {
       const safeLevel = clampLevel(levelIndex ?? gameStateLevel);
+      const levelQueue = continuousMode
+        ? [safeLevel]
+        : createDefaultModeLevelQueue(safeLevel, GAME_CATEGORIES.length);
 
       // Enable touch handling and performance monitoring
       multiTouchHandler.enable();
@@ -56,37 +56,35 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
 
       // Initialize emoji tracking
       const currentCategory = GAME_CATEGORIES[safeLevel];
-      eventTracker.initializeEmojiTracking(currentCategory.items);
       eventTracker.resetPerformanceMetrics();
 
-      // Generate initial target and reset game objects
-      const target = generateRandomTarget(safeLevel);
-      void soundManager.prefetchAudioKeys([target.name]);
+      // Prefetch audio and reset visible objects before the countdown begins.
       void soundManager.prefetchAudioKeys(
         currentCategory.items.map((item) => item.name),
       );
       setGameObjects([]);
+      setWorms([]);
       setFairyTransforms([]);
       setScreenShake(false);
 
-      // Initialize worm spawning
-      initializeWormSpawning({
-        progressiveSpawnTimeoutRefs,
-        recurringSpawnIntervalRef,
-        wormSpeedMultiplier,
-        setWorms,
-      });
-
-      // Update game state to start the game
+      // Update game state to start the countdown-first flow.
       setGameState((prev) => {
-        const newState = {
+        const newState: GameState = {
           ...prev,
           level: safeLevel,
           gameStarted: true,
-          currentTarget: target.name,
-          targetEmoji: target.emoji,
-          targetChangeTime: Date.now() + 10000,
+          currentTarget: "",
+          targetEmoji: "",
+          targetChangeTime: 0,
           winner: false,
+          phase: "interLevelCountdown",
+          pendingLevel: safeLevel,
+          countdownEndsAt: Date.now() + LEVEL_START_COUNTDOWN_MS,
+          levelCompleteEndsAt: null,
+          levelQueue,
+          levelQueueIndex: 0,
+          targetsClearedThisLevel: 0,
+          continuousCategoryClearCount: 0,
           progress: 0,
           streak: 0,
         };
@@ -97,9 +95,6 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
         );
         return newState;
       });
-
-      // Spawn initial targets
-      setTimeout(() => spawnImmediateTargets(), 100);
     } catch (error) {
       eventTracker.trackError(error as Error, "startGame");
     }

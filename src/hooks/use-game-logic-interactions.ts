@@ -104,11 +104,12 @@ export const useGameLogicInteractions = ({
   const handleWormTap = useMemo(
     () =>
       createHandleWormTap({
+        gameState,
         setWorms,
         setFairyTransforms,
         wormSpeedMultiplier,
       }),
-    [setWorms, setFairyTransforms, wormSpeedMultiplier],
+    [gameState, setWorms, setFairyTransforms, wormSpeedMultiplier],
   );
 
   return { handleObjectTap, handleWormTap };

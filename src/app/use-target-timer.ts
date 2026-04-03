@@ -11,9 +11,15 @@ export const useTargetTimer = (
   setTimeRemaining: Dispatch<SetStateAction<number>>,
 ) => {
   useEffect(() => {
+    const isPlayingPhase =
+      (gameState.phase ??
+        (gameState.gameStarted && !gameState.winner ? "playing" : "idle")) ===
+      "playing";
+
     if (
       !gameState.gameStarted ||
       gameState.winner ||
+      !isPlayingPhase ||
       currentCategory.requiresSequence
     ) {
       return;
@@ -27,6 +33,7 @@ export const useTargetTimer = (
     return () => clearInterval(interval);
   }, [
     gameState.gameStarted,
+    gameState.phase,
     gameState.winner,
     gameState.targetChangeTime,
     currentCategory.requiresSequence,

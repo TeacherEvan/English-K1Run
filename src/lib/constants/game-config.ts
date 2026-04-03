@@ -113,6 +113,12 @@ export const FAIRY_TRANSFORM_DURATION = 10000; // 10 seconds
 /** Interval between object spawn cycles in milliseconds */
 export const SPAWN_INTERVAL_MS = 1500;
 
+/** Duration of the between-level completion popup */
+export const LEVEL_COMPLETE_POPUP_MS = 1200;
+
+/** Duration of the large between-level countdown */
+export const LEVEL_START_COUNTDOWN_MS = 5000;
+
 /**
  * Force target spawn threshold
  * If target hasn't spawned naturally within this time, force spawn it
@@ -130,13 +136,13 @@ export const TARGET_CHANGE_TIMEOUT_MS = 10000;
 export const DEFAULT_MODE_PROGRESS_INCREMENT = 5;
 
 /** Number of correct targets required to complete a default-mode level */
-export const DEFAULT_MODE_TARGETS_TO_COMPLETE = 20;
+export const DEFAULT_MODE_TARGETS_TO_COMPLETE = 10;
 
 /** Progress penalty per incorrect object tap (percentage points) */
 export const DEFAULT_MODE_PROGRESS_PENALTY = 5;
 
 /** Number of targets needed to advance a continuous-mode level */
-export const CONTINUOUS_MODE_TARGETS_TO_ADVANCE = 5;
+export const CONTINUOUS_MODE_TARGETS_TO_ADVANCE = 7;
 
 /** Maximum progress value to win the game (100%) */
 export const PROGRESS_MAX = 100;

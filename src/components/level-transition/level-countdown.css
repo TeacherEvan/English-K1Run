@@ -1,0 +1,91 @@
+.level-countdown-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(186, 230, 253, 0.9);
+  background:
+    radial-gradient(circle at top, rgba(125, 211, 252, 0.2), transparent 34%),
+    linear-gradient(
+      180deg,
+      rgba(255, 251, 235, 0.97),
+      rgba(248, 250, 252, 0.97)
+    );
+  box-shadow:
+    0 32px 90px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.level-countdown-shell::after {
+  content: "🐢";
+  position: absolute;
+  right: 1.2rem;
+  bottom: 0.7rem;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  opacity: 0.15;
+}
+
+.level-countdown-stars {
+  position: absolute;
+  inset: 1rem 1.25rem auto;
+  display: flex;
+  justify-content: space-between;
+  color: rgba(14, 116, 144, 0.36);
+}
+
+.level-countdown-stars span {
+  animation: level-countdown-twinkle 2.6s ease-in-out infinite;
+}
+
+.level-countdown-stars span:nth-child(2) {
+  animation-delay: 0.35s;
+}
+
+.level-countdown-stars span:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+.level-countdown-value {
+  font-size: clamp(5rem, 19vw, 10rem);
+  line-height: 0.9;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  color: #0f172a;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 10px 30px rgba(56, 189, 248, 0.18);
+  animation: level-countdown-glow 1.8s ease-in-out infinite;
+}
+
+.level-countdown-label {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@keyframes level-countdown-glow {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+
+  50% {
+    opacity: 0.9;
+    filter: brightness(1.06);
+  }
+}
+
+@keyframes level-countdown-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .level-countdown-value,
+  .level-countdown-stars span {
+    animation: none;
+  }
+}

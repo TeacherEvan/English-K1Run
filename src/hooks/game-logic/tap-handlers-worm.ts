@@ -8,11 +8,22 @@ import type { HandleWormTapDependencies } from "./tap-handlers-types";
 export const createHandleWormTap = (
   dependencies: HandleWormTapDependencies,
 ) => {
-  const { setWorms, setFairyTransforms, wormSpeedMultiplier, onWormTapped } =
-    dependencies;
+  const {
+    gameState,
+    setWorms,
+    setFairyTransforms,
+    wormSpeedMultiplier,
+    onWormTapped,
+  } = dependencies;
 
   return (wormId: string, playerSide: PlayerSide) => {
     try {
+      const isPlayingPhase =
+        (gameState.phase ??
+          (gameState.gameStarted && !gameState.winner ? "playing" : "idle")) ===
+        "playing";
+      if (!isPlayingPhase) return;
+
       setWorms((prev) => {
         const worm = prev.find((w) => w.id === wormId);
         if (!worm || !worm.alive) return prev;

@@ -25,6 +25,14 @@ describe("updateStateOnTap", () => {
     level: 0,
     gameStarted: true,
     winner: false,
+    phase: "playing",
+    pendingLevel: null,
+    countdownEndsAt: null,
+    levelCompleteEndsAt: null,
+    levelQueue: [0],
+    levelQueueIndex: 0,
+    targetsClearedThisLevel: 0,
+    continuousCategoryClearCount: 0,
     targetChangeTime: Date.now(),
     streak: 0,
     lastMilestone: 0,
@@ -54,20 +62,40 @@ describe("updateStateOnTap", () => {
     vi.clearAllMocks();
   });
 
-  it("requires 20 correct taps to win default mode", () => {
+  it("requires 10 correct taps to win default mode", () => {
     const deps = makeDeps();
 
-    for (let i = 0; i < 19; i += 1) {
+    for (let i = 0; i < 9; i += 1) {
       updateStateOnTap(true, deps);
     }
 
-    expect(state.progress).toBe(95);
+    expect(state.targetsClearedThisLevel).toBe(9);
     expect(state.winner).toBe(false);
 
     updateStateOnTap(true, deps);
 
+    expect(state.targetsClearedThisLevel).toBe(10);
     expect(state.progress).toBe(100);
     expect(state.winner).toBe(true);
+  });
+
+  it("changes continuous-mode category after 7 completed clears", () => {
+    const deps = makeDeps();
+    deps.continuousMode = true;
+
+    for (let i = 0; i < 6; i += 1) {
+      state.progress = 95;
+      updateStateOnTap(true, deps);
+    }
+
+    expect(state.level).toBe(0);
+    expect(state.continuousCategoryClearCount).toBe(6);
+
+    state.progress = 95;
+    updateStateOnTap(true, deps);
+
+    expect(state.level).toBe(1);
+    expect(state.continuousCategoryClearCount).toBe(0);
   });
 
   it("penalizes incorrect taps by 5 and clamps at 0", () => {

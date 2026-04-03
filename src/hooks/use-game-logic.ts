@@ -4,6 +4,7 @@ import type { UseGameLogicOptions } from "../types/game";
 import {
   useAnimationLoop,
   useFairyCleanup,
+  useInterLevelTransition,
   useNextCategoryPrefetch,
   useSpawnInterval,
   useTargetAnnouncement,
@@ -77,13 +78,24 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameStateLevel: gameState.level,
   });
 
+  const queuedNextLevel =
+    gameState.pendingLevel ??
+    gameState.levelQueue?.[(gameState.levelQueueIndex ?? -1) + 1] ??
+    null;
+
   useTargetAnnouncement(
     gameState.gameStarted,
+    gameState.phase,
     gameState.currentTarget,
     gameState.targetEmoji,
     setGameState,
   );
-  useNextCategoryPrefetch(gameState.gameStarted, gameState.level, clampLevel);
+  useNextCategoryPrefetch(
+    gameState.gameStarted,
+    gameState.level,
+    clampLevel,
+    queuedNextLevel,
+  );
 
   const { spawnImmediateTargets, spawnObject, updateObjects } =
     useGameLogicSpawn({
@@ -138,10 +150,33 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setGameState,
   });
 
-  useSpawnInterval(gameState.gameStarted, gameState.winner, spawnObject);
+  useInterLevelTransition({
+    gameState,
+    continuousMode,
+    generateRandomTarget,
+    spawnImmediateTargets,
+    lastEmojiAppearance,
+    targetPool,
+    progressiveSpawnTimeoutRefs,
+    recurringSpawnIntervalRef,
+    wormSpeedMultiplier,
+    setGameObjects,
+    setWorms,
+    setFairyTransforms,
+    setScreenShake,
+    setGameState,
+  });
+
+  useSpawnInterval(
+    gameState.gameStarted,
+    gameState.winner,
+    gameState.phase,
+    spawnObject,
+  );
   useAnimationLoop(
     gameState.gameStarted,
     gameState.winner,
+    gameState.phase,
     updateObjects,
     setWorms,
     setGameObjects,
@@ -150,7 +185,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameObjectsRef,
     wormsRef,
   );
-  useFairyCleanup(gameState.gameStarted, gameState.winner, setFairyTransforms);
+  useFairyCleanup(
+    gameState.gameStarted,
+    gameState.winner,
+    gameState.phase,
+    setFairyTransforms,
+  );
 
   const changeTargetToVisibleEmoji = useMemo(
     () =>

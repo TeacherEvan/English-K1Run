@@ -37,6 +37,7 @@ export interface HandleObjectTapDependencies {
  * Dependencies for the worm tap handler.
  */
 export interface HandleWormTapDependencies {
+  gameState: GameState;
   setWorms: Dispatch<SetStateAction<WormObject[]>>;
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>;
   wormSpeedMultiplier: MutableRefObject<number>;

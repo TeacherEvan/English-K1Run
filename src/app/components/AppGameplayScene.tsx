@@ -6,6 +6,8 @@ import { PlayerArea } from "../../components/PlayerArea";
 import { Stopwatch } from "../../components/Stopwatch";
 import { TargetDisplay } from "../../components/TargetDisplay";
 import { Worm } from "../../components/Worm";
+import { LevelCompletePopup } from "../../components/level-transition/LevelCompletePopup";
+import { LevelCountdownOverlay } from "../../components/level-transition/LevelCountdownOverlay";
 import { useSettings } from "../../context/settings-context";
 import type {
     FairyTransformObject,
@@ -14,6 +16,8 @@ import type {
     GameState,
     WormObject,
 } from "../../hooks/use-game-logic";
+import { getCategoryTranslationKey } from "../../lib/constants/category-translation";
+import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import { eventTracker } from "../../lib/event-tracker";
 
@@ -57,7 +61,24 @@ export const AppGameplayScene = ({
 }: AppGameplaySceneProps) => {
     const { t } = useTranslation();
     const { gameplayLanguage } = useSettings();
-    const isActive = gameState.gameStarted && !gameState.winner;
+    const isPlaying =
+        gameState.gameStarted &&
+        !gameState.winner &&
+        (gameState.phase ?? "playing") === "playing";
+    const isLevelComplete = gameState.phase === "levelComplete";
+    const isInterLevelCountdown = gameState.phase === "interLevelCountdown";
+    const pendingCategory =
+        gameState.pendingLevel !== null && gameState.pendingLevel !== undefined
+            ? GAME_CATEGORIES[gameState.pendingLevel]
+            : undefined;
+    const pendingCategoryKey = pendingCategory
+        ? getCategoryTranslationKey(pendingCategory.name)
+        : undefined;
+    const nextLevelLabel = pendingCategory
+        ? pendingCategoryKey
+            ? t(`categories.${pendingCategoryKey}`, { lng: gameplayLanguage })
+            : pendingCategory.name
+        : "";
 
     return (
         <div className="absolute inset-0" style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_BACKGROUND }}>
@@ -99,7 +120,7 @@ export const AppGameplayScene = ({
                 </div>
             </CategoryErrorBoundary>
 
-            {isActive && (
+            {isPlaying && (
                 <div
                     className="absolute inset-0 pointer-events-none"
                     style={{ zIndex: UI_LAYER_MATRIX.HUD_PRIMARY }}
@@ -135,9 +156,19 @@ export const AppGameplayScene = ({
                 </div>
             )}
 
-            {isActive && continuousMode && (
+            {isLevelComplete && <LevelCompletePopup isVisible />}
+
+            {isInterLevelCountdown && (
+                <LevelCountdownOverlay
+                    isVisible
+                    countdownEndsAt={gameState.countdownEndsAt ?? null}
+                    levelLabel={nextLevelLabel}
+                />
+            )}
+
+            {isPlaying && continuousMode && (
                 <Stopwatch
-                    isRunning={!gameState.winner}
+                    isRunning={isPlaying}
                     bestTime={continuousModeHighScore ?? 0}
                 />
             )}

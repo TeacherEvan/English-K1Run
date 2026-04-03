@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { GamePhase } from "../../../types/game";
 
 /**
  * Spawns gameplay objects at a fixed interval while a session is active.
@@ -6,14 +7,18 @@ import { useEffect } from "react";
 export const useSpawnInterval = (
   gameStarted: boolean,
   winner: boolean,
+  phase: GamePhase | undefined,
   spawnObject: () => void,
 ) => {
   useEffect(() => {
-    if (!gameStarted || winner) {
+    const isPlayingPhase =
+      (phase ?? (gameStarted && !winner ? "playing" : "idle")) === "playing";
+
+    if (!gameStarted || winner || !isPlayingPhase) {
       return;
     }
 
     const interval = setInterval(spawnObject, 1500);
     return () => clearInterval(interval);
-  }, [gameStarted, winner, spawnObject]);
+  }, [gameStarted, phase, winner, spawnObject]);
 };

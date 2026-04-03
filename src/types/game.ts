@@ -5,6 +5,13 @@
 
 export type PlayerSide = "left" | "right";
 
+export type GamePhase =
+  | "idle"
+  | "playing"
+  | "levelComplete"
+  | "interLevelCountdown"
+  | "runComplete";
+
 export interface GameObject {
   id: string;
   type: string;
@@ -27,6 +34,14 @@ export interface GameState {
   level: number;
   gameStarted: boolean;
   winner: boolean;
+  phase?: GamePhase;
+  pendingLevel?: number | null;
+  countdownEndsAt?: number | null;
+  levelCompleteEndsAt?: number | null;
+  levelQueue?: number[];
+  levelQueueIndex?: number;
+  targetsClearedThisLevel?: number;
+  continuousCategoryClearCount?: number;
   targetChangeTime: number;
   streak: number;
   /** Target announcement overlay state */

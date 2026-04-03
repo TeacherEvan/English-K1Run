@@ -1,6 +1,6 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useEffect } from "react";
-import type { GameObject, WormObject } from "../../../types/game";
+import type { GameObject, GamePhase, WormObject } from "../../../types/game";
 import { applyWormObjectCollision, updateWormPositions } from "../worm-logic";
 
 /**
@@ -9,6 +9,7 @@ import { applyWormObjectCollision, updateWormPositions } from "../worm-logic";
 export const useAnimationLoop = (
   gameStarted: boolean,
   winner: boolean,
+  phase: GamePhase | undefined,
   updateObjects: () => void,
   setWorms: Dispatch<SetStateAction<WormObject[]>>,
   setGameObjects: Dispatch<SetStateAction<GameObject[]>>,
@@ -18,7 +19,10 @@ export const useAnimationLoop = (
   wormsRef: MutableRefObject<WormObject[]>,
 ) => {
   useEffect(() => {
-    if (!gameStarted || winner) {
+    const isPlayingPhase =
+      (phase ?? (gameStarted && !winner ? "playing" : "idle")) === "playing";
+
+    if (!gameStarted || winner || !isPlayingPhase) {
       return;
     }
 
@@ -59,6 +63,7 @@ export const useAnimationLoop = (
     return () => cancelAnimationFrame(animationFrameId);
   }, [
     gameStarted,
+    phase,
     winner,
     updateObjects,
     setWorms,

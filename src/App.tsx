@@ -87,7 +87,7 @@ function App() {
   useDebugToggle(setDebugVisible);
   useBackgroundRotation(
     gameState.gameStarted,
-    gameState.winner,
+    gameState.phase === "runComplete" && gameState.winner,
     setBackgroundClass,
   );
   useTargetTimer(gameState, currentCategory, setTimeRemaining);
@@ -118,6 +118,8 @@ function App() {
   const handleToggleContinuousMode = useCallback((enabled: boolean) => {
     setContinuousMode(enabled);
   }, []);
+
+  const isRunComplete = gameState.phase === "runComplete" && gameState.winner;
 
   const appAnimationClass = gameState.gameStarted ? "" : "app-bg-animated";
 
@@ -153,18 +155,18 @@ function App() {
           onWormTap={handleWormTap}
         />
 
-        {gameState.winner && (
+        {isRunComplete && (
           <Suspense fallback={null}>
             <FireworksDisplay
-              isVisible={!!gameState.winner}
-              winner={gameState.winner}
+              isVisible={isRunComplete}
+              winner={isRunComplete}
             />
           </Suspense>
         )}
 
-        {gameState.winner && !continuousMode && (
+        {isRunComplete && !continuousMode && (
           <Suspense fallback={null}>
-            <DefaultModeCompletionDialog isVisible={!!gameState.winner} />
+            <DefaultModeCompletionDialog isVisible={isRunComplete} />
           </Suspense>
         )}
 
@@ -181,7 +183,8 @@ function App() {
         selectedLevel={selectedLevel}
         levels={levelNames}
         gameStarted={gameState.gameStarted}
-        winner={gameState.winner}
+        winner={isRunComplete}
+        phase={gameState.phase}
         continuousMode={continuousMode}
         onToggleContinuousMode={handleToggleContinuousMode}
         bestTime={continuousModeHighScore ?? 0}

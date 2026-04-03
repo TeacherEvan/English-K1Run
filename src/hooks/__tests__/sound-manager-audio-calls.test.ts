@@ -102,7 +102,7 @@ describe("Sound Manager Audio Call Behavior", () => {
         .mockResolvedValue("I eat a red apple.");
       const setState = vi.fn();
 
-      useTargetAnnouncement(true, "apple", "🍎", setState);
+      useTargetAnnouncement(true, "playing", "apple", "🍎", setState);
       await Promise.resolve();
 
       expect(playSpy).toHaveBeenCalledWith("apple", "en");

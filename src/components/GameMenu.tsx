@@ -2,6 +2,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import { formatBestTime } from "../lib/utils";
+import type { GamePhase } from "../types/game";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
 import "./game-menu/game-menu-adaptive.css";
@@ -20,6 +21,7 @@ interface GameMenuProps {
   levels: string[]
   gameStarted: boolean
   winner: boolean
+  phase?: GamePhase
   initialView?: 'main' | 'levels'
   continuousMode?: boolean
   onToggleContinuousMode?: (enabled: boolean) => void
@@ -45,6 +47,7 @@ export const GameMenu = memo(({
   levels,
   gameStarted,
   winner,
+  phase,
   initialView = 'main',
   continuousMode = false,
   onToggleContinuousMode,
@@ -75,7 +78,9 @@ export const GameMenu = memo(({
     setView('main')
   }, [])
 
-  if (gameStarted && !winner) return null
+  const isRunComplete = winner && (phase ?? 'runComplete') === 'runComplete'
+
+  if (gameStarted && !isRunComplete) return null
 
   return (
     <ErrorBoundary>

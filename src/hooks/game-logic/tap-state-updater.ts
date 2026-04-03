@@ -3,10 +3,11 @@ import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import {
   DEFAULT_MODE_PROGRESS_INCREMENT,
   DEFAULT_MODE_PROGRESS_PENALTY,
+  DEFAULT_MODE_TARGETS_TO_COMPLETE,
   PROGRESS_MAX,
 } from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
-import type { GameState, GameCategory } from "../../types/game";
+import type { GameCategory, GameState } from "../../types/game";
 import { handleProgressWin } from "./tap-handlers-object-win";
 
 export interface TapStateUpdateDependencies {
@@ -58,12 +59,30 @@ export const updateStateOnTap = (
     if (isCorrect) {
       newState.streak += 1;
 
-      newState.progress = Math.min(
-        prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
-        PROGRESS_MAX,
-      );
+      if (continuousMode) {
+        newState.progress = Math.min(
+          prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
+          PROGRESS_MAX,
+        );
+      } else {
+        newState.targetsClearedThisLevel =
+          (prev.targetsClearedThisLevel ?? 0) + 1;
+        newState.progress = Math.min(
+          prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
+          PROGRESS_MAX,
+        );
+      }
 
-      if (newState.progress >= 100) {
+      const reachedDefaultGoal =
+        !continuousMode &&
+        (newState.targetsClearedThisLevel ?? 0) >=
+          DEFAULT_MODE_TARGETS_TO_COMPLETE;
+
+      if (reachedDefaultGoal) {
+        newState.progress = PROGRESS_MAX;
+      }
+
+      if (reachedDefaultGoal || newState.progress >= PROGRESS_MAX) {
         handleProgressWin({
           prev,
           newState,

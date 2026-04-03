@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
+import type { GamePhase } from "../../types/game";
 
 const GameMenu = lazy(() =>
     import("../../components/GameMenu").then((m) => ({ default: m.GameMenu })),
@@ -13,6 +14,7 @@ interface AppMenuOverlayProps {
     levels: string[];
     gameStarted: boolean;
     winner: boolean;
+    phase?: GamePhase;
     continuousMode: boolean;
     onToggleContinuousMode: (enabled: boolean) => void;
     bestTime: number;
@@ -28,6 +30,7 @@ export const AppMenuOverlay = ({
     levels,
     gameStarted,
     winner,
+    phase,
     continuousMode,
     onToggleContinuousMode,
     bestTime,
@@ -45,6 +48,7 @@ export const AppMenuOverlay = ({
                     levels={levels}
                     gameStarted={gameStarted}
                     winner={winner}
+                    phase={phase}
                     continuousMode={continuousMode}
                     onToggleContinuousMode={onToggleContinuousMode}
                     bestTime={bestTime}

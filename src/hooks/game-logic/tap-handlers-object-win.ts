@@ -2,6 +2,7 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import {
   CONTINUOUS_MODE_TARGETS_TO_ADVANCE,
+  LEVEL_COMPLETE_POPUP_MS,
   TARGET_CHANGE_TIMEOUT_MS,
 } from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
@@ -44,12 +45,15 @@ export const handleProgressWin = ({
     continuousModeTargetCount.current += 1;
     newState.progress = 0;
     newState.winner = false;
+    newState.phase = "playing";
     newState.lastMilestone = 0;
+    newState.continuousCategoryClearCount = continuousModeTargetCount.current;
 
     if (
       continuousModeTargetCount.current >= CONTINUOUS_MODE_TARGETS_TO_ADVANCE
     ) {
       continuousModeTargetCount.current = 0;
+      newState.continuousCategoryClearCount = 0;
       const nextLevel = (prev.level + 1) % GAME_CATEGORIES.length;
       newState.level = nextLevel;
 
@@ -88,11 +92,28 @@ export const handleProgressWin = ({
 
     setTimeout(() => spawnImmediateTargets(), 0);
   } else {
-    newState.winner = true;
-    eventTracker.trackGameStateChange(
-      { ...prev },
-      { ...newState },
-      "player_wins",
-    );
+    const nextQueueIndex = (prev.levelQueueIndex ?? 0) + 1;
+    const nextLevel = prev.levelQueue?.[nextQueueIndex];
+
+    if (nextLevel !== undefined) {
+      newState.phase = "levelComplete";
+      newState.pendingLevel = nextLevel;
+      newState.levelQueueIndex = nextQueueIndex;
+      newState.levelCompleteEndsAt = Date.now() + LEVEL_COMPLETE_POPUP_MS;
+      newState.winner = false;
+      eventTracker.trackGameStateChange(
+        { ...prev },
+        { ...newState },
+        "default_mode_level_complete",
+      );
+    } else {
+      newState.phase = "runComplete";
+      newState.winner = true;
+      eventTracker.trackGameStateChange(
+        { ...prev },
+        { ...newState },
+        "player_wins",
+      );
+    }
   }
 };

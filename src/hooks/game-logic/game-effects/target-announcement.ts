@@ -8,7 +8,7 @@ import {
 } from "../../../lib/audio/target-announcements";
 import { eventTracker } from "../../../lib/event-tracker";
 import { soundManager } from "../../../lib/sound-manager";
-import type { GameState } from "../../../types/game";
+import type { GamePhase, GameState } from "../../../types/game";
 
 /**
  * Manages the target announcement overlay and speech playback.
@@ -16,12 +16,13 @@ import type { GameState } from "../../../types/game";
  */
 export const useTargetAnnouncement = (
   gameStarted: boolean,
+  phase: GamePhase | undefined,
   currentTarget: string,
   targetEmoji: string,
   setGameState: Dispatch<SetStateAction<GameState>>,
 ) => {
   useEffect(() => {
-    if (!gameStarted) {
+    if (!gameStarted || phase !== "playing") {
       setGameState((prev) => ({
         ...prev,
         announcementActive: false,
@@ -90,5 +91,5 @@ export const useTargetAnnouncement = (
       cancelled = true;
       speechSynthesizer.stop();
     };
-  }, [currentTarget, gameStarted, setGameState, targetEmoji]);
+  }, [currentTarget, gameStarted, phase, setGameState, targetEmoji]);
 };

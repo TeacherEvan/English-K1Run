@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect } from "react";
 import { FAIRY_TRANSFORM_DURATION } from "../../../lib/constants/game-config";
-import type { FairyTransformObject } from "../../../types/game";
+import type { FairyTransformObject, GamePhase } from "../../../types/game";
 
 /**
  * Periodically removes completed fairy transforms.
@@ -9,10 +9,14 @@ import type { FairyTransformObject } from "../../../types/game";
 export const useFairyCleanup = (
   gameStarted: boolean,
   winner: boolean,
+  phase: GamePhase | undefined,
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>,
 ) => {
   useEffect(() => {
-    if (!gameStarted || winner) return;
+    const isPlayingPhase =
+      (phase ?? (gameStarted && !winner ? "playing" : "idle")) === "playing";
+
+    if (!gameStarted || winner || !isPlayingPhase) return;
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -24,5 +28,5 @@ export const useFairyCleanup = (
     }, 50);
 
     return () => clearInterval(interval);
-  }, [gameStarted, winner, setFairyTransforms]);
+  }, [gameStarted, phase, setFairyTransforms, winner]);
 };

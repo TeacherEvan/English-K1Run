@@ -1,9 +1,9 @@
 import { eventTracker } from "../../lib/event-tracker";
 import type { PlayerSide } from "../../types/game";
 import { playTapAudioFeedback } from "./tap-audio-effects";
+import type { HandleObjectTapDependencies } from "./tap-handlers-types";
 import { updateStateOnTap } from "./tap-state-updater";
 import { validateObjectTap } from "./tap-validation";
-import type { HandleObjectTapDependencies } from "./tap-handlers-types";
 
 /**
  * Builds the tap handler for falling objects.
@@ -35,6 +35,12 @@ export const createHandleObjectTap = (
     const tapStartTime = performance.now();
 
     try {
+      const isPlayingPhase =
+        (gameState.phase ??
+          (gameState.gameStarted && !gameState.winner ? "playing" : "idle")) ===
+        "playing";
+      if (!isPlayingPhase) return;
+
       // Validate the tap
       const validation = validateObjectTap(
         objectId,

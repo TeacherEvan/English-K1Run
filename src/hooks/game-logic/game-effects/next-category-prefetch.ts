@@ -9,15 +9,16 @@ export const useNextCategoryPrefetch = (
   gameStarted: boolean,
   level: number,
   clampLevel: (levelIndex: number) => number,
+  queuedNextLevel: number | null,
 ) => {
   useEffect(() => {
     if (!gameStarted) return;
 
-    const nextLevel = clampLevel(level + 1);
+    const nextLevel = queuedNextLevel ?? clampLevel(level + 1);
     const nextCategory = GAME_CATEGORIES[nextLevel];
     if (!nextCategory) return;
 
     const keys = nextCategory.items.map((item) => item.name);
     void prefetchAudioKeys(keys);
-  }, [clampLevel, gameStarted, level]);
+  }, [clampLevel, gameStarted, level, queuedNextLevel]);
 };
