@@ -2,6 +2,7 @@
  * Encapsulates welcome screen audio, timing, and interaction flow.
  * Used by `WelcomeScreen` to keep the component focused on rendering.
  */
+import { createIntroPlaybackGate } from "@/components/welcome/intro-playback-gate";
 import { useWelcomeAudioSequence } from "@/components/welcome/use-welcome-audio-sequence";
 import {
   getWelcomePhase,
@@ -14,7 +15,13 @@ import {
   type WelcomePlaybackDiagnostic,
 } from "@/lib/audio/welcome-audio-sequencer";
 import { soundManager } from "@/lib/sound-manager";
-import { startTransition, useCallback, useEffect, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface WelcomeSequenceOptions {
   onComplete: () => void;
@@ -31,10 +38,12 @@ export interface WelcomeSequenceState {
   currentAudioIndex: number;
   totalAudioCount: number;
   lastDiagnostic: WelcomePlaybackDiagnostic | null;
+  handleIntroActivated: () => void;
   handlePrimaryAction: () => void;
   handleVideoCanPlay: () => void;
   handleVideoEnded: () => void;
   handleVideoError: () => void;
+  handleVideoPlaying: () => void;
 }
 
 export const useWelcomeSequence = ({
@@ -44,6 +53,7 @@ export const useWelcomeSequence = ({
   const [fadeOut, setFadeOut] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [showFallbackImage, setShowFallbackImage] = useState(false);
+  const gateRef = useRef(createIntroPlaybackGate());
 
   const isE2E =
     typeof window !== "undefined" &&
@@ -83,12 +93,11 @@ export const useWelcomeSequence = ({
     }
 
     if (!readyToContinue) {
-      requestStart();
       return;
     }
 
     proceed();
-  }, [fadeOut, isE2E, phase, proceed, readyToContinue, requestStart]);
+  }, [fadeOut, isE2E, phase, proceed, readyToContinue]);
 
   useEffect(() => {
     if (!isE2E) return;
@@ -131,14 +140,29 @@ export const useWelcomeSequence = ({
     [],
   );
 
+  const handleIntroActivated = useCallback(() => {
+    gateRef.current.onLanguageSelected();
+    setVideoLoaded(false);
+    setShowFallbackImage(false);
+  }, []);
   const handleVideoCanPlay = useCallback(() => setVideoLoaded(true), []);
+  const handleVideoPlaying = useCallback(() => {
+    if (isE2E) {
+      return;
+    }
+    if (gateRef.current.onVideoPlaying()) {
+      requestStart();
+    }
+  }, [isE2E, requestStart]);
   const handleVideoEnded = useCallback(() => {
     markReadyToContinue();
   }, [markReadyToContinue]);
   const handleVideoError = useCallback(() => {
+    gateRef.current.onVideoError();
     setVideoLoaded(false);
     setShowFallbackImage(true);
-  }, []);
+    markReadyToContinue();
+  }, [markReadyToContinue]);
 
   return {
     fadeOut,
@@ -150,9 +174,11 @@ export const useWelcomeSequence = ({
     currentAudioIndex,
     totalAudioCount,
     lastDiagnostic,
+    handleIntroActivated,
     handlePrimaryAction,
     handleVideoCanPlay,
     handleVideoEnded,
     handleVideoError,
+    handleVideoPlaying,
   };
 };

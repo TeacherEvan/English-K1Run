@@ -20,10 +20,12 @@ vi.mock('@/components/welcome/use-welcome-sequence', () => ({
         currentAudioIndex: 0,
         totalAudioCount: 0,
         lastDiagnostic: null,
+        handleIntroActivated: vi.fn(),
         handlePrimaryAction: vi.fn(),
         handleVideoCanPlay: vi.fn(),
         handleVideoEnded: vi.fn(),
         handleVideoError: vi.fn(),
+        handleVideoPlaying: vi.fn(),
     }),
 }))
 
@@ -64,60 +66,6 @@ describe('WelcomeScreen', () => {
         })
     }
 
-    it('moves focus to the welcome primary button after keyboard language selection', async () => {
-        await renderWelcomeScreen()
-
-        const languageButton = document.querySelector(
-            '[data-testid="welcome-language-th"]',
-        ) as HTMLButtonElement
-
-        languageButton.focus()
-
-        await act(async () => {
-            languageButton.dispatchEvent(
-                new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }),
-            )
-            languageButton.dispatchEvent(
-                new MouseEvent('click', { bubbles: true, detail: 0 }),
-            )
-            await Promise.resolve()
-        })
-
-        const primaryButton = document.querySelector(
-            '[data-testid="welcome-primary-button"]',
-        ) as HTMLButtonElement
-
-        expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
-        expect(document.activeElement).toBe(primaryButton)
-    })
-
-    it('does not steal focus to the primary button after pointer language selection', async () => {
-        await renderWelcomeScreen()
-
-        const languageButton = document.querySelector(
-            '[data-testid="welcome-language-en"]',
-        ) as HTMLButtonElement
-
-        languageButton.focus()
-
-        await act(async () => {
-            languageButton.dispatchEvent(
-                new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }),
-            )
-            languageButton.dispatchEvent(
-                new MouseEvent('click', { bubbles: true, detail: 1 }),
-            )
-            await Promise.resolve()
-        })
-
-        const primaryButton = document.querySelector(
-            '[data-testid="welcome-primary-button"]',
-        ) as HTMLButtonElement
-
-        expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
-        expect(document.activeElement).not.toBe(primaryButton)
-    })
-
     it('keeps the language chooser hidden for the rest of the current startup flow', async () => {
         await renderWelcomeScreen()
 
@@ -140,7 +88,7 @@ describe('WelcomeScreen', () => {
         ).toBeNull()
         expect(
             document.querySelector('[data-testid="welcome-primary-button"]'),
-        ).not.toBeNull()
+        ).toBeNull()
     })
 
     it('does not render any startup language shell or picker again during the current startup flow', async () => {
@@ -166,5 +114,49 @@ describe('WelcomeScreen', () => {
         expect(
             document.querySelector('[data-testid="welcome-language-picker"]'),
         ).toBeNull()
+    })
+
+    it('loads the intro video immediately after language selection and removes the language shell', async () => {
+        await renderWelcomeScreen()
+
+        const languageButton = document.querySelector(
+            '[data-testid="welcome-language-en"]',
+        ) as HTMLButtonElement
+        const video = document.querySelector(
+            '[data-testid="welcome-video"]',
+        ) as HTMLVideoElement
+
+        await act(async () => {
+            languageButton.dispatchEvent(
+                new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }),
+            )
+            languageButton.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, detail: 1 }),
+            )
+            await Promise.resolve()
+        })
+
+        expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
+        expect(video.getAttribute('src')).toBe('/New_welcome_video.mp4')
+    })
+
+    it('keeps the large status panel off the screen while the intro is actively playing', async () => {
+        await renderWelcomeScreen()
+
+        const languageButton = document.querySelector(
+            '[data-testid="welcome-language-th"]',
+        ) as HTMLButtonElement
+
+        await act(async () => {
+            languageButton.dispatchEvent(
+                new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }),
+            )
+            languageButton.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, detail: 1 }),
+            )
+            await Promise.resolve()
+        })
+
+        expect(document.querySelector('[data-testid="welcome-status-panel"]')).toBeNull()
     })
 })

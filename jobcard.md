@@ -8,13 +8,20 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Classroom design alignment: warm, light-first menu and welcome shells, shared brand constants, refreshed manifest/icon metadata, and focused design regressions.
 - Competition polish: deterministic welcome start, localized core UI/a11y copy, and unified `English K1 Run` branding.
 - Audio pipeline: fallback-chain hardening, inventory validation, fade transitions, overlap guards, and public fallback stability.
-- Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, and home-menu audio gating.
+- Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, intro video-first startup gating, and home-menu audio gating.
 - Settings/accessibility: expanded settings coverage, reduced motion/high contrast, and WCAG-aligned UI.
 - E2E reliability: Playwright waits, navigation retry backoff, touch spec stability.
 - Tooling and docs: Copilot instructions expansion, clarified MCP tooling, build and lint stability.
 - Gameplay polish: lighter HUD motion, quieter gameplay audio, and touch-first interaction fixes.
 
 ## Timeline (Compressed)
+
+### 2026-04-04
+
+- Removed the startup language chooser immediately after selection so it no longer blocks the school intro video.
+- Reworked welcome startup sequencing so the intro video loads first, welcome narration starts from the real video `playing` event, and the large status panel stays hidden during active intro playback.
+- Added a deterministic intro playback gate plus unit and Playwright regressions for chooser dismissal, video-first startup, and the `welcome-sangsom.png` fallback-only failure path.
+- Validation: `npm --prefer-ipv4 run test:run -- src/components/welcome/__tests__/intro-playback-gate.test.ts src/components/welcome/__tests__/use-welcome-sequence.test.tsx src/components/welcome/__tests__/WelcomeScreen.test.tsx src/components/welcome/__tests__/WelcomeStatusPanel.test.tsx src/components/welcome/__tests__/WelcomeScreen.startup-gate.test.tsx`, `npm --prefer-ipv4 run test:e2e -- e2e/specs/welcome-layout.spec.ts --project=chromium`, and `npm --prefer-ipv4 run verify` passed locally.
 
 ### 2026-04-03
 

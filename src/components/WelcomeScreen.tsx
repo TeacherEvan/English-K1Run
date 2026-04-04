@@ -28,10 +28,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
   const shouldRestorePrimaryFocusRef = useRef(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const welcomeAudioConfig = useMemo(
-    () => ({ ...audioConfig, language: gameplayLanguage }),
-    [audioConfig, gameplayLanguage],
-  )
+  const welcomeAudioConfig = useMemo(() => ({ ...audioConfig, language: gameplayLanguage }), [audioConfig, gameplayLanguage])
   const {
     fadeOut,
     phase,
@@ -40,29 +37,34 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     currentAudioIndex,
     totalAudioCount,
     lastDiagnostic,
+    handleIntroActivated,
     handlePrimaryAction,
     handleVideoCanPlay,
     handleVideoEnded,
     handleVideoError,
+    handleVideoPlaying,
   } = useWelcomeSequence({ onComplete, audioConfig: welcomeAudioConfig })
 
   const videoSrc = '/New_welcome_video.mp4'
   const fallbackImageSrc = '/welcome-sangsom.png'
   const interactionLocked = isWelcomeInteractionLocked(phase)
-  const shouldLoadVideo = isSequencePlaying || showFallbackImage
+  const shouldLoadVideo = !isLanguageShellVisible && !showFallbackImage
 
   useEffect(() => {
-    if (!shouldLoadVideo) {
-      return
-    }
+    if (!shouldLoadVideo) return
     const video = videoRef.current
-    if (!video || !video.paused) {
-      return
+    if (!video || !video.paused) return
+    try {
+      const playAttempt = video.play()
+      if (typeof playAttempt?.catch === 'function') {
+        void playAttempt.catch(() => {
+          handleVideoError()
+        })
+      }
+    } catch {
+      handleVideoError()
     }
-    void video.play().catch(() => {
-      // Ignore autoplay interruptions; the welcome flow remains usable.
-    })
-  }, [shouldLoadVideo])
+  }, [handleVideoError, shouldLoadVideo])
 
   useLayoutEffect(() => {
     if (isLanguageShellVisible || !shouldRestorePrimaryFocusRef.current) {
@@ -93,11 +95,9 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         defaultValue: 'Please wait for the welcome audio',
       })
     }
-
     if (phase === 'readyToContinue') {
       return t('welcome.readyContinue', { defaultValue: 'Ready to continue' })
     }
-
     if (phase === 'transitioningToMenu') {
       return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
     }
@@ -112,9 +112,11 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           'Thai welcome voice unavailable on this device, continuing silently.',
       })
       : null
+  const shouldShowStatusPanel = !showFallbackImage && (isLanguageShellVisible || phase === 'readyToContinue' || phase === 'transitioningToMenu' || Boolean(diagnosticLabel))
 
   const handleLanguageSelected = (shouldRestoreFocus: boolean) => {
     shouldRestorePrimaryFocusRef.current = shouldRestoreFocus
+    handleIntroActivated()
     setIsLanguageShellVisible(false)
   }
 
@@ -132,7 +134,6 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       onClick={isLanguageShellVisible ? undefined : handlePrimaryAction}
     >
       <div className="welcome-stage" aria-hidden="true" />
-
       <video
         ref={videoRef}
         className="welcome-video"
@@ -144,9 +145,9 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         onCanPlay={handleVideoCanPlay}
         onEnded={handleVideoEnded}
         onError={handleVideoError}
+        onPlaying={handleVideoPlaying}
         data-testid="welcome-video"
       />
-
       {showFallbackImage && (
         <img
           src={fallbackImageSrc}
@@ -168,31 +169,21 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
             onLanguageSelected={handleLanguageSelected}
           />
         ) : null}
-        <WelcomeStatusPanel
-          actionLabel={actionLabel}
-          statusLabel={statusLabel}
-          phase={phase}
-          interactionLocked={interactionLocked || isLanguageShellVisible}
-          isSequencePlaying={isSequencePlaying}
-          currentAudioIndex={currentAudioIndex}
-          totalAudioCount={totalAudioCount}
-          diagnosticLabel={diagnosticLabel}
-          onPrimaryAction={handlePrimaryAction}
-          primaryButtonRef={primaryButtonRef}
-        />
+        {shouldShowStatusPanel ? (
+          <WelcomeStatusPanel
+            actionLabel={actionLabel}
+            statusLabel={statusLabel}
+            phase={phase}
+            interactionLocked={interactionLocked || isLanguageShellVisible}
+            isSequencePlaying={isSequencePlaying}
+            currentAudioIndex={currentAudioIndex}
+            totalAudioCount={totalAudioCount}
+            diagnosticLabel={diagnosticLabel}
+            onPrimaryAction={handlePrimaryAction}
+            primaryButtonRef={primaryButtonRef}
+          />
+        ) : null}
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-          from { opacity: 1; }
-          to { opacity: 0; }
-        }
-      `}</style>
     </div>
   )
 })

@@ -24,10 +24,12 @@ vi.mock('@/components/welcome/use-welcome-sequence', () => ({
         currentAudioIndex: 0,
         totalAudioCount: 0,
         lastDiagnostic: null,
+        handleIntroActivated: vi.fn(),
         handlePrimaryAction: mockHandlePrimaryAction,
         handleVideoCanPlay: vi.fn(),
         handleVideoEnded: vi.fn(),
         handleVideoError: vi.fn(),
+        handleVideoPlaying: vi.fn(),
     }),
 }))
 

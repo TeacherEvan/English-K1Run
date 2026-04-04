@@ -38,6 +38,9 @@
 - **Home menu association audio**: Sangsom association lines must play only once per session when the home menu is first accessible (gate repeated replays on reopen/remount).
 - **Welcome start contract**: In normal mode, welcome narration must start only from explicit user gesture; do not auto-start from display-adjustment signals or fallback timers. Safety timers may unlock continue state, but must not trigger playback.
 - **Welcome desktop layout**: On large screens, keep welcome controls in the compact dock layout so the hero background/video stays visually dominant; preserve the centered stacked layout on mobile.
+- **Startup language chooser dismissal**: Once English or Thai is selected at startup, the chooser must unmount immediately and stay gone for the rest of that startup pass; do not leave it overlaying the intro.
+- **Intro playback ownership**: After startup language selection, the intro video should take the screen with minimal overlay UI, and welcome narration should begin only after the intro video emits a real `playing` event from the user-initiated flow.
+- **Intro video failure fallback**: If `/New_welcome_video.mp4` fails to load or play, show only `public/welcome-sangsom.png` and suppress the large welcome status panel in that failure state.
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
