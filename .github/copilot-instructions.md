@@ -59,7 +59,8 @@
 - **Default-mode progression authority**: `targetsClearedThisLevel` in `useGameLogic` remains the source of truth for level completion; telemetry must observe progression, not drive it.
 - **Target-clear telemetry**: Use `eventTracker.trackTargetClearProgress(...)` only to mirror correct-target progression for auditing and tests.
 - **Worm collisions**: In gameplay, worms remove only the falling targets they touch; non-colliding raining targets must continue unchanged. Do not reintroduce bounce/push-away behavior.
-- **Continuous mode state**: In SettingsContext with persistence (localStorage key `continuousModeHighScore`); see `src/context/settings-context.tsx`(../src/context/settings-context.tsx).
+- **Continuous mode contract**: `Play All Levels` is a single-pass timed run: each level lasts 15 seconds, levels rotate smoothly without stopwatch/target-timer/countdown/popup UI, every correct target tap increments the cumulative run total, and the home menu shows the best completed total targets destroyed.
+- **Continuous mode persistence + E2E seam**: Persist the best completed total in localStorage key `continuousModeBestTargetTotal`; use `?e2e=1&continuousLevelMs=<ms>` only for fast Playwright coverage of timed rotation.
 
 ## Error Handling
 

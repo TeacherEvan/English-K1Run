@@ -73,4 +73,24 @@ describe('TargetDisplay', () => {
         expect(text).not.toContain('Find: ねこ')
         expect(text).not.toContain('Animals & Nature')
     })
+
+    it('hides the target timer block in continuous mode', () => {
+        act(() => {
+            root.render(
+                <TargetDisplay
+                    currentTarget="cat"
+                    targetEmoji="🐱"
+                    category={{
+                        name: 'Animals & Nature',
+                        items: [],
+                        requiresSequence: false,
+                    }}
+                    timeRemaining={8000}
+                    continuousMode
+                />,
+            )
+        })
+
+        expect(document.body.textContent ?? '').not.toContain('8s')
+    })
 })

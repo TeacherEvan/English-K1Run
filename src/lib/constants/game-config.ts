@@ -128,6 +128,21 @@ export const FORCE_TARGET_SPAWN_MS = 6000;
 /** Automatic target change timeout (if not sequence mode) */
 export const TARGET_CHANGE_TIMEOUT_MS = 10000;
 
+/** Continuous-mode level duration before auto-advancing to the next level */
+export const CONTINUOUS_MODE_LEVEL_DURATION_MS = 15000;
+
+export const getContinuousModeLevelDurationMs = (): number => {
+  if (typeof window === "undefined") return CONTINUOUS_MODE_LEVEL_DURATION_MS;
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("e2e") !== "1") return CONTINUOUS_MODE_LEVEL_DURATION_MS;
+
+  const override = Number(params.get("continuousLevelMs"));
+  return Number.isFinite(override) && override > 0
+    ? override
+    : CONTINUOUS_MODE_LEVEL_DURATION_MS;
+};
+
 // ============================================================================
 // SCORING & PROGRESSION
 // ============================================================================

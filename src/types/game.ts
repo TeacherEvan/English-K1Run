@@ -5,6 +5,8 @@
 
 export type PlayerSide = "left" | "right";
 
+export type GameRunMode = "default" | "continuous";
+
 export type GamePhase =
   | "idle"
   | "playing"
@@ -34,6 +36,7 @@ export interface GameState {
   level: number;
   gameStarted: boolean;
   winner: boolean;
+  runMode?: GameRunMode | null;
   phase?: GamePhase;
   pendingLevel?: number | null;
   countdownEndsAt?: number | null;
@@ -42,6 +45,8 @@ export interface GameState {
   levelQueueIndex?: number;
   targetsClearedThisLevel?: number;
   continuousCategoryClearCount?: number;
+  continuousLevelEndsAt?: number | null;
+  continuousRunScore?: number;
   targetChangeTime: number;
   streak: number;
   /** Target announcement overlay state */

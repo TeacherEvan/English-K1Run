@@ -75,6 +75,36 @@ const preloadAudio = (url: string): Promise<void> => {
 };
 
 /**
+ * Preload video metadata using an HTMLVideoElement.
+ *
+ * @param url - Video URL to preload
+ * @returns Promise that resolves when metadata is available
+ */
+const preloadVideo = (url: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+
+    const cleanup = () => {
+      video.removeAttribute("src");
+      video.load();
+    };
+
+    video.onloadedmetadata = () => {
+      cleanup();
+      resolve();
+    };
+
+    video.onerror = () => {
+      cleanup();
+      reject(new Error(`Failed to load video metadata: ${url}`));
+    };
+
+    video.preload = "metadata";
+    video.src = url;
+  });
+};
+
+/**
  * Preload a font using CSS Font Loading API
  *
  * @param fontFamily - Font family name
@@ -150,6 +180,10 @@ const preloadResource = async (resource: ResourceMetadata): Promise<void> => {
         const fontFamily =
           resource.url.split("/").pop()?.split(".")[0] || "CustomFont";
         await preloadFont(fontFamily, resource.url);
+        break;
+      }
+      case "video": {
+        await preloadVideo(resource.url);
         break;
       }
       default: {

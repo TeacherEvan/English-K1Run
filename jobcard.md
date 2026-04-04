@@ -12,9 +12,17 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Settings/accessibility: expanded settings coverage, reduced motion/high contrast, and WCAG-aligned UI.
 - E2E reliability: Playwright waits, navigation retry backoff, touch spec stability.
 - Tooling and docs: Copilot instructions expansion, clarified MCP tooling, build and lint stability.
-- Gameplay polish: lighter HUD motion, quieter gameplay audio, and touch-first interaction fixes.
+- Gameplay polish: lighter HUD motion, quieter gameplay audio, touch-first interaction fixes, and the new timerless single-pass continuous-mode score run.
 
 ## Timeline (Compressed)
+
+### 2026-04-05
+
+- Reworked `Play All Levels` into a single-pass continuous-mode score run: each level now lasts 15 seconds, rotates smoothly without countdown/popup UI, and ends after one full pass through all levels.
+- Replaced continuous-mode best-time tracking with cumulative correct-target scoring and persisted the best completed total in localStorage key `continuousModeBestTargetTotal`.
+- Removed continuous-mode timer UI from gameplay, kept target secrecy (`❓`), added an E2E-only `continuousLevelMs` override seam, and replaced the home-menu `Best Time` card with localized `Total Targets Destroyed` copy.
+- Added focused unit and Playwright regressions for queue generation, timed single-pass rotation, timerless HUD behavior, and menu stat updates.
+- Validation: `npm run test:run -- src/hooks/game-logic/__tests__/tap-state-updater.test.ts src/hooks/game-logic/__tests__/create-continuous-mode-level-queue.test.ts src/hooks/game-logic/__tests__/continuous-mode-single-pass.test.ts src/components/__tests__/TargetDisplay.test.tsx src/app/components/__tests__/AppGameplayScene.test.tsx src/app/__tests__/continuous-mode-run-routing.test.tsx`, `npm run verify`, and `npm run test:e2e -- e2e/specs/menu.spec.ts e2e/specs/continuous-mode-hud.spec.ts e2e/specs/continuous-mode-single-pass.spec.ts` passed locally.
 
 ### 2026-04-04
 
@@ -131,6 +139,10 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Tooling/docs: .github/copilot-instructions.md, eslint.config.js, .vscode/settings.json
 
 ## Validation
+
+- `npm run test:run -- src/hooks/game-logic/__tests__/tap-state-updater.test.ts src/hooks/game-logic/__tests__/create-continuous-mode-level-queue.test.ts src/hooks/game-logic/__tests__/continuous-mode-single-pass.test.ts src/components/__tests__/TargetDisplay.test.tsx src/app/components/__tests__/AppGameplayScene.test.tsx src/app/__tests__/continuous-mode-run-routing.test.tsx` (2026-04-05) passed.
+- `npm run verify` (2026-04-05) passed.
+- `npm run test:e2e -- e2e/specs/menu.spec.ts e2e/specs/continuous-mode-hud.spec.ts e2e/specs/continuous-mode-single-pass.spec.ts` (2026-04-05) passed.
 
 - `npm --prefer-ipv4 run verify` (2026-04-03) passed.
 - `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm --prefer-ipv4 run test:e2e -- e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps"` (2026-04-03) passed.

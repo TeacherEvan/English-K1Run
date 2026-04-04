@@ -1,6 +1,19 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "../fixtures/game.fixture";
 
-const THAI_READY_PROMPT = /แตะ.*เริ่ม/;
+async function waitForWelcomeToAdvance(page: Page) {
+  await expect
+    .poll(
+      async () => {
+        const phase = await page
+          .getByTestId("welcome-screen")
+          .getAttribute("data-welcome-phase");
+        return phase === "playingNarration" || phase === "readyToContinue";
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+}
 
 test.describe("Welcome language picker", () => {
   test.beforeEach(async ({ page, audioMock }) => {
@@ -34,11 +47,7 @@ test.describe("Welcome language picker", () => {
 
     await thaiButton.click();
 
-    await expect(languagePicker).toBeVisible();
-    await expect(page.getByTestId("welcome-status-label")).toContainText(
-      THAI_READY_PROMPT,
-    );
-    await expect(thaiButton).toHaveAttribute("aria-pressed", "true");
+    await expect(languagePicker).toHaveCount(0);
 
     await expect
       .poll(() =>
@@ -62,22 +71,7 @@ test.describe("Welcome language picker", () => {
         persistedLanguage: "th",
       });
 
-    await page
-      .getByTestId("welcome-primary-button")
-      .evaluate((element: HTMLElement) => {
-        element.click();
-      });
-
-    await expect
-      .poll(
-        () =>
-          page.getByTestId("welcome-screen").getAttribute("data-welcome-phase"),
-        { timeout: 20_000 },
-      )
-      .toBe("playingNarration");
-
-    await expect(englishButton).toBeDisabled();
-    await expect(thaiButton).toBeDisabled();
+    await waitForWelcomeToAdvance(page);
   });
 
   test("keeps Thai selected after reload and carries it into the menu", async ({
@@ -93,15 +87,11 @@ test.describe("Welcome language picker", () => {
     });
     await expect(languagePicker).toBeVisible();
     await expect(thaiButton).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByTestId("welcome-status-label")).toContainText(
-      THAI_READY_PROMPT,
-    );
 
-    await page
-      .getByTestId("welcome-primary-button")
-      .evaluate((element: HTMLElement) => {
-        element.click();
-      });
+    await thaiButton.click();
+    await expect(languagePicker).toHaveCount(0);
+
+    await waitForWelcomeToAdvance(page);
     await expect
       .poll(
         () =>
@@ -110,11 +100,16 @@ test.describe("Welcome language picker", () => {
       )
       .toBe("readyToContinue");
 
-    await page
-      .getByTestId("welcome-primary-button")
-      .evaluate((element: HTMLElement) => {
-        element.click();
-      });
+    await page.waitForSelector('[data-testid="welcome-primary-button"]', {
+      state: "visible",
+      timeout: 20_000,
+    });
+
+    await page.getByTestId("welcome-primary-button").click({ force: true });
+    await page.waitForSelector('[data-testid="welcome-screen"]', {
+      state: "hidden",
+      timeout: 10_000,
+    });
     await page.waitForSelector('[data-testid="game-menu"]', {
       timeout: 25_000,
     });

@@ -46,11 +46,6 @@ describe("updateStateOnTap", () => {
     generateRandomTarget: () => ({ name: "apple", emoji: "🍎" }),
     spawnImmediateTargets: vi.fn(),
     continuousMode: false,
-    continuousModeTargetCount: { current: 0 },
-    continuousModeHighScore: null,
-    continuousModeStartTime: null,
-    setContinuousModeHighScore: vi.fn(),
-    setContinuousModeStartTime: vi.fn(),
     refillTargetPool: vi.fn(),
     setGameState: (updater: GameState | ((prev: GameState) => GameState)) => {
       state = typeof updater === "function" ? updater(state) : updater;
@@ -80,22 +75,30 @@ describe("updateStateOnTap", () => {
     expect(state.winner).toBe(true);
   });
 
-  it("changes continuous-mode category after 7 completed clears", () => {
+  it("keeps continuous mode on the same level while score accumulates", () => {
     const deps = makeDeps();
     deps.continuousMode = true;
 
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 7; i += 1) {
       state.progress = 95;
       updateStateOnTap(true, deps);
     }
 
     expect(state.level).toBe(0);
-    expect(state.continuousCategoryClearCount).toBe(6);
+    expect(state.continuousCategoryClearCount).toBe(0);
+    expect(state.continuousRunScore).toBe(7);
+  });
 
+  it("tracks continuous-mode score without using progress-win rotation", () => {
+    const deps = makeDeps();
+    deps.continuousMode = true;
     state.progress = 95;
+
     updateStateOnTap(true, deps);
 
-    expect(state.level).toBe(1);
+    expect(state.continuousRunScore).toBe(1);
+    expect(state.winner).toBe(false);
+    expect(state.level).toBe(0);
     expect(state.continuousCategoryClearCount).toBe(0);
   });
 

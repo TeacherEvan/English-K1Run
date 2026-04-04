@@ -76,11 +76,6 @@ describe("createHandleObjectTap", () => {
       generateRandomTarget: () => ({ name: "banana", emoji: "🍌" }),
       spawnImmediateTargets: vi.fn(),
       continuousMode: false,
-      continuousModeTargetCount: { current: 0 },
-      continuousModeHighScore: null,
-      continuousModeStartTime: null,
-      setContinuousModeHighScore: vi.fn(),
-      setContinuousModeStartTime: vi.fn(),
       refillTargetPool: vi.fn(),
       setGameState: (updater) => {
         state = typeof updater === "function" ? updater(state) : updater;

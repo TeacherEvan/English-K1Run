@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { CategoryErrorBoundary } from "../../components/CategoryErrorBoundary";
 import { FallingObject } from "../../components/FallingObject";
 import { PlayerArea } from "../../components/PlayerArea";
-import { Stopwatch } from "../../components/Stopwatch";
 import { TargetDisplay } from "../../components/TargetDisplay";
 import { Worm } from "../../components/Worm";
 import { LevelCompletePopup } from "../../components/level-transition/LevelCompletePopup";
@@ -33,7 +32,6 @@ interface AppGameplaySceneProps {
     timeRemaining: number;
     screenShake: boolean;
     continuousMode: boolean;
-    continuousModeHighScore: number | null;
     gameObjects: GameObject[];
     worms: WormObject[];
     fairyTransforms: FairyTransformObject[];
@@ -51,7 +49,6 @@ export const AppGameplayScene = ({
     timeRemaining,
     screenShake,
     continuousMode,
-    continuousModeHighScore,
     gameObjects,
     worms,
     fairyTransforms,
@@ -163,13 +160,6 @@ export const AppGameplayScene = ({
                     isVisible
                     countdownEndsAt={gameState.countdownEndsAt ?? null}
                     levelLabel={nextLevelLabel}
-                />
-            )}
-
-            {isPlaying && continuousMode && (
-                <Stopwatch
-                    isRunning={isPlaying}
-                    bestTime={continuousModeHighScore ?? 0}
                 />
             )}
         </div>

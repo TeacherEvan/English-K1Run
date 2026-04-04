@@ -1,11 +1,15 @@
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
-import { LEVEL_START_COUNTDOWN_MS } from "../../lib/constants/game-config";
+import {
+  getContinuousModeLevelDurationMs,
+  LEVEL_START_COUNTDOWN_MS,
+} from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
 import { soundManager } from "../../lib/sound-manager";
 import { multiTouchHandler } from "../../lib/touch-handler";
 import type { GameState } from "../../types/game";
-import { setupContinuousMode } from "./continuous-mode-initialization";
+import { createContinuousModeLevelQueue } from "./create-continuous-mode-level-queue";
 import { createDefaultModeLevelQueue } from "./default-mode-level-queue";
+import { activateQueuedLevel } from "./game-effects/activate-queued-level";
 import type { GameSessionDependencies } from "./game-session-types";
 
 /**
@@ -16,10 +20,13 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
     clampLevel,
     gameStateLevel,
     continuousMode,
+    generateRandomTarget,
+    spawnImmediateTargets,
     lastEmojiAppearance,
     targetPool,
-    continuousModeTargetCount,
-    setContinuousModeStartTime,
+    progressiveSpawnTimeoutRefs,
+    recurringSpawnIntervalRef,
+    wormSpeedMultiplier,
     setGameObjects,
     setWorms,
     setFairyTransforms,
@@ -31,7 +38,7 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
     try {
       const safeLevel = clampLevel(levelIndex ?? gameStateLevel);
       const levelQueue = continuousMode
-        ? [safeLevel]
+        ? createContinuousModeLevelQueue(safeLevel, GAME_CATEGORIES.length)
         : createDefaultModeLevelQueue(safeLevel, GAME_CATEGORIES.length);
 
       // Enable touch handling and performance monitoring
@@ -47,13 +54,6 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
       lastEmojiAppearance.current.clear();
       targetPool.current = [];
 
-      // Setup continuous mode
-      setupContinuousMode({
-        continuousMode,
-        continuousModeTargetCount,
-        setContinuousModeStartTime,
-      });
-
       // Initialize emoji tracking
       const currentCategory = GAME_CATEGORIES[safeLevel];
       eventTracker.resetPerformanceMetrics();
@@ -67,12 +67,41 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
       setFairyTransforms([]);
       setScreenShake(false);
 
+      if (continuousMode) {
+        const levelDurationMs = getContinuousModeLevelDurationMs();
+        activateQueuedLevel({
+          generateRandomTarget,
+          spawnImmediateTargets,
+          lastEmojiAppearance,
+          targetPool,
+          progressiveSpawnTimeoutRefs,
+          recurringSpawnIntervalRef,
+          wormSpeedMultiplier,
+          setGameObjects,
+          setWorms,
+          setFairyTransforms,
+          setScreenShake,
+          setGameState,
+          levelIndex: safeLevel,
+          stateUpdates: {
+            runMode: "continuous",
+            levelQueue,
+            levelQueueIndex: 0,
+            continuousCategoryClearCount: 0,
+            continuousLevelEndsAt: Date.now() + levelDurationMs,
+            continuousRunScore: 0,
+          },
+        });
+        return;
+      }
+
       // Update game state to start the countdown-first flow.
       setGameState((prev) => {
         const newState: GameState = {
           ...prev,
           level: safeLevel,
           gameStarted: true,
+          runMode: "default",
           currentTarget: "",
           targetEmoji: "",
           targetChangeTime: 0,
@@ -85,6 +114,8 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
           levelQueueIndex: 0,
           targetsClearedThisLevel: 0,
           continuousCategoryClearCount: 0,
+          continuousLevelEndsAt: null,
+          continuousRunScore: 0,
           progress: 0,
           streak: 0,
         };

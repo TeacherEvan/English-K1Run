@@ -1,4 +1,4 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import {
   DEFAULT_MODE_PROGRESS_INCREMENT,
@@ -20,11 +20,6 @@ export interface TapStateUpdateDependencies {
   };
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
-  continuousModeTargetCount: MutableRefObject<number>;
-  continuousModeHighScore: number | null;
-  continuousModeStartTime: number | null;
-  setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;
-  setContinuousModeStartTime: Dispatch<SetStateAction<number | null>>;
   refillTargetPool: (levelIndex?: number) => void;
   setGameState: Dispatch<SetStateAction<GameState>>;
   setScreenShake: Dispatch<SetStateAction<boolean>>;
@@ -43,12 +38,6 @@ export const updateStateOnTap = (
     generateRandomTarget,
     spawnImmediateTargets,
     continuousMode,
-    continuousModeTargetCount,
-    continuousModeHighScore,
-    continuousModeStartTime,
-    setContinuousModeHighScore,
-    setContinuousModeStartTime,
-    refillTargetPool,
     setGameState,
     setScreenShake,
   } = dependencies;
@@ -60,10 +49,10 @@ export const updateStateOnTap = (
       newState.streak += 1;
 
       if (continuousMode) {
-        newState.progress = Math.min(
-          prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
-          PROGRESS_MAX,
-        );
+        newState.progress = 0;
+        newState.winner = false;
+        newState.continuousRunScore = (prev.continuousRunScore ?? 0) + 1;
+        newState.continuousCategoryClearCount = 0;
       } else {
         newState.targetsClearedThisLevel =
           (prev.targetsClearedThisLevel ?? 0) + 1;
@@ -96,19 +85,13 @@ export const updateStateOnTap = (
         newState.progress = PROGRESS_MAX;
       }
 
-      if (reachedDefaultGoal || newState.progress >= PROGRESS_MAX) {
+      if (
+        !continuousMode &&
+        (reachedDefaultGoal || newState.progress >= PROGRESS_MAX)
+      ) {
         handleProgressWin({
           prev,
           newState,
-          continuousMode,
-          continuousModeTargetCount,
-          continuousModeHighScore,
-          continuousModeStartTime,
-          setContinuousModeHighScore,
-          setContinuousModeStartTime,
-          refillTargetPool,
-          generateRandomTarget,
-          spawnImmediateTargets,
         });
       }
 

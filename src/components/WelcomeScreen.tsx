@@ -2,6 +2,10 @@ import { WelcomeLanguageShell } from '@/components/welcome/WelcomeLanguageShell'
 import { WelcomeStatusPanel } from '@/components/welcome/WelcomeStatusPanel'
 import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
 import { isWelcomeInteractionLocked } from '@/components/welcome/welcome-phase'
+import {
+  hasCompletedStartupLanguageGate,
+  markStartupLanguageGateCompleted,
+} from '@/app/startup/startup-persistence'
 import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
@@ -24,10 +28,13 @@ interface WelcomeScreenProps {
 export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
-  const [isLanguageShellVisible, setIsLanguageShellVisible] = useState(true)
+  const [isLanguageShellVisible, setIsLanguageShellVisible] = useState(
+    () => !hasCompletedStartupLanguageGate(),
+  )
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
   const shouldRestorePrimaryFocusRef = useRef(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const skipAutoplayEffectRef = useRef(false)
   const welcomeAudioConfig = useMemo(() => ({ ...audioConfig, language: gameplayLanguage }), [audioConfig, gameplayLanguage])
   const {
     fadeOut,
@@ -52,6 +59,10 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
   useEffect(() => {
     if (!shouldLoadVideo) return
+    if (skipAutoplayEffectRef.current) {
+      skipAutoplayEffectRef.current = false
+      return
+    }
     const video = videoRef.current
     if (!video || !video.paused) return
     try {
@@ -116,7 +127,14 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
   const handleLanguageSelected = (shouldRestoreFocus: boolean) => {
     shouldRestorePrimaryFocusRef.current = shouldRestoreFocus
-    handleIntroActivated()
+    const video = videoRef.current
+    if (video && !video.getAttribute('src')) {
+      video.src = videoSrc
+      video.preload = 'metadata'
+      skipAutoplayEffectRef.current = true
+    }
+    markStartupLanguageGateCompleted()
+    handleIntroActivated(video)
     setIsLanguageShellVisible(false)
   }
 

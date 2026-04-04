@@ -23,11 +23,6 @@ interface InteractionDeps {
   };
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
-  continuousModeTargetCount: MutableRefObject<number>;
-  continuousModeHighScore: number | null;
-  continuousModeStartTime: number | null;
-  setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;
-  setContinuousModeStartTime: Dispatch<SetStateAction<number | null>>;
   refillTargetPool: (levelIndex?: number) => void;
   setGameState: Dispatch<SetStateAction<GameState>>;
   setScreenShake: Dispatch<SetStateAction<boolean>>;
@@ -48,11 +43,6 @@ export const useGameLogicInteractions = ({
   generateRandomTarget,
   spawnImmediateTargets,
   continuousMode,
-  continuousModeTargetCount,
-  continuousModeHighScore,
-  continuousModeStartTime,
-  setContinuousModeHighScore,
-  setContinuousModeStartTime,
   refillTargetPool,
   setGameState,
   setScreenShake,
@@ -71,11 +61,6 @@ export const useGameLogicInteractions = ({
         generateRandomTarget,
         spawnImmediateTargets,
         continuousMode,
-        continuousModeTargetCount,
-        continuousModeHighScore,
-        continuousModeStartTime,
-        setContinuousModeHighScore,
-        setContinuousModeStartTime,
         refillTargetPool,
         setGameState,
         setScreenShake,
@@ -89,11 +74,6 @@ export const useGameLogicInteractions = ({
       generateRandomTarget,
       spawnImmediateTargets,
       continuousMode,
-      continuousModeTargetCount,
-      continuousModeHighScore,
-      continuousModeStartTime,
-      setContinuousModeHighScore,
-      setContinuousModeStartTime,
       refillTargetPool,
       setGameState,
       setScreenShake,

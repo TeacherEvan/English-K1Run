@@ -13,7 +13,11 @@ test.describe("Audio overlap", () => {
     await page.waitForSelector('[data-testid="welcome-screen"]', {
       timeout: 10000,
     });
-    await page.waitForSelector('[data-testid="welcome-primary-button"]', {
+    await page.waitForSelector('[data-testid="welcome-language-picker"]', {
+      state: "visible",
+      timeout: 10000,
+    });
+    await page.waitForSelector('[data-testid="welcome-language-en"]', {
       state: "visible",
       timeout: 10000,
     });
@@ -21,8 +25,13 @@ test.describe("Audio overlap", () => {
     await waitForAudioTracker(page);
     await clearTrackedAudioEvents(page);
 
-    await page.click('[data-testid="welcome-primary-button"]', {
+    await page.click('[data-testid="welcome-language-en"]', {
       force: true,
+    });
+
+    await page.waitForSelector('[data-testid="welcome-language-shell"]', {
+      state: "detached",
+      timeout: 10000,
     });
 
     await waitForAudioIdle(page);

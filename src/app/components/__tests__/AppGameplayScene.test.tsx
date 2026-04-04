@@ -46,7 +46,9 @@ vi.mock('../../../components/level-transition/LevelCountdownOverlay', () => ({
 vi.mock('../../../components/PlayerArea', () => ({
     PlayerArea: ({ children }: { children: unknown }) => children,
 }))
-vi.mock('../../../components/Stopwatch', () => ({ Stopwatch: () => null }))
+vi.mock('../../../components/Stopwatch', () => ({
+    Stopwatch: () => <div data-testid="continuous-mode-stopwatch" />,
+}))
 vi.mock('../../../components/TargetDisplay', () => ({ TargetDisplay: () => null }))
 vi.mock('../../../components/Worm', () => ({ Worm: () => null }))
 vi.mock('../../../lib/event-tracker', () => ({
@@ -94,7 +96,6 @@ describe('AppGameplayScene', () => {
                     timeRemaining={4000}
                     screenShake={false}
                     continuousMode={false}
-                    continuousModeHighScore={null}
                     gameObjects={[]}
                     worms={[]}
                     fairyTransforms={[]}
@@ -136,7 +137,6 @@ describe('AppGameplayScene', () => {
                     timeRemaining={4000}
                     screenShake={false}
                     continuousMode={false}
-                    continuousModeHighScore={null}
                     gameObjects={[]}
                     worms={[]}
                     fairyTransforms={[]}
@@ -176,7 +176,6 @@ describe('AppGameplayScene', () => {
                     timeRemaining={4000}
                     screenShake={false}
                     continuousMode={false}
-                    continuousModeHighScore={null}
                     gameObjects={[]}
                     worms={[]}
                     fairyTransforms={[]}
@@ -191,5 +190,41 @@ describe('AppGameplayScene', () => {
         expect(countdown).not.toBeNull()
         expect(document.body.textContent ?? '').toContain('かぞえてみよう')
         expect(document.querySelector('[data-testid="back-button"]')).toBeNull()
+    })
+
+    it('does not show the stopwatch HUD in continuous mode gameplay', () => {
+        act(() => {
+            root.render(
+                <AppGameplayScene
+                    gameState={{
+                        progress: 0,
+                        currentTarget: 'cat',
+                        targetEmoji: '🐱',
+                        level: 0,
+                        gameStarted: true,
+                        winner: false,
+                        phase: 'playing',
+                        targetChangeTime: 4000,
+                        streak: 0,
+                    }}
+                    currentCategory={{
+                        name: 'Animals & Nature',
+                        items: [],
+                        requiresSequence: false,
+                    }}
+                    timeRemaining={4000}
+                    screenShake={false}
+                    continuousMode
+                    gameObjects={[]}
+                    worms={[]}
+                    fairyTransforms={[]}
+                    onResetGame={vi.fn()}
+                    onObjectTap={vi.fn()}
+                    onWormTap={vi.fn()}
+                />,
+            )
+        })
+
+        expect(document.querySelector('[data-testid="continuous-mode-stopwatch"]')).toBeNull()
     })
 })

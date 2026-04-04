@@ -60,7 +60,7 @@ test.describe("Welcome layout", () => {
 
     await expect(welcomeScreen).toHaveAttribute(
       "data-welcome-phase",
-      "readyToStart",
+      "playingNarration",
     );
   });
 

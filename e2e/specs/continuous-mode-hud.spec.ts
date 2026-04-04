@@ -35,4 +35,17 @@ test.describe("Continuous mode HUD target secrecy", () => {
       page.locator('[data-testid="default-completion-dialog"]'),
     ).toHaveCount(0);
   });
+
+  test("does not show gameplay timer UI in continuous mode", async ({
+    gamePage,
+    page,
+  }) => {
+    await gamePage.menu.playAllLevels();
+    await gamePage.gameplay.targetDisplay.waitFor({ state: "visible" });
+
+    await expect(gamePage.gameplay.stopwatch).toHaveCount(0);
+    await expect(
+      page.locator('[data-testid="target-display-timer"]'),
+    ).toHaveCount(0);
+  });
 });
