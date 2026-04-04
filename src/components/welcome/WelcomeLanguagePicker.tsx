@@ -16,10 +16,11 @@ const STARTUP_LANGUAGE_OPTIONS = LANGUAGE_OPTIONS.filter(
 
 interface WelcomeLanguagePickerProps {
     disabled: boolean
+    onLanguageSelected?: () => void
 }
 
 export const WelcomeLanguagePicker = memo(
-    ({ disabled }: WelcomeLanguagePickerProps) => {
+    ({ disabled, onLanguageSelected }: WelcomeLanguagePickerProps) => {
         const { t } = useTranslation()
         const {
             displayLanguage,
@@ -38,6 +39,7 @@ export const WelcomeLanguagePicker = memo(
             if (disabled) return
             setDisplayLanguage(language)
             setGameplayLanguage(language)
+            onLanguageSelected?.()
         }
 
         return (

@@ -6,10 +6,11 @@ import { WelcomeLanguagePicker } from './WelcomeLanguagePicker'
 
 interface WelcomeLanguageShellProps {
   disabled: boolean
+  onLanguageSelected?: () => void
 }
 
 export const WelcomeLanguageShell = memo(
-  ({ disabled }: WelcomeLanguageShellProps) => {
+  ({ disabled, onLanguageSelected }: WelcomeLanguageShellProps) => {
     const { t } = useTranslation()
 
     return (
@@ -31,7 +32,10 @@ export const WelcomeLanguageShell = memo(
               'Pick English or Thai before the welcome audio starts. You can change it later in Settings.',
           })}
         </p>
-        <WelcomeLanguagePicker disabled={disabled} />
+        <WelcomeLanguagePicker
+          disabled={disabled}
+          onLanguageSelected={onLanguageSelected}
+        />
       </section>
     )
   },

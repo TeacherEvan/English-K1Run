@@ -6,7 +6,7 @@ import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.adaptive.css'
 import './WelcomeScreen.controls.css'
@@ -24,6 +24,7 @@ interface WelcomeScreenProps {
 export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
+  const [isLanguageShellVisible, setIsLanguageShellVisible] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
   const welcomeAudioConfig = useMemo(
     () => ({ ...audioConfig, language: gameplayLanguage }),
@@ -105,6 +106,10 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       })
       : null
 
+  const handleLanguageSelected = () => {
+    setIsLanguageShellVisible(false)
+  }
+
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
@@ -146,8 +151,15 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       )}
 
       <div className="welcome-scrim" aria-hidden="true" />
-      <div className="welcome-panels">
-        <WelcomeLanguageShell disabled={phase !== 'readyToStart'} />
+      <div
+        className={`welcome-panels ${isLanguageShellVisible ? '' : 'welcome-panels--language-hidden'}`.trim()}
+      >
+        {isLanguageShellVisible ? (
+          <WelcomeLanguageShell
+            disabled={phase !== 'readyToStart'}
+            onLanguageSelected={handleLanguageSelected}
+          />
+        ) : null}
         <WelcomeStatusPanel
           actionLabel={actionLabel}
           statusLabel={statusLabel}
