@@ -59,6 +59,7 @@ export const WelcomeLanguagePicker = memo(
         const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
             if (event.key === 'Enter' || event.key === ' ') {
                 activationSourceRef.current = 'keyboard'
+                event.stopPropagation()
             }
         }
 

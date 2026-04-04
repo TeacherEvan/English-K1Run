@@ -129,7 +129,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         background: CLASSROOM_BRAND.palette.ink,
         zIndex: UI_LAYER_MATRIX.WELCOME_OVERLAY,
       }}
-      onClick={handlePrimaryAction}
+      onClick={isLanguageShellVisible ? undefined : handlePrimaryAction}
     >
       <div className="welcome-stage" aria-hidden="true" />
 
@@ -172,7 +172,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           actionLabel={actionLabel}
           statusLabel={statusLabel}
           phase={phase}
-          interactionLocked={interactionLocked}
+          interactionLocked={interactionLocked || isLanguageShellVisible}
           isSequencePlaying={isSequencePlaying}
           currentAudioIndex={currentAudioIndex}
           totalAudioCount={totalAudioCount}

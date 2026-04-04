@@ -118,7 +118,7 @@ describe('WelcomeScreen', () => {
         expect(document.activeElement).not.toBe(primaryButton)
     })
 
-    it('keeps the language chooser hidden after the first startup selection', async () => {
+    it('keeps the language chooser hidden for the rest of the current startup flow', async () => {
         await renderWelcomeScreen()
 
         const languageButton = document.querySelector(
@@ -143,7 +143,7 @@ describe('WelcomeScreen', () => {
         ).not.toBeNull()
     })
 
-    it('does not render any startup language shell or picker after the first selection', async () => {
+    it('does not render any startup language shell or picker again during the current startup flow', async () => {
         await renderWelcomeScreen()
 
         const languageButton = document.querySelector(
