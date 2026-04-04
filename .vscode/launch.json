@@ -31,14 +31,14 @@
       "name": "App: Dev server only",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "npm run dev -- --host 127.0.0.1 --port 4173 --strictPort",
       "cwd": "${workspaceFolder}"
     },
     {
       "name": "App: Debug game app",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "npm run dev -- --host 127.0.0.1 --port 4173 --strictPort",
       "cwd": "${workspaceFolder}",
       "serverReadyAction": {
         "pattern": "Local:\\s+(https?://\\S+)",

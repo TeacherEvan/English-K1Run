@@ -9,16 +9,29 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 4141;
+const testResultsDir = path.join(__dirname, "test-results");
 
 app.use(cors());
 app.use(express.json());
 
+const isSafeResultFilename = (filename) =>
+  typeof filename === "string" &&
+  filename.endsWith(".json") &&
+  filename === path.basename(filename) &&
+  !filename.includes("..");
+
+const getSafeResultPath = (filename) => {
+  if (!isSafeResultFilename(filename)) {
+    return null;
+  }
+  const resolvedPath = path.resolve(testResultsDir, filename);
+  return resolvedPath.startsWith(`${testResultsDir}${path.sep}`)
+    ? resolvedPath
+    : null;
+};
+
 // API to get list of all test result files
 app.get("/api/test-runs", (req, res) => {
-  const testResultsDir = path.join(__dirname, "test-results"); // ← REMOVE ../
-
-  //console.log('Looking for test results in:', testResultsDir); // ← Add debug log
-
   try {
     if (!fs.existsSync(testResultsDir)) {
       console.log("❌ test-results directory does not exist!");
@@ -46,8 +59,6 @@ app.get("/api/test-runs", (req, res) => {
         };
       })
       .sort((a, b) => b.timestamp - a.timestamp);
-
-    //console.log(`✅ Found ${files.length} test result files`);
     res.json(files);
   } catch (error) {
     console.error("Error reading test results:", error);
@@ -57,10 +68,11 @@ app.get("/api/test-runs", (req, res) => {
 
 // API to get specific test result details
 app.get("/api/test-runs/:filename", (req, res) => {
-  const testResultsDir = path.join(__dirname, "test-results"); // ← FIXED
-  const filePath = path.join(testResultsDir, req.params.filename); // ← FIXED
+  const filePath = getSafeResultPath(req.params.filename);
 
-  //console.log('Reading file:', filePath); // ← Add debug log
+  if (!filePath) {
+    return res.status(400).json({ error: "Invalid test result filename" });
+  }
 
   try {
     const data = fs.readFileSync(filePath, "utf8");
