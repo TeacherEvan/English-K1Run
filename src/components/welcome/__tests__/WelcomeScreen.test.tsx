@@ -4,6 +4,10 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+const { mockHandleIntroActivated } = vi.hoisted(() => ({
+    mockHandleIntroActivated: vi.fn(),
+}))
+
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string, options?: { defaultValue?: string }) =>
@@ -20,7 +24,7 @@ vi.mock('@/components/welcome/use-welcome-sequence', () => ({
         currentAudioIndex: 0,
         totalAudioCount: 0,
         lastDiagnostic: null,
-        handleIntroActivated: vi.fn(),
+        handleIntroActivated: mockHandleIntroActivated,
         handlePrimaryAction: vi.fn(),
         handleVideoCanPlay: vi.fn(),
         handleVideoEnded: vi.fn(),
@@ -65,6 +69,19 @@ describe('WelcomeScreen', () => {
             )
         })
     }
+
+    it('skips the startup language shell after the language gate was completed previously', async () => {
+        localStorage.setItem(
+            'k1-startup-state',
+            JSON.stringify({ languageGateCompleted: true, startupPackVersion: null }),
+        )
+
+        await renderWelcomeScreen()
+
+        expect(
+            document.querySelector('[data-testid="welcome-language-shell"]'),
+        ).toBeNull()
+    })
 
     it('keeps the language chooser hidden for the rest of the current startup flow', async () => {
         await renderWelcomeScreen()
@@ -137,6 +154,7 @@ describe('WelcomeScreen', () => {
         })
 
         expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
+        expect(mockHandleIntroActivated).toHaveBeenCalledTimes(1)
         expect(video.getAttribute('src')).toBe('/New_welcome_video.mp4')
     })
 

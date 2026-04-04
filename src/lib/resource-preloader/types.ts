@@ -10,7 +10,13 @@ export type ResourcePriority = "high" | "medium" | "low";
 /**
  * Resource type classification for optimal loading strategy
  */
-export type ResourceType = "image" | "audio" | "font" | "script" | "style";
+export type ResourceType =
+  | "image"
+  | "audio"
+  | "font"
+  | "script"
+  | "style"
+  | "video";
 
 /**
  * Resource metadata for tracking and optimization

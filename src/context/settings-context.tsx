@@ -3,6 +3,7 @@ import {
   isSupportedLanguage,
   type SupportedLanguage,
 } from '@/lib/constants/language-config'
+import { prefetchSelectedLanguageAudioPack } from '@/app/startup/language-audio-prefetch'
 import { soundManager } from '@/lib/sound-manager'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
@@ -103,6 +104,17 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     soundManager.setVolume(settings.volume)
     soundManager.setEnabled(settings.soundEnabled)
   }, [settings])
+
+  useEffect(() => {
+    const selectedLanguages = Array.from(
+      new Set([settings.displayLanguage, settings.gameplayLanguage]),
+    )
+    void Promise.all(
+      selectedLanguages.map((language) =>
+        prefetchSelectedLanguageAudioPack(language),
+      ),
+    )
+  }, [settings.displayLanguage, settings.gameplayLanguage])
 
   const setTheme = (theme: Theme) => setSettings(s => ({ ...s, theme }))
   const setHighContrast = (highContrast: boolean) => setSettings(s => ({ ...s, highContrast }))

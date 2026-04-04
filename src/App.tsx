@@ -6,6 +6,7 @@ import { pickRandomBackground } from "./app/backgrounds";
 import { AppGameplayScene } from "./app/components/AppGameplayScene";
 import { AppMenuOverlay } from "./app/components/AppMenuOverlay";
 import { AppStartupGate } from "./app/components/AppStartupGate";
+import { useStartupBoot } from "./app/startup/use-startup-boot";
 import { useAppBootSignal } from "./app/use-app-boot";
 import { useBackgroundRotation } from "./app/use-background-rotation";
 import { useDebugToggle } from "./app/use-debug-toggle";
@@ -49,14 +50,18 @@ function App() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [continuousMode, setContinuousMode] = useState(false);
-  const [startupStep, setStartupStep] = useState<"welcome" | "menu">(
-    isE2E ? "menu" : "welcome",
+  const [startupStep, setStartupStep] = useState<"boot" | "welcome" | "menu">(
+    isE2E ? "menu" : "boot",
   );
   const [debugVisible, setDebugVisible] = useState(false);
 
   useAppBootSignal();
   useWebVitalsMonitor();
   useRenderMeasurement();
+
+  const startupBoot = useStartupBoot(!isE2E && startupStep === "boot");
+  const effectiveStartupStep =
+    startupStep === "boot" && startupBoot.ready ? "welcome" : startupStep;
 
   const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
@@ -123,14 +128,17 @@ function App() {
 
   const appAnimationClass = gameState.gameStarted ? "" : "app-bg-animated";
 
-  if (startupStep === "welcome" || isLoading) {
+  if (effectiveStartupStep === "boot" || effectiveStartupStep === "welcome" || isLoading) {
     return (
       <AppStartupGate
-        startupStep={startupStep}
+        startupStep={effectiveStartupStep}
         isLoading={isLoading}
         onWelcomeComplete={handleWelcomeComplete}
         onLoadingComplete={handleLoadingComplete}
         autoCompleteAfterMs={wormAutoCompleteMs}
+        bootPercentage={startupBoot.percentage}
+        bootPhase={startupBoot.phase}
+        bootLabel={startupBoot.label}
       />
     );
   }

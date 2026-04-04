@@ -1,0 +1,71 @@
+.startup-loading-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+  overflow: hidden;
+  background: #08121f;
+}
+
+.startup-loading-screen__background,
+.startup-loading-screen__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.startup-loading-screen__background {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.startup-loading-screen__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(5, 12, 22, 0.18) 0%,
+    rgba(5, 12, 22, 0.42) 58%,
+    rgba(5, 12, 22, 0.68) 100%
+  );
+}
+
+.startup-loading-screen__hud {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 22rem);
+  margin: 0 1rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+  padding: 0.9rem 1rem 1rem;
+  border-radius: 1rem;
+  background: rgba(8, 18, 31, 0.58);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+}
+
+.startup-loading-screen__label,
+.startup-loading-screen__phase {
+  margin: 0;
+  text-align: center;
+}
+
+.startup-loading-screen__label {
+  font-size: clamp(0.95rem, 1.4vw, 1.08rem);
+  font-weight: 700;
+}
+
+.startup-loading-screen__progress {
+  margin: 0.75rem 0 0.55rem;
+}
+
+.startup-loading-screen__phase {
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.82;
+}
+
+@media (min-width: 1024px) {
+  .startup-loading-screen__hud {
+    width: min(26rem, 28vw);
+    margin-bottom: 2.4rem;
+  }
+}

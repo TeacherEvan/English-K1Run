@@ -38,7 +38,7 @@ export interface WelcomeSequenceState {
   currentAudioIndex: number;
   totalAudioCount: number;
   lastDiagnostic: WelcomePlaybackDiagnostic | null;
-  handleIntroActivated: () => void;
+  handleIntroActivated: (videoElement?: HTMLVideoElement | null) => void;
   handlePrimaryAction: () => void;
   handleVideoCanPlay: () => void;
   handleVideoEnded: () => void;
@@ -54,6 +54,7 @@ export const useWelcomeSequence = ({
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [showFallbackImage, setShowFallbackImage] = useState(false);
   const gateRef = useRef(createIntroPlaybackGate());
+  const introAudioRequestedRef = useRef(false);
 
   const isE2E =
     typeof window !== "undefined" &&
@@ -140,20 +141,7 @@ export const useWelcomeSequence = ({
     [],
   );
 
-  const handleIntroActivated = useCallback(() => {
-    gateRef.current.onLanguageSelected();
-    setVideoLoaded(false);
-    setShowFallbackImage(false);
-  }, []);
   const handleVideoCanPlay = useCallback(() => setVideoLoaded(true), []);
-  const handleVideoPlaying = useCallback(() => {
-    if (isE2E) {
-      return;
-    }
-    if (gateRef.current.onVideoPlaying()) {
-      requestStart();
-    }
-  }, [isE2E, requestStart]);
   const handleVideoEnded = useCallback(() => {
     markReadyToContinue();
   }, [markReadyToContinue]);
@@ -163,6 +151,46 @@ export const useWelcomeSequence = ({
     setShowFallbackImage(true);
     markReadyToContinue();
   }, [markReadyToContinue]);
+  const handleIntroActivated = useCallback(
+    (videoElement?: HTMLVideoElement | null) => {
+      gateRef.current.onLanguageSelected();
+      setVideoLoaded(false);
+      setShowFallbackImage(false);
+
+      if (!isE2E && !introAudioRequestedRef.current) {
+        introAudioRequestedRef.current = true;
+        requestStart();
+      }
+
+      if (!videoElement) {
+        return;
+      }
+
+      try {
+        const playAttempt = videoElement.play();
+        if (typeof playAttempt?.catch === "function") {
+          void playAttempt.catch(() => {
+            handleVideoError();
+          });
+        }
+      } catch {
+        handleVideoError();
+      }
+    },
+    [handleVideoError, isE2E, requestStart],
+  );
+  const handleVideoPlaying = useCallback(() => {
+    if (isE2E) {
+      return;
+    }
+    if (introAudioRequestedRef.current) {
+      return;
+    }
+    if (gateRef.current.onVideoPlaying()) {
+      introAudioRequestedRef.current = true;
+      requestStart();
+    }
+  }, [isE2E, requestStart]);
 
   return {
     fadeOut,

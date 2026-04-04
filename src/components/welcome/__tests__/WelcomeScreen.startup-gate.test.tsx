@@ -70,6 +70,17 @@ describe('WelcomeScreen startup gate', () => {
         })
     }
 
+    it('keeps the startup chooser hidden when the startup language gate was already completed', async () => {
+        localStorage.setItem(
+            'k1-startup-state',
+            JSON.stringify({ languageGateCompleted: true, startupPackVersion: null }),
+        )
+
+        await renderWelcomeScreen()
+
+        expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
+    })
+
     it('blocks startup actions before a language is selected', async () => {
         await renderWelcomeScreen()
 
