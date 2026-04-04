@@ -1,5 +1,5 @@
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
-import { memo } from 'react'
+import { memo, type Ref } from 'react'
 
 import type { WelcomePhase } from './welcome-phase'
 import './WelcomeStatusPanel.css'
@@ -14,6 +14,7 @@ interface WelcomeStatusPanelProps {
   currentAudioIndex: number
   totalAudioCount: number
   onPrimaryAction: () => void
+  primaryButtonRef?: Ref<HTMLButtonElement>
 }
 
 export const WelcomeStatusPanel = memo(
@@ -27,6 +28,7 @@ export const WelcomeStatusPanel = memo(
     currentAudioIndex,
     totalAudioCount,
     onPrimaryAction,
+    primaryButtonRef,
   }: WelcomeStatusPanelProps) => (
     <div
       className={`welcome-status-panel ${interactionLocked ? 'welcome-status-panel--steady' : 'welcome-status-panel--pulse'}`}
@@ -52,6 +54,7 @@ export const WelcomeStatusPanel = memo(
         </p>
       ) : null}
       <button
+        ref={primaryButtonRef}
         type="button"
         className={`welcome-primary-button welcome-primary-button--${phase}`}
         onClick={(event) => {

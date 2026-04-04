@@ -6,7 +6,7 @@ import { WelcomeLanguagePicker } from './WelcomeLanguagePicker'
 
 interface WelcomeLanguageShellProps {
   disabled: boolean
-  onLanguageSelected?: () => void
+  onLanguageSelected?: (shouldRestoreFocus: boolean) => void
 }
 
 export const WelcomeLanguageShell = memo(

@@ -6,7 +6,7 @@ import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.adaptive.css'
 import './WelcomeScreen.controls.css'
@@ -25,6 +25,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
   const [isLanguageShellVisible, setIsLanguageShellVisible] = useState(true)
+  const primaryButtonRef = useRef<HTMLButtonElement>(null)
+  const shouldRestorePrimaryFocusRef = useRef(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const welcomeAudioConfig = useMemo(
     () => ({ ...audioConfig, language: gameplayLanguage }),
@@ -53,30 +55,35 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     if (!shouldLoadVideo) {
       return
     }
-
     const video = videoRef.current
     if (!video || !video.paused) {
       return
     }
-
     void video.play().catch(() => {
       // Ignore autoplay interruptions; the welcome flow remains usable.
     })
   }, [shouldLoadVideo])
 
+  useLayoutEffect(() => {
+    if (isLanguageShellVisible || !shouldRestorePrimaryFocusRef.current) {
+      return
+    }
+    if (!primaryButtonRef.current?.disabled) {
+      primaryButtonRef.current?.focus()
+    }
+    shouldRestorePrimaryFocusRef.current = false
+  }, [isLanguageShellVisible])
+
   const actionLabel = (() => {
     if (phase === 'playingNarration') {
       return t('welcome.listening', { defaultValue: 'Listening...' })
     }
-
     if (phase === 'readyToContinue') {
       return t('menu.tapToContinue')
     }
-
     if (phase === 'transitioningToMenu') {
       return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
     }
-
     return t('menu.tapToStart')
   })()
 
@@ -106,7 +113,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
       })
       : null
 
-  const handleLanguageSelected = () => {
+  const handleLanguageSelected = (shouldRestoreFocus: boolean) => {
+    shouldRestorePrimaryFocusRef.current = shouldRestoreFocus
     setIsLanguageShellVisible(false)
   }
 
@@ -170,6 +178,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           totalAudioCount={totalAudioCount}
           diagnosticLabel={diagnosticLabel}
           onPrimaryAction={handlePrimaryAction}
+          primaryButtonRef={primaryButtonRef}
         />
       </div>
 

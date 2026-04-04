@@ -3,8 +3,10 @@ import {
     LANGUAGE_OPTIONS,
     type SupportedLanguage,
 } from '@/lib/constants/language-config'
-import { memo } from 'react'
+import { memo, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+
+type ActivationSource = 'keyboard' | 'pointer' | null
 
 const STARTUP_LANGUAGE_OPTIONS = LANGUAGE_OPTIONS.filter(
     (option): option is {
@@ -16,12 +18,13 @@ const STARTUP_LANGUAGE_OPTIONS = LANGUAGE_OPTIONS.filter(
 
 interface WelcomeLanguagePickerProps {
     disabled: boolean
-    onLanguageSelected?: () => void
+    onLanguageSelected?: (shouldRestoreFocus: boolean) => void
 }
 
 export const WelcomeLanguagePicker = memo(
     ({ disabled, onLanguageSelected }: WelcomeLanguagePickerProps) => {
         const { t } = useTranslation()
+        const activationSourceRef = useRef<ActivationSource>(null)
         const {
             displayLanguage,
             gameplayLanguage,
@@ -35,11 +38,28 @@ export const WelcomeLanguagePicker = memo(
                 ? gameplayLanguage
                 : undefined
 
-        const handleLanguageSelect = (language: SupportedLanguage) => {
+        const handleLanguageSelect = (
+            language: SupportedLanguage,
+            _event: MouseEvent<HTMLButtonElement>,
+        ) => {
             if (disabled) return
+
+            const shouldRestoreFocus = activationSourceRef.current === 'keyboard'
+            activationSourceRef.current = null
+
             setDisplayLanguage(language)
             setGameplayLanguage(language)
-            onLanguageSelected?.()
+            onLanguageSelected?.(shouldRestoreFocus)
+        }
+
+        const handlePointerDown = (_event: PointerEvent<HTMLButtonElement>) => {
+            activationSourceRef.current = 'pointer'
+        }
+
+        const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                activationSourceRef.current = 'keyboard'
+            }
         }
 
         return (
@@ -56,7 +76,9 @@ export const WelcomeLanguagePicker = memo(
                             key={option.value}
                             type="button"
                             className={`welcome-language-button ${isSelected ? 'welcome-language-button--selected' : ''}`.trim()}
-                            onClick={() => handleLanguageSelect(option.value)}
+                            onKeyDown={handleKeyDown}
+                            onPointerDown={handlePointerDown}
+                            onClick={(event) => handleLanguageSelect(option.value, event)}
                             aria-pressed={isSelected}
                             disabled={disabled}
                             data-testid={`welcome-language-${option.value}`}
