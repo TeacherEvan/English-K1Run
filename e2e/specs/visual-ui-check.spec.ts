@@ -81,7 +81,9 @@ test.describe("Visual UI Verification - User Perspective", () => {
     console.log("👁️  USER VIEW: Welcome primary button visible?", isVisible);
     console.log("👁️  USER VIEW: Welcome primary button text:", buttonText);
     expect(isVisible).toBe(true);
-    await expect(primaryButton).toContainText(/Tap to (start|continue)|Listening/i);
+    await expect(primaryButton).toContainText(
+      /Tap to (start|continue)|Listening/i,
+    );
   });
 
   test("should capture menu screen and verify UI is IN VIEWPORT", async ({
