@@ -8,9 +8,24 @@
         "Dashboard: Debug server"
       ],
       "stopAll": true
+    },
+    {
+      "name": "Debug app + Playwright current test",
+      "configurations": [
+        "App: Dev server only",
+        "Playwright: Debug current test file"
+      ],
+      "stopAll": true
     }
   ],
   "configurations": [
+    {
+      "name": "App: Dev server only",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}"
+    },
     {
       "name": "App: Debug game app",
       "type": "node-terminal",
