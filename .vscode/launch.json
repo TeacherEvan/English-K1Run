@@ -16,6 +16,14 @@
         "Playwright: Debug current test file"
       ],
       "stopAll": true
+    },
+    {
+      "name": "Debug app + Playwright all tests",
+      "configurations": [
+        "App: Dev server only",
+        "Playwright: Debug all tests"
+      ],
+      "stopAll": true
     }
   ],
   "configurations": [
