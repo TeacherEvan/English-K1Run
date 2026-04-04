@@ -117,4 +117,54 @@ describe('WelcomeScreen', () => {
         expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
         expect(document.activeElement).not.toBe(primaryButton)
     })
+
+    it('keeps the language chooser hidden after the first startup selection', async () => {
+        await renderWelcomeScreen()
+
+        const languageButton = document.querySelector(
+            '[data-testid="welcome-language-en"]',
+        ) as HTMLButtonElement
+
+        await act(async () => {
+            languageButton.dispatchEvent(
+                new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }),
+            )
+            languageButton.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, detail: 1 }),
+            )
+            await Promise.resolve()
+        })
+
+        expect(
+            document.querySelector('[data-testid="welcome-language-shell"]'),
+        ).toBeNull()
+        expect(
+            document.querySelector('[data-testid="welcome-primary-button"]'),
+        ).not.toBeNull()
+    })
+
+    it('does not render any startup language shell or picker after the first selection', async () => {
+        await renderWelcomeScreen()
+
+        const languageButton = document.querySelector(
+            '[data-testid="welcome-language-th"]',
+        ) as HTMLButtonElement
+
+        await act(async () => {
+            languageButton.dispatchEvent(
+                new PointerEvent('pointerdown', { bubbles: true, pointerId: 1 }),
+            )
+            languageButton.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, detail: 1 }),
+            )
+            await Promise.resolve()
+        })
+
+        expect(
+            document.querySelector('[data-testid="welcome-language-shell"]'),
+        ).toBeNull()
+        expect(
+            document.querySelector('[data-testid="welcome-language-picker"]'),
+        ).toBeNull()
+    })
 })

@@ -70,6 +70,36 @@ test.describe("Welcome layout", () => {
     expect(statusBox!.x).toBeGreaterThan(viewport!.width * 0.5);
   });
 
+  test("startup hides the language chooser after selection and keeps intro content visible", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+
+    const welcomeScreen = page.locator('[data-testid="welcome-screen"]');
+    const languageShell = page.locator(
+      '[data-testid="welcome-language-shell"]',
+    );
+    const thaiButton = page.locator('[data-testid="welcome-language-th"]');
+    const video = page.locator('[data-testid="welcome-video"]');
+    const statusPanel = page.locator('[data-testid="welcome-status-panel"]');
+    const primaryButton = page.locator(
+      '[data-testid="welcome-primary-button"]',
+    );
+
+    await expect(welcomeScreen).toBeVisible();
+    await expect(languageShell).toBeVisible();
+    await expect(video).toBeVisible();
+    await expect(statusPanel).toBeVisible();
+
+    await thaiButton.click();
+
+    await expect(languageShell).toHaveCount(0);
+    await expect(video).toBeVisible();
+    await expect(statusPanel).toBeVisible();
+    await expect(primaryButton).toBeVisible();
+  });
+
   test("mobile keeps welcome controls stacked and centered", async ({
     page,
   }) => {
