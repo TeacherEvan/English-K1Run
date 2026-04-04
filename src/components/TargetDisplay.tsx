@@ -120,8 +120,11 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
           </div>
         )}
 
-        {timeRemaining !== undefined && timeRemaining > 0 && !category.requiresSequence && (
-          <div style={{ marginTop: `calc(0.4rem * var(--spacing-scale, 1))` }}>
+        {timeRemaining !== undefined && timeRemaining > 0 && !category.requiresSequence && !continuousMode && (
+          <div
+            data-testid="target-display-timer"
+            style={{ marginTop: `calc(0.4rem * var(--spacing-scale, 1))` }}
+          >
             <div className="font-medium"
               style={{
                 fontSize: `calc(0.65rem * var(--font-scale, 1))`,

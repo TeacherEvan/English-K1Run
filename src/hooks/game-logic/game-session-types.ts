@@ -20,11 +20,9 @@ export interface GameSessionDependencies {
   spawnImmediateTargets: () => void;
   lastEmojiAppearance: MutableRefObject<Map<string, number>>;
   targetPool: MutableRefObject<Array<{ emoji: string; name: string }>>;
-  continuousModeTargetCount: MutableRefObject<number>;
   progressiveSpawnTimeoutRefs: MutableRefObject<NodeJS.Timeout[]>;
   recurringSpawnIntervalRef: MutableRefObject<NodeJS.Timeout | undefined>;
   wormSpeedMultiplier: MutableRefObject<number>;
-  setContinuousModeStartTime: Dispatch<SetStateAction<number | null>>;
   setGameObjects: Dispatch<SetStateAction<GameObject[]>>;
   setWorms: Dispatch<SetStateAction<WormObject[]>>;
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>;

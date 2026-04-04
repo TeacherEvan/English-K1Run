@@ -22,7 +22,7 @@ import {
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
-    formattedBestTime: string;
+    formattedBestTargetTotal: string;
     continuousMode: boolean;
     resolutionScale: ResolutionScale;
     setResolutionScale: (scale: ResolutionScale) => void;
@@ -34,7 +34,7 @@ interface GameMenuHomeProps {
 
 export const GameMenuHome = memo(
     ({
-        formattedBestTime,
+        formattedBestTargetTotal,
         continuousMode,
         resolutionScale,
         setResolutionScale,
@@ -84,7 +84,7 @@ export const GameMenuHome = memo(
                 >
                     <div className="menu-home-layout grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,24rem)] lg:items-center">
                         <GameMenuHero
-                            formattedBestTime={formattedBestTime}
+                            formattedBestTargetTotal={formattedBestTargetTotal}
                             continuousMode={continuousMode}
                         />
 

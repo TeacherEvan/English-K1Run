@@ -36,12 +36,12 @@ export class GamePage {
   constructor(public readonly page: Page) {}
 
   // Navigation
-  async goto() {
+  async goto(path: string = "/?e2e=1") {
     await this.page.emulateMedia({ reducedMotion: "reduce" });
     // Use absolute URL to ensure navigation works correctly
     // The baseURL from playwright.config.ts is http://localhost:5173
     // Use relative URL so Playwright's `baseURL` is applied automatically
-    await this.page.goto("/?e2e=1", {
+    await this.page.goto(path, {
       waitUntil: "domcontentloaded",
       // Allow more time for dev server HMR and asset compilation during e2e runs
       timeout: 60_000,
@@ -420,9 +420,25 @@ export class GameplayPage {
   }
 
   async tapObjectByEmoji(emoji: string) {
-    const obj = this.fallingObjects.filter({ hasText: emoji }).first();
-    await obj.waitFor({ state: "visible", timeout: 5_000 });
-    await obj.click({ force: true, timeout: 5_000 });
+    const deadline = Date.now() + 8_000;
+
+    while (Date.now() < deadline) {
+      const matchingObjects = this.fallingObjects.filter({ hasText: emoji });
+      const count = await matchingObjects.count();
+
+      for (let index = 0; index < count; index += 1) {
+        const obj = matchingObjects.nth(index);
+        const isVisible = await obj.isVisible().catch(() => false);
+        if (!isVisible) continue;
+
+        await obj.click({ force: true, timeout: 2_000 });
+        return;
+      }
+
+      await this.page.waitForTimeout(150);
+    }
+
+    throw new Error(`No visible falling object found for emoji ${emoji}`);
   }
 
   async tapCurrentTargetAndWaitForResolution() {

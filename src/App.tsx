@@ -146,7 +146,6 @@ function App() {
           timeRemaining={timeRemaining}
           screenShake={screenShake}
           continuousMode={continuousMode}
-          continuousModeHighScore={continuousModeHighScore}
           gameObjects={gameObjects}
           worms={worms}
           fairyTransforms={fairyTransforms}
@@ -164,7 +163,7 @@ function App() {
           </Suspense>
         )}
 
-        {isRunComplete && !continuousMode && (
+        {isRunComplete && gameState.runMode !== "continuous" && (
           <Suspense fallback={null}>
             <DefaultModeCompletionDialog isVisible={isRunComplete} />
           </Suspense>
@@ -187,7 +186,7 @@ function App() {
         phase={gameState.phase}
         continuousMode={continuousMode}
         onToggleContinuousMode={handleToggleContinuousMode}
-        bestTime={continuousModeHighScore ?? 0}
+        bestTargetTotal={continuousModeHighScore ?? 0}
       />
     </>
   );

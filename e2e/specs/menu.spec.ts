@@ -83,7 +83,7 @@ test.describe("Game Menu", () => {
 
     const gameStarted = await gamePage.gameplay.isGameStarted();
     expect(gameStarted).toBe(true);
-    await expect(gamePage.gameplay.stopwatch).toBeVisible();
+    await expect(gamePage.gameplay.stopwatch).toHaveCount(0);
   });
 
   test("should display correct category after starting game", async ({

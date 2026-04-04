@@ -17,7 +17,7 @@ interface AppMenuOverlayProps {
     phase?: GamePhase;
     continuousMode: boolean;
     onToggleContinuousMode: (enabled: boolean) => void;
-    bestTime: number;
+    bestTargetTotal: number;
 }
 
 /**
@@ -33,7 +33,7 @@ export const AppMenuOverlay = ({
     phase,
     continuousMode,
     onToggleContinuousMode,
-    bestTime,
+    bestTargetTotal,
 }: AppMenuOverlayProps) => (
     <div
         className="fixed inset-0 pointer-events-none"
@@ -51,7 +51,7 @@ export const AppMenuOverlay = ({
                     phase={phase}
                     continuousMode={continuousMode}
                     onToggleContinuousMode={onToggleContinuousMode}
-                    bestTime={bestTime}
+                    bestTargetTotal={bestTargetTotal}
                     initialView="main"
                 />
             </Suspense>

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type {
   FairyTransformObject,
   GameObject,
@@ -23,6 +23,7 @@ export const useGameLogicState = () => {
     level: 0,
     gameStarted: false,
     winner: false,
+    runMode: null,
     phase: "idle",
     pendingLevel: null,
     countdownEndsAt: null,
@@ -31,6 +32,8 @@ export const useGameLogicState = () => {
     levelQueueIndex: -1,
     targetsClearedThisLevel: 0,
     continuousCategoryClearCount: 0,
+    continuousLevelEndsAt: null,
+    continuousRunScore: 0,
     targetChangeTime: 0,
     streak: 0,
     announcementActive: false,
@@ -40,15 +43,11 @@ export const useGameLogicState = () => {
     lastMilestone: 0,
   }));
 
-  const continuousModeTargetCount = useRef(0);
-  const [continuousModeStartTime, setContinuousModeStartTime] = useState<
-    number | null
-  >(null);
   const [continuousModeHighScore, setContinuousModeHighScore] = useState<
     number | null
   >(() => {
     if (typeof localStorage === "undefined") return null;
-    const stored = localStorage.getItem("continuousModeHighScore");
+    const stored = localStorage.getItem("continuousModeBestTargetTotal");
     return stored ? parseInt(stored, 10) : null;
   });
 
@@ -63,9 +62,6 @@ export const useGameLogicState = () => {
     setScreenShake,
     gameState,
     setGameState,
-    continuousModeTargetCount,
-    continuousModeStartTime,
-    setContinuousModeStartTime,
     continuousModeHighScore,
     setContinuousModeHighScore,
   };

@@ -5,14 +5,14 @@ import { CLASSROOM_BRAND } from "@/lib/constants/classroom-brand";
 import { TrophyIcon } from "./icons";
 
 interface GameMenuHeroProps {
-    formattedBestTime: string;
+    formattedBestTargetTotal: string;
     continuousMode: boolean;
 }
 
 const TRAIL_STEPS = ["one", "two", "three"] as const;
 
 export function GameMenuHero({
-    formattedBestTime,
+    formattedBestTargetTotal,
     continuousMode,
 }: GameMenuHeroProps) {
     const { t } = useTranslation();
@@ -67,11 +67,11 @@ export function GameMenuHero({
                     <div className="mb-2 flex items-center gap-2.5">
                         <TrophyIcon className="h-5 w-5 text-amber-300" />
                         <span className="text-sm font-bold uppercase tracking-[0.18em] text-amber-200/90">
-                            {t("game.bestTime")}
+                            {t("game.totalTargetsDestroyed")}
                         </span>
                     </div>
                     <div className="text-[clamp(2.25rem,5vw,3.25rem)] font-bold tracking-[-0.04em] text-amber-300 tabular-nums">
-                        {formattedBestTime}
+                        {formattedBestTargetTotal}
                     </div>
                     {continuousMode ? (
                         <div className="mt-3 rounded-full border border-emerald-300/25 bg-emerald-950/45 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-100">

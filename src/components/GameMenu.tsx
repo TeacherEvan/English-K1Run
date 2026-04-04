@@ -1,7 +1,6 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
-import { formatBestTime } from "../lib/utils";
 import type { GamePhase } from "../types/game";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
@@ -26,7 +25,7 @@ interface GameMenuProps {
   continuousMode?: boolean
   onToggleContinuousMode?: (enabled: boolean) => void
   onResetGame?: () => void
-  bestTime?: number
+  bestTargetTotal?: number
 }
 
 /**
@@ -52,15 +51,17 @@ export const GameMenu = memo(({
   continuousMode = false,
   onToggleContinuousMode,
   onResetGame,
-  bestTime = 0
+  bestTargetTotal = 0
 }: GameMenuProps) => {
   // Extract current display resolution scale and updater from settings context
   const { resolutionScale, setResolutionScale } = useSettings()
 
   const [view, setView] = useState<'main' | 'levels'>(initialView)
 
-  // Memoize time formatting
-  const formattedBestTime = useMemo(() => formatBestTime(bestTime), [bestTime])
+  const formattedBestTargetTotal = useMemo(
+    () => new Intl.NumberFormat().format(bestTargetTotal),
+    [bestTargetTotal],
+  )
 
   // Memoize level icons computation for better performance
   const levelIcons = useMemo(() => {
@@ -86,7 +87,7 @@ export const GameMenu = memo(({
     <ErrorBoundary>
       {view === 'main' ? (
         <GameMenuHome
-          formattedBestTime={formattedBestTime}
+          formattedBestTargetTotal={formattedBestTargetTotal}
           continuousMode={continuousMode}
           resolutionScale={resolutionScale}
           setResolutionScale={setResolutionScale}

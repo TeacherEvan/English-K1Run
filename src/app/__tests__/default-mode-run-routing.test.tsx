@@ -15,6 +15,7 @@ let currentGameState: GameState = {
     level: 0,
     gameStarted: true,
     winner: false,
+    runMode: 'default',
     phase: 'playing',
     targetChangeTime: 4000,
     streak: 0,

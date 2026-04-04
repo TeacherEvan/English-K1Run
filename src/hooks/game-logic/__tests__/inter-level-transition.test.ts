@@ -84,11 +84,9 @@ describe("inter-level transition flow", () => {
       spawnImmediateTargets: vi.fn(),
       lastEmojiAppearance: { current: new Map() },
       targetPool: { current: [] },
-      continuousModeTargetCount: { current: 0 },
       progressiveSpawnTimeoutRefs: { current: [] },
       recurringSpawnIntervalRef: { current: undefined },
       wormSpeedMultiplier: { current: 1 },
-      setContinuousModeStartTime: vi.fn(),
       setGameObjects: vi.fn(),
       setWorms: vi.fn(),
       setFairyTransforms: vi.fn(),
@@ -115,15 +113,6 @@ describe("inter-level transition flow", () => {
     handleProgressWin({
       prev,
       newState,
-      continuousMode: false,
-      continuousModeTargetCount: { current: 0 },
-      continuousModeHighScore: null,
-      continuousModeStartTime: null,
-      setContinuousModeHighScore: vi.fn(),
-      setContinuousModeStartTime: vi.fn(),
-      refillTargetPool: vi.fn(),
-      generateRandomTarget: () => ({ name: "apple", emoji: "🍎" }),
-      spawnImmediateTargets: vi.fn(),
     });
 
     expect(newState.phase).toBe("levelComplete");

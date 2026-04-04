@@ -22,11 +22,6 @@ export interface HandleObjectTapDependencies {
   };
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
-  continuousModeTargetCount: MutableRefObject<number>;
-  continuousModeHighScore: number | null;
-  continuousModeStartTime: number | null;
-  setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;
-  setContinuousModeStartTime: Dispatch<SetStateAction<number | null>>;
   refillTargetPool: (levelIndex?: number) => void;
   setGameState: Dispatch<SetStateAction<GameState>>;
   setScreenShake: Dispatch<SetStateAction<boolean>>;

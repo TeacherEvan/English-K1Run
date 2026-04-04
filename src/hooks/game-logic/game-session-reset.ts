@@ -53,6 +53,7 @@ export const createResetGame = (dependencies: GameSessionDependencies) => {
       level: 0,
       gameStarted: false,
       winner: false,
+      runMode: null,
       phase: "idle",
       pendingLevel: null,
       countdownEndsAt: null,
@@ -61,6 +62,8 @@ export const createResetGame = (dependencies: GameSessionDependencies) => {
       levelQueueIndex: -1,
       targetsClearedThisLevel: 0,
       continuousCategoryClearCount: 0,
+      continuousLevelEndsAt: null,
+      continuousRunScore: 0,
       targetChangeTime: Date.now() + 10000,
       streak: 0,
     });
