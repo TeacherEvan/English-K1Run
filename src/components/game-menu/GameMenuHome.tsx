@@ -1,4 +1,5 @@
 import { memo, useCallback, type KeyboardEvent } from "react";
+import type { ChallengeModeHighScoreEntry } from "@/lib/challenge-mode-high-scores";
 import { useTranslation } from "react-i18next";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useSettings } from "../../context/settings-context";
@@ -10,6 +11,7 @@ import { GameMenuActionStack } from "./GameMenuActionStack";
 import { GameMenuCreditsDialog } from "./GameMenuCreditsDialog";
 import { GameMenuExitDialog } from "./GameMenuExitDialog";
 import { GameMenuHero } from "./GameMenuHero";
+import { GameMenuHighScoresDialog } from "./GameMenuHighScoresDialog";
 import { GameMenuSettingsDialog } from "./GameMenuSettingsDialog";
 import { GridIcon, PlayIcon, TrophyIcon } from "./icons";
 import { getMenuActionLabel } from "./menu-action-labels";
@@ -23,6 +25,7 @@ import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
     formattedBestTargetTotal: string;
+    highScores: ChallengeModeHighScoreEntry[];
     continuousMode: boolean;
     resolutionScale: ResolutionScale;
     setResolutionScale: (scale: ResolutionScale) => void;
@@ -35,6 +38,7 @@ interface GameMenuHomeProps {
 export const GameMenuHome = memo(
     ({
         formattedBestTargetTotal,
+        highScores,
         continuousMode,
         resolutionScale,
         setResolutionScale,
@@ -148,6 +152,8 @@ export const GameMenuHome = memo(
                                     subtitle={levelSelectLabel.subtitle}
                                 />
                             </Button>
+
+                            <GameMenuHighScoresDialog highScores={highScores} />
 
                             <GameMenuSettingsDialog
                                 resolutionScale={resolutionScale}

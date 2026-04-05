@@ -10,7 +10,7 @@ const {
 } = vi.hoisted(() => ({
     capturedStates: [] as Array<{
         handleIntroActivated?: (video?: HTMLVideoElement | null) => void
-        handlePrimaryAction: () => void
+        handlePrimaryAction: (video?: HTMLVideoElement | null) => void
         handleVideoError: () => void
         handleVideoPlaying?: () => void
         showFallbackImage: boolean
@@ -66,7 +66,7 @@ describe('useWelcomeSequence', () => {
         vi.clearAllMocks()
     })
 
-    it('starts intro audio from the language-selection activation and does not duplicate on video playing', async () => {
+    it('arms intro audio on language selection and starts it only after video playing', async () => {
         await act(async () => {
             root.render(<Harness />)
         })
@@ -81,7 +81,7 @@ describe('useWelcomeSequence', () => {
             capturedStates[0].handleIntroActivated?.(video)
         })
 
-        expect(mockRequestStart).toHaveBeenCalledTimes(1)
+        expect(mockRequestStart).not.toHaveBeenCalled()
 
         await act(async () => {
             capturedStates[0].handleVideoPlaying?.()
@@ -90,7 +90,43 @@ describe('useWelcomeSequence', () => {
         expect(mockRequestStart).toHaveBeenCalledTimes(1)
     })
 
-    it('marks ready to continue and does not trigger an extra audio start when the video fails after activation', async () => {
+    it('does not start intro audio from the video playing event before an explicit activation', async () => {
+        await act(async () => {
+            root.render(<Harness />)
+        })
+
+        await act(async () => {
+            capturedStates[0].handleVideoPlaying?.()
+        })
+
+        expect(mockRequestStart).not.toHaveBeenCalled()
+    })
+
+    it('primes repeat-launch intro playback without starting audio until video playing', async () => {
+        await act(async () => {
+            root.render(<Harness />)
+        })
+
+        const video = document.createElement('video')
+        Object.defineProperty(video, 'play', {
+            configurable: true,
+            value: vi.fn().mockResolvedValue(undefined),
+        })
+
+        await act(async () => {
+            capturedStates[0].handlePrimaryAction(video)
+        })
+
+        expect(mockRequestStart).not.toHaveBeenCalled()
+
+        await act(async () => {
+            capturedStates[0].handleVideoPlaying?.()
+        })
+
+        expect(mockRequestStart).toHaveBeenCalledTimes(1)
+    })
+
+    it('marks ready to continue without starting audio when the video fails before playing', async () => {
         await act(async () => {
             root.render(<Harness />)
         })
@@ -106,7 +142,7 @@ describe('useWelcomeSequence', () => {
             capturedStates[0].handleVideoError()
         })
 
-        expect(mockRequestStart).toHaveBeenCalledTimes(1)
+        expect(mockRequestStart).not.toHaveBeenCalled()
         expect(mockMarkReadyToContinue).toHaveBeenCalledTimes(1)
         expect(capturedStates[0].showFallbackImage).toBe(true)
     })

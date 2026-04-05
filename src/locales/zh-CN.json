@@ -2,7 +2,7 @@
   "game": {
     "title": "English K1 Run",
     "startGame": "开始游戏",
-    "playAllLevels": "游玩全部关卡",
+    "playAllLevels": "挑战模式",
     "levelSelect": "关卡选择",
     "selectLevel": "选择关卡",
     "back": "返回",
@@ -10,7 +10,7 @@
     "bestTime": "最佳时间",
     "totalTargetsDestroyed": "摧毁目标总数",
     "currentTime": "当前时间",
-    "continuousMode": "连续模式",
+    "continuousMode": "挑战模式",
     "find": "寻找",
     "inOrder": "按顺序",
     "settings": "设置",
@@ -19,7 +19,13 @@
     "exit": "退出",
     "language": "语言",
     "selectLanguage": "选择语言",
-    "volume": "音量"
+    "volume": "音量",
+    "highScores": "最高分",
+    "highScoresTitle": "挑战模式最高分",
+    "highScoresEmpty": "还没有挑战模式成绩。",
+    "targetsDestroyed": "摧毁目标",
+    "languageUsed": "使用语言",
+    "achievedAt": "达成时间"
   },
   "menu": {
     "welcome": "欢迎来到 English K1 Run!",

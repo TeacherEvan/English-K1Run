@@ -12,6 +12,7 @@ import {
   hasReadyStartupPack,
   markStartupPackReady,
 } from "./startup-persistence";
+import { waitForStartupBootReady } from "./startup-boot-timing";
 
 export interface StartupBootState {
   ready: boolean;
@@ -43,6 +44,7 @@ export const useStartupBoot = (enabled: boolean): StartupBootState => {
     }
 
     let cancelled = false;
+    const bootStartedAt = Date.now();
     const limitedBandwidth = isLimitedBandwidth();
     const resources = buildStartupBootResources(limitedBandwidth);
 
@@ -55,7 +57,8 @@ export const useStartupBoot = (enabled: boolean): StartupBootState => {
         phase,
         label: getBootLabel(phase),
       });
-    }).then((progress) => {
+    }).then(async (progress) => {
+      await waitForStartupBootReady(bootStartedAt);
       if (cancelled) return;
       if (progress.failed === 0) {
         markStartupPackReady(STARTUP_PACK_VERSION);

@@ -33,7 +33,7 @@ export type {
 
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1, continuousMode = false } = options;
-  const { reducedMotion } = useSettings();
+  const { reducedMotion, gameplayLanguage } = useSettings();
   const {
     gameObjects,
     setGameObjects,
@@ -160,6 +160,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   useContinuousModeRotation({
     gameState,
     continuousMode,
+    gameplayLanguage,
     continuousModeHighScore,
     setContinuousModeHighScore,
     generateRandomTarget,

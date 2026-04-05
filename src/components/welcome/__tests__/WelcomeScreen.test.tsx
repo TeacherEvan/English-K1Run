@@ -4,8 +4,9 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { mockHandleIntroActivated } = vi.hoisted(() => ({
+const { mockHandleIntroActivated, mockHandlePrimaryAction } = vi.hoisted(() => ({
     mockHandleIntroActivated: vi.fn(),
+    mockHandlePrimaryAction: vi.fn(),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -13,6 +14,11 @@ vi.mock('react-i18next', () => ({
         t: (key: string, options?: { defaultValue?: string }) =>
             options?.defaultValue ?? key,
     }),
+}))
+
+vi.mock('@/app/startup/language-audio-prefetch', () => ({
+    hasLanguageAudioPrefetchKeys: () => false,
+    prefetchSelectedLanguageAudioPack: vi.fn().mockResolvedValue(false),
 }))
 
 vi.mock('@/components/welcome/use-welcome-sequence', () => ({
@@ -25,7 +31,7 @@ vi.mock('@/components/welcome/use-welcome-sequence', () => ({
         totalAudioCount: 0,
         lastDiagnostic: null,
         handleIntroActivated: mockHandleIntroActivated,
-        handlePrimaryAction: vi.fn(),
+        handlePrimaryAction: mockHandlePrimaryAction,
         handleVideoCanPlay: vi.fn(),
         handleVideoEnded: vi.fn(),
         handleVideoError: vi.fn(),
@@ -80,6 +86,34 @@ describe('WelcomeScreen', () => {
 
         expect(
             document.querySelector('[data-testid="welcome-language-shell"]'),
+        ).toBeNull()
+    })
+
+    it('shows an explicit start control when the chooser is skipped and routes that gesture through the primary action', async () => {
+        localStorage.setItem(
+            'k1-startup-state',
+            JSON.stringify({ languageGateCompleted: true, startupPackVersion: null }),
+        )
+
+        await renderWelcomeScreen()
+
+        const primaryButton = document.querySelector(
+            '[data-testid="welcome-primary-button"]',
+        ) as HTMLButtonElement
+        const video = document.querySelector(
+            '[data-testid="welcome-video"]',
+        ) as HTMLVideoElement
+
+        expect(primaryButton).not.toBeNull()
+
+        await act(async () => {
+            primaryButton.click()
+            await Promise.resolve()
+        })
+
+        expect(mockHandlePrimaryAction).toHaveBeenCalledWith(video)
+        expect(
+            document.querySelector('[data-testid="welcome-status-panel"]'),
         ).toBeNull()
     })
 
@@ -155,6 +189,7 @@ describe('WelcomeScreen', () => {
 
         expect(document.querySelector('[data-testid="welcome-language-shell"]')).toBeNull()
         expect(mockHandleIntroActivated).toHaveBeenCalledTimes(1)
+        expect(mockHandlePrimaryAction).not.toHaveBeenCalled()
         expect(video.getAttribute('src')).toBe('/New_welcome_video.mp4')
     })
 

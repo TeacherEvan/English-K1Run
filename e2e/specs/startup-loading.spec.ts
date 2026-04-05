@@ -4,13 +4,26 @@ test.describe("Startup loading", () => {
   test("shows the branded boot loader before welcome on first launch", async ({
     page,
   }) => {
-    await page.route("**/New_welcome_video.mp4", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+    await page.addInitScript(() => {
+      localStorage.removeItem("k1-startup-state");
+    });
+
+    await page.route("**/welcome-sangsom.png", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       await route.continue();
     });
 
-    await page.goto("/");
+    await page.route("**/New_welcome_video.mp4", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
 
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    await expect(
+      page.locator('[data-testid="startup-loading-screen"]'),
+    ).toBeVisible();
+    await page.waitForTimeout(1000);
     await expect(
       page.locator('[data-testid="startup-loading-screen"]'),
     ).toBeVisible();
@@ -36,5 +49,8 @@ test.describe("Startup loading", () => {
       page.locator('[data-testid="welcome-language-shell"]'),
     ).toHaveCount(0);
     await expect(page.locator('[data-testid="welcome-video"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="welcome-status-panel"]'),
+    ).toBeVisible();
   });
 });

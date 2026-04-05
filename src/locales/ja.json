@@ -2,7 +2,7 @@
   "game": {
     "title": "English K1 Run",
     "startGame": "ゲームを始める",
-    "playAllLevels": "すべてのレベルで遊ぶ",
+    "playAllLevels": "チャレンジモード",
     "levelSelect": "レベル選択",
     "selectLevel": "レベルを選ぶ",
     "back": "戻る",
@@ -10,7 +10,7 @@
     "bestTime": "ベストタイム",
     "totalTargetsDestroyed": "こわしたターゲット合計",
     "currentTime": "現在のタイム",
-    "continuousMode": "連続モード",
+    "continuousMode": "チャレンジモード",
     "find": "見つけよう",
     "inOrder": "順番どおり",
     "settings": "設定",
@@ -19,7 +19,13 @@
     "exit": "終了",
     "language": "言語",
     "selectLanguage": "言語を選択",
-    "volume": "音量"
+    "volume": "音量",
+    "highScores": "ハイスコア",
+    "highScoresTitle": "チャレンジモードのハイスコア",
+    "highScoresEmpty": "まだチャレンジモードの記録はありません。",
+    "targetsDestroyed": "こわしたターゲット",
+    "languageUsed": "使用言語",
+    "achievedAt": "達成日時"
   },
   "menu": {
     "welcome": "English K1 Run へようこそ!",

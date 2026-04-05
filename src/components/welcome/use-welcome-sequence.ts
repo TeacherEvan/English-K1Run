@@ -39,7 +39,7 @@ export interface WelcomeSequenceState {
   totalAudioCount: number;
   lastDiagnostic: WelcomePlaybackDiagnostic | null;
   handleIntroActivated: (videoElement?: HTMLVideoElement | null) => void;
-  handlePrimaryAction: () => void;
+  handlePrimaryAction: (videoElement?: HTMLVideoElement | null) => void;
   handleVideoCanPlay: () => void;
   handleVideoEnded: () => void;
   handleVideoError: () => void;
@@ -54,7 +54,8 @@ export const useWelcomeSequence = ({
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [showFallbackImage, setShowFallbackImage] = useState(false);
   const gateRef = useRef(createIntroPlaybackGate());
-  const introAudioRequestedRef = useRef(false);
+  const introAudioPendingRef = useRef(false);
+  const introAudioStartedRef = useRef(false);
 
   const isE2E =
     typeof window !== "undefined" &&
@@ -83,23 +84,6 @@ export const useWelcomeSequence = ({
     setTimeout(onComplete, 350);
   }, [onComplete]);
 
-  const handlePrimaryAction = useCallback(() => {
-    if (fadeOut || isWelcomeInteractionLocked(phase)) {
-      return;
-    }
-
-    if (isE2E) {
-      proceed();
-      return;
-    }
-
-    if (!readyToContinue) {
-      return;
-    }
-
-    proceed();
-  }, [fadeOut, isE2E, phase, proceed, readyToContinue]);
-
   useEffect(() => {
     if (!isE2E) return;
     const readyTimer = setTimeout(markReadyToContinue, 0);
@@ -109,29 +93,6 @@ export const useWelcomeSequence = ({
       clearTimeout(completeTimer);
     };
   }, [isE2E, markReadyToContinue, onComplete]);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === " " || e.key === "Enter") {
-        e.preventDefault();
-        handlePrimaryAction();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-    };
-  }, [handlePrimaryAction]);
-
-  // Don't auto-start audio on video load - wait for user interaction
-  // to comply with browser autoplay policies
-  useEffect(() => {
-    if (!videoLoaded || isE2E) return;
-    if (import.meta.env.DEV) {
-      console.log("[WelcomeScreen] Video loaded, ready for user interaction");
-    }
-    // Audio will start when user taps via handlePrimaryAction
-  }, [isE2E, videoLoaded]);
 
   useEffect(
     () => () => {
@@ -147,6 +108,7 @@ export const useWelcomeSequence = ({
   }, [markReadyToContinue]);
   const handleVideoError = useCallback(() => {
     gateRef.current.onVideoError();
+    introAudioPendingRef.current = false;
     setVideoLoaded(false);
     setShowFallbackImage(true);
     markReadyToContinue();
@@ -157,9 +119,8 @@ export const useWelcomeSequence = ({
       setVideoLoaded(false);
       setShowFallbackImage(false);
 
-      if (!isE2E && !introAudioRequestedRef.current) {
-        introAudioRequestedRef.current = true;
-        requestStart();
+      if (!isE2E && !introAudioStartedRef.current) {
+        introAudioPendingRef.current = true;
       }
 
       if (!videoElement) {
@@ -177,20 +138,63 @@ export const useWelcomeSequence = ({
         handleVideoError();
       }
     },
-    [handleVideoError, isE2E, requestStart],
+    [handleVideoError, isE2E],
   );
-  const handleVideoPlaying = useCallback(() => {
-    if (isE2E) {
+  const handlePrimaryAction = useCallback(
+    (videoElement?: HTMLVideoElement | null) => {
+      if (fadeOut || isWelcomeInteractionLocked(phase)) {
+        return;
+      }
+
+      if (isE2E) {
+        proceed();
+        return;
+      }
+
+      if (!readyToContinue) {
+        if (
+          videoElement &&
+          !introAudioPendingRef.current &&
+          !introAudioStartedRef.current
+        ) {
+          handleIntroActivated(videoElement);
+        }
+        return;
+      }
+
+      proceed();
+    },
+    [fadeOut, handleIntroActivated, isE2E, phase, proceed, readyToContinue],
+  );
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === " " || e.key === "Enter") {
+        if (!isE2E && !readyToContinue) {
+          return;
+        }
+        e.preventDefault();
+        handlePrimaryAction();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [handlePrimaryAction, isE2E, readyToContinue]);
+  const handleVideoPlaying = () => {
+    if (
+      isE2E ||
+      introAudioStartedRef.current ||
+      !introAudioPendingRef.current ||
+      !gateRef.current.onVideoPlaying()
+    ) {
       return;
     }
-    if (introAudioRequestedRef.current) {
-      return;
-    }
-    if (gateRef.current.onVideoPlaying()) {
-      introAudioRequestedRef.current = true;
-      requestStart();
-    }
-  }, [isE2E, requestStart]);
+
+    introAudioPendingRef.current = false;
+    introAudioStartedRef.current = true;
+    requestStart();
+  };
 
   return {
     fadeOut,

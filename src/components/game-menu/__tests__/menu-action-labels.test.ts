@@ -20,8 +20,19 @@ describe("getMenuActionLabel", () => {
 
   it("omits the subtitle when gameplay stays in English", () => {
     expect(getMenuActionLabel("game.playAllLevels", "en")).toEqual({
-      title: "Play All Levels",
+      title: "Challenge Mode",
       subtitle: undefined,
+    });
+  });
+
+  it("uses Challenge Mode wording for localized gameplay subtitles", () => {
+    expect(getMenuActionLabel("game.playAllLevels", "th")).toEqual({
+      title: "Challenge Mode",
+      subtitle: "โหมดชาเลนจ์",
+    });
+    expect(getMenuActionLabel("game.playAllLevels", "fr")).toEqual({
+      title: "Challenge Mode",
+      subtitle: "Mode Défi",
     });
   });
 });

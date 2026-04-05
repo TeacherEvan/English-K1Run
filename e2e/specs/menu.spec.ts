@@ -76,6 +76,13 @@ test.describe("Game Menu", () => {
   test("should start continuous mode when Play All Levels is clicked", async ({
     gamePage,
   }) => {
+    await expect(gamePage.menu.playAllLevelsButton).toContainText(
+      "Challenge Mode",
+    );
+    await expect(gamePage.menu.playAllLevelsButton).not.toContainText(
+      "Play All Levels",
+    );
+
     await gamePage.menu.playAllLevels();
 
     const menuVisible = await gamePage.menu.isVisible();
@@ -84,6 +91,39 @@ test.describe("Game Menu", () => {
     const gameStarted = await gamePage.gameplay.isGameStarted();
     expect(gameStarted).toBe(true);
     await expect(gamePage.gameplay.stopwatch).toHaveCount(0);
+  });
+
+  test("should open the High Scores dialog with a seeded Challenge Mode score", async ({
+    gamePage,
+    page,
+  }) => {
+    await page.evaluate(() => {
+      localStorage.setItem(
+        "challengeModeHighScores",
+        JSON.stringify([
+          {
+            score: 18,
+            language: "th",
+            achievedAt: "2026-04-05T09:30:00.000Z",
+          },
+        ]),
+      );
+    });
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await gamePage.waitForReady();
+
+    const highScoresButton = page.getByTestId("high-scores-button");
+    const dialog = page.getByTestId("high-scores-dialog");
+    const row = page.getByTestId("high-scores-row");
+
+    await expect(highScoresButton).toBeVisible();
+    await highScoresButton.click();
+
+    await expect(dialog).toBeVisible();
+    await expect(row).toContainText("18");
+    await expect(row).toContainText("Thai (ไทย)");
+    await expect(row).toContainText("2026-04-05 09:30 UTC");
   });
 
   test("should display correct category after starting game", async ({
@@ -161,7 +201,7 @@ test.describe("Game Menu", () => {
 
     await expect(gamePage.menu.startButton).toContainText("Start Game");
     await expect(gamePage.menu.playAllLevelsButton).toContainText(
-      "Play All Levels",
+      "Challenge Mode",
     );
     await expect(gamePage.menu.settingsButton).toContainText("Settings");
 

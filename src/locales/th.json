@@ -2,7 +2,7 @@
   "game": {
     "title": "English K1 Run",
     "startGame": "เริ่มเกม",
-    "playAllLevels": "เล่นทุกระดับ",
+    "playAllLevels": "โหมดชาเลนจ์",
     "levelSelect": "เลือกระดับ",
     "selectLevel": "เลือกด่าน",
     "back": "กลับ",
@@ -10,7 +10,7 @@
     "bestTime": "เวลาที่ดีที่สุด",
     "totalTargetsDestroyed": "เป้าหมายที่ทำลายได้ทั้งหมด",
     "currentTime": "เวลาปัจจุบัน",
-    "continuousMode": "โหมดต่อเนื่อง",
+    "continuousMode": "โหมดชาเลนจ์",
     "find": "หา",
     "inOrder": "ตามลำดับ",
     "settings": "ตั้งค่า",
@@ -19,7 +19,13 @@
     "exit": "ออก",
     "language": "ภาษา",
     "selectLanguage": "เลือกภาษา",
-    "volume": "ระดับเสียง"
+    "volume": "ระดับเสียง",
+    "highScores": "คะแนนสูงสุด",
+    "highScoresTitle": "คะแนนสูงสุดโหมดชาเลนจ์",
+    "highScoresEmpty": "ยังไม่มีคะแนนโหมดชาเลนจ์",
+    "targetsDestroyed": "เป้าหมายที่ทำลายได้",
+    "languageUsed": "ภาษาที่ใช้",
+    "achievedAt": "ทำได้เมื่อ"
   },
   "menu": {
     "welcome": "ยินดีต้อนรับสู่ English K1 Run!",

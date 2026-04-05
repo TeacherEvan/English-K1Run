@@ -30,6 +30,7 @@ vi.mock("react-i18next", () => ({
                 "game.bestTime": "Best Time",
                 "game.title": "English K1 Run",
                 "menu.instructions": "Tap the falling objects to help your turtle win!",
+                "game.continuousMode": "Challenge Mode",
                 animals: "Animals & Nature",
             };
             return translations[key] ?? key;
@@ -166,5 +167,17 @@ describe("continuous mode run routing", () => {
         expect(text).toContain("Total Targets Destroyed");
         expect(text).not.toContain("Best Time");
         expect(text).toContain("12");
+    });
+
+    it("shows Challenge Mode in the home hero card instead of Continuous Mode", () => {
+        act(() => {
+            root.render(
+                <GameMenuHero formattedBestTargetTotal="12" continuousMode />,
+            );
+        });
+
+        const text = document.body.textContent ?? "";
+        expect(text).toContain("Challenge Mode");
+        expect(text).not.toContain("Continuous Mode");
     });
 });

@@ -1,5 +1,19 @@
 import { expect, test } from "@playwright/test";
 
+async function waitForWelcomeToAdvance(page: import("@playwright/test").Page) {
+  await expect
+    .poll(
+      async () => {
+        const phase = await page
+          .getByTestId("welcome-screen")
+          .getAttribute("data-welcome-phase");
+        return phase === "playingNarration" || phase === "readyToContinue";
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+}
+
 test.describe("Welcome layout", () => {
   test("desktop keeps welcome controls off the hero center", async ({
     page,
@@ -58,10 +72,12 @@ test.describe("Welcome layout", () => {
     await expect(video).toBeVisible();
     await expect(statusPanel).toHaveCount(0);
 
-    await expect(welcomeScreen).toHaveAttribute(
-      "data-welcome-phase",
-      "playingNarration",
-    );
+    await waitForWelcomeToAdvance(page);
+    await expect
+      .poll(() => welcomeScreen.getAttribute("data-welcome-phase"), {
+        timeout: 5_000,
+      })
+      .toMatch(/playingNarration|readyToContinue/);
   });
 
   test("startup hides the language chooser after selection and keeps intro content visible", async ({
