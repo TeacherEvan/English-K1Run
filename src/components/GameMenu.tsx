@@ -1,4 +1,5 @@
 import { memo, useCallback, useMemo, useState } from "react";
+import type { ChallengeModeHighScoreEntry } from "@/lib/challenge-mode-high-scores";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import type { GamePhase } from "../types/game";
@@ -26,6 +27,7 @@ interface GameMenuProps {
   onToggleContinuousMode?: (enabled: boolean) => void
   onResetGame?: () => void
   bestTargetTotal?: number
+  highScores?: ChallengeModeHighScoreEntry[]
 }
 
 /**
@@ -51,7 +53,8 @@ export const GameMenu = memo(({
   continuousMode = false,
   onToggleContinuousMode,
   onResetGame,
-  bestTargetTotal = 0
+  bestTargetTotal = 0,
+  highScores = []
 }: GameMenuProps) => {
   // Extract current display resolution scale and updater from settings context
   const { resolutionScale, setResolutionScale } = useSettings()
@@ -88,6 +91,7 @@ export const GameMenu = memo(({
       {view === 'main' ? (
         <GameMenuHome
           formattedBestTargetTotal={formattedBestTargetTotal}
+          highScores={highScores}
           continuousMode={continuousMode}
           resolutionScale={resolutionScale}
           setResolutionScale={setResolutionScale}

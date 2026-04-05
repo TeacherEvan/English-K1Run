@@ -1,11 +1,9 @@
 import { WelcomeLanguageShell } from '@/components/welcome/WelcomeLanguageShell'
 import { WelcomeStatusPanel } from '@/components/welcome/WelcomeStatusPanel'
+import { getWelcomeActionLabel, getWelcomeStatusLabel, shouldShowWelcomeStatusPanel } from '@/components/welcome/welcome-screen-copy'
 import { useWelcomeSequence } from '@/components/welcome/use-welcome-sequence'
 import { isWelcomeInteractionLocked } from '@/components/welcome/welcome-phase'
-import {
-  hasCompletedStartupLanguageGate,
-  markStartupLanguageGateCompleted,
-} from '@/app/startup/startup-persistence'
+import { hasCompletedStartupLanguageGate, markStartupLanguageGateCompleted } from '@/app/startup/startup-persistence'
 import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
@@ -28,9 +26,9 @@ interface WelcomeScreenProps {
 export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenProps) => {
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
-  const [isLanguageShellVisible, setIsLanguageShellVisible] = useState(
-    () => !hasCompletedStartupLanguageGate(),
-  )
+  const [didCompleteStartupLanguageGate] = useState(() => hasCompletedStartupLanguageGate())
+  const [isLanguageShellVisible, setIsLanguageShellVisible] = useState(() => !didCompleteStartupLanguageGate)
+  const [hasActivatedIntro, setHasActivatedIntro] = useState(false)
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
   const shouldRestorePrimaryFocusRef = useRef(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -56,9 +54,13 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const fallbackImageSrc = '/welcome-sangsom.png'
   const interactionLocked = isWelcomeInteractionLocked(phase)
   const shouldLoadVideo = !isLanguageShellVisible && !showFallbackImage
+  const shouldAutoplayVideo =
+    shouldLoadVideo && (hasActivatedIntro || !didCompleteStartupLanguageGate)
+  const showIntroStartPrompt =
+    !isLanguageShellVisible && !hasActivatedIntro && phase === 'readyToStart'
 
   useEffect(() => {
-    if (!shouldLoadVideo) return
+    if (!shouldAutoplayVideo) return
     if (skipAutoplayEffectRef.current) {
       skipAutoplayEffectRef.current = false
       return
@@ -75,7 +77,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     } catch {
       handleVideoError()
     }
-  }, [handleVideoError, shouldLoadVideo])
+  }, [handleVideoError, shouldAutoplayVideo])
 
   useLayoutEffect(() => {
     if (isLanguageShellVisible || !shouldRestorePrimaryFocusRef.current) {
@@ -87,34 +89,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     shouldRestorePrimaryFocusRef.current = false
   }, [isLanguageShellVisible])
 
-  const actionLabel = (() => {
-    if (phase === 'playingNarration') {
-      return t('welcome.listening', { defaultValue: 'Listening...' })
-    }
-    if (phase === 'readyToContinue') {
-      return t('menu.tapToContinue')
-    }
-    if (phase === 'transitioningToMenu') {
-      return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
-    }
-    return t('menu.tapToStart')
-  })()
-
-  const statusLabel = (() => {
-    if (phase === 'playingNarration') {
-      return t('welcome.listeningHint', {
-        defaultValue: 'Please wait for the welcome audio',
-      })
-    }
-    if (phase === 'readyToContinue') {
-      return t('welcome.readyContinue', { defaultValue: 'Ready to continue' })
-    }
-    if (phase === 'transitioningToMenu') {
-      return t('welcome.transitioning', { defaultValue: 'Opening menu...' })
-    }
-
-    return t('welcome.readyPrompt', { defaultValue: 'Tap once to begin' })
-  })()
+  const actionLabel = getWelcomeActionLabel(t, phase)
+  const statusLabel = getWelcomeStatusLabel(t, phase)
 
   const diagnosticLabel =
     lastDiagnostic?.type === 'thai-voice-unavailable'
@@ -123,10 +99,25 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
           'Thai welcome voice unavailable on this device, continuing silently.',
       })
       : null
-  const shouldShowStatusPanel = !showFallbackImage && (isLanguageShellVisible || phase === 'readyToContinue' || phase === 'transitioningToMenu' || Boolean(diagnosticLabel))
+  const shouldShowStatusPanel = shouldShowWelcomeStatusPanel({
+    diagnosticLabel,
+    isLanguageShellVisible,
+    phase,
+    showFallbackImage,
+    showIntroStartPrompt,
+  })
+
+  const handleWelcomeAction = () => {
+    if (!hasActivatedIntro && phase === 'readyToStart') {
+      setHasActivatedIntro(true)
+    }
+
+    handlePrimaryAction(videoRef.current)
+  }
 
   const handleLanguageSelected = (shouldRestoreFocus: boolean) => {
     shouldRestorePrimaryFocusRef.current = shouldRestoreFocus
+    setHasActivatedIntro(true)
     const video = videoRef.current
     if (video && !video.getAttribute('src')) {
       video.src = videoSrc
@@ -149,14 +140,14 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         background: CLASSROOM_BRAND.palette.ink,
         zIndex: UI_LAYER_MATRIX.WELCOME_OVERLAY,
       }}
-      onClick={isLanguageShellVisible ? undefined : handlePrimaryAction}
+      onClick={isLanguageShellVisible ? undefined : handleWelcomeAction}
     >
       <div className="welcome-stage" aria-hidden="true" />
       <video
         ref={videoRef}
         className="welcome-video"
         src={shouldLoadVideo ? videoSrc : undefined}
-        autoPlay={shouldLoadVideo}
+        autoPlay={shouldAutoplayVideo}
         muted
         playsInline
         preload={shouldLoadVideo ? 'metadata' : 'none'}
@@ -197,7 +188,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
             currentAudioIndex={currentAudioIndex}
             totalAudioCount={totalAudioCount}
             diagnosticLabel={diagnosticLabel}
-            onPrimaryAction={handlePrimaryAction}
+            onPrimaryAction={handleWelcomeAction}
             primaryButtonRef={primaryButtonRef}
           />
         ) : null}

@@ -8,7 +8,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Classroom design alignment: warm, light-first menu and welcome shells, shared brand constants, refreshed manifest/icon metadata, and focused design regressions.
 - Competition polish: deterministic welcome start, localized core UI/a11y copy, and unified `English K1 Run` branding.
 - Audio pipeline: fallback-chain hardening, inventory validation, fade transitions, overlap guards, and public fallback stability.
-- Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, intro video-first startup gating, and home-menu audio gating.
+- Menu and welcome: layout fixes, lazy-loaded menus, welcome flow stability, intro video-first startup gating, repeat-launch explicit intro start, and home-menu audio gating.
 - Settings/accessibility: expanded settings coverage, reduced motion/high contrast, and WCAG-aligned UI.
 - E2E reliability: Playwright waits, navigation retry backoff, touch spec stability.
 - Tooling and docs: Copilot instructions expansion, clarified MCP tooling, build and lint stability.
@@ -22,7 +22,11 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Replaced continuous-mode best-time tracking with cumulative correct-target scoring and persisted the best completed total in localStorage key `continuousModeBestTargetTotal`.
 - Removed continuous-mode timer UI from gameplay, kept target secrecy (`❓`), added an E2E-only `continuousLevelMs` override seam, and replaced the home-menu `Best Time` card with localized `Total Targets Destroyed` copy.
 - Added focused unit and Playwright regressions for queue generation, timed single-pass rotation, timerless HUD behavior, and menu stat updates.
+- Followed up the startup welcome review so completed language-gate launches now show an explicit start prompt and never auto-start narration from the intro video `playing` event.
+- Scoped Settings-triggered optional welcome-audio warmup to languages that actually have registered welcome audio assets, treating missing non-default packs as content gaps instead of runtime prefetch work.
+- Stabilized `e2e/specs/startup-loading.spec.ts` across browsers and added regression coverage for the skipped-chooser status/start panel path.
 - Validation: `npm run test:run -- src/hooks/game-logic/__tests__/tap-state-updater.test.ts src/hooks/game-logic/__tests__/create-continuous-mode-level-queue.test.ts src/hooks/game-logic/__tests__/continuous-mode-single-pass.test.ts src/components/__tests__/TargetDisplay.test.tsx src/app/components/__tests__/AppGameplayScene.test.tsx src/app/__tests__/continuous-mode-run-routing.test.tsx`, `npm run verify`, and `npm run test:e2e -- e2e/specs/menu.spec.ts e2e/specs/continuous-mode-hud.spec.ts e2e/specs/continuous-mode-single-pass.spec.ts` passed locally.
+- Validation: `npm --prefer-ipv4 run test:run -- src/components/welcome/__tests__/use-welcome-sequence.test.tsx src/components/welcome/__tests__/WelcomeScreen.test.tsx src/app/startup/__tests__/language-audio-prefetch.test.ts`, `npm --prefer-ipv4 run test:e2e -- e2e/specs/startup-loading.spec.ts`, and `npm --prefer-ipv4 run verify` passed locally.
 
 ### 2026-04-04
 

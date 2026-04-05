@@ -78,6 +78,7 @@ describe("continuous mode rotation", () => {
       useContinuousModeRotation({
         gameState,
         continuousMode: true,
+        gameplayLanguage: "en",
         continuousModeHighScore: 2,
         setContinuousModeHighScore: vi.fn(),
         generateRandomTarget: () => ({ name: "banana", emoji: "🍌" }),
@@ -130,6 +131,7 @@ describe("continuous mode rotation", () => {
       useContinuousModeRotation({
         gameState,
         continuousMode: true,
+        gameplayLanguage: "en",
         continuousModeHighScore: 4,
         setContinuousModeHighScore,
         generateRandomTarget: () => ({ name: "banana", emoji: "🍌" }),
@@ -161,9 +163,20 @@ describe("continuous mode rotation", () => {
       vi.advanceTimersByTime(CONTINUOUS_MODE_LEVEL_DURATION_MS);
     });
 
+    const recordedHighScores = JSON.parse(
+      localStorage.getItem("challengeModeHighScores") ?? "[]",
+    );
+
     expect(latestState.phase).toBe("runComplete");
     expect(latestState.runMode).toBe("continuous");
     expect(latestState.winner).toBe(true);
+    expect(recordedHighScores).toEqual([
+      {
+        score: 9,
+        language: "en",
+        achievedAt: expect.any(String),
+      },
+    ]);
     expect(localStorage.getItem("continuousModeBestTargetTotal")).toBe("9");
     expect(setContinuousModeHighScore).toHaveBeenCalledWith(9);
   });

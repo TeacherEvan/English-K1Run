@@ -2,7 +2,7 @@
   "game": {
     "title": "English K1 Run",
     "startGame": "Start Game",
-    "playAllLevels": "Play All Levels",
+    "playAllLevels": "Challenge Mode",
     "levelSelect": "Level Select",
     "selectLevel": "Select Level",
     "back": "Back",
@@ -10,7 +10,7 @@
     "bestTime": "Best Time",
     "totalTargetsDestroyed": "Total Targets Destroyed",
     "currentTime": "Current Time",
-    "continuousMode": "Continuous Mode",
+    "continuousMode": "Challenge Mode",
     "find": "Find",
     "inOrder": "In Order",
     "settings": "Settings",
@@ -19,7 +19,13 @@
     "exit": "Exit",
     "language": "Language",
     "selectLanguage": "Select Language",
-    "volume": "Volume"
+    "volume": "Volume",
+    "highScores": "High Scores",
+    "highScoresTitle": "Challenge Mode High Scores",
+    "highScoresEmpty": "No Challenge Mode scores yet.",
+    "targetsDestroyed": "Targets Destroyed",
+    "languageUsed": "Language",
+    "achievedAt": "Achieved"
   },
   "menu": {
     "welcome": "Welcome to English K1 Run!",

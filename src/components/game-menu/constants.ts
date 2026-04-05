@@ -32,6 +32,6 @@ export const DISPLAY_SCALE_OPTIONS = [
 ] satisfies Array<{ id: ResolutionScale; label: string }>;
 
 export const MENU_THAI_LABELS = {
-  playAllLevels: "เล่นทุกระดับ",
+  playAllLevels: "โหมดชาเลนจ์",
   levelSelect: "เลือกระดับ",
 };

@@ -39,8 +39,9 @@
 - **Welcome start contract**: In normal mode, welcome narration must start only from explicit user gesture; do not auto-start from display-adjustment signals or fallback timers. Safety timers may unlock continue state, but must not trigger playback.
 - **Welcome desktop layout**: On large screens, keep welcome controls in the compact dock layout so the hero background/video stays visually dominant; preserve the centered stacked layout on mobile.
 - **Startup language chooser dismissal**: Once English or Thai is selected at startup, the chooser must unmount immediately and stay gone for the rest of that startup pass; do not leave it overlaying the intro.
-- **Intro playback ownership**: After startup language selection, the intro video should take the screen with minimal overlay UI, and welcome narration should begin only after the intro video emits a real `playing` event from the user-initiated flow.
+- **Intro playback ownership**: After startup language selection, the intro video should take the screen with minimal overlay UI, and intro narration/video should begin from that same explicit user gesture. If the startup language gate was already completed on a later launch, keep the chooser hidden but require a compact explicit start control; do not auto-start narration from `playing`, preload completion, or timers.
 - **Intro video failure fallback**: If `/New_welcome_video.mp4` fails to load or play, show only `public/welcome-sangsom.png` and suppress the large welcome status panel in that failure state.
+- **Settings audio warmup**: Optional Settings-driven welcome-audio prefetch should only run for languages with registered welcome audio assets. Missing French, Japanese, Mandarin, or Cantonese welcome packs are repo content gaps, not runtime prefetch bugs.
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
@@ -91,6 +92,7 @@
 - **E2E tests**: Use Playwright for full user flows; fixtures in `e2e/fixtures/`(../e2e/fixtures/); specs in `e2e/specs/`(../e2e/specs/).
 - **State-based waits**: For moving targets and transition flows, prefer state-aware helpers over fixed delays. Use `tapCurrentTargetAndWaitForResolution()` for countdown-first level-complete coverage.
 - **Regression specs**: Keep `e2e/specs/welcome-layout.spec.ts` and `e2e/specs/level-transition-countdown.spec.ts` aligned with welcome dock and transition-flow changes.
+- **Startup-loading regression**: Keep `e2e/specs/startup-loading.spec.ts` aligned with boot-loader timing, chooser-skip behavior, and the explicit repeat-launch start prompt.
 - **Coverage**: Aim for 80%+ coverage; focus on error paths and edge cases.
 
 ## Security Guidelines

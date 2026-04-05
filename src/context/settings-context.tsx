@@ -3,7 +3,10 @@ import {
   isSupportedLanguage,
   type SupportedLanguage,
 } from '@/lib/constants/language-config'
-import { prefetchSelectedLanguageAudioPack } from '@/app/startup/language-audio-prefetch'
+import {
+  hasLanguageAudioPrefetchKeys,
+  prefetchSelectedLanguageAudioPack,
+} from '@/app/startup/language-audio-prefetch'
 import { soundManager } from '@/lib/sound-manager'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
@@ -109,8 +112,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const selectedLanguages = Array.from(
       new Set([settings.displayLanguage, settings.gameplayLanguage]),
     )
+    const warmableLanguages = selectedLanguages.filter((language) =>
+      hasLanguageAudioPrefetchKeys(language),
+    )
+    if (warmableLanguages.length === 0) {
+      return
+    }
     void Promise.all(
-      selectedLanguages.map((language) =>
+      warmableLanguages.map((language) =>
         prefetchSelectedLanguageAudioPack(language),
       ),
     )

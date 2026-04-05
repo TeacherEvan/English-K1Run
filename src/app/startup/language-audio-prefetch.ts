@@ -27,10 +27,17 @@ const buildLanguageAudioMap = (): LanguageAudioMap =>
     return map;
   }, {});
 
+const LANGUAGE_AUDIO_MAP = buildLanguageAudioMap();
+
 export const getLanguageAudioPrefetchKeys = (
   language: SupportedLanguage,
-  languageMap: LanguageAudioMap = buildLanguageAudioMap(),
+  languageMap: LanguageAudioMap = LANGUAGE_AUDIO_MAP,
 ): string[] => languageMap[language] ?? [];
+
+export const hasLanguageAudioPrefetchKeys = (
+  language: SupportedLanguage,
+  languageMap: LanguageAudioMap = LANGUAGE_AUDIO_MAP,
+) => getLanguageAudioPrefetchKeys(language, languageMap).length > 0;
 
 interface PrefetchLanguageAudioOptions {
   limitedBandwidth?: boolean;
@@ -58,10 +65,10 @@ export const prefetchSelectedLanguageAudioPack = async (
     return false;
   }
 
-  const keys = getLanguageAudioPrefetchKeys(language, options.languageMap);
-  if (keys.length === 0) {
+  if (!hasLanguageAudioPrefetchKeys(language, options.languageMap)) {
     return false;
   }
+  const keys = getLanguageAudioPrefetchKeys(language, options.languageMap);
 
   const prefetch = options.prefetchKeys ?? prefetchAudioKeys;
   await prefetch(keys);

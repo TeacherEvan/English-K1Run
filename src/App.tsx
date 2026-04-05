@@ -19,6 +19,7 @@ import { useWebVitalsMonitor } from "./app/use-web-vitals-monitor";
 import { useDisplayAdjustment } from "./hooks/use-display-adjustment";
 import { GAME_CATEGORIES, useGameLogic } from "./hooks/use-game-logic";
 import { getCategoryTranslationKey } from "./lib/constants/category-translation";
+import { readChallengeModeHighScores } from "./lib/challenge-mode-high-scores";
 import { useLazyBackgroundPreloader } from "./lib/utils/background-preloader";
 
 const DefaultModeCompletionDialog = lazy(() =>
@@ -116,6 +117,8 @@ function App() {
     [t],
   );
 
+  const highScores = readChallengeModeHighScores();
+
   const handleWelcomeComplete = useCallback(() => {
     setStartupStep("menu");
   }, []);
@@ -195,6 +198,7 @@ function App() {
         continuousMode={continuousMode}
         onToggleContinuousMode={handleToggleContinuousMode}
         bestTargetTotal={continuousModeHighScore ?? 0}
+        highScores={highScores}
       />
     </>
   );

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import type { ChallengeModeHighScoreEntry } from "@/lib/challenge-mode-high-scores";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import type { GamePhase } from "../../types/game";
@@ -18,6 +19,7 @@ interface AppMenuOverlayProps {
     continuousMode: boolean;
     onToggleContinuousMode: (enabled: boolean) => void;
     bestTargetTotal: number;
+    highScores: ChallengeModeHighScoreEntry[];
 }
 
 /**
@@ -34,6 +36,7 @@ export const AppMenuOverlay = ({
     continuousMode,
     onToggleContinuousMode,
     bestTargetTotal,
+    highScores,
 }: AppMenuOverlayProps) => (
     <div
         className="fixed inset-0 pointer-events-none"
@@ -52,6 +55,7 @@ export const AppMenuOverlay = ({
                     continuousMode={continuousMode}
                     onToggleContinuousMode={onToggleContinuousMode}
                     bestTargetTotal={bestTargetTotal}
+                    highScores={highScores}
                     initialView="main"
                 />
             </Suspense>

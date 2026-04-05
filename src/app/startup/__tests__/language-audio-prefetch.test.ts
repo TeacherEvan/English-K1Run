@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prefetchSelectedLanguageAudioPack } from "../language-audio-prefetch";
+import {
+  hasLanguageAudioPrefetchKeys,
+  prefetchSelectedLanguageAudioPack,
+} from "../language-audio-prefetch";
 
 describe("language-audio-prefetch", () => {
   const mockPrefetchKeys = vi.fn().mockResolvedValue(undefined);
@@ -65,6 +68,28 @@ describe("language-audio-prefetch", () => {
       hasWarmPack: mockHasWarmPack,
       markWarmPack: mockMarkWarmPack,
       languageMap: { ja: ["ja_intro"] },
+      limitedBandwidth: false,
+    });
+
+    expect(didPrefetch).toBe(false);
+    expect(mockPrefetchKeys).not.toHaveBeenCalled();
+    expect(mockMarkWarmPack).not.toHaveBeenCalled();
+  });
+
+  it("only marks languages with registered welcome audio assets as warmable", () => {
+    expect(hasLanguageAudioPrefetchKeys("en")).toBe(true);
+    expect(hasLanguageAudioPrefetchKeys("th")).toBe(true);
+    expect(hasLanguageAudioPrefetchKeys("fr")).toBe(false);
+    expect(hasLanguageAudioPrefetchKeys("ja")).toBe(false);
+    expect(hasLanguageAudioPrefetchKeys("zh-CN")).toBe(false);
+    expect(hasLanguageAudioPrefetchKeys("zh-HK")).toBe(false);
+  });
+
+  it("skips non-default languages that do not have registered welcome audio assets", async () => {
+    const didPrefetch = await prefetchSelectedLanguageAudioPack("fr", {
+      prefetchKeys: mockPrefetchKeys,
+      hasWarmPack: mockHasWarmPack,
+      markWarmPack: mockMarkWarmPack,
       limitedBandwidth: false,
     });
 
