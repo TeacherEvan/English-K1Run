@@ -7,7 +7,7 @@ describe("englishK1RunPwaConfig", () => {
     const runtimeCaching = englishK1RunPwaConfig.workbox?.runtimeCaching ?? [];
 
     expect(includeAssets).toContain("welcome-sangsom.png");
-    expect(includeAssets).toContain("New_welcome_video.mp4");
+    expect(includeAssets).not.toContain("New_welcome_video.mp4");
     expect(includeAssets).toContain("sounds/welcome*.mp3");
     expect(includeAssets).toContain("sounds/welcome*.wav");
 

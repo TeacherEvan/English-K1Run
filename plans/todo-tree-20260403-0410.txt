@@ -1,235 +1,47 @@
-└─ English-K1Run
-   ├─ BEST_PRACTICES.md
-   │  ├─ line 402: [ ] No new ESLint errors (warnings are OK if documented)
-   │  ├─ line 403: [ ] All tests passing
-   │  ├─ line 404: [ ] TypeScript compilation successful
-   │  ├─ line 405: [ ] No console errors in dev mode
-   │  ├─ line 406: [ ] Bundle size within acceptable limits
-   │  ├─ line 596: [ ] Code follows project style guide
-   │  ├─ line 597: [ ] Tests added/updated for changes
-   │  ├─ line 598: [ ] Documentation updated if needed
-   │  ├─ line 599: [ ] No performance regressions (check bundle size)
-   │  ├─ line 600: [ ] No new ESLint errors
-   │  ├─ line 601: [ ] TypeScript compilation successful
-   │  ├─ line 602: [ ] Backward compatible (or breaking changes documented)
-   │  ├─ line 603: [ ] Security implications considered
-   │  ├─ line 604: [ ] Accessibility maintained/improved
-   │  ├─ line 608: [ ] Self-reviewed code diff
-   │  ├─ line 609: [ ] Ran `npm run verify` locally
-   │  ├─ line 610: [ ] Added/updated tests
-   │  ├─ line 611: [ ] Updated documentation
-   │  ├─ line 612: [ ] Added comments for complex logic
-   │  ├─ line 613: [ ] Checked bundle size impact
-   │  ├─ line 614: [ ] Tested on target device (if applicable)
-   │  └─ line 615: [ ] Updated TODO.md if creating new tasks
-   ├─ FILE_LIMIT_AUDIT.md
-   │  ├─ line 49: [ ] Create feature branch: `refactor/file-limit-compliance`
-   │  ├─ line 50: [ ] Run baseline tests: `npm run test:e2e`
-   │  ├─ line 51: [ ] Run ESLint: `npx eslint src/ --max-warnings 0`
-   │  ├─ line 52: [ ] Document current import graph
-   │  ├─ line 56: [ ] Stage changes incrementally: `git add -p`
-   │  ├─ line 57: [ ] Run affected tests after each split
-   │  ├─ line 58: [ ] Verify no circular dependencies
-   │  ├─ line 59: [ ] Check bundle size impact
-   │  ├─ line 63: [ ] All files ≤ 500 lines: Run audit command
-   │  ├─ line 64: [ ] All tests pass: `npm run verify`
-   │  ├─ line 65: [ ] No ESLint errors: `npx eslint src/ --max-warnings 0`
-   │  ├─ line 66: [ ] TypeScript compiles: `npx tsc --noEmit`
-   │  ├─ line 67: [ ] E2E tests pass: `npm run test:e2e`
-   │  ├─ line 68: [ ] Visual regression check
-   │  ├─ line 69: [ ] Update imports in consuming files
-   │  └─ line 70: [ ] Document changes in PR description
-   ├─ INTEGRATION_GUIDE.md
-   │  ├─ line 579: [x] Replace all `clamp()` calls with `calculatePercentageWithinBounds()`
-   │  ├─ line 580: [x] Replace manual ID generation with `generateUniqueIdentifier()`
-   │  ├─ line 581: [x] Replace Fisher-Yates shuffle with `transformArrayToRandomOrder()`
-   │  ├─ line 582: [x] Add resource preloading to app initialization
-   │  ├─ line 583: [x] Add keyboard navigation handlers
-   │  ├─ line 584: [x] Add focus traps to modals
-   │  ├─ line 585: [x] Add screen reader announcements
-   │  ├─ line 586: [x] Add Web Vitals tracking
-   │  ├─ line 587: [x] Add component performance monitoring
-   │  ├─ line 588: [ ] Respect reduced motion preference
-   │  └─ line 589: [ ] Add environment checks for debug code
-   ├─ LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md
-   │  ├─ line 183: [ ] Open Settings modal from GameMenu
-   │  ├─ line 184: [ ] Click language selector dropdown
-   │  ├─ line 185: [ ] Verify all 6 languages appear with both native and English names
-   │  ├─ line 186: [ ] Select a different language
-   │  ├─ line 187: [ ] Verify dropdown closes and shows selected language
-   │  ├─ line 191: [ ] Select a non-English language
-   │  ├─ line 192: [ ] Refresh page (F5)
-   │  ├─ line 193: [ ] Verify selected language persists after reload
-   │  ├─ line 194: [ ] Open DevTools → Application → Local Storage
-   │  ├─ line 195: [ ] Confirm `k1-language` key contains correct language code
-   │  ├─ line 199: [ ] Select each language and verify:
-   │  ├─ line 200: [ ] Game menu text updates (Start Game, Settings, etc.)
-   │  ├─ line 201: [ ] Category names update
-   │  ├─ line 202: [ ] Welcome screen text updates
-   │  ├─ line 203: [ ] All visible UI strings change appropriately
-   │  ├─ line 207: [ ] Select French, tap an emoji object
-   │  ├─ line 208: [ ] Verify speech synthesis uses French pronunciation
-   │  ├─ line 209: [ ] Repeat for Japanese, Thai, Mandarin, Cantonese
-   │  ├─ line 210: [ ] Listen for language-appropriate voice characteristics
-   │  ├─ line 214: [ ] Open DevTools Console
-   │  ├─ line 215: [ ] Type: `soundManager.getLanguage()`
-   │  ├─ line 216: [ ] Verify returns current selected language code
-   │  ├─ line 217: [ ] Change language in UI
-   │  ├─ line 218: [ ] Re-run command, verify language code updates
-   │  ├─ line 222: [ ] Select different language
-   │  ├─ line 223: [ ] Start game to trigger WelcomeScreen
-   │  ├─ line 224: [ ] Verify tap/start CTA displays in selected language
-   │  ├─ line 225: [ ] Verify narration starts only after user interaction in normal mode
-   │  ├─ line 226: [ ] Check translations for "In association with" and "Learning through games"
-   │  ├─ line 230: [ ] Open level selection in each target language
-   │  ├─ line 231: [ ] Verify screen reader announcement uses translated copy for menu open
-   │  ├─ line 232: [ ] Change levels and verify selected-level announcement is localized
-   │  ├─ line 236: [ ] Tab to language selector using keyboard only
-   │  ├─ line 237: [ ] Press Enter/Space to open dropdown
-   │  ├─ line 238: [ ] Use arrow keys to navigate languages
-   │  ├─ line 239: [ ] Press Enter to select
-   │  ├─ line 240: [ ] Verify focus indicators visible
-   │  ├─ line 241: [ ] Test with screen reader (NVDA/JAWS)
-   │  ├─ line 245: [ ] Set localStorage to invalid language: `localStorage.setItem('k1-language', 'invalid')`
-   │  ├─ line 246: [ ] Refresh page
-   │  ├─ line 247: [ ] Verify app defaults to English
-   │  ├─ line 248: [ ] Verify no console errors
-   │  ├─ line 252: [ ] Open DevTools Console
-   │  ├─ line 253: [ ] Enable logging: `eventTracker.setDebugMode?.(true)` (if available)
-   │  ├─ line 254: [ ] Change language 2-3 times
-   │  ├─ line 255: [ ] Verify console logs show language change events
-   │  ├─ line 256: [ ] Check no personal data included in events
-   │  ├─ line 260: [ ] Test language switching during active game
-   │  ├─ line 261: [ ] Verify no audio cutoff or glitches
-   │  ├─ line 262: [ ] Test rapid language switching
-   │  ├─ line 263: [ ] Verify UI remains responsive
-   │  ├─ line 354: TODO : Add translations for all ~80 items × 5 additional languages
-   │  ├─ line 359: TODO : Generate audio files for all 6 languages
-   │  ├─ line 363: TODO : Implement language-specific welcome audio sequences
-   │  ├─ line 449: [ ] Verify all locale files included in build
-   │  ├─ line 450: [ ] Test language selector on production URL
-   │  ├─ line 451: [ ] Confirm localStorage works across domains
-   │  ├─ line 452: [ ] Monitor bundle size (added ~50KB for i18n + locales)
-   │  └─ line 453: [ ] Check ElevenLabs API rate limits for production
-   ├─ TEST_FAILURES_FIX_JAN2026.md
-   │  ├─ line 250: [ ] Add browser-specific timeout multipliers (`isFirefox ? 1.5x : 1x`)
-   │  ├─ line 251: [ ] Implement `waitForFunction` instead of fixed `waitForTimeout`
-   │  ├─ line 252: [ ] Add test-level retry mechanism in Playwright config
-   │  ├─ line 256: [ ] Create `clickMovingElement()` helper in [`game.fixture.ts`](e2e/fixtures/game.fixture.ts)
-   │  ├─ line 257: [ ] Add performance tracking for test execution times
-   │  ├─ line 258: [ ] Implement visual diff for UI state transitions
-   │  ├─ line 276: [x] Created [`plans/test-failures-analysis-jan2026.md`](plans/test-failures-analysis-jan2026.md) - Full analysis
-   │  ├─ line 277: [x] Created this document ([`DOCS/TEST_FAILURES_FIX_JAN2026.md`](DOCS/TEST_FAILURES_FIX_JAN2026.md)) - Implementation summary
-   │  └─ line 278: [ ] Update [`DOCS/E2E_TEST_FIXES_JAN2026.md`](DOCS/E2E_TEST_FIXES_JAN2026.md) if needed (depends on existing content)
-   ├─ game.fixture.ts
-   │  └─ line 560: TODO : [OPTIMIZATION] Consider integrating with Playwright's test-level retries for broader flaky test handling.
-   ├─ improved-testServer.js
-   │  ├─ line 689: TODO : [OPTIMIZATION] Consider implementing connection pooling for better performance with multiple clients
-   │  ├─ line 690: TODO : [OPTIMIZATION] Add metrics collection for monitoring server health and performance
-   │  └─ line 691: TODO : [OPTIMIZATION] Implement graceful degradation for resource-constrained environments
-   ├─ audio-loading-fixes-implementation-plan.md
-   │  ├─ line 967: [ ] Convert `.mp3` → `.wav` for `wrong`, `success`, `welcome` (or update code)
-   │  ├─ line 968: [ ] Generate `welcome_evan_intro.mp3`
-   │  ├─ line 969: [ ] Generate `welcome_sangsom_association.mp3`
-   │  ├─ line 970: [ ] Generate `welcome_sangsom_association_thai.mp3`
-   │  ├─ line 971: [ ] Test Welcome Screen audio
-   │  ├─ line 972: [ ] Test Home Menu audio
-   │  ├─ line 973: [ ] Verify zero 404 errors
-   │  ├─ line 977: [ ] Update `audio-priorities.ts`:
-   │  ├─ line 978: [ ] Change `grape` → `grapes`
-   │  ├─ line 979: [ ] Change `truck` → `fire truck`
-   │  ├─ line 980: [ ] Remove `tomato`, `potato`, `onion`
-   │  ├─ line 981: [ ] Remove `bird`, `cow`, `pig`, `sheep`
-   │  ├─ line 982: [ ] Test gameplay with all categories
-   │  ├─ line 983: [ ] Verify zero "No URL found" warnings
-   │  ├─ line 987: [ ] Add speech synthesis fallback to `audio-buffer-loader.ts`
-   │  ├─ line 988: [ ] Create `validate-audio-files.cjs` script
-   │  ├─ line 989: [ ] Update `package.json` scripts
-   │  ├─ line 990: [ ] Create `AudioStatusIndicator.tsx` component
-   │  ├─ line 991: [ ] Add indicator to `App.tsx`
-   │  ├─ line 992: [ ] Test fallback mechanisms
-   │  ├─ line 993: [ ] Test validation script
-   │  ├─ line 997: [ ] Create `audio-loading.spec.ts` E2E tests
-   │  ├─ line 998: [ ] Run tests locally
-   │  ├─ line 999: [ ] Add to CI/CD pipeline
-   │  ├─ line 1000: [ ] Verify all tests pass
-   │  └─ line 1001: [ ] Update documentation
-   ├─ game-refactoring-plan.md
-   │  ├─ line 256: [ ] Game starts and loads correctly
-   │  ├─ line 257: [ ] Objects spawn and fall properly
-   │  ├─ line 258: [ ] Tap detection works (correct/incorrect)
-   │  ├─ line 259: [ ] Progress tracking works
-   │  ├─ line 260: [ ] Win condition triggers correctly
-   │  ├─ line 261: [ ] No console errors in development
-   │  ├─ line 262: [ ] No popup interruptions during gameplay
-   │  ├─ line 263: [ ] Continuous mode works without high score popup
-   │  └─ line 264: [ ] Performance is improved (fewer re-renders)
-   ├─ ui-component-modularization-plan.md
-   │  ├─ line 564: [ ] No file exceeds 200 lines
-   │  ├─ line 565: [ ] TypeScript interfaces in separate `types.ts`
-   │  ├─ line 566: [ ] Custom hooks in `hooks/` directory
-   │  ├─ line 567: [ ] Utilities in `utils/` directory
-   │  ├─ line 568: [ ] Backward-compatible imports via barrel exports
-   │  ├─ line 569: [ ] Memo applied to presentational components
-   │  ├─ line 570: [ ] useCallback for event handlers
-   │  ├─ line 571: [ ] useMemo for expensive computations
-   │  ├─ line 572: [ ] PropTypes or TypeScript interfaces documented
-   │  ├─ line 573: [ ] Accessibility attributes preserved
-   │  ├─ line 574: [ ] Test IDs maintained for E2E tests
-   │  ├─ line 575: [ ] Console logs cleaned up (production)
-   │  ├─ line 576: [ ] ESLint passes with no warnings
-   │  ├─ line 577: [ ] TypeScript compiles with `--noEmit`
-   │  ├─ line 731: [ ] Senior Engineer Review
-   │  ├─ line 732: [ ] Tech Lead Approval
-   │  ├─ line 733: [ ] Security Review (if needed)
-   │  ├─ line 737: [ ] All questions answered
-   │  ├─ line 738: [ ] Resources allocated
-   │  ├─ line 739: [ ] Timeline approved
-   │  ├─ line 743: [ ] **GO** - Proceed with implementation
-   │  ├─ line 744: [ ] **ITERATE** - Refine plan based on feedback
-   │  └─ line 745: [ ] **NO-GO** - Defer refactoring
-   ├─ visual-audio-fixes-implementation-plan.md
-   │  ├─ line 251: [ ] Falling objects are visible and tappable
-   │  ├─ line 252: [ ] Worms are visible and tappable
-   │  ├─ line 253: [ ] Fairy transformations render correctly
-   │  ├─ line 254: [ ] HUD elements (Back button, Target Display) don't block game objects
-   │  ├─ line 257: [ ] Background renders behind objects
-   │  ├─ line 258: [ ] Objects render above background effects
-   │  ├─ line 259: [ ] Effects (fairy transformation) render above objects
-   │  ├─ line 262: [ ] Tap on falling object registers correctly
-   │  ├─ line 263: [ ] Tap on worm registers correctly
-   │  ├─ line 264: [ ] HUD elements with `pointer-events: auto` still work
-   │  ├─ line 541: [ ] Correct tap plays "success.wav"
-   │  ├─ line 542: [ ] Incorrect tap plays "wrong.wav"
-   │  ├─ line 543: [ ] Sounds play at appropriate volume
-   │  ├─ line 544: [ ] No sound overlap issues
-   │  ├─ line 547: [ ] Disabling tap sounds mutes feedback
-   │  ├─ line 548: [ ] Enabling tap sounds restores feedback
-   │  ├─ line 819: [ ] Create backup branch from `main`
-   │  ├─ line 820: [ ] Run existing test suite: `npm run test:run`
-   │  ├─ line 821: [ ] Build project: `npm run build`
-   │  ├─ line 822: [ ] Document current behavior with screenshots
-   │  ├─ line 826: [ ] Modify `src/styles/backgrounds/real-utilities.css`
-   │  ├─ line 827: [ ] Verify `src/styles/game-area.css` is correct
-   │  ├─ line 828: [ ] Test in browser (Chrome, Firefox, Safari)
-   │  ├─ line 829: [ ] Test on tablet device
-   │  ├─ line 830: [ ] Run E2E tests: `npm run test:e2e`
-   │  ├─ line 834: [ ] Add `byName()` method to `src/lib/sound-manager-exports.ts`
-   │  ├─ line 835: [ ] Rewrite `src/hooks/game-logic/tap-audio-effects.ts`
-   │  ├─ line 836: [ ] Integrate with `use-game-logic-interactions.ts`
-   │  ├─ line 837: [ ] Test audio playback in browser
-   │  ├─ line 838: [ ] Run E2E tests: `npm run test:e2e`
-   │  ├─ line 842: [ ] Run full test suite: `npm run verify`
-   │  ├─ line 843: [ ] Manual QA on multiple devices
-   │  ├─ line 844: [ ] Update documentation if needed
-   │  └─ line 845: [ ] Create PR with detailed description
-   ├─ generate-audio.cjs
-   │  └─ line 19: TODO : [OPTIMIZATION] Consider moving audio generation to a separate microservice for scalability
-   ├─ collision-detection-worm.ts
-   │  └─ line 68: TODO : [OPTIMIZATION] Consider spatial partitioning if object counts exceed ~500.
-   ├─ web-vitals-tracker.ts
-   │  └─ line 15: TODO : [OPTIMIZATION] Consider using web-vitals library for production
-   ├─ progressive-image-loader.ts
-   │  └─ line 135: TODO : Implement proper Intersection Observer when we have a ref
-   └─ orchestration.ts
-      └─ line 272: TODO : [OPTIMIZATION] Move resource definitions to external JSON config
+English-K1Run — TODO Index (2026-04-03)
+========================================
+
+This file is a compact index of open planning references.
+Detailed checklists live in the referenced source documents.
+
+STARTUP PAYLOAD SAFETY
+  Plan overview:   .github/superpower/plan/2026-04-03-startup-payload-safety-plan.md
+  Tasks 1-2:       .github/superpower/plan/2026-04-03-startup-payload-tasks-1-2.md
+  Tasks 3-5:       .github/superpower/plan/2026-04-03-startup-payload-tasks-3-5.md
+
+BEST PRACTICES CHECKLISTS
+  Source:          BEST_PRACTICES.md (lines 402-615)
+  Key items:       No new ESLint errors; all tests passing; TS compilation OK;
+                   code follows style guide; bundle size within limits.
+
+FILE LIMIT COMPLIANCE
+  Source:          FILE_LIMIT_AUDIT.md (lines 49-70)
+  Key items:       All files ≤ 200 lines; no circular deps; bundle size checked.
+
+LANGUAGE SELECTION (Jan 2026)
+  Source:          DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md (lines 183-453)
+  Key items:       Language selector UI, persistence, speech synthesis, accessibility.
+  Outstanding:     Translations for ~80 items × 5 languages; audio for 6 languages.
+
+TEST FAILURES FIX (Jan 2026)
+  Source:          DOCS/TEST_FAILURES_FIX_JAN2026.md (lines 250-278)
+  Key items:       Browser-specific timeout multipliers; clickMovingElement() helper.
+
+AUDIO LOADING FIXES
+  Source:          plans/audio-loading-fixes-implementation-plan.md (lines 967-1001)
+  Key items:       Convert audio formats; generate missing welcome audio files;
+                   add speech synthesis fallback; create E2E audio tests.
+
+GAME REFACTORING
+  Source:          plans/game-refactoring-plan.md (lines 256-264)
+  Key items:       Objects spawn/fall; tap detection; win condition; no console errors.
+
+UI MODULARIZATION
+  Source:          plans/ui-component-modularization-plan.md (lines 564-745)
+  Key items:       No file > 200 lines; memo on presentational components;
+                   accessibility attributes preserved.
+
+VISUAL / AUDIO FIXES
+  Source:          plans/visual-audio-fixes-implementation-plan.md (lines 251-845)
+  Key items:       Falling objects visible/tappable; z-order correct;
+                   tap sounds; full verify run.
