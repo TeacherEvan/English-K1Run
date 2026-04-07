@@ -3,7 +3,7 @@ const path = require("path");
 
 const ROOT = process.cwd();
 const DEFAULTS = {
-  limit: 200,
+  limit: 400,
   json: "reports/loc-report.json",
   md: "reports/loc-report.md",
   allowlist: "loc-audit.allowlist.json",
