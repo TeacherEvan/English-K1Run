@@ -8,7 +8,6 @@ export const englishK1RunPwaConfig = {
     "apple-touch-icon.png",
     "og-image.png",
     "welcome-sangsom.png",
-    "New_welcome_video.mp4",
     "sounds/welcome*.mp3",
     "sounds/welcome*.wav",
   ],
@@ -34,8 +33,22 @@ export const englishK1RunPwaConfig = {
       "**/Gemini_Generated_Image_895eeq895eeq895e.png",
       "**/backgrounds/**",
     ],
-    maximumFileSizeToCacheInBytes: 25 * 1024 * 1024,
+    maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
     runtimeCaching: [
+      {
+        urlPattern:
+          /\/(?:New_welcome_video\.mp4|sounds\/welcome.*\.(?:wav|mp3|ogg))$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "welcome-media-cache-v1",
+          cacheableResponse: { statuses: [0, 200] },
+          expiration: {
+            maxEntries: 24,
+            maxAgeSeconds: 90 * 24 * 60 * 60,
+            purgeOnQuotaError: true,
+          },
+        },
+      },
       {
         urlPattern: /\.(?:wav|mp3|ogg)$/i,
         handler: "CacheFirst",
@@ -59,20 +72,6 @@ export const englishK1RunPwaConfig = {
           expiration: {
             maxEntries: 16,
             maxAgeSeconds: 30 * 24 * 60 * 60,
-            purgeOnQuotaError: true,
-          },
-        },
-      },
-      {
-        urlPattern:
-          /\/(?:New_welcome_video\.mp4|sounds\/welcome.*\.(?:wav|mp3|ogg))$/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "welcome-media-cache-v1",
-          cacheableResponse: { statuses: [0, 200] },
-          expiration: {
-            maxEntries: 24,
-            maxAgeSeconds: 90 * 24 * 60 * 60,
             purgeOnQuotaError: true,
           },
         },

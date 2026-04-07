@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   userPrefersDarkMode,
@@ -8,8 +8,20 @@ import {
 } from '../user-preferences'
 
 describe('user preferences', () => {
+  let originalMatchMedia: typeof window.matchMedia
+
+  beforeEach(() => {
+    originalMatchMedia = window.matchMedia
+  })
+
+  afterEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: originalMatchMedia,
+    })
+  })
+
   it('returns false when matchMedia is unavailable', () => {
-    const originalMatchMedia = window.matchMedia
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
       value: undefined,
@@ -19,11 +31,6 @@ describe('user preferences', () => {
     expect(userPrefersReducedData()).toBe(false)
     expect(userPrefersDarkMode()).toBe(false)
     expect(userPrefersHighContrast()).toBe(false)
-
-    Object.defineProperty(window, 'matchMedia', {
-      configurable: true,
-      value: originalMatchMedia,
-    })
   })
 
   it('reads the expected media queries', () => {
