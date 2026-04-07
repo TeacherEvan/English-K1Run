@@ -30,7 +30,7 @@ jobs:
       - name: Lint code
         run: npm run lint
 
-      - name: Enforce 200-LOC hard limit
+      - name: Enforce 400-LOC hard limit
         run: npm run audit:loc
 
       - name: Type check
