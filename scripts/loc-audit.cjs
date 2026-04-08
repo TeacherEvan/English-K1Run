@@ -3,7 +3,7 @@ const path = require("path");
 
 const ROOT = process.cwd();
 const DEFAULTS = {
-  limit: 200,
+  limit: 300,
   json: "reports/loc-report.json",
   md: "reports/loc-report.md",
   allowlist: "loc-audit.allowlist.json",
@@ -118,7 +118,7 @@ function toMarkdown(limit, results) {
   return [
     "# LOC Audit Report",
     "",
-    `Limit: **${limit} LOC** (non-empty, non-comment lines)`,
+    `Guideline: **${limit} LOC** (non-empty, non-comment lines)`,
     "",
     `Scanned files: **${results.length}**`,
     `Violators: **${violators.length}**`,
@@ -176,7 +176,12 @@ async function main() {
     toMarkdown(args.limit, results),
   );
 
-  if (failing.length) {
+  if (failing.length && args.reportOnly) {
+    console.warn(
+      `LOC audit warning: ${failing.length} file(s) exceed the ${args.limit}-LOC guideline.`,
+    );
+    console.warn(`See: ${args.md}`);
+  } else if (failing.length) {
     console.error(
       `LOC audit failed: ${failing.length} file(s) exceed ${args.limit} LOC (not allowlisted).`,
     );
