@@ -8,5 +8,8 @@
   "scripts/download-backgrounds.js",
   "scripts/generate-sentence-audio.cjs",
   "src/lib/resource-preloader.ts",
-  "src/lib/event-metrics/emoji-tracker.ts"
+  "src/lib/event-metrics/emoji-tracker.ts",
+  "scripts/generate-missing-welcome-audio.cjs",
+  "scripts/generate-welcome-audio-hf.cjs",
+  "scripts/generate-requirements.cjs"
 ]
