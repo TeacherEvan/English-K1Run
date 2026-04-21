@@ -27,8 +27,10 @@ interface GameMenuHomeProps {
     formattedBestTargetTotal: string;
     highScores: ChallengeModeHighScoreEntry[];
     continuousMode: boolean;
+    languageDiscoveryActive: boolean;
     resolutionScale: ResolutionScale;
     setResolutionScale: (scale: ResolutionScale) => void;
+    onLanguageDiscoverySeen: () => void;
     onStartGame: () => void;
     onShowLevels: () => void;
     onToggleContinuousMode?: (enabled: boolean) => void;
@@ -40,8 +42,10 @@ export const GameMenuHome = memo(
         formattedBestTargetTotal,
         highScores,
         continuousMode,
+        languageDiscoveryActive,
         resolutionScale,
         setResolutionScale,
+        onLanguageDiscoverySeen,
         onStartGame,
         onShowLevels,
         onToggleContinuousMode,
@@ -159,6 +163,8 @@ export const GameMenuHome = memo(
                                 resolutionScale={resolutionScale}
                                 setResolutionScale={setResolutionScale}
                                 continuousMode={continuousMode}
+                                languageDiscoveryActive={languageDiscoveryActive}
+                                onLanguageDiscoverySeen={onLanguageDiscoverySeen}
                                 onToggleContinuousMode={onToggleContinuousMode}
                             />
 

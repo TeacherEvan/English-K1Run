@@ -10,6 +10,7 @@ import "./game-menu/game-menu-compact.css";
 import "./game-menu/game-menu-storybook-motion.css";
 import "./game-menu/game-menu-storybook-scene.css";
 import "./game-menu/game-menu-storybook-surfaces.css";
+import "./game-menu/game-menu-language-spotlight.css";
 import "./game-menu/game-menu-ultrawide.css";
 import { GameMenuHome } from "./game-menu/GameMenuHome";
 import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
@@ -60,6 +61,7 @@ export const GameMenu = memo(({
   const { resolutionScale, setResolutionScale } = useSettings()
 
   const [view, setView] = useState<'main' | 'levels'>(initialView)
+  const [languageDiscoveryActive, setLanguageDiscoveryActive] = useState(true)
 
   const formattedBestTargetTotal = useMemo(
     () => new Intl.NumberFormat().format(bestTargetTotal),
@@ -81,6 +83,9 @@ export const GameMenu = memo(({
   const handleBackToMain = useCallback(() => {
     setView('main')
   }, [])
+  const handleLanguageDiscoverySeen = useCallback(() => {
+    setLanguageDiscoveryActive(false)
+  }, [])
 
   const isRunComplete = winner && (phase ?? 'runComplete') === 'runComplete'
 
@@ -93,8 +98,10 @@ export const GameMenu = memo(({
           formattedBestTargetTotal={formattedBestTargetTotal}
           highScores={highScores}
           continuousMode={continuousMode}
+          languageDiscoveryActive={languageDiscoveryActive}
           resolutionScale={resolutionScale}
           setResolutionScale={setResolutionScale}
+          onLanguageDiscoverySeen={handleLanguageDiscoverySeen}
           onStartGame={onStartGame}
           onShowLevels={handleShowLevels}
           onToggleContinuousMode={onToggleContinuousMode}
