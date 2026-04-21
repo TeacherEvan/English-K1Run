@@ -33,8 +33,9 @@ vi.mock('@/context/settings-context', () => ({
 }))
 
 vi.mock('@radix-ui/react-select', () => {
-  const cleanProps = ({ asChild: _asChild, position: _position, sideOffset: _sideOffset, ...props }: any) => props
-  const passthrough = (tag = 'div') => ({ children, ...props }: any) =>
+  type MockProps = { children?: React.ReactNode } & Record<string, unknown>
+  const cleanProps = ({ asChild: _asChild, position: _position, sideOffset: _sideOffset, ...props }: MockProps) => props
+  const passthrough = (tag = 'div') => ({ children, ...props }: MockProps) =>
     React.createElement(tag, cleanProps(props), children)
   const Trigger = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<'button'>>(
     ({ children, ...props }, ref) =>
