@@ -10,6 +10,7 @@ import "./game-menu/game-menu-compact.css";
 import "./game-menu/game-menu-storybook-motion.css";
 import "./game-menu/game-menu-storybook-scene.css";
 import "./game-menu/game-menu-storybook-surfaces.css";
+import "./game-menu/game-menu-language-spotlight.css";
 import "./game-menu/game-menu-ultrawide.css";
 import { GameMenuHome } from "./game-menu/GameMenuHome";
 import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";

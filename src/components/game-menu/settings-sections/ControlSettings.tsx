@@ -23,8 +23,16 @@ export const ControlSettings = memo(
                             {t("settings.controls.languageSectionDescription")}
                         </p>
                     </div>
-                    <LanguageSelector className="w-full" languageType="display" />
-                    <LanguageSelector className="w-full" languageType="gameplay" />
+                    <LanguageSelector
+                        className="w-full"
+                        highlightVariant="sibling"
+                        languageType="display"
+                    />
+                    <LanguageSelector
+                        className="w-full"
+                        highlightVariant="spotlight"
+                        languageType="gameplay"
+                    />
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-border/80 bg-card/95 p-4 shadow-sm">
                     <div className="space-y-1">
