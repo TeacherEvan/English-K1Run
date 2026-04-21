@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useSettings } from "../../context/settings-context";
@@ -24,6 +24,8 @@ interface GameMenuSettingsDialogProps {
     resolutionScale: ResolutionScale;
     setResolutionScale: (scale: ResolutionScale) => void;
     continuousMode: boolean;
+    languageDiscoveryActive: boolean;
+    onLanguageDiscoverySeen: () => void;
     onToggleContinuousMode?: (enabled: boolean) => void;
 }
 
@@ -32,20 +34,31 @@ export const GameMenuSettingsDialog = memo(
         resolutionScale,
         setResolutionScale,
         continuousMode,
+        languageDiscoveryActive,
+        onLanguageDiscoverySeen,
         onToggleContinuousMode,
     }: GameMenuSettingsDialogProps) => {
         const { t } = useTranslation();
         const { gameplayLanguage } = useSettings();
         const settingsLabel = getMenuActionLabel("game.settings", gameplayLanguage);
+        const handleOpenChange = useCallback(
+            (open: boolean) => {
+                if (open && languageDiscoveryActive) {
+                    onLanguageDiscoverySeen();
+                }
+            },
+            [languageDiscoveryActive, onLanguageDiscoverySeen],
+        );
 
         return (
-            <Dialog>
+            <Dialog onOpenChange={handleOpenChange}>
                 <DialogTrigger asChild>
                     <Button
                         variant="outline"
                         size="lg"
-                        className="menu-support-action h-19 justify-start gap-4 rounded-3xl border border-slate-200 bg-[#fbf6ea] px-6 text-lg font-semibold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.08)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.12)]"
+                        className="menu-support-action menu-language-discovery-trigger h-19 justify-start gap-4 rounded-3xl border border-slate-200 bg-[#fbf6ea] px-6 text-lg font-semibold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.08)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.12)]"
                         data-testid="settings-button"
+                        data-language-discovery={languageDiscoveryActive ? "active" : "idle"}
                         role="button"
                     >
                         <MenuActionButtonContent
