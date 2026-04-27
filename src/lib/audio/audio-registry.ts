@@ -199,7 +199,7 @@ export async function getAudioUrl(key: string): Promise<string | null> {
     return null;
   }
 
-  const preferredFormats = getPreferredFormatOrder();
+  const preferredFormats = getPreferredFormatOrder(key);
   let loader: (() => Promise<string>) | undefined;
 
   for (const ext of preferredFormats) {

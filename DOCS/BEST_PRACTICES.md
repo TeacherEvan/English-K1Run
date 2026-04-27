@@ -612,7 +612,7 @@ export function calculateSafeSpawnPosition(params: SpawnPositionParams): {
 - [ ] Added comments for complex logic
 - [ ] Checked bundle size impact
 - [ ] Tested on target device (if applicable)
-- [ ] Updated TODO.md if creating new tasks
+- [ ] Updated the relevant plan or jobcard note if creating new tasks
 
 ---
 

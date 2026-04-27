@@ -31,9 +31,9 @@ describe("resolvePublicAudioUrl", () => {
       );
   });
 
-  it("falls back to mp3 when the preferred wav welcome file is missing", async () => {
+  it("prefers mp3 first for welcome audio keys", async () => {
     fetchMock
-      .mockResolvedValueOnce(createResponse(true, "text/html"))
+      .mockResolvedValueOnce(createResponse(true, "audio/mpeg"))
       .mockResolvedValueOnce(createResponse(true, "audio/mpeg"));
 
     await expect(
@@ -42,18 +42,12 @@ describe("resolvePublicAudioUrl", () => {
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
-      "/sounds/welcome_evan_intro_thai.wav",
-      {
-        method: "HEAD",
-      },
-    );
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
       "/sounds/welcome_evan_intro_thai.mp3",
       {
         method: "HEAD",
       },
     );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("resolves space-based filenames for normalized multi-word keys", async () => {

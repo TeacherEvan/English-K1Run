@@ -10,6 +10,9 @@
 const publicUrlCache = new Map<string, string | null>();
 const publicUrlExistsCache = new Map<string, boolean>();
 
+const isWelcomeAudioKey = (key: string): boolean =>
+  key.trim().toLowerCase().startsWith("welcome_");
+
 const buildFileNameCandidates = (key: string): string[] => {
   const trimmed = key.trim().toLowerCase();
   if (!trimmed) return [];
@@ -76,12 +79,13 @@ const canLoadPublicUrl = async (url: string): Promise<boolean> => {
  * and browser support. Optimized for our asset inventory:
  * - Most files: .wav only
  * - Welcome files: .mp3 + .wav
- * - Prefer .wav (universally available) over .mp3
+ * - Prefer .mp3 for welcome audio to match generated assets and boot preloads
+ * - Prefer .wav (universally available) for non-welcome assets
  */
-export function getPreferredFormatOrder(): string[] {
+export function getPreferredFormatOrder(key?: string): string[] {
   // SSR guard
   if (typeof Audio === "undefined" || typeof document === "undefined") {
-    return ["wav", "mp3"];
+    return isWelcomeAudioKey(key ?? "") ? ["mp3", "wav"] : ["wav", "mp3"];
   }
 
   const testAudio = document.createElement("audio");
@@ -98,7 +102,20 @@ export function getPreferredFormatOrder(): string[] {
     }
   }
 
-  return supported.length > 0 ? supported : ["wav", "mp3"];
+  if (supported.length === 0) {
+    return isWelcomeAudioKey(key ?? "") ? ["mp3", "wav"] : ["wav", "mp3"];
+  }
+
+  if (isWelcomeAudioKey(key ?? "")) {
+    return [...supported].sort((left, right) => {
+      if (left === right) return 0;
+      if (left === "mp3") return -1;
+      if (right === "mp3") return 1;
+      return 0;
+    });
+  }
+
+  return supported;
 }
 
 /**
@@ -117,7 +134,7 @@ export async function resolvePublicAudioUrl(
     return cached;
   }
 
-  const preferredFormats = getPreferredFormatOrder();
+  const preferredFormats = getPreferredFormatOrder(key);
   if (import.meta.env.DEV) {
     console.log(
       `[PublicResolver] Preferred formats for "${key}": [${preferredFormats.join(", ")}]`,

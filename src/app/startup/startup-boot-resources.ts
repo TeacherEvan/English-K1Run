@@ -1,6 +1,6 @@
 import type { ResourceMetadata } from "@/lib/resource-preloader";
 
-export const STARTUP_PACK_VERSION = "startup-boot-v1";
+export const STARTUP_PACK_VERSION = "startup-boot-v2";
 
 export const buildStartupBootResources = (
   limitedBandwidth: boolean,
@@ -17,12 +17,12 @@ export const buildStartupBootResources = (
   return [
     ...highPriority,
     {
-      url: "/sounds/welcome_sangsom_association.wav",
+      url: "/sounds/welcome_sangsom_association.mp3",
       type: "audio",
       priority: "medium",
     },
     {
-      url: "/sounds/welcome_sangsom_association_thai.wav",
+      url: "/sounds/welcome_sangsom_association_thai.mp3",
       type: "audio",
       priority: "medium",
     },

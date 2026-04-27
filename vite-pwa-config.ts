@@ -5,7 +5,7 @@ export const englishK1RunPwaConfig: VitePWAOptions = {
   includeAssets: [
     "favicon.ico",
     "favicon.svg",
-    "apple-touch-icon.png",
+    "icons/icon-192x192.png",
     "og-image.png",
   ],
   manifest: {

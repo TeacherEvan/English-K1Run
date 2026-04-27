@@ -150,6 +150,7 @@ Then check `CONSOLE_EXAMPLES.md` and `AUDIO_SETUP.md`.
 - Preserve existing product copy: `English K1 Run` for player-facing text.
 - Update the docs index when adding new long-lived guides.
 - Prefer consolidating guidance into the trusted docs above instead of adding one-off incident or PR summary files.
+- VS Code Todo Tree is configured for workspace-only scanning in `.vscode/settings.json`, so keep durable follow-up notes in repo files instead of personal scratch files.
 
 ## License
 
