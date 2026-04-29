@@ -22,6 +22,7 @@ Use this page as the main landing point for repository documentation.
 | Codebase navigation | `CODEBASE_INDEX.md`    | You need to find the right module quickly              |
 | Integration details | `INTEGRATION_GUIDE.md` | You are wiring utilities or shared infrastructure      |
 | Best practices      | `BEST_PRACTICES.md`    | You are changing code patterns or contributor workflow |
+| AI agent workflow   | `AI_AGENT_WORKFLOW.md` | You are setting up deterministic AI-assisted workflows |
 | Security            | `SECURITY.md`          | You are reviewing deployment/security posture          |
 | Changelog           | `CHANGELOG.md`         | You need recent shipped history                        |
 

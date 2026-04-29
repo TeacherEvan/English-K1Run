@@ -1,0 +1,136 @@
+# =============================================================================
+# .copilotignore - Ironclad AI Context Filter
+# =============================================================================
+# This file controls what the AI agent can see. Be EXPLICIT and CONSERVATIVE.
+# Forked from Node/React .gitignore templates + custom asset blocks.
+#
+# PRINCIPLE: When in doubt, exclude it. The agent doesn't need:
+# - Binary assets (images, audio, video)
+# - Generated build artifacts
+# - Cache files and logs
+# - Test output reports
+# =============================================================================
+
+# =============================================================================
+# ASSET DATA - NEVER needed by AI
+# =============================================================================
+*.wav
+*.mp3
+*.ogg
+*.mp4
+*.webm
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.font
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# =============================================================================
+# LOGS - Runtime noise
+# =============================================================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+allure-results/
+playwright-report/
+test-results/
+
+# =============================================================================
+# DEPENDENCY DIRECTORIES - Don't analyze node_modules
+# =============================================================================
+node_modules
+.pnp
+.pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# =============================================================================
+# BUILD OUTPUTS - Generated, not source
+# =============================================================================
+dist
+dist-ssr
+*-dist
+build
+out
+*.tsbuildinfo
+.vite
+*.vite
+
+# =============================================================================
+# ENVIRONMENT VARIABLES - Security risk
+# =============================================================================
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
+# =============================================================================
+# EDITOR / IDE - User-specific
+# =============================================================================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =============================================================================
+# CACHE FILES
+# =============================================================================
+.cspell-cache
+.eslintcache
+.cache
+.parcel-cache
+
+# =============================================================================
+# TEST OUTPUT - Generated reports
+# =============================================================================
+coverage/
+.nyc_output
+*.lcov
+
+# =============================================================================
+# DEPLOYMENT / INFRASTRUCTURE
+# =============================================================================
+.vercel
+.netlify
+.serverless
+.firebase
+
+# =============================================================================
+# DOCUMENTATION GENERATION
+# =============================================================================
+REQUIREMENTS.txt
+reports/
+
+# =============================================================================
+# LARGE DATA FILES
+# =============================================================================
+sounds/*
+!sounds/.gitkeep
+public/sounds/*
+!public/sounds/.gitkeep
+public/backgrounds/*
+!public/backgrounds/.gitkeep
