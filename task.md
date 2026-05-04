@@ -10,6 +10,12 @@ Confirmed product decisions on 2026-05-04:
 - Light mode is the canonical product presentation; dark mode is optional support only.
 - Keep the current classroom-focused accessibility baseline, including reduced-motion respect and high readability.
 
+Additional design confirmation on 2026-05-05:
+
+- The emotional target is a controlled blend of calm reassurance, joyful celebration, adventurous energy, and confidence-building clarity.
+- The strongest visual reference is turtle-and-rabbit racing energy translated into a classroom-friendly world, not a competitive sports UI.
+- Future UI work should explicitly avoid anything bloated, dull, or unclear.
+
 ### Users
 
 English K1 Run is a teacher-launched, child-played classroom game for kindergarten and early-primary learners. It is used on tablets, touch displays, and shared classroom browsers, often with a teacher starting the activity and children taking short turns or replaying fast rounds. Students need large, obvious interaction targets, high contrast at distance, and instant feedback that works even before they can read fluently. Teachers need a menu and settings flow that is quick to launch, easy to supervise, and reliable under classroom pressure. The interface should help children practice vocabulary, recognition, and listening in short, repeatable rounds without reading-heavy friction.
@@ -18,15 +24,15 @@ English K1 Run is a teacher-launched, child-played classroom game for kindergart
 
 Warm, encouraging, outdoorsy.
 
-The product should feel optimistic, reassuring, and playfully exciting rather than chaotic or hyper-competitive. It should create delight, confidence, and a sense of “I can do this,” with rewards that feel celebratory but never overwhelming. For teachers, the tone should also feel dependable, calm, and easy to trust under repetition. Because the app supports multiple classroom languages, the visual tone should stay universal, friendly, and welcoming across cultures, with meaning carried by imagery and hierarchy before text.
+The product should feel optimistic, reassuring, and playfully exciting rather than chaotic or hyper-competitive. It should create delight, confidence, and a sense of “I can do this,” with rewards that feel celebratory but never overwhelming. For teachers, the tone should also feel dependable, calm, and easy to trust under repetition. The energy can borrow from the story of a turtle-and-rabbit race, but expressed as cheerful momentum and perseverance rather than aggressive competition. Because the app supports multiple classroom languages, the visual tone should stay universal, friendly, and welcoming across cultures, with meaning carried by imagery and hierarchy before text.
 
 ### Aesthetic Direction
 
 Lean into a touch-first, nature-backed, toy-like classroom aesthetic with polished game energy. Keep the turtle mascot, large tactile controls, friendly rounded forms, scenic outdoor imagery, and bright kid-facing colors, but refine them into a more intentional visual system. Favor a light-first presentation for classrooms, with dark mode as optional support rather than the default mood. Use warm ivory surfaces, sunlit amber borders, sky and ocean blues, leaf and meadow greens, and trophy-gold accents, with neutrals subtly tinted toward the palette instead of drifting into generic gray. Nature photography and animal or emoji content are part of the product DNA, so decorative choices should feel outdoorsy, sunny, curious, and alive—not corporate, futuristic, or sterile.
 
-The preferred emotional balance is playful excitement with classroom control: energetic enough to feel like an adventure, but never noisy enough to feel like a frantic mobile game.
+The preferred emotional balance is playful excitement with classroom control: calm enough to feel safe, joyful enough to reward progress, adventurous enough to feel like a journey, and structured enough to build confidence without confusion.
 
-The memorable signature should be a warm nature-meets-playroom world: real outdoor backdrops, a cheerful turtle mascot, soft cream panels, and oversized tactile controls that feel made for small hands.
+The memorable signature should be a warm nature-meets-playroom world: real outdoor backdrops, a cheerful turtle mascot, subtle race-journey cues, soft cream panels, and oversized tactile controls that feel made for small hands.
 
 Typography should stay friendly, rounded, and highly legible at distance. Display type can feel toy-like and cheerful, but body copy must remain clean, simple, and easy for teachers to scan quickly. Avoid sterile system-default vibes, developer-ish monospace shortcuts, or trendy luxury typography that fights the classroom context.
 
@@ -58,8 +64,11 @@ Anti-direction:
 - No glassmorphism as the default styling language
 - No overused card-on-card clutter
 - No ad-like mobile game chaos
+- No bloated or overstuffed screens
 - No bland school-worksheet flatness
 - No corporate dashboard sterility
+- No dull, low-energy presentation
+- No unclear hierarchy or ambiguous actions
 - No tiny controls, thin contrast, or reading-heavy layouts
 
 Color guardrails:
@@ -71,8 +80,9 @@ Color guardrails:
 
 1. **Teacher-launch, child-play.** Setup must be obvious for adults, while interaction stays effortless for young learners.
 2. **Distance-readable touch clarity.** Prioritize big targets, instant comprehension, and strong hierarchy over decorative complexity.
-3. **Nature-backed delight.** Use the turtle, landscapes, and cheerful color warmth as the product’s memorable signature.
-4. **Playful excitement, never chaos.** Let the interface feel lively and rewarding, but avoid noisy mobile-game energy or cluttered reward spam.
-5. **One brand, one story.** Future UI work should consolidate around the `English K1 Run` name and its turtle-and-nature identity instead of inheriting older generic game branding.
-6. **Light-first by default.** Design for bright classroom readability first; support dark mode where helpful, but do not let dark styling drive the core aesthetic.
-7. **Accessible motion and contrast.** Preserve reduced-motion respect, WCAG-minded contrast, and interaction clarity for shared classrooms, distance viewing, and early readers.
+3. **Nature-backed race adventure.** Use the turtle, scenic backdrops, and gentle race-journey cues to create momentum without turning the product into a competitive sports interface.
+4. **Playful excitement, never chaos.** Let the interface feel lively and rewarding, but avoid noisy mobile-game energy, clutter, or visual overload.
+5. **Confidence through clarity.** Every screen should feel unmistakable, never bloated, dull, or ambiguous about what to do next.
+6. **One brand, one story.** Future UI work should consolidate around the `English K1 Run` name and its turtle-and-nature identity instead of inheriting older generic game branding.
+7. **Light-first by default.** Design for bright classroom readability first; support dark mode where helpful, but do not let dark styling drive the core aesthetic.
+8. **Accessible motion and contrast.** Preserve reduced-motion respect, classroom-grade readability, and the current touch-first accessibility baseline for shared displays and early readers.

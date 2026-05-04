@@ -56,21 +56,21 @@ export const GameMenuSettingsDialog = memo(
                     <Button
                         variant="outline"
                         size="lg"
-                        className="menu-support-action menu-language-discovery-trigger h-19 justify-start gap-4 rounded-3xl border border-slate-200 bg-[#fbf6ea] px-6 text-lg font-semibold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.08)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.12)]"
+                        className="menu-support-action menu-language-discovery-trigger h-19 justify-start gap-4 rounded-3xl border border-[rgba(212,156,84,0.32)] bg-[linear-gradient(145deg,rgba(255,247,232,0.98),rgba(244,252,242,0.95)_58%,rgba(255,236,221,0.94))] px-6 text-lg font-semibold text-[rgb(63,52,41)] shadow-[0_12px_24px_rgba(120,53,15,0.1)] hover:-translate-y-0.5 hover:bg-[linear-gradient(145deg,rgba(255,242,221,1),rgba(236,249,239,0.96)_58%,rgba(255,230,213,0.96))] hover:shadow-[0_18px_30px_rgba(120,53,15,0.14)]"
                         data-testid="settings-button"
                         data-language-discovery={languageDiscoveryActive ? "active" : "idle"}
                         role="button"
                     >
                         <MenuActionButtonContent
-                            icon={<SettingsIcon className="h-6 w-6 text-slate-700" />}
-                            subtitleClassName="mt-1 text-sm font-medium text-slate-600"
+                            icon={<SettingsIcon className="h-6 w-6 text-[rgb(164,92,53)]" />}
+                            subtitleClassName="mt-1 text-sm font-medium text-[rgba(100,84,68,0.86)]"
                             textClassName="menu-action-copy flex flex-col items-start leading-tight"
                             title={settingsLabel.title}
                             subtitle={settingsLabel.subtitle}
                         />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="menu-settings-dialog border-border/80 bg-background/98 shadow-2xl backdrop-blur-sm sm:max-w-2xl">
+                <DialogContent className="menu-settings-dialog border-[rgba(214,144,62,0.2)] bg-[linear-gradient(180deg,rgba(255,252,246,0.99),rgba(249,255,250,0.97)_52%,rgba(255,245,236,0.98))] shadow-2xl backdrop-blur-sm sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-2xl flex items-center gap-2">
                             <SettingsIcon className="w-6 h-6" />
@@ -81,7 +81,7 @@ export const GameMenuSettingsDialog = memo(
                         </DialogDescription>
                     </DialogHeader>
                     <Tabs defaultValue="controls" className="py-4">
-                        <TabsList className="menu-settings-tabs-list w-full justify-stretch bg-muted/90">
+                        <TabsList className="menu-settings-tabs-list w-full justify-stretch bg-[rgba(246,236,213,0.72)]">
                             <TabsTrigger className="menu-settings-tab" value="audio">{t("settings.tabs.audio")}</TabsTrigger>
                             <TabsTrigger className="menu-settings-tab" value="visual">{t("settings.tabs.visual")}</TabsTrigger>
                             <TabsTrigger className="menu-settings-tab" value="controls">{t("settings.tabs.controls")}</TabsTrigger>
@@ -91,7 +91,7 @@ export const GameMenuSettingsDialog = memo(
                         </TabsList>
                         <div
                             data-testid="settings-surface-panel"
-                            className="menu-settings-surface mt-6 rounded-3xl border border-amber-200/70 bg-[rgba(255,250,240,0.94)] p-4 shadow-[0_18px_32px_rgba(71,85,105,0.1)] backdrop-blur-sm"
+                            className="menu-settings-surface mt-6 rounded-3xl border border-[rgba(212,156,84,0.28)] bg-[linear-gradient(155deg,rgba(255,250,241,0.96),rgba(241,252,245,0.94)_50%,rgba(255,238,227,0.94))] p-4 shadow-[0_18px_32px_rgba(120,53,15,0.1)] backdrop-blur-sm"
                         >
                             <TabsContent value="audio">
                                 <AudioSettings />

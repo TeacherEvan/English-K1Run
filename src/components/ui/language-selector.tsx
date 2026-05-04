@@ -69,7 +69,11 @@ export const LanguageSelector = React.forwardRef<HTMLButtonElement, LanguageSele
       LANGUAGE_OPTIONS.find((option) => option.value === language)?.label || 'English'
 
     return (
-      <div className={cn('language-selector-shell w-full', className)} data-language-highlight={highlightVariant}>
+      <div
+        className={cn('language-selector-shell w-full', className)}
+        data-language-highlight={highlightVariant}
+        data-language-type={languageType}
+      >
         {showLabel && (
           <label className="language-selector-label mb-2 block text-sm font-medium text-foreground" id={labelId}>
             {labelText}
@@ -96,6 +100,7 @@ export const LanguageSelector = React.forwardRef<HTMLButtonElement, LanguageSele
             aria-labelledby={showLabel ? labelId : undefined}
             aria-expanded={isOpen}
             data-language-highlight={highlightVariant}
+            data-language-type={languageType}
           >
             <SelectPrimitive.Value className="flex-1 text-left" asChild>
               <span className="language-selector-value flex items-center gap-2">
@@ -109,13 +114,14 @@ export const LanguageSelector = React.forwardRef<HTMLButtonElement, LanguageSele
           <SelectPrimitive.Portal>
             <SelectPrimitive.Content
               className={cn(
-                'language-selector-content relative z-[170] max-w-xs overflow-hidden rounded-md border border-input bg-popover shadow-md',
+                'language-selector-content relative z-170 max-w-xs overflow-hidden rounded-md border border-input bg-popover shadow-md',
                 'animate-in fade-in-80 zoom-in-95 data-[side=bottom]:slide-in-from-top-2',
                 'data-[side=top]:slide-in-from-bottom-2',
               )}
               position="popper"
               sideOffset={8}
               data-language-highlight={highlightVariant}
+              data-language-type={languageType}
             >
               <SelectPrimitive.Viewport className="p-1">
                 <SelectPrimitive.Group>
@@ -135,6 +141,7 @@ export const LanguageSelector = React.forwardRef<HTMLButtonElement, LanguageSele
                       role="option"
                       aria-selected={language === option.value}
                       data-language-option-highlight={highlightVariant}
+                      data-language-type={languageType}
                     >
                       <span className="absolute left-2 flex size-3.5 items-center justify-center">
                         <SelectPrimitive.ItemIndicator asChild>
@@ -152,7 +159,7 @@ export const LanguageSelector = React.forwardRef<HTMLButtonElement, LanguageSele
             </SelectPrimitive.Content>
           </SelectPrimitive.Portal>
         </SelectPrimitive.Root>
-        <p id={descriptionId} className="mt-1 text-xs text-muted-foreground">
+        <p id={descriptionId} className="language-selector-description mt-1 text-xs text-muted-foreground">
           {descriptionText}
         </p>
       </div>

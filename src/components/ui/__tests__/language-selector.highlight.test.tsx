@@ -81,11 +81,16 @@ describe('LanguageSelector spotlight styling', () => {
 
     const shell = document.querySelector('.language-selector-shell') as HTMLDivElement
     const trigger = document.querySelector('[aria-label="Select gameplay language"]') as HTMLButtonElement
+    const content = document.querySelector('.language-selector-content') as HTMLDivElement
     const options = document.querySelectorAll('[data-language-option-highlight="spotlight"]')
 
     expect(shell.dataset.languageHighlight).toBe('spotlight')
+    expect(shell.dataset.languageType).toBe('gameplay')
     expect(trigger.dataset.languageHighlight).toBe('spotlight')
+    expect(trigger.dataset.languageType).toBe('gameplay')
+    expect(content.dataset.languageType).toBe('gameplay')
     expect(options.length).toBeGreaterThan(1)
+    expect((options[0] as HTMLDivElement).dataset.languageType).toBe('gameplay')
   })
 
   it('marks display selectors and option rows with sibling attributes', async () => {
@@ -95,10 +100,15 @@ describe('LanguageSelector spotlight styling', () => {
 
     const shell = document.querySelector('.language-selector-shell') as HTMLDivElement
     const trigger = document.querySelector('[aria-label="Select display language"]') as HTMLButtonElement
+    const content = document.querySelector('.language-selector-content') as HTMLDivElement
     const options = document.querySelectorAll('[data-language-option-highlight="sibling"]')
 
     expect(shell.dataset.languageHighlight).toBe('sibling')
+    expect(shell.dataset.languageType).toBe('display')
     expect(trigger.dataset.languageHighlight).toBe('sibling')
+    expect(trigger.dataset.languageType).toBe('display')
+    expect(content.dataset.languageType).toBe('display')
     expect(options.length).toBeGreaterThan(1)
+    expect((options[0] as HTMLDivElement).dataset.languageType).toBe('display')
   })
 })
