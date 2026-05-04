@@ -21,6 +21,7 @@ vi.mock('@/components/welcome/use-welcome-sequence', () => ({
         phase: 'readyToStart',
         isSequencePlaying: false,
         showFallbackImage: false,
+        showRetryPrompt: false,
         currentAudioIndex: 0,
         totalAudioCount: 0,
         lastDiagnostic: null,

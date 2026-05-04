@@ -72,8 +72,6 @@ export const useHomeMenuAudio = () => {
 		}
 
 		audioScheduledRef.current = true;
-		hasPlayedHomeMenuAssociation = true;
-		markSessionHomeMenuAudioPlayed();
 
 		let cancelled = false;
 		const playSequence = async () => {
@@ -83,6 +81,7 @@ export const useHomeMenuAudio = () => {
 					await context.resume();
 				}
 
+				let playbackCommitted = false;
 				for (const key of ASSOCIATION_AUDIO_KEYS) {
 					if (cancelled) return;
 					await soundManager.playSound(
@@ -90,6 +89,11 @@ export const useHomeMenuAudio = () => {
 						key.endsWith("_thai") ? 0.9 : 1.0,
 						0.85,
 					);
+					if (!playbackCommitted) {
+						playbackCommitted = true;
+						hasPlayedHomeMenuAssociation = true;
+						markSessionHomeMenuAudioPlayed();
+					}
 				}
 			} catch (error) {
 				if (import.meta.env.DEV) {

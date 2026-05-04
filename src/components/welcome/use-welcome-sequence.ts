@@ -2,7 +2,9 @@
  * Encapsulates welcome screen audio, timing, and interaction flow.
  * Used by `WelcomeScreen` to keep the component focused on rendering.
  */
+import { attemptIntroVideoPlay } from "@/components/welcome/attempt-intro-video-play";
 import { createIntroPlaybackGate } from "@/components/welcome/intro-playback-gate";
+import { useWelcomeKeyboardShortcut } from "@/components/welcome/use-welcome-keyboard-shortcut";
 import { useWelcomeAudioSequence } from "@/components/welcome/use-welcome-audio-sequence";
 import {
   getWelcomePhase,
@@ -15,13 +17,7 @@ import {
   type WelcomePlaybackDiagnostic,
 } from "@/lib/audio/welcome-audio-sequencer";
 import { soundManager } from "@/lib/sound-manager";
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 
 interface WelcomeSequenceOptions {
   onComplete: () => void;
@@ -33,8 +29,8 @@ export interface WelcomeSequenceState {
   phase: WelcomePhase;
   readyToContinue: boolean;
   isSequencePlaying: boolean;
-  videoLoaded: boolean;
   showFallbackImage: boolean;
+  showRetryPrompt: boolean;
   currentAudioIndex: number;
   totalAudioCount: number;
   lastDiagnostic: WelcomePlaybackDiagnostic | null;
@@ -51,8 +47,8 @@ export const useWelcomeSequence = ({
   audioConfig,
 }: WelcomeSequenceOptions): WelcomeSequenceState => {
   const [fadeOut, setFadeOut] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const [showFallbackImage, setShowFallbackImage] = useState(false);
+  const [showRetryPrompt, setShowRetryPrompt] = useState(false);
   const gateRef = useRef(createIntroPlaybackGate());
   const introAudioPendingRef = useRef(false);
   const introAudioStartedRef = useRef(false);
@@ -102,22 +98,22 @@ export const useWelcomeSequence = ({
     [],
   );
 
-  const handleVideoCanPlay = useCallback(() => setVideoLoaded(true), []);
+  const handleVideoCanPlay = useCallback(() => undefined, []);
   const handleVideoEnded = useCallback(() => {
     markReadyToContinue();
   }, [markReadyToContinue]);
   const handleVideoError = useCallback(() => {
     gateRef.current.onVideoError();
     introAudioPendingRef.current = false;
-    setVideoLoaded(false);
+    setShowRetryPrompt(false);
     setShowFallbackImage(true);
     markReadyToContinue();
   }, [markReadyToContinue]);
   const handleIntroActivated = useCallback(
     (videoElement?: HTMLVideoElement | null) => {
       gateRef.current.onLanguageSelected();
-      setVideoLoaded(false);
       setShowFallbackImage(false);
+      setShowRetryPrompt(false);
 
       if (!isE2E && !introAudioStartedRef.current) {
         introAudioPendingRef.current = true;
@@ -127,27 +123,14 @@ export const useWelcomeSequence = ({
         return;
       }
 
-      try {
-        const playAttempt = videoElement.play();
-        if (typeof playAttempt?.catch === "function") {
-          void playAttempt.catch((error: unknown) => {
-            if (
-              error instanceof DOMException &&
-              error.name === "AbortError"
-            ) {
-              introAudioPendingRef.current = false;
-              return;
-            }
-            handleVideoError();
-          });
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
+      attemptIntroVideoPlay({
+        videoElement,
+        onInterrupted: () => {
           introAudioPendingRef.current = false;
-          return;
-        }
-        handleVideoError();
-      }
+          setShowRetryPrompt(true);
+        },
+        onError: handleVideoError,
+      });
     },
     [handleVideoError, isE2E],
   );
@@ -177,21 +160,8 @@ export const useWelcomeSequence = ({
     },
     [fadeOut, handleIntroActivated, isE2E, phase, proceed, readyToContinue],
   );
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === " " || e.key === "Enter") {
-        if (!isE2E && !readyToContinue) {
-          return;
-        }
-        e.preventDefault();
-        handlePrimaryAction();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-    };
-  }, [handlePrimaryAction, isE2E, readyToContinue]);
+  useWelcomeKeyboardShortcut({ handlePrimaryAction, isE2E, readyToContinue });
+
   const handleVideoPlaying = () => {
     if (
       isE2E ||
@@ -204,6 +174,7 @@ export const useWelcomeSequence = ({
 
     introAudioPendingRef.current = false;
     introAudioStartedRef.current = true;
+    setShowRetryPrompt(false);
     requestStart();
   };
 
@@ -212,8 +183,8 @@ export const useWelcomeSequence = ({
     phase,
     readyToContinue,
     isSequencePlaying,
-    videoLoaded,
     showFallbackImage,
+    showRetryPrompt,
     currentAudioIndex,
     totalAudioCount,
     lastDiagnostic,

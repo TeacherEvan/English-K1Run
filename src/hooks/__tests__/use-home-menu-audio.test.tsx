@@ -103,6 +103,45 @@ describe("useHomeMenuAudio", () => {
     expect(mockPlaySound).toHaveBeenCalledTimes(2);
   });
 
+  it("retries on the next mount when the menu unmounts before playback starts", async () => {
+    await renderHook();
+
+    act(() => {
+      root.unmount();
+    });
+    root = createRoot(container);
+
+    await renderHook();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockPlaySound).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries on the next mount when the first playback attempt fails", async () => {
+    mockPlaySound.mockRejectedValueOnce(new Error("first clip failed"));
+
+    await renderHook();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockPlaySound).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      root.unmount();
+    });
+    root = createRoot(container);
+
+    await renderHook();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockPlaySound).toHaveBeenCalledTimes(3);
+  });
+
   it("skips playback when the browser session was already marked", async () => {
     sessionStorage.setItem("homeMenuAssociationPlayed", "true");
     resetHomeMenuAudioMemoryForTests();

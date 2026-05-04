@@ -39,6 +39,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
     phase,
     isSequencePlaying,
     showFallbackImage,
+    showRetryPrompt,
     currentAudioIndex,
     totalAudioCount,
     lastDiagnostic,
@@ -55,7 +56,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const interactionLocked = isWelcomeInteractionLocked(phase)
   const shouldLoadVideo = !isLanguageShellVisible && !showFallbackImage
   const showIntroStartPrompt =
-    !isLanguageShellVisible && !hasActivatedIntro && phase === 'readyToStart'
+    !isLanguageShellVisible && phase === 'readyToStart' && (!hasActivatedIntro || showRetryPrompt)
 
   useLayoutEffect(() => {
     if (isLanguageShellVisible || !shouldRestorePrimaryFocusRef.current) {
@@ -86,7 +87,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   })
 
   const handleWelcomeAction = () => {
-    if (!hasActivatedIntro && phase === 'readyToStart') {
+    if ((!hasActivatedIntro || showRetryPrompt) && phase === 'readyToStart') {
       flushSync(() => {
         setHasActivatedIntro(true)
       })
