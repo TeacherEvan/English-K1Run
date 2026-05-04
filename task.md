@@ -4,6 +4,12 @@
 
 _This section synthesizes the current codebase, repository documentation, manifest/brand tokens, and live UI patterns verified through 2026-04-03. It should be treated as the standing design brief for future UI work unless a newer product decision replaces it._
 
+Confirmed product decisions on 2026-05-04:
+
+- Turtle-and-nature branding is the locked long-term identity.
+- Light mode is the canonical product presentation; dark mode is optional support only.
+- Keep the current classroom-focused accessibility baseline, including reduced-motion respect and high readability.
+
 ### Users
 
 English K1 Run is a teacher-launched, child-played classroom game for kindergarten and early-primary learners. It is used on tablets, touch displays, and shared classroom browsers, often with a teacher starting the activity and children taking short turns or replaying fast rounds. Students need large, obvious interaction targets, high contrast at distance, and instant feedback that works even before they can read fluently. Teachers need a menu and settings flow that is quick to launch, easy to supervise, and reliable under classroom pressure. The interface should help children practice vocabulary, recognition, and listening in short, repeatable rounds without reading-heavy friction.

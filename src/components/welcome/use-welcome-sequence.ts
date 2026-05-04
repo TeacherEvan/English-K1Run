@@ -130,11 +130,22 @@ export const useWelcomeSequence = ({
       try {
         const playAttempt = videoElement.play();
         if (typeof playAttempt?.catch === "function") {
-          void playAttempt.catch(() => {
+          void playAttempt.catch((error: unknown) => {
+            if (
+              error instanceof DOMException &&
+              error.name === "AbortError"
+            ) {
+              introAudioPendingRef.current = false;
+              return;
+            }
             handleVideoError();
           });
         }
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          introAudioPendingRef.current = false;
+          return;
+        }
         handleVideoError();
       }
     },

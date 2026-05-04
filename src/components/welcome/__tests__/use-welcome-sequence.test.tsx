@@ -81,6 +81,7 @@ describe('useWelcomeSequence', () => {
             capturedStates[0].handleIntroActivated?.(video)
         })
 
+        expect(video.play).toHaveBeenCalledTimes(1)
         expect(mockRequestStart).not.toHaveBeenCalled()
 
         await act(async () => {
@@ -117,6 +118,7 @@ describe('useWelcomeSequence', () => {
             capturedStates[0].handlePrimaryAction(video)
         })
 
+        expect(video.play).toHaveBeenCalledTimes(1)
         expect(mockRequestStart).not.toHaveBeenCalled()
 
         await act(async () => {
@@ -145,5 +147,55 @@ describe('useWelcomeSequence', () => {
         expect(mockRequestStart).not.toHaveBeenCalled()
         expect(mockMarkReadyToContinue).toHaveBeenCalledTimes(1)
         expect(capturedStates[0].showFallbackImage).toBe(true)
+    })
+
+    it('does not fall back when intro play is interrupted by a new load request', async () => {
+        await act(async () => {
+            root.render(<Harness />)
+        })
+
+        const video = document.createElement('video')
+        Object.defineProperty(video, 'play', {
+            configurable: true,
+            value: vi.fn().mockRejectedValue(new DOMException('interrupted', 'AbortError')),
+        })
+
+        await act(async () => {
+            capturedStates[0].handleIntroActivated?.(video)
+            await Promise.resolve()
+        })
+
+        expect(mockMarkReadyToContinue).not.toHaveBeenCalled()
+        expect(capturedStates[0].showFallbackImage).toBe(false)
+    })
+
+    it('allows explicit retry after an AbortError interruption', async () => {
+        await act(async () => {
+            root.render(<Harness />)
+        })
+
+        const video = document.createElement('video')
+        const play = vi
+            .fn()
+            .mockRejectedValueOnce(new DOMException('interrupted', 'AbortError'))
+            .mockResolvedValueOnce(undefined)
+        Object.defineProperty(video, 'play', {
+            configurable: true,
+            value: play,
+        })
+
+        await act(async () => {
+            capturedStates[0].handleIntroActivated?.(video)
+            await Promise.resolve()
+        })
+
+        await act(async () => {
+            capturedStates[0].handlePrimaryAction(video)
+            await Promise.resolve()
+        })
+
+        expect(play).toHaveBeenCalledTimes(2)
+        expect(mockMarkReadyToContinue).not.toHaveBeenCalled()
+        expect(capturedStates[0].showFallbackImage).toBe(false)
     })
 })

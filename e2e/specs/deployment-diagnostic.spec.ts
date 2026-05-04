@@ -125,8 +125,20 @@ test.describe("Deployment Diagnostics", () => {
     await page.waitForSelector('[data-testid="welcome-screen"]', {
       timeout: 10000,
     });
+    await page.waitForSelector('[data-testid="welcome-language-picker"]', {
+      state: "visible",
+      timeout: 10000,
+    });
+    await page.waitForSelector('[data-testid="welcome-language-en"]', {
+      state: "visible",
+      timeout: 10000,
+    });
 
-    await page.click('[data-testid="welcome-screen"]', { force: true });
+    await page.click('[data-testid="welcome-language-en"]', { force: true });
+    await page.waitForSelector('[data-testid="welcome-language-shell"]', {
+      state: "detached",
+      timeout: 10000,
+    });
 
     const hasAudioDebug = await page.evaluate(() => "__audioDebug" in window);
     test.skip(

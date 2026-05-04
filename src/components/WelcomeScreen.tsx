@@ -8,7 +8,8 @@ import { useSettings } from '@/context/settings-context'
 import type { WelcomeAudioConfig } from '@/lib/audio/welcome-audio-sequencer'
 import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { UI_LAYER_MATRIX } from '@/lib/constants/ui-layer-matrix'
-import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { memo, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import './WelcomeScreen.adaptive.css'
 import './WelcomeScreen.controls.css'
@@ -32,7 +33,6 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
   const shouldRestorePrimaryFocusRef = useRef(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const skipAutoplayEffectRef = useRef(false)
   const welcomeAudioConfig = useMemo(() => ({ ...audioConfig, language: gameplayLanguage }), [audioConfig, gameplayLanguage])
   const {
     fadeOut,
@@ -54,30 +54,8 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
   const fallbackImageSrc = '/welcome-sangsom.png'
   const interactionLocked = isWelcomeInteractionLocked(phase)
   const shouldLoadVideo = !isLanguageShellVisible && !showFallbackImage
-  const shouldAutoplayVideo =
-    shouldLoadVideo && (hasActivatedIntro || !didCompleteStartupLanguageGate)
   const showIntroStartPrompt =
     !isLanguageShellVisible && !hasActivatedIntro && phase === 'readyToStart'
-
-  useEffect(() => {
-    if (!shouldAutoplayVideo) return
-    if (skipAutoplayEffectRef.current) {
-      skipAutoplayEffectRef.current = false
-      return
-    }
-    const video = videoRef.current
-    if (!video || !video.paused) return
-    try {
-      const playAttempt = video.play()
-      if (typeof playAttempt?.catch === 'function') {
-        void playAttempt.catch(() => {
-          handleVideoError()
-        })
-      }
-    } catch {
-      handleVideoError()
-    }
-  }, [handleVideoError, shouldAutoplayVideo])
 
   useLayoutEffect(() => {
     if (isLanguageShellVisible || !shouldRestorePrimaryFocusRef.current) {
@@ -109,7 +87,9 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
   const handleWelcomeAction = () => {
     if (!hasActivatedIntro && phase === 'readyToStart') {
-      setHasActivatedIntro(true)
+      flushSync(() => {
+        setHasActivatedIntro(true)
+      })
     }
 
     handlePrimaryAction(videoRef.current)
@@ -117,16 +97,12 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
   const handleLanguageSelected = (shouldRestoreFocus: boolean) => {
     shouldRestorePrimaryFocusRef.current = shouldRestoreFocus
-    setHasActivatedIntro(true)
-    const video = videoRef.current
-    if (video && !video.getAttribute('src')) {
-      video.src = videoSrc
-      video.preload = 'metadata'
-      skipAutoplayEffectRef.current = true
-    }
+    flushSync(() => {
+      setHasActivatedIntro(true)
+      setIsLanguageShellVisible(false)
+    })
     markStartupLanguageGateCompleted()
-    handleIntroActivated(video)
-    setIsLanguageShellVisible(false)
+    handleIntroActivated(videoRef.current)
   }
 
   return (
@@ -147,7 +123,6 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
         ref={videoRef}
         className="welcome-video"
         src={shouldLoadVideo ? videoSrc : undefined}
-        autoPlay={shouldAutoplayVideo}
         muted
         playsInline
         preload={shouldLoadVideo ? 'metadata' : 'none'}
