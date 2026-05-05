@@ -14,12 +14,18 @@ export function HighScoresList({ highScores }: HighScoresListProps) {
 
   if (highScores.length === 0) {
     return (
-      <p
+      <div
         data-testid="high-scores-empty"
-        className="rounded-2xl border border-dashed border-amber-300/80 bg-amber-50/70 px-4 py-5 text-sm text-slate-700"
+        className="rounded-[1.6rem] border border-dashed border-amber-300/80 bg-amber-50/70 px-5 py-5 text-slate-700"
       >
-        {t("game.highScoresEmpty")}
-      </p>
+        <p className="text-sm font-semibold text-slate-900">{t("game.highScoresEmpty")}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-700">
+          {t("game.highScoresEmptyGuide", {
+            defaultValue:
+              "Start Challenge Mode from the home screen, clear as many targets as you can, and your first score will appear here.",
+          })}
+        </p>
+      </div>
     );
   }
 

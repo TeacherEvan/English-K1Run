@@ -41,9 +41,9 @@ export const GameMenuExitDialog = memo(
         return (
             <>
                 <Button
-                    variant="destructive"
+                    variant="outline"
                     size="lg"
-                    className="menu-support-action mt-1 h-[4.75rem] justify-start gap-4 rounded-[1.5rem] border border-red-900/10 bg-red-600 px-6 text-lg font-semibold shadow-[0_16px_24px_rgba(220,38,38,0.18)] hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_20px_28px_rgba(220,38,38,0.22)]"
+                    className="menu-support-action mt-1 h-[4.4rem] w-full min-w-0 justify-start gap-4 rounded-[1.4rem] border border-[rgba(212,156,84,0.24)] bg-[rgba(255,248,235,0.96)] px-5 text-base font-semibold text-[rgb(122,62,34)] shadow-[0_10px_18px_rgba(120,87,23,0.08)] hover:-translate-y-0.5 hover:bg-[rgba(252,240,220,0.98)] hover:shadow-[0_14px_22px_rgba(120,87,23,0.12)]"
                     onClick={handleExit}
                     data-testid="exit-button"
                 >

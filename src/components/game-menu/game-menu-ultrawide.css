@@ -93,7 +93,7 @@
   }
 
   .menu-home-actions {
-    align-self: end;
+    align-self: start;
     max-width: 30.5rem;
     gap: 1rem;
     padding: 1.2rem;

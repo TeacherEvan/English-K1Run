@@ -97,80 +97,90 @@ export const GameMenuHome = memo(
                         />
 
                         <GameMenuActionStack className="menu-home-actions">
-                            <Button
-                                size="lg"
-                                className="menu-action-card menu-action-card--start menu-primary-action h-21 gap-4 rounded-3xl border border-emerald-900/10 bg-emerald-600 px-5 text-[1.35rem] font-bold text-white shadow-[0_18px_28px_rgba(22,163,74,0.24)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_34px_rgba(22,163,74,0.26)] focus-visible:ring-emerald-200/70 sm:px-6"
-                                onClick={onStartGame}
-                                data-testid="start-game-button"
-                                aria-label={t("game.startGame")}
-                            >
-                                <span
-                                    className="flex items-center gap-4 w-full"
-                                    data-testid="new-game-button"
+                            <div className="space-y-3">
+                                <Button
+                                    size="lg"
+                                    className="menu-action-card menu-action-card--start menu-primary-action h-21 gap-4 rounded-3xl border border-emerald-900/10 bg-emerald-600 px-5 text-[1.35rem] font-bold text-white shadow-[0_18px_28px_rgba(22,163,74,0.24)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_34px_rgba(22,163,74,0.26)] focus-visible:ring-emerald-200/70 sm:px-6"
+                                    onClick={onStartGame}
+                                    data-testid="start-game-button"
+                                    aria-label={t("game.startGame")}
+                                >
+                                    <span
+                                        className="flex items-center gap-4 w-full"
+                                        data-testid="new-game-button"
+                                    >
+                                        <MenuActionButtonContent
+                                            icon={<PlayIcon className="w-6 h-6 fill-current" />}
+                                            iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--start"
+                                            subtitleClassName="mt-1 text-sm font-medium text-white/78"
+                                            textClassName="menu-action-copy flex flex-col items-start leading-tight"
+                                            title={startGameLabel.title}
+                                            subtitle={startGameLabel.subtitle}
+                                        />
+                                    </span>
+                                </Button>
+
+                                <Button
+                                    variant="default"
+                                    size="lg"
+                                    className="menu-action-card menu-action-card--challenge menu-secondary-action h-19 gap-4 rounded-3xl border border-amber-900/10 bg-[linear-gradient(135deg,#d38a24,#b86f1b)] text-xl font-bold text-white shadow-[0_16px_24px_rgba(183,110,19,0.2)] hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,#c97f1c,#a76016)] hover:shadow-[0_20px_30px_rgba(183,110,19,0.24)]"
+                                    onClick={handlePlayAllLevels}
+                                    disabled={!canPlayAllLevels}
+                                    data-testid="play-all-levels-button"
+                                    aria-label={t("game.playAllLevels")}
                                 >
                                     <MenuActionButtonContent
-                                        icon={<PlayIcon className="w-6 h-6 fill-current" />}
-                                        iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--start"
+                                        icon={<TrophyIcon className="w-6 h-6" />}
+                                        iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--challenge"
                                         subtitleClassName="mt-1 text-sm font-medium text-white/78"
                                         textClassName="menu-action-copy flex flex-col items-start leading-tight"
-                                        title={startGameLabel.title}
-                                        subtitle={startGameLabel.subtitle}
+                                        title={playAllLevelsLabel.title}
+                                        subtitle={playAllLevelsLabel.subtitle}
                                     />
-                                </span>
-                            </Button>
+                                </Button>
 
-                            <Button
-                                variant="default"
-                                size="lg"
-                                className="menu-action-card menu-action-card--challenge menu-secondary-action h-19 gap-4 rounded-3xl border border-blue-950/10 bg-blue-600 text-xl font-bold text-white shadow-[0_16px_24px_rgba(37,99,235,0.2)] hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-[0_20px_30px_rgba(37,99,235,0.24)]"
-                                onClick={handlePlayAllLevels}
-                                disabled={!canPlayAllLevels}
-                                data-testid="play-all-levels-button"
-                                aria-label={t("game.playAllLevels")}
-                            >
-                                <MenuActionButtonContent
-                                    icon={<TrophyIcon className="w-6 h-6" />}
-                                    iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--challenge"
-                                    subtitleClassName="mt-1 text-sm font-medium text-white/78"
-                                    textClassName="menu-action-copy flex flex-col items-start leading-tight"
-                                    title={playAllLevelsLabel.title}
-                                    subtitle={playAllLevelsLabel.subtitle}
-                                />
-                            </Button>
+                                <Button
+                                    variant="default"
+                                    size="lg"
+                                    className="menu-action-card menu-action-card--map menu-tertiary-action h-19 gap-4 rounded-3xl border border-[rgba(212,156,84,0.28)] bg-[#fbf6ea] text-xl font-bold text-slate-900 shadow-[0_10px_18px_rgba(120,87,23,0.12)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(120,87,23,0.16)]"
+                                    onClick={onShowLevels}
+                                    onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
+                                    data-testid="level-select-button"
+                                    aria-label={t("game.levelSelect")}
+                                >
+                                    <MenuActionButtonContent
+                                        icon={<GridIcon className="w-6 h-6" />}
+                                        iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
+                                        subtitleClassName="mt-1 text-sm font-medium text-slate-600"
+                                        textClassName="menu-action-copy flex flex-col items-start leading-tight"
+                                        title={levelSelectLabel.title}
+                                        subtitle={levelSelectLabel.subtitle}
+                                    />
+                                </Button>
+                            </div>
 
-                            <Button
-                                variant="default"
-                                size="lg"
-                                className="menu-action-card menu-action-card--map menu-tertiary-action h-19 gap-4 rounded-3xl border border-slate-200 bg-[#fbf6ea] text-xl font-bold text-slate-900 shadow-[0_10px_18px_rgba(71,85,105,0.12)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(71,85,105,0.16)]"
-                                onClick={onShowLevels}
-                                onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
-                                data-testid="level-select-button"
-                                aria-label={t("game.levelSelect")}
-                            >
-                                <MenuActionButtonContent
-                                    icon={<GridIcon className="w-6 h-6" />}
-                                    iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
-                                    subtitleClassName="mt-1 text-sm font-medium text-slate-600"
-                                    textClassName="menu-action-copy flex flex-col items-start leading-tight"
-                                    title={levelSelectLabel.title}
-                                    subtitle={levelSelectLabel.subtitle}
-                                />
-                            </Button>
+                            <div className="rounded-[1.6rem] border border-[rgba(212,156,84,0.2)] bg-[rgba(255,249,238,0.9)] p-3 shadow-[0_12px_28px_rgba(120,87,23,0.08)]">
+                                <p className="px-2 pb-2 text-xs font-bold uppercase tracking-[0.14em] text-[rgba(146,64,14,0.78)]">
+                                    {t("menu.moreOptions", { defaultValue: "More options" })}
+                                </p>
+                                <div className="grid gap-3">
+                                    <GameMenuSettingsDialog
+                                        resolutionScale={resolutionScale}
+                                        setResolutionScale={setResolutionScale}
+                                        continuousMode={continuousMode}
+                                        languageDiscoveryActive={languageDiscoveryActive}
+                                        onLanguageDiscoverySeen={onLanguageDiscoverySeen}
+                                        onToggleContinuousMode={onToggleContinuousMode}
+                                    />
 
-                            <GameMenuHighScoresDialog highScores={highScores} />
+                                    <GameMenuHighScoresDialog highScores={highScores} />
 
-                            <GameMenuSettingsDialog
-                                resolutionScale={resolutionScale}
-                                setResolutionScale={setResolutionScale}
-                                continuousMode={continuousMode}
-                                languageDiscoveryActive={languageDiscoveryActive}
-                                onLanguageDiscoverySeen={onLanguageDiscoverySeen}
-                                onToggleContinuousMode={onToggleContinuousMode}
-                            />
-
-                            <GameMenuExitDialog onResetGame={onResetGame} />
-
-                            <GameMenuCreditsDialog />
+                                    <GameMenuExitDialog onResetGame={onResetGame} />
+                                </div>
+                                <div className="mt-2 px-2">
+                                    <GameMenuCreditsDialog />
+                                </div>
+                            </div>
                         </GameMenuActionStack>
                     </div>
                 </Card>

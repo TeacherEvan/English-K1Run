@@ -25,8 +25,10 @@ export const MenuActionButtonContent = memo(
                 ) : (
                     icon
                 )}
-                <div className={textClassName ?? "flex flex-col items-start leading-tight"}>
-                    <span>{title}</span>
+                <div className={textClassName ?? "flex min-w-0 flex-1 flex-col items-start leading-tight"}>
+                    <span className="min-w-0 max-w-full overflow-hidden text-ellipsis [overflow-wrap:anywhere]">
+                        {title}
+                    </span>
                     {subtitle && (
                         <span
                             className={

@@ -130,7 +130,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .menu-language-discovery-trigger[data-language-discovery='active'],
   .language-selector-trigger[data-language-highlight='spotlight'] {
     animation: language-spotlight-pulse 2.8s ease-in-out infinite;
   }
@@ -139,20 +138,17 @@
     animation: language-spotlight-pulse-soft 3.4s ease-in-out infinite;
   }
 
-  .menu-language-discovery-trigger[data-language-discovery='active']::after,
   .language-selector-trigger[data-language-highlight='spotlight']::after,
   .language-selector-trigger[data-language-highlight='sibling']::after {
     animation: language-spotlight-shimmer 3.8s ease-in-out infinite;
   }
 }
 
-.reduced-motion .menu-language-discovery-trigger[data-language-discovery='active'],
 .reduced-motion .language-selector-trigger[data-language-highlight='spotlight'],
 .reduced-motion .language-selector-trigger[data-language-highlight='sibling'] {
   animation: none;
 }
 
-.reduced-motion .menu-language-discovery-trigger[data-language-discovery='active']::after,
 .reduced-motion .language-selector-trigger[data-language-highlight='spotlight']::after,
 .reduced-motion .language-selector-trigger[data-language-highlight='sibling']::after {
   animation: none;

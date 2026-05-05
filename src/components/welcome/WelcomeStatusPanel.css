@@ -8,8 +8,8 @@
   border: 0;
   border-radius: 9999px;
   padding: 0.95rem 1.2rem;
-  background: rgba(37, 99, 235, 0.94);
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+  background: rgba(183, 110, 19, 0.96);
+  box-shadow: 0 14px 28px rgba(183, 110, 19, 0.2);
   cursor: pointer;
   pointer-events: auto;
   transition:
@@ -23,7 +23,7 @@
 .welcome-primary-button:focus-visible {
   outline: none;
   transform: translateY(-1px);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
 
 .welcome-primary-button:disabled {
@@ -32,19 +32,19 @@
 }
 
 .welcome-primary-button--readyToStart {
-  background: rgba(37, 99, 235, 0.94);
+  background: rgba(183, 110, 19, 0.96);
 }
 
 .welcome-primary-button--playingNarration {
-  background: rgba(71, 85, 105, 0.94);
+  background: rgba(71, 85, 105, 0.92);
 }
 
 .welcome-primary-button--readyToContinue {
-  background: rgba(22, 163, 74, 0.94);
+  background: rgba(51, 130, 56, 0.96);
 }
 
 .welcome-primary-button--transitioningToMenu {
-  background: rgba(14, 116, 144, 0.94);
+  background: rgba(65, 107, 85, 0.94);
 }
 
 .welcome-primary-button__text {
@@ -60,7 +60,7 @@
   border-radius: 0.9rem;
   background: rgba(251, 191, 36, 0.16);
   border: 1px solid rgba(251, 191, 36, 0.28);
-  color: rgba(255, 248, 235, 0.96);
+  color: rgba(120, 53, 15, 0.96);
   font-size: 0.82rem;
   line-height: 1.35;
 }
