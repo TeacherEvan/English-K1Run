@@ -85,13 +85,14 @@ export const GameMenuLevelSelect = memo(
 
         return (
             <div
-                className="level-select-overlay fixed inset-0 flex items-start justify-center overflow-x-hidden overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.14),rgba(255,250,240,0.95)_28%,rgba(248,250,252,0.96)_100%)] px-4 py-6 pointer-events-auto sm:px-6 sm:py-8 lg:items-center"
+                className="level-select-overlay fixed inset-0 flex items-start justify-center overflow-x-hidden overflow-y-scroll bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.14),rgba(255,250,240,0.95)_28%,rgba(248,250,252,0.96)_100%)] px-4 py-6 pointer-events-auto sm:px-6 sm:py-8 lg:items-center"
                 style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
                 data-testid="level-select-menu"
                 role="dialog"
                 aria-modal="true"
                 aria-label={t("game.selectLevel")}
                 onKeyDown={handleKeyDown}
+                data-scroll-lock="overlay"
             >
                 <Card
                     ref={modalRef}

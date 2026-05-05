@@ -29,10 +29,18 @@
     -webkit-text-size-adjust: auto;
     -moz-text-size-adjust: auto;
     text-size-adjust: auto;
+    height: 100%;
+    overflow: hidden;
   }
 
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  body,
+  #root {
+    height: 100%;
   }
 }

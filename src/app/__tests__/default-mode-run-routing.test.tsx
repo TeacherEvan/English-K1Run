@@ -2,7 +2,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import App from '../../App'
+import { AppExperience } from '../components/AppExperience'
 import type { GameState } from '../../types/game'
 
 const backgroundRotationSpy = vi.fn()
@@ -37,15 +37,10 @@ vi.mock('../../app/components/AppMenuOverlay', () => ({
         return <div data-testid="menu-overlay" />
     },
 }))
-vi.mock('../../app/components/AppStartupGate', () => ({
-    AppStartupGate: () => <div data-testid="startup-gate" />,
-}))
-vi.mock('../../app/use-app-boot', () => ({ useAppBootSignal: () => undefined }))
 vi.mock('../../app/use-background-rotation', () => ({
     useBackgroundRotation: (...args: unknown[]) => backgroundRotationSpy(...args),
 }))
 vi.mock('../../app/use-debug-toggle', () => ({ useDebugToggle: () => undefined }))
-vi.mock('../../app/use-e2e-mode', () => ({ useE2EMode: () => true }))
 vi.mock('../../app/use-fullscreen-guard', () => ({
     triggerFullscreen: () => undefined,
     useFullscreenGuard: () => undefined,
@@ -100,6 +95,9 @@ vi.mock('../../components/EmojiRotationMonitor', () => ({
 vi.mock('../../components/game-completion/DefaultModeCompletionDialog', () => ({
     DefaultModeCompletionDialog: () => <div data-testid="default-mode-complete" />,
 }))
+vi.mock('../../components/LoadingSkeleton', () => ({
+    LoadingSkeleton: () => null,
+}))
 
 describe('default mode run routing', () => {
     let container: HTMLDivElement
@@ -129,7 +127,7 @@ describe('default mode run routing', () => {
         }
 
         await act(async () => {
-            root.render(<App />)
+            root.render(<AppExperience isE2E />)
             await Promise.resolve()
         })
 
@@ -149,7 +147,7 @@ describe('default mode run routing', () => {
         }
 
         await act(async () => {
-            root.render(<App />)
+            root.render(<AppExperience isE2E />)
             await Promise.resolve()
         })
 

@@ -2,7 +2,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import App from "../../App";
+import { AppExperience } from "../components/AppExperience";
 import { GameMenuHero } from "../../components/game-menu/GameMenuHero";
 import type { GameState } from "../../types/game";
 
@@ -60,15 +60,10 @@ vi.mock("../../app/components/AppMenuOverlay", async () => {
         },
     };
 });
-vi.mock("../../app/components/AppStartupGate", () => ({
-    AppStartupGate: () => <div data-testid="startup-gate" />,
-}));
-vi.mock("../../app/use-app-boot", () => ({ useAppBootSignal: () => undefined }));
 vi.mock("../../app/use-background-rotation", () => ({
     useBackgroundRotation: () => undefined,
 }));
 vi.mock("../../app/use-debug-toggle", () => ({ useDebugToggle: () => undefined }));
-vi.mock("../../app/use-e2e-mode", () => ({ useE2EMode: () => true }));
 vi.mock("../../app/use-fullscreen-guard", () => ({
     triggerFullscreen: () => undefined,
     useFullscreenGuard: () => undefined,
@@ -121,6 +116,9 @@ vi.mock("../../components/EmojiRotationMonitor", () => ({
 vi.mock("../../components/game-completion/DefaultModeCompletionDialog", () => ({
     DefaultModeCompletionDialog: () => <div data-testid="default-mode-complete" />,
 }));
+vi.mock("../../components/LoadingSkeleton", () => ({
+    LoadingSkeleton: () => null,
+}));
 vi.mock("../../lib/constants/classroom-brand", () => ({
     CLASSROOM_BRAND: { signature: "English K1 Run" },
 }));
@@ -146,7 +144,7 @@ describe("continuous mode run routing", () => {
 
     it("keeps the default completion dialog hidden after a continuous run even if the toggle changes", async () => {
         await act(async () => {
-            root.render(<App />);
+            root.render(<AppExperience isE2E />);
             await Promise.resolve();
         });
 

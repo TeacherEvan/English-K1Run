@@ -1,5 +1,5 @@
-export const STARTUP_BOOT_MIN_MS = 2400;
-export const STARTUP_BOOT_READY_SETTLE_MS = 150;
+export const STARTUP_BOOT_MIN_MS = 350;
+export const STARTUP_BOOT_READY_SETTLE_MS = 50;
 
 const wait = (ms: number) =>
   new Promise<void>((resolve) => {
