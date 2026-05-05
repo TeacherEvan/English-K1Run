@@ -2,159 +2,166 @@
 
 ## Scope
 
-This plan covers only startup, welcome display, and startup audio triggers.
+This plan covers only startup boot, welcome display, welcome narration trigger,
+welcome completion, and the first handoff into the menu.
 
 Out of scope:
 
-- gameplay logic
-- gameplay visuals
+- gameplay logic or gameplay visuals
 - in-game audio behavior
-- gameplay files unless a startup dependency absolutely requires a touchpoint
+- menu feature work beyond startup silence and handoff protection
+- new persistence unless current seams prove insufficient
 
 ## Goal
 
-Make the startup experience easy for a child player to understand by clarifying the visible state changes across:
-
-- tap to start
-- listening
-- tap to continue
-- transition to menu
+Make startup readable for a child at every step: booting, ready to start,
+listening, ready to continue, then menu arrival.
 
 ## Desired Outcome
 
-After this work, a child should be able to move through startup with no adult explanation and understand the current state at a glance.
+After this work, a child should be able to reach the menu with one clear tap to
+start and one clear tap to continue, without needing adult explanation.
 
 ## Verified Context
 
-- Normal users boot into the welcome path through `AppStartupGate`
-- Welcome narration starts only after an explicit user gesture
-- Safety timers unlock progress but must not auto-start playback
-- The current menu startup audio hook is a no-op
-- E2E mode may skip welcome with `?e2e=1`
-- Reduced-motion support must continue to work
-- The biggest current UX pain is the awkward welcome-to-menu handoff
+- Top-level startup routing lives in `src/App.tsx` and `src/app/components/AppStartupGate.tsx`
+- App-level startup stays `boot | welcome | menu`
+- Welcome narration starts only from an explicit user gesture in normal mode
+- E2E may bypass welcome with `?e2e=1`
+- Reduced motion must preserve state clarity
+- `WelcomeScreen` also owns the startup language gate and must not regress
+- Menu startup audio should remain silent by default
+- Current UX gap is state clarity during start -> listening -> continue -> menu
 
 ## Implementation Strategy
 
-Deliver the work in three passes:
+Keep the app-level gate unchanged and do the behavioral work inside the welcome
+slice. Deliver in four passes:
 
-1. **State clarity** — define and expose explicit welcome phases
-2. **Experience polish** — improve listening feedback and menu handoff
-3. **Protection** — add regression coverage for startup-only paths
+1. Lock the child-visible contract in tests
+2. Normalize the welcome state model and interaction rules
+3. Update rendered copy and status UI to match those states
+4. Verify startup boundaries, E2E skip, reduced motion, and quiet menu arrival
 
-## Task 1 — Define explicit welcome phases
+## Task 1 — Lock the UX contract in tests first
 
-- **Goal:** Create one clear phase model for startup, such as `readyToStart`, `playingNarration`, `readyToContinue`, and `transitioningToMenu`.
-- **Likely surfaces:** `src/components/welcome/use-welcome-sequence.ts`, `src/components/welcome/use-welcome-audio-sequence.ts`, `src/components/WelcomeScreen.tsx`
-- **Why it matters:** The current UX is technically safe but visually ambiguous. A child needs the screen to answer “What do I do now?” at all times.
-- **Verification:** Add hook/component tests for first tap, narration completion, timer unlock, and second tap to continue.
+- **Goal:** Freeze the intended journey before changing behavior.
+- **Files:**
+  - `src/components/welcome/__tests__/use-welcome-sequence.test.tsx`
+  - `src/components/welcome/__tests__/use-welcome-sequence-retry.test.tsx`
+  - `src/components/welcome/__tests__/WelcomeStatusPanel.test.tsx`
+  - `src/components/welcome/__tests__/WelcomeScreen.test.tsx`
+  - `src/components/welcome/__tests__/WelcomeScreen.startup-gate.test.tsx`
+  - `e2e/specs/startup-loading.spec.ts`
+  - `e2e/specs/welcome-layout.spec.ts`
+  - `e2e/specs/welcome-language.spec.ts`
+- **Definition of done:**
+  - first tap starts narration but does not continue
+  - listening state is visible and interaction-locked
+  - ready-to-continue appears after narration or fallback unlock
+  - language chooser still dismisses immediately after selection
+  - video-failure fallback remains understandable and contract-safe
 
-- **Deliverables:**
-  - a single startup phase source of truth
-  - phase-to-CTA mapping documented in code
-  - no implicit UI state derived from unrelated booleans alone
+## Task 2 — Normalize the welcome state and copy model
 
-## Task 2 — Make the welcome UI stateful and child-readable
+- **Goal:** Make one source of truth for visible startup phases and labels.
+- **Files:**
+  - `src/components/welcome/welcome-phase.ts`
+  - `src/components/welcome/welcome-screen-copy.ts`
+  - extract a helper under `src/components/welcome/` if needed to stay under 200 lines
+- **Definition of done:**
+  - `readyToStart`, `playingNarration`, `readyToContinue`, and `transitioningToMenu` each map to one clear action label and one clear status label
+  - fallback and retry messaging stay friendly
+  - status-panel visibility follows the UX flow instead of ad hoc conditions
 
-- **Goal:** Ensure the visible prompt changes with the actual startup state: Tap to start, Listening, and Tap to continue.
-- **Likely surfaces:** `src/components/WelcomeScreen.tsx`, `src/components/WelcomeScreen.css`, and localized welcome/menu copy
-- **Why it matters:** The user currently receives weak feedback during narration. That gap encourages repeated taps and uncertainty.
-- **Verification:** Add component tests for each visible label/state and visual/E2E checks that the right prompt is visible at the right time.
+## Task 3 — Make one gesture map to one state transition
 
-- **Deliverables:**
-  - one dominant CTA per phase
-  - a visible listening state that does not look tappable as “continue” yet
-  - accessible status text that matches the phase shown on screen
+- **Goal:** Keep interaction rules explicit and consistent across touch and keyboard.
+- **Files:**
+  - `src/components/welcome/use-welcome-sequence.ts`
+  - `src/components/welcome/use-welcome-audio-sequence.ts`
+  - `src/components/welcome/use-welcome-keyboard-shortcut.ts`
+- **Definition of done:**
+  - first gesture starts narration only
+  - repeated taps during `playingNarration` do nothing visible and do not retrigger audio
+  - continue unlocks only after narration completion or safe fallback
+  - second explicit action enters the menu
+  - E2E behavior stays isolated behind the existing query-param seam
 
-## Task 3 — Improve listening-state feedback without changing the trigger contract
+## Task 4 — Update the visible welcome UI without regressing the language gate
 
-- **Goal:** Add clear “listening in progress” feedback after the first gesture while preserving the existing autoplay-safe audio trigger behavior.
-- **Likely surfaces:** `src/components/WelcomeScreen.tsx`, `src/components/welcome/use-welcome-sequence.ts`, `src/components/welcome/use-welcome-audio-sequence.ts`
-- **Why it matters:** The first tap currently starts a process that is not explicit enough on screen.
-- **Verification:** Test that the first tap starts narration once, repeated taps during listening do not advance unexpectedly, and progress/status UI appears only while narration is active.
+- **Goal:** Make the screen explain itself at every phase.
+- **Files:**
+  - `src/components/WelcomeScreen.tsx`
+  - `src/components/welcome/WelcomeStatusPanel.tsx`
+  - touched welcome CSS files under `src/components/`
+- **Definition of done:**
+  - ready state presents one obvious start action
+  - listening state shows progress/status that does not rely on color alone
+  - continue state shifts emphasis from progress to the next action
+  - live-region and button labels match the current real state
+  - fallback-image behavior still respects the current video-failure contract
+  - language-shell focus restoration and dismissal still work
 
-- **Deliverables:**
-  - repeat taps during narration are safely ignored or treated as no-op
-  - progress/status feedback appears immediately after the first tap
-  - fallback unlock messaging remains friendly and non-technical
+## Task 5 — Keep startup ownership boundaries clean
 
-## Task 4 — Smooth the welcome-to-menu handoff
+- **Goal:** Preserve boot and menu boundaries while improving the welcome slice.
+- **Files:**
+  - `src/App.tsx`
+  - `src/app/components/AppStartupGate.tsx`
+  - `src/app/startup/use-startup-boot.ts`
+  - `src/app/startup/startup-persistence.ts` only if a new persisted seam is truly required
+- **Definition of done:**
+  - app-level startup remains `boot | welcome | menu`
+  - boot still resolves to welcome in normal mode
+  - welcome completion still lands in menu
+  - no menu-side startup narration is introduced
+  - no new persisted startup-completion flag is added unless tests prove it is necessary
 
-- **Goal:** Make the transition feel intentional, with a short readable exit from welcome before the menu becomes the new focus.
-- **Likely surfaces:** `src/components/welcome/use-welcome-sequence.ts`, `src/components/WelcomeScreen.tsx`, `src/app/components/AppStartupGate.tsx`, `src/App.tsx`
-- **Why it matters:** This is the primary pain point identified for startup.
-- **Verification:** Add an E2E or visual test that confirms ready state appears before exit and the menu becomes interactive only after the welcome overlay fully clears.
+## Task 6 — Close with focused regression coverage and release notes
 
-- **Deliverables:**
-  - welcome completion has a visible release moment
-  - menu does not appear to interrupt narration
-  - transition timing remains compatible with reduced-motion settings
-
-## Task 5 — Preserve single-owner startup audio behavior
-
-- **Goal:** Lock down the rule that welcome owns startup narration and menu arrival stays quiet by default.
-- **Likely surfaces:** `src/components/welcome/use-welcome-audio-sequence.ts`, `src/components/welcome/use-welcome-sequence.ts`, `src/hooks/use-home-menu-audio.ts`, and startup-focused tests
-- **Why it matters:** This prevents overlapping or competing startup cues if future work adds more menu polish.
-- **Verification:** Test that no narration starts on mount, safety timers unlock continue without playback, and exiting welcome does not trigger menu-side startup narration.
-
-- **Deliverables:**
-  - welcome remains the only startup narration owner
-  - menu arrival stays silent unless a future explicit user action changes that rule
-  - autoplay-safe behavior is preserved in normal mode
-
-## Task 6 — Keep E2E and reduced-motion behavior intact
-
-- **Goal:** Ensure startup UX improvements preserve test determinism and accessibility expectations.
-- **Likely surfaces:** `src/components/welcome/use-welcome-sequence.ts`, `src/components/WelcomeScreen.tsx`, and startup-related specs under `e2e/specs/`
-- **Why it matters:** A polished startup flow is still a regression if it breaks reduced-motion behavior or the E2E bypass path.
-- **Verification:** Add an E2E check for `?e2e=1` menu bypass and a reduced-motion visual/accessibility check for calmer motion with equal state clarity.
-
-- **Deliverables:**
-  - E2E skip remains deterministic
-  - reduced-motion users receive the same state clarity with less motion
-  - no startup logic depends on timers that only exist in test mode
-
-## Task 7 — Add a startup-only regression suite
-
-- **Goal:** Create a compact regression suite for the startup state machine.
-- **Likely surfaces:** Welcome hook/component tests and selected E2E startup specs
-- **Why it matters:** Startup is now effectively a small guided state machine and should be protected like one.
-- **Verification:** Cover the normal child flow, timer-unlock fallback flow, E2E skip flow, and reduced-motion flow.
-
-- **Deliverables:**
-  - one startup-focused unit/component test group
-  - one startup-focused E2E path for child-visible behavior
-  - one regression check for no overlapping startup audio ownership
+- **Goal:** Verify the startup slice without widening to unrelated gameplay work.
+- **Files:**
+  - touched startup tests above
+  - `CHANGELOG.md`
+- **Definition of done:**
+  - focused startup tests pass
+  - startup E2E specs pass
+  - build passes
+  - changelog records the startup-flow clarification
+  - no touched source or doc file exceeds the 200-line limit
 
 ## Acceptance Criteria
 
-- The welcome screen always shows a single clear next action or status
+- The welcome screen always shows one clear next action or status
 - The first tap starts narration but does not also continue
 - The child can tell when the app is listening versus ready to continue
 - The menu appears only after the welcome flow has visibly completed
 - No menu-side startup narration competes with the welcome flow
-- E2E skip and reduced-motion behavior still pass validation
+- E2E skip, language gate behavior, and reduced-motion clarity still pass validation
 
-## Recommended Order
+## Verification Matrix
 
-1. Define explicit phase state
-2. Make the welcome UI stateful
-3. Improve listening-state feedback
-4. Smooth the welcome-to-menu handoff
-5. Preserve single-owner audio rules
-6. Verify E2E and reduced motion
-7. Add focused regression coverage
+- **Welcome unit tests:** `npm run test:run -- src/components/welcome/__tests__/use-welcome-sequence.test.tsx src/components/welcome/__tests__/use-welcome-sequence-retry.test.tsx src/components/welcome/__tests__/WelcomeStatusPanel.test.tsx`
+- **Startup persistence and boot tests:** `npm run test:run -- src/app/startup/__tests__/startup-persistence.test.ts src/app/startup/__tests__/use-startup-boot.test.ts`
+- **Focused startup E2E:** `PLAYWRIGHT_PROJECTS=chromium npm run test:e2e -- e2e/specs/startup-loading.spec.ts e2e/specs/welcome-layout.spec.ts e2e/specs/welcome-language.spec.ts`
+- **Build safety:** `npm run build`
+- **Full repo guardrail before merge:** `npm run verify`
 
-## Suggested Verification Matrix
+## Key Risks And Rollback Points
 
-- **Normal mode:** tap to start → listening state → ready to continue → menu
-- **Narration failure/fallback:** tap to start → fallback unlock → ready to continue → menu
-- **E2E mode:** skip welcome directly to menu with `?e2e=1`
-- **Reduced motion:** same states, calmer transition behavior
-- **Audio ownership:** welcome audio only, no menu-start overlap
+- Highest risk: `src/components/welcome/use-welcome-sequence.ts` already coordinates video, audio, retry, fade-out, and E2E behavior. Small changes can reintroduce autoplay or premature menu entry.
+- Second risk: `src/components/WelcomeScreen.tsx` mixes language gate, panel visibility, focus restoration, and surface click behavior. Regressions here are likely to surface as startup accessibility or chooser bugs.
+- Third risk: the fallback-image path has a strict contract today. UI polish must not accidentally reintroduce a large status panel on video failure.
+
+Rollback points:
+
+1. After Task 1, stop if the UX target conflicts with existing production constraints.
+2. After Task 3, revert only the welcome-hook slice if orchestration becomes fragile.
+3. After Task 4, revert only render-layer changes if the language gate or fallback contract breaks.
 
 ## Handoff Notes
 
-- Start in `src/components/welcome/use-welcome-sequence.ts` and `src/components/WelcomeScreen.tsx`
-- Treat `use-home-menu-audio.ts` as a boundary file, not a feature expansion point
-- Do not pull gameplay state into this work; keep the change isolated to startup surfaces
+- Start implementation in `src/components/welcome/use-welcome-sequence.ts` and `src/components/WelcomeScreen.tsx`
+- Treat `use-home-menu-audio.ts` as a boundary file, not a feature-expansion point
+- Keep the work isolated to startup surfaces unless a dependency forces one adjacent touchpoint
