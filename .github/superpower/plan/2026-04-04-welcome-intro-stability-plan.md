@@ -12,7 +12,7 @@ Keep language persistence in `SettingsContext`. Keep welcome sequencing in `useW
 
 - Do not add new persistent storage for chooser visibility.
 - Keep the change local to the existing welcome flow.
-- Keep files under the repo 200-line limit; split helpers/tests if needed.
+- Prefer compact files; split helpers/tests when it improves clarity.
 - Use TDD: add failing tests first, then implement minimal code.
 - Run focused validation after each task and stop if it fails.
 - Use `npm --prefer-ipv4` for npm commands on this machine.

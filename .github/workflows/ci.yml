@@ -164,6 +164,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [quality, e2e-tests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
     steps:
       - name: Checkout code
@@ -172,23 +175,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "22.x"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build for production
-        run: npm run build
+      - name: Build Vercel artifact
+        run: npm run vercel:build
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "--prod"
-          working-directory: ./
+      - name: Deploy prebuilt artifact to Vercel
+        run: npm run vercel:deploy -- --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   docker-build:
     name: Docker Build Test

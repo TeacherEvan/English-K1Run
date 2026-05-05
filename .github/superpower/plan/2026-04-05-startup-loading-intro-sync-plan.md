@@ -14,7 +14,7 @@ Add a cache-first branded startup loader before welcome, keep the startup langua
 
 ## Constraints
 
-- Keep files under the repo 200-line limit; split helpers/tests as needed.
+- Prefer compact files; split helpers/tests when it improves clarity.
 - Use TDD: failing tests first, then minimal implementation.
 - Preserve `?e2e=1` deterministic bypass behavior.
 - Preserve fallback image behavior if intro video fails.

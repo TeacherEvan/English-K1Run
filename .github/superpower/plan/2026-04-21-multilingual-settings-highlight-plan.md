@@ -1,5 +1,17 @@
 # 2026-04-21 Multilingual Settings Highlight Plan
 
+## Execution Status
+
+- [x] Task 1 revalidated on 2026-05-05 with `npm run test:run -- src/components/game-menu/__tests__/GameMenuSettingsDialog.highlight.test.tsx`
+- [x] Task 2 revalidated on 2026-05-05 with `npm run test:run -- src/components/game-menu/__tests__/GameMenuSettingsDialog.highlight.test.tsx src/components/ui/__tests__/language-selector.highlight.test.tsx`
+- [x] Task 3 completed on 2026-05-05 with `npm run verify`
+- [x] Non-line-limit scope only for this execution pass
+
+## Execution Notes
+
+- `npm run verify` surfaced a TypeScript build failure in `src/lib/__tests__/deployment-config.test.ts`; importing Vitest globals fixed the issue without changing runtime behavior.
+- `npm run verify` still reports one existing ESLint warning in `e2e/specs/menu.spec.ts` for an unused `gamePage` argument. The script completes successfully because it is a warning, not an error.
+
 ## Problem
 
 Make the multilingual feature feel discoverable from the home menu and Settings so teachers and children are nudged to try other gameplay languages.

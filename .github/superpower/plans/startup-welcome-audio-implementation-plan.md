@@ -68,7 +68,7 @@ slice. Deliver in four passes:
 - **Files:**
   - `src/components/welcome/welcome-phase.ts`
   - `src/components/welcome/welcome-screen-copy.ts`
-  - extract a helper under `src/components/welcome/` if needed to stay under 200 lines
+  - extract a helper under `src/components/welcome/` if it keeps the welcome code easier to navigate
 - **Definition of done:**
   - `readyToStart`, `playingNarration`, `readyToContinue`, and `transitioningToMenu` each map to one clear action label and one clear status label
   - fallback and retry messaging stay friendly
@@ -129,7 +129,7 @@ slice. Deliver in four passes:
   - startup E2E specs pass
   - build passes
   - changelog records the startup-flow clarification
-  - no touched source or doc file exceeds the 200-line limit
+  - touched source and doc files stay compact and easy to navigate
 
 ## Acceptance Criteria
 

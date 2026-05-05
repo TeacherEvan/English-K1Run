@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0 <21 || >=22.12.0 <23"
+  },
   "scripts": {
     "dev": "vite",
     "kill": "fuser -k 5000/tcp",
@@ -37,6 +40,8 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "test:e2e:allure": "allure generate allure-results --clean && allure open",
+    "vercel:build": "npx vercel build",
+    "vercel:deploy": "npx vercel deploy --prebuilt",
     "dashboard:server": "node dashboard-server.js",
     "dashboard:ui": "cd dashboard-ui && npm start",
     "dashboard": "concurrently \"npm run dashboard:server\" \"npm run dashboard:ui\""

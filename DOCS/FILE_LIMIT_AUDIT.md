@@ -60,7 +60,7 @@ src/lib/constants/sentence-templates/
 
 ### Post-Refactoring
 
-- [ ] All files ≤ 500 lines: Run audit command
+- [ ] Files stay within the preferred size target: Run audit command
 - [ ] All tests pass: `npm run verify`
 - [ ] No ESLint errors: `npx eslint src/ --max-warnings 0`
 - [ ] TypeScript compiles: `npx tsc --noEmit`
@@ -108,7 +108,7 @@ git commit -m "refactor(i18n): split sentence templates by language"
 ## Validation Commands
 
 ```powershell
-# Audit for files over 500 lines
+# Audit for files above the 500-line target
 Get-ChildItem -Path "src" -Recurse -Include *.ts,*.tsx,*.js,*.jsx,*.css |
   ForEach-Object {
     $lines = (Get-Content $_.FullName | Measure-Object -Line).Lines
@@ -147,7 +147,7 @@ npx tsc --noEmit
 
 ## Success Metrics
 
-1. **Zero files exceed 500 lines** in `src/` directory
+1. **Zero files sit above the 500-line target** in `src/` directory
 2. **All tests pass** with no regressions
 3. **No increase in bundle size** (within 5% tolerance)
 4. **Improved import graph** with no circular dependencies

@@ -2,7 +2,7 @@
  * Audio Loader Module
  *
  * Unified re-export of modular audio loading components.
- * Refactored Jan 2026 to meet 500-line file limit.
+ * Refactored Jan 2026 into a smaller, focused module.
  *
  * @module audio/audio-loader
  */

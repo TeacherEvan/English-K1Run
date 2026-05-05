@@ -10,7 +10,7 @@ Keep debug orchestration in `.vscode/launch.json` and avoid repo-wide runtime be
 
 ## Constraints
 
-- Keep files under the repo 200-line limit.
+- Prefer compact files; split helpers when it improves clarity.
 - Prefer minimal, explicit debug configurations over fragile magic.
 - Verify any newly advertised debug target actually starts.
 - Do not add secrets or environment-specific hardcoding.

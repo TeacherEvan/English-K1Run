@@ -92,7 +92,7 @@ Purpose: Compressed history of work that helps future agents ramp quickly.
 - Added audio fade-in/out support and applied it to welcome-to-menu and home menu sequences.
 - Expanded Settings dialog into Audio, Visual, Controls, and Accessibility tabs.
 - Fixed welcome readiness state for audio sequencing and guarded SSR usage in audio context.
-- Split welcome audio sequencer into smaller modules to satisfy the 200-line limit.
+- Split welcome audio sequencer into smaller modules to keep the welcome audio flow easier to navigate.
 - Fixed public sounds URL resolution to select existing formats (prevents .ogg/.m4a/.aac 404 loops).
 - Stopped ElevenLabs/WebSpeech playback when stopping all audio to prevent overlap across screens.
 - Disabled speech fallback for normal SFX playback to avoid incorrect or stacked audio.

@@ -308,7 +308,7 @@ This satisfies the final design choice: **target totals only**, while still show
 ## Task 5: Add the Home menu `High Scores` dialog and wire it into the menu
 
 **Intent:**  
-Expose the recorded Challenge Mode entries in a user-friendly menu dialog without bloating a single file past the repo’s 200-line limit.
+Expose the recorded Challenge Mode entries in a user-friendly menu dialog while keeping the touched files easy to navigate.
 
 ### Step 1: Write failing UI tests for the new button and dialog contents
 
@@ -349,7 +349,7 @@ Expose the recorded Challenge Mode entries in a user-friendly menu dialog withou
   - Update: `src/App.tsx`
 
 - **Code to add:**
-  - Keep each file under 200 lines by splitting:
+  - Keep each file compact by splitting when it improves clarity:
     - dialog shell
     - formatting helpers
     - maybe list component if needed
@@ -400,7 +400,7 @@ Expose the recorded Challenge Mode entries in a user-friendly menu dialog withou
 ## Notes for execution
 
 - Keep internal identifiers like `continuousMode` untouched unless a test proves they must change; the user asked for public name changes, not a full internal rename.
-- Keep new source/doc files under 200 lines. The most likely split points are:
+- Prefer compact new source/doc files. The most likely split points are:
   - `startup-boot-timing.ts`
   - `challenge-mode-high-scores.ts`
   - `GameMenuHighScoresDialog.tsx`

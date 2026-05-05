@@ -12,7 +12,7 @@ Keep language persistence exactly where it already lives in `SettingsContext`. A
 
 - Do not add new persistent storage for chooser visibility.
 - Keep the fix local to the existing welcome component chain.
-- Keep files under the repo's 200-line limit; split tests/helpers if needed.
+- Prefer compact files; split tests/helpers when it improves clarity.
 - Use TDD: add failing tests first, then implement.
 - Run focused validation after each task and stop on failures.
 

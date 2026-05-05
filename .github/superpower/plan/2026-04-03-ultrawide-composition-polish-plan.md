@@ -27,7 +27,7 @@ Out of scope:
 - Preserve the current touch-first menu and welcome behavior.
 - Keep the warm `English K1 Run` classroom identity.
 - Favor desktop composition polish through spacing, asymmetry, scale, and decorative framing rather than new heavy assets.
-- Keep source files under the repo’s 200-line limit.
+- Prefer compact source files; split helpers when it improves clarity.
 - Verify with `npm run verify` and focused Playwright regressions.
 
 ## Tasks

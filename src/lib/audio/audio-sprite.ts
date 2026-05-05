@@ -4,7 +4,7 @@
  * Supports playing multiple logical clips from a single large audio file using
  * a JSON manifest of start/end offsets.
  *
- * Refactored Jan 2026: Split from 402 lines to <200 lines.
+ * Refactored Jan 2026: Split from a much larger file into a smaller module.
  *
  * @module audio/audio-sprite
  */

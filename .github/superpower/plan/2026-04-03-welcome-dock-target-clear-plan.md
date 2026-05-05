@@ -11,7 +11,7 @@ Fix two linked problems without changing the core gameplay architecture:
 
 - Keep gameplay authority in `useGameLogic`; telemetry must not drive progression.
 - Preserve mobile welcome readability.
-- Keep files under the repo's 200-line limit; split CSS/tests/helpers if needed.
+- Prefer compact files; split CSS/tests/helpers when it improves clarity.
 - Use TDD where practical: add failing tests first, then implement.
 - Validation order: focused tests after each task, then broader verification.
 

@@ -11,7 +11,7 @@
 - **Coordinates**: Percentage-based only. X ranges 5–95% with `LANE_BOUNDS` in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts). Never use pixel positions for gameplay objects.
 - **Touch handling**: Must route through `multiTouchHandler` in `src/lib/touch-handler.ts`(../src/lib/touch-handler.ts). Do not attach raw `onClick` for gameplay objects.
 - **Sizing**: Uses CSS vars (`--font-scale`, `--object-scale`, `--spacing-scale`) set by `src/hooks/use-display-adjustment.ts`(../src/hooks/use-display-adjustment.ts).
-- **File size guideline**: Prefer keeping source and documentation files compact and easy to navigate, with 200 lines as a rough target rather than a hard rule. Split files when it materially improves clarity, cohesion, or reuse.
+- **File size guideline**: Prefer keeping source and documentation files compact and easy to navigate. Split files when it materially improves clarity, cohesion, or reuse.
 
 ## Coding Standards
 

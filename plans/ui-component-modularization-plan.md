@@ -1,18 +1,18 @@
 # UI Component Modularization Plan
 
 **Date:** January 30, 2026  
-**Objective:** Refactor oversized UI components to comply with 200-line limit per file  
+**Objective:** Refactor oversized UI components into more compact, easier-to-navigate files  
 **Status:** Architecture Phase
 
 ## Executive Summary
 
-This plan addresses the modularization of UI components in [`src/components/`](../src/components/) that exceed the strict 200-line limit. The refactoring follows the established patterns from the [`src/lib/audio/`](../src/lib/audio/) modular structure and maintains backward compatibility while improving maintainability.
+This plan addresses the modularization of UI components in [`src/components/`](../src/components/) that have grown large enough to benefit from smaller, easier-to-navigate files. The refactoring follows the established patterns from the [`src/lib/audio/`](../src/lib/audio/) modular structure and maintains backward compatibility while improving maintainability.
 
 ---
 
 ## 1. Line Count Audit Report
 
-### Files Exceeding 200 Lines
+### Larger Files To Review
 
 | File Path                                                                                  | Lines | Priority | Complexity                                                  |
 | ------------------------------------------------------------------------------------------ | ----- | -------- | ----------------------------------------------------------- |
@@ -561,7 +561,7 @@ describe("useAudioSequence", () => {
 
 For each refactored component:
 
-- [ ] No file exceeds 200 lines
+- [ ] Files stay compact and easy to navigate
 - [ ] TypeScript interfaces in separate `types.ts`
 - [ ] Custom hooks in `hooks/` directory
 - [ ] Utilities in `utils/` directory
@@ -656,7 +656,7 @@ If issues arise during production deployment:
 
 ### Quantitative Metrics
 
-- ✅ All files ≤ 200 lines
+- ✅ Files are split into compact, easier-to-review modules
 - ✅ Test coverage maintained or improved (target: 80%+)
 - ✅ Bundle size increase < 5% (acceptable for better maintainability)
 - ✅ Build time change < 10%
@@ -752,7 +752,7 @@ This refactoring plan provides a comprehensive, phased approach to modularizing 
 
 **Key Takeaways:**
 
-1. Four components require refactoring to meet 200-line limit
+1. Four components would benefit from refactoring into smaller modules
 2. Phased approach reduces deployment risk
 3. Comprehensive testing strategy ensures stability
 4. Backward-compatible via barrel exports

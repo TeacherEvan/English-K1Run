@@ -10,7 +10,7 @@ Keep the change local to `.vscode/launch.json` and reuse the existing `App: Dev 
 
 ## Constraints
 
-- Keep files under the repo 200-line limit.
+- Prefer compact files; split helpers when it improves clarity.
 - Preserve existing debug entries.
 - Validate JSON diagnostics after the edit.
 - Commit the follow-up cleanly on the current debug branch.

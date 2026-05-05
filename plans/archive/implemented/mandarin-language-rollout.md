@@ -65,4 +65,4 @@
 
 ## Notes
 
-- Keep all plan updates under 200 lines per file.
+- Keep plan updates compact when it improves readability.

@@ -11,7 +11,7 @@ Convert `Play All Levels` / continuous mode into a single-pass score run where e
 - Continuous mode must play every level once, starting from the selected level, then end.
 - Continuous mode must not show the stopwatch HUD, target timer, level-complete popup, or inter-level countdown overlay.
 - Persist the best completed continuous-mode total in localStorage and surface it in the home menu.
-- Keep edited files under 200 lines; split helpers when needed.
+- Prefer compact edited files; split helpers when it improves clarity.
 - Validation order per task: failing test(s) -> minimal implementation -> passing test(s).
 
 ## Architecture

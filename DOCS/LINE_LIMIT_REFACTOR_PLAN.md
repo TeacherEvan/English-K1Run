@@ -1,9 +1,9 @@
-# Line Limit Audit & Refactor Plan (<= 500 Lines)
+# File Size Audit & Refactor Plan
 
 ## Objective
-Enforce the policy that **no file exceeds 500 lines** by auditing current violations, identifying code smells, and laying out a pragmatic refactor plan that aligns with the project’s architecture (touch-first gameplay, audio modules, and performance-sensitive UI).
+Use a **rough 500-line target** as a maintainability signal by auditing current large files, identifying code smells, and laying out a pragmatic refactor plan that aligns with the project’s architecture (touch-first gameplay, audio modules, and performance-sensitive UI).
 
-## Audit Summary (Files > 500 Lines)
+## Audit Summary (Files Above The 500-Line Target)
 Line counts are from the current working tree at the time of this audit. The list prioritizes gameplay- and user-facing code first, then shared utilities, then documentation/generator scripts.
 
 | Priority | File | Lines | Area | Code Smells / Risks |
@@ -25,7 +25,7 @@ Line counts are from the current working tree at the time of this audit. The lis
 | P2 | `DOCS/INTEGRATION_GUIDE.md` | 599 | Docs | Feature guides combined; hard to keep concise. |
 | P2 | `DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md` | 519 | Docs | Single long narrative; better as multiple sections. |
 | P2 | `jobcard.md` | 852 | Docs | Large scoped narrative; should be segmented. |
-| P2 | `C-jobcard.md` | 1014 | Docs | Same as above; over limit. |
+| P2 | `C-jobcard.md` | 1014 | Docs | Same as above; substantially above the preferred size target. |
 | P2 | `DOCS/ARCHIVE/A-ACTIONABLE_RECOMMENDATIONS_2026-01-17.md` | 1201 | Docs | Archived but still exceeds limit. |
 | P2 | `DOCS/ARCHIVE/C-CODE_REVIEW_REPORT_2026-01-17.md` | 938 | Docs | Archived but still exceeds limit. |
 | P2 | `package-lock.json` | 19364 | Generated | Auto-generated lockfile; requires policy exception or procedural handling and should be reviewed for dependency bloat separately. |
@@ -37,7 +37,7 @@ Line counts are from the current working tree at the time of this audit. The lis
 - **Content sprawl**: Long documentation and constants files impede reviews and updates; small changes require large diffs.
 
 ## Refactor Strategy (Aligned with Recent Practices)
-Recent work shows value in **extracting inline CSS into dedicated files**, **ESLint compliance**, **automated testing**, and **disciplined Git staging**. This plan extends those practices to achieve the 500-line rule without sacrificing gameplay performance or visual complexity.
+Recent work shows value in **extracting inline CSS into dedicated files**, **ESLint compliance**, **automated testing**, and **disciplined Git staging**. This plan extends those practices to keep files more manageable without sacrificing gameplay performance or visual complexity.
 
 ### Module Decomposition Targets
 - **Audio system (`sound-manager.ts`, `audio-loader.ts`)**
@@ -69,23 +69,23 @@ Recent work shows value in **extracting inline CSS into dedicated files**, **ESL
 - Move large onboarding sections in `README.md` into `DOCS/` and link them.
 
 ### Generated Files Policy
-- `package-lock.json` exceeds the 500-line limit. Decide between:
+- `package-lock.json` sits far above the preferred size target. Decide between:
   1. **Workspace-level lockfiles** (split by package if tooling allows), or
   2. **Policy exception for generated artifacts** documented in the repo, or
   3. **.gitattributes marking generated files** to exclude lockfiles from line-count tooling while keeping them tracked.
 
-If exceptions are not allowed, a split-lockfile approach is required before enforcement.
+If the team wants to hold generated files to the same guidance, a split-lockfile approach is one option.
 
 ## Step-by-Step Implementation Plan
 1. **Baseline & Tooling**
    - Run `npm run lint`, `npm run test:run`, and `npm run build` to capture the current baseline.
-   - Generate an automated line-count report (script or manual command) for tracking progress.
+  - Generate an automated file-size report (script or manual command) for tracking progress.
 2. **P0 Refactors (Audio + Game Logic)**
    - Extract modules as outlined above; ensure imports use the new index files.
    - Add unit tests for extracted logic (e.g., audio preload, spawn logic) to preserve behavior.
 3. **P1 Refactors (Accessibility, UI, CSS, Performance)**
    - Split utilities and UI subcomponents; keep memoization for frequently re-rendered parts.
-   - Move inline CSS into dedicated files and verify `main.css`/`App.css` drop below 500 lines.
+  - Move inline CSS into dedicated files and verify `main.css`/`App.css` become easier to review.
 4. **P2 Refactors (Content, Tests, Tooling, Docs)**
    - Split constants and fixtures into smaller modules.
    - Segment long docs into chapters with an index file for discoverability.

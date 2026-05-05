@@ -15,7 +15,7 @@ Implement a countdown-first default-mode flow with these behaviors:
 - Keep gameplay state inside `useGameLogic`; do not create parallel gameplay state in `App.tsx`.
 - Do not reuse `winner` for between-level transitions; use an explicit gameplay phase.
 - Respect reduced motion for countdown visuals; avoid large scaling/panning effects.
-- Keep new/edited source and documentation files under 200 lines.
+- Prefer compact new and edited source/documentation files; split helpers when it improves clarity.
 - Use repo checks: focused `npm run test:run -- ...`, then `npm run verify`, then focused Playwright.
 
 ## Expected architecture

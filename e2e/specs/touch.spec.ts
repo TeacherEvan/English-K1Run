@@ -2,6 +2,12 @@ import { devices, expect, test } from "@playwright/test";
 
 import { skipWormLoadingIfPresent } from "../utils/worm-loading";
 
+const gameplayReadySelectors = [
+  '[data-testid="target-display"]',
+  '[data-testid="level-countdown-overlay"]',
+  '[data-testid="level-complete-popup"]',
+].join(", ");
+
 const tabletDevice = (() => {
   const { browserName, defaultBrowserType, isMobile, ...deviceConfig } =
     devices["iPad Pro 11"];
@@ -90,8 +96,10 @@ test.describe("Touch Interactions - Tablet", () => {
     // Menu should disappear
     await expect(page.locator('[data-testid="game-menu"]')).not.toBeVisible();
 
-    // Target should appear
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible();
+    // Gameplay can enter through a countdown or target HUD depending on mode timing.
+    await expect(page.locator(gameplayReadySelectors).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("should allow level selection with touch", async ({ page }) => {

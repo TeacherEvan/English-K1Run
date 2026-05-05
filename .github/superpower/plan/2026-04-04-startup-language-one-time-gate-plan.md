@@ -13,7 +13,7 @@ Keep the selected language persisted through the existing `SettingsContext`, but
 - Do not add new persistent storage for chooser visibility.
 - Do not allow the chooser to re-open during startup.
 - Keep the fix local to the welcome flow.
-- Keep files under the repo's 200-line limit; split tests/helpers if needed.
+- Prefer compact files; split tests/helpers when it improves clarity.
 - Use TDD: add failing tests first, then implement.
 - Run focused validation after each task and stop on failures.
 

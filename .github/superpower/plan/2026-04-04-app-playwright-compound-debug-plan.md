@@ -10,7 +10,7 @@ Keep the change local to `.vscode/launch.json`. Use a dev-server-only launch tar
 
 ## Constraints
 
-- Keep files under the repo 200-line limit.
+- Prefer compact files; split helpers when it improves clarity.
 - Preserve existing debug entries.
 - Validate JSON diagnostics after the edit.
 - Verify the referenced Playwright and Vitest entry files still exist.
