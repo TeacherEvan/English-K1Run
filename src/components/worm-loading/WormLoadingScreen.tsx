@@ -67,7 +67,10 @@ export const WormLoadingScreen = memo(({ onComplete, autoCompleteAfterMs }: Worm
         }
     }, [])
 
-    const handleWormClick = useCallback((wormId: number, event: React.MouseEvent | React.TouchEvent) => {
+    const handleWormClick = useCallback((
+        wormId: number,
+        event: React.MouseEvent | React.TouchEvent | React.KeyboardEvent,
+    ) => {
         event.preventDefault()
         event.stopPropagation()
         registerInteraction()

@@ -7,7 +7,7 @@
     "dev": "vite",
     "kill": "fuser -k 5000/tcp",
     "build": "tsc -b && vite build",
-    "check-types": "tsc -b --noCheck",
+    "check-types": "tsc -b",
     "lint": "eslint .",
     "audit:loc": "node scripts/loc-audit.cjs",
     "audit:loc:report": "node scripts/loc-audit.cjs --report-only",

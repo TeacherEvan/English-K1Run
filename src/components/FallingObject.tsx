@@ -21,6 +21,10 @@ interface FallingObjectProps {
  * @component
  */
 export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectProps) => {
+  const activateObject = () => {
+    onTap(object.id, playerSide)
+  }
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -28,7 +32,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     // Use multi-touch handler for debouncing and validation
     const shouldProcess = multiTouchHandler.handleMouseClick(object.id)
     if (shouldProcess) {
-      onTap(object.id, playerSide)
+      activateObject()
     }
   }
 
@@ -47,8 +51,18 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     // Validate and process touch end with multi-touch handler
     const shouldProcess = multiTouchHandler.handleTouchEnd(e.nativeEvent, object.id)
     if (shouldProcess) {
-      onTap(object.id, playerSide)
+      activateObject()
     }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') {
+      return
+    }
+
+    e.preventDefault()
+    e.stopPropagation()
+    activateObject()
   }
 
   // Memoize style calculations to prevent recalculation on every render
@@ -77,6 +91,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
       onClick={handleClick}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onKeyDown={handleKeyDown}
       role="button"
       aria-label={`Tap ${object.emoji}`}
       tabIndex={0}

@@ -9,7 +9,10 @@ import type { Worm } from './types'
 
 interface WormEntityProps {
     worm: Worm
-    onWormClick: (wormId: number, event: React.MouseEvent | React.TouchEvent) => void
+    onWormClick: (
+        wormId: number,
+        event: React.MouseEvent | React.TouchEvent | React.KeyboardEvent,
+    ) => void
 }
 
 /**
@@ -18,6 +21,15 @@ interface WormEntityProps {
  */
 export const WormEntity = memo(({ worm, onWormClick }: WormEntityProps) => {
     if (!worm.alive) return null
+
+    const handleKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return
+        }
+
+        event.preventDefault()
+        onWormClick(worm.id, event)
+    }
 
     return (
         <div
@@ -40,7 +52,11 @@ export const WormEntity = memo(({ worm, onWormClick }: WormEntityProps) => {
                 e.preventDefault()
                 onWormClick(worm.id, e)
             }}
+            onKeyDown={handleKeyDown}
             data-testid="worm-target"
+            role="button"
+            aria-label="Tap worm"
+            tabIndex={0}
         >
             <div className="worm-wiggle">
                 🐛

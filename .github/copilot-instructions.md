@@ -11,7 +11,7 @@
 - **Coordinates**: Percentage-based only. X ranges 5–95% with `LANE_BOUNDS` in `src/lib/constants/game-config.ts`(../src/lib/constants/game-config.ts). Never use pixel positions for gameplay objects.
 - **Touch handling**: Must route through `multiTouchHandler` in `src/lib/touch-handler.ts`(../src/lib/touch-handler.ts). Do not attach raw `onClick` for gameplay objects.
 - **Sizing**: Uses CSS vars (`--font-scale`, `--object-scale`, `--spacing-scale`) set by `src/hooks/use-display-adjustment.ts`(../src/hooks/use-display-adjustment.ts).
-- **Hard file limit**: All source and documentation files must stay under 200 lines. If a file approaches or exceeds the limit, perform a smooth split refactor (extract helpers/components/constants into new modules with clean exports).
+- **File size guideline**: Prefer keeping source and documentation files compact and easy to navigate, with 200 lines as a rough target rather than a hard rule. Split files when it materially improves clarity, cohesion, or reuse.
 
 ## Coding Standards
 
@@ -87,7 +87,7 @@
 
 ## Testing Practices
 
-- **Unit tests**: Use Jest for hooks and utilities; cover critical logic in `src/hooks/__tests__/`(../src/hooks/**tests**/).
+- **Unit tests**: Use Vitest for hooks and utilities; cover critical logic in `src/hooks/__tests__/`(../src/hooks/**tests**/).
 - **Integration tests**: Test component interactions and state changes.
 - **E2E tests**: Use Playwright for full user flows; fixtures in `e2e/fixtures/`(../e2e/fixtures/); specs in `e2e/specs/`(../e2e/specs/).
 - **State-based waits**: For moving targets and transition flows, prefer state-aware helpers over fixed delays. Use `tapCurrentTargetAndWaitForResolution()` for countdown-first level-complete coverage.

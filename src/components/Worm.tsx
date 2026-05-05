@@ -13,13 +13,17 @@ interface WormProps {
 const WORM_SIZE = 60
 
 export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
+  const activateWorm = () => {
+    onTap(worm.id, playerSide)
+  }
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
     const shouldProcess = multiTouchHandler.handleMouseClick(worm.id)
     if (shouldProcess) {
-      onTap(worm.id, playerSide)
+      activateWorm()
     }
   }
 
@@ -34,8 +38,18 @@ export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
     e.stopPropagation()
     const shouldProcess = multiTouchHandler.handleTouchEnd(e.nativeEvent, worm.id)
     if (shouldProcess) {
-      onTap(worm.id, playerSide)
+      activateWorm()
     }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') {
+      return
+    }
+
+    e.preventDefault()
+    e.stopPropagation()
+    activateWorm()
   }
 
   const wormStyle = useMemo(() => ({
@@ -57,6 +71,10 @@ export const Worm = memo(({ worm, onTap, playerSide }: WormProps) => {
       onClick={handleClick}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onKeyDown={handleKeyDown}
+      role="button"
+      aria-label="Tap worm"
+      tabIndex={0}
     >
       <div className="worm-wiggle">
         🐛
