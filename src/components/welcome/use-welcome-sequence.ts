@@ -160,7 +160,7 @@ export const useWelcomeSequence = ({
     },
     [fadeOut, handleIntroActivated, isE2E, phase, proceed, readyToContinue],
   );
-  useWelcomeKeyboardShortcut({ handlePrimaryAction, isE2E, readyToContinue });
+  useWelcomeKeyboardShortcut({ handlePrimaryAction, isE2E, phase });
 
   const handleVideoPlaying = () => {
     if (

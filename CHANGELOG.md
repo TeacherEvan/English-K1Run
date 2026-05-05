@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-05-05
+
+### Changed
+
+- Kept the welcome status panel visible during the listening phase so startup now stays readable across ready-to-start, listening, and ready-to-continue states.
+- Made welcome keyboard controls phase-aware so `Enter` and `Space` can start the intro from the explicit ready state, remain blocked during narration, and continue only after startup is ready.
+- Removed `Escape` as a welcome activation key to match the documented startup interaction contract.
+- Updated the persisted-language Playwright reload flow to the current product rule: once the startup language gate is completed, reload skips the chooser and shows the explicit welcome start control instead.
+
+### Added
+
+- Added focused regression coverage for welcome-state copy, listening-state panel visibility, and phase-aware keyboard startup interaction.
+
+### Verified
+
+- `npx vitest run src/components/welcome/__tests__/use-welcome-sequence.test.tsx src/components/welcome/__tests__/WelcomeStatusPanel.test.tsx src/components/welcome/__tests__/WelcomeScreen.startup-gate.test.tsx src/components/welcome/__tests__/WelcomeScreen.test.tsx src/components/welcome/__tests__/use-welcome-keyboard-shortcut.test.tsx src/components/welcome/__tests__/welcome-screen-copy.test.ts src/app/startup/__tests__/startup-persistence.test.ts src/app/startup/__tests__/use-startup-boot.test.ts`
+- `PLAYWRIGHT_PROJECTS=chromium npm run test:e2e -- e2e/specs/startup-loading.spec.ts e2e/specs/welcome-layout.spec.ts e2e/specs/welcome-language.spec.ts`
+
 ## 2026-04-05
 
 ### Added

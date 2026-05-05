@@ -3,10 +3,12 @@ import { SettingsProvider } from '@/context/settings-context'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { WelcomePhase } from '../welcome-phase'
 
-const { mockHandleIntroActivated, mockHandlePrimaryAction, mockShowRetryPrompt } = vi.hoisted(() => ({
+const { mockHandleIntroActivated, mockHandlePrimaryAction, mockPhase, mockShowRetryPrompt } = vi.hoisted(() => ({
     mockHandleIntroActivated: vi.fn(),
     mockHandlePrimaryAction: vi.fn(),
+    mockPhase: { current: 'readyToStart' as WelcomePhase },
     mockShowRetryPrompt: { current: false },
 }))
 
@@ -25,12 +27,12 @@ vi.mock('@/app/startup/language-audio-prefetch', () => ({
 vi.mock('@/components/welcome/use-welcome-sequence', () => ({
     useWelcomeSequence: () => ({
         fadeOut: false,
-        phase: 'readyToStart',
-        isSequencePlaying: false,
+        phase: mockPhase.current,
+        isSequencePlaying: mockPhase.current === 'playingNarration',
         showFallbackImage: false,
         showRetryPrompt: mockShowRetryPrompt.current,
-        currentAudioIndex: 0,
-        totalAudioCount: 0,
+        currentAudioIndex: mockPhase.current === 'playingNarration' ? 1 : 0,
+        totalAudioCount: mockPhase.current === 'playingNarration' ? 3 : 0,
         lastDiagnostic: null,
         handleIntroActivated: mockHandleIntroActivated,
         handlePrimaryAction: mockHandlePrimaryAction,
@@ -42,7 +44,8 @@ vi.mock('@/components/welcome/use-welcome-sequence', () => ({
 }))
 
 vi.mock('@/components/welcome/welcome-phase', () => ({
-    isWelcomeInteractionLocked: () => false,
+    isWelcomeInteractionLocked: (phase: string) =>
+        phase === 'playingNarration' || phase === 'transitioningToMenu',
 }))
 
 describe('WelcomeScreen', () => {
@@ -65,6 +68,7 @@ describe('WelcomeScreen', () => {
         document.body.innerHTML = ''
         document.body.className = ''
         localStorage.clear()
+        mockPhase.current = 'readyToStart'
         mockShowRetryPrompt.current = false
         vi.clearAllMocks()
     })
@@ -108,6 +112,9 @@ describe('WelcomeScreen', () => {
         ) as HTMLVideoElement
 
         expect(primaryButton).not.toBeNull()
+        expect(
+            document.querySelector('[data-testid="welcome-status-panel"]'),
+        ).not.toBeNull()
 
         await act(async () => {
             primaryButton.click()
@@ -115,9 +122,52 @@ describe('WelcomeScreen', () => {
         })
 
         expect(mockHandlePrimaryAction).toHaveBeenCalledWith(video)
+    })
+
+    it('keeps the status panel visible with listening feedback while narration is playing', async () => {
+        localStorage.setItem(
+            'k1-startup-state',
+            JSON.stringify({ languageGateCompleted: true, startupPackVersion: null }),
+        )
+        mockPhase.current = 'playingNarration'
+
+        await renderWelcomeScreen()
+
+        const statusLabel = document.querySelector(
+            '[data-testid="welcome-status-label"]',
+        ) as HTMLParagraphElement | null
+        const primaryButton = document.querySelector(
+            '[data-testid="welcome-primary-button"]',
+        ) as HTMLButtonElement | null
+
         expect(
             document.querySelector('[data-testid="welcome-status-panel"]'),
-        ).toBeNull()
+        ).not.toBeNull()
+        expect(statusLabel?.textContent).toBe('Please wait for the welcome audio')
+        expect(primaryButton?.textContent).toContain('Listening...')
+        expect(primaryButton?.disabled).toBe(true)
+        expect(document.querySelector('[data-testid="audio-progress-1"]')).not.toBeNull()
+    })
+
+    it('shows a continue state after narration completes', async () => {
+        localStorage.setItem(
+            'k1-startup-state',
+            JSON.stringify({ languageGateCompleted: true, startupPackVersion: null }),
+        )
+        mockPhase.current = 'readyToContinue'
+
+        await renderWelcomeScreen()
+
+        const statusLabel = document.querySelector(
+            '[data-testid="welcome-status-label"]',
+        ) as HTMLParagraphElement | null
+        const primaryButton = document.querySelector(
+            '[data-testid="welcome-primary-button"]',
+        ) as HTMLButtonElement | null
+
+        expect(statusLabel?.textContent).toBe('Ready to continue')
+        expect(primaryButton?.textContent).toContain('menu.tapToContinue')
+        expect(primaryButton?.disabled).toBe(false)
     })
 
     it('keeps the language chooser hidden for the rest of the current startup flow', async () => {

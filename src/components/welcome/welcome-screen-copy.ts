@@ -48,6 +48,7 @@ export const shouldShowWelcomeStatusPanel = ({
   !showFallbackImage &&
   (isLanguageShellVisible ||
     showIntroStartPrompt ||
+    phase === "playingNarration" ||
     phase === "readyToContinue" ||
     phase === "transitioningToMenu" ||
     Boolean(diagnosticLabel));

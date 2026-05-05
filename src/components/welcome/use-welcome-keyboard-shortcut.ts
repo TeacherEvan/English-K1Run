@@ -1,20 +1,21 @@
 import { useEffect } from "react";
+import { isWelcomeInteractionLocked, type WelcomePhase } from "./welcome-phase";
 
 interface UseWelcomeKeyboardShortcutOptions {
   handlePrimaryAction: () => void;
   isE2E: boolean;
-  readyToContinue: boolean;
+  phase: WelcomePhase;
 }
 
 export const useWelcomeKeyboardShortcut = ({
   handlePrimaryAction,
   isE2E,
-  readyToContinue,
+  phase,
 }: UseWelcomeKeyboardShortcutOptions) => {
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
-      if (!["Escape", " ", "Enter"].includes(event.key)) return;
-      if (!isE2E && !readyToContinue) return;
+      if (![" ", "Enter"].includes(event.key)) return;
+      if (!isE2E && isWelcomeInteractionLocked(phase)) return;
       event.preventDefault();
       handlePrimaryAction();
     };
@@ -23,5 +24,5 @@ export const useWelcomeKeyboardShortcut = ({
     return () => {
       window.removeEventListener("keydown", handleKey);
     };
-  }, [handlePrimaryAction, isE2E, readyToContinue]);
+  }, [handlePrimaryAction, isE2E, phase]);
 };
