@@ -1,5 +1,7 @@
 # Game Refactoring Plan
 
+> Status note (May 2026): this file is archived under `plans/archive/stale/`. Its unchecked items are historical proposal notes, not active implementation work.
+
 ## Overview
 
 Refactor the Kindergarten Race Game to:

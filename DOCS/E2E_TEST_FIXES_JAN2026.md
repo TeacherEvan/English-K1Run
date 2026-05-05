@@ -4,8 +4,16 @@
 
 **Date**: January 15, 2026  
 **Issue**: Playwright E2E tests failing with TimeoutError on Level 4 gameplay  
-**Test Report URL**: http://localhost:9323/  
+**Test Report URL**: [Local Playwright report](http://localhost:9323/)  
 **Status**: ✅ **RESOLVED** - All tests passing
+
+## May 2026 status note
+
+- The January stabilization guidance remains correct.
+- `playwright.config.ts` now also includes CI retries (`retries: isCI ? 2 : 0`).
+- During the May 2026 todo audit, targeted language/menu Playwright coverage passed again and the follow-up checklist in `DOCS/TEST_FAILURES_FIX_JAN2026.md` was reconciled against the current codebase.
+- The May 2026 audit also revalidated `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e` end-to-end: 219 passed, 12 deployment diagnostics skipped because `PLAYWRIGHT_DEPLOYMENT_URL` was not set.
+- A mobile-only flake in `GameplayPage.tapCurrentTargetAndWaitForResolution()` was stabilized by reusing the moving-target retry helper instead of relying on a single transient click attempt.
 
 ## Problems Identified
 
@@ -22,7 +30,7 @@
 
 **Evidence**:
 
-```
+```text
 TimeoutError: page.waitForSelector: Timeout 30000ms exceeded.
 Call log:
   - waiting for locator('[data-testid="back-button"]')
@@ -38,15 +46,15 @@ Error screenshot shows:
 1. **Removed `force: true`** from skip-loading-button click
 2. **Added explicit wait** for loading screen to be detached from DOM:
 
-   ```typescript
-   await page.click('[data-testid="skip-loading-button"]');
+```typescript
+await page.click('[data-testid="skip-loading-button"]');
 
-   // Wait for loading screen to be removed before proceeding
-   await page.waitForSelector('[data-testid="worm-loading-screen"]', {
-     state: "detached",
-     timeout: 5000,
-   });
-   ```
+// Wait for loading screen to be removed before proceeding
+await page.waitForSelector('[data-testid="worm-loading-screen"]', {
+  state: "detached",
+  timeout: 5000,
+});
+```
 
 ### 2. **Element "Not Stable" Errors - Background Animation**
 
@@ -77,19 +85,20 @@ Error screenshot shows:
 **Fix**:
 
 - **Injected CSS** to force-disable all animations in E2E tests:
-  ```typescript
-  await page.addStyleTag({
-    content: `
-      .app-bg-animated {
-        animation: none !important;
-      }
-      * {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    `,
-  });
-  ```
+
+```typescript
+await page.addStyleTag({
+  content: `
+    .app-bg-animated {
+      animation: none !important;
+    }
+    * {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  `,
+});
+```
 
 ### 3. **Unnecessary Force Clicks**
 
@@ -137,7 +146,7 @@ Based on [Playwright documentation](https://playwright.dev/):
 
 **Before Fixes**:
 
-```
+```text
 102 total tests
 101 passed
 1 failed (Level 4 timeout)
@@ -145,14 +154,14 @@ Based on [Playwright documentation](https://playwright.dev/):
 
 **After Fixes**:
 
-```
+```text
 102 total tests
 102 passed ✅
 0 failed
 Test duration: 30.7s (chromium), 34.0s (total with welcome screen test)
 ```
 
-### Specific Level Results:
+### Specific Level Results
 
 - ✅ Level 1 (Fruits & Vegetables): back-button appeared in 216ms
 - ✅ Level 2 (Counting Fun): back-button appeared in 24ms
@@ -188,6 +197,7 @@ Test duration: 30.7s (chromium), 34.0s (total with welcome screen test)
 **Strategic Plan Developed**: Comprehensive enhancement plan to address automation, data management, and compatibility gaps.
 
 **Key Enhancements**:
+
 - Page Object Model for maintainability
 - Expanded cross-browser/device support
 - Improved test data management with fixtures
@@ -195,6 +205,7 @@ Test duration: 30.7s (chromium), 34.0s (total with welcome screen test)
 - Advanced reporting with Allure
 
 **Implementation Steps**:
+
 1. Stabilize current tests (global animation disable, proper waits)
 2. Implement Page Object Model (MenuPage, GameplayPage, etc.)
 3. Enhance test data management (comprehensive fixtures, data factories)
@@ -204,6 +215,7 @@ Test duration: 30.7s (chromium), 34.0s (total with welcome screen test)
 7. Update documentation (new patterns, best practices)
 
 **Expected Benefits**:
+
 - Reduced test flakiness and timeouts
 - Easier test maintenance and updates
 - Broader compatibility coverage

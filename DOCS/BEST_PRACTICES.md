@@ -10,6 +10,8 @@
 
 This document outlines best practices for maintaining and extending English K1 Run. Following these guidelines ensures code quality, performance, and maintainability.
 
+> Status note (May 2026): the checklists in this document are reusable review templates. Unchecked boxes here are not tracked repo-wide backlog items; complete them per change, PR, or release.
+
 ---
 
 ## 📁 Project Structure

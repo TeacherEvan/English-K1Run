@@ -4,6 +4,15 @@
 **Status:** ✅ Complete - All 16 tasks implemented and verified  
 **Build Status:** ✅ Passing (built in 19.87s)
 
+## May 2026 audit update
+
+- Targeted Playwright coverage passed for `e2e/specs/settings-language.spec.ts` and `e2e/specs/menu.spec.ts` during this audit.
+- Startup welcome-language coverage also passed for `e2e/specs/welcome-language.spec.ts` in the current session.
+- Added targeted settings-language coverage for the full six-option list and invalid stored-language fallback to English with no console or page errors.
+- Added unit coverage for `LanguageProvider` syncing gameplay language into `soundManager` via `src/context/__tests__/language-context.test.tsx`.
+- Language state now flows primarily through `k1-settings`; `k1-language` is still mirrored from the display language for compatibility.
+- Locale files are statically imported in `src/i18n.ts`, and the latest production build completed successfully.
+
 ## Overview
 
 Successfully implemented multi-language support for the English-K1Run kindergarten educational game, enabling students to select from 6 languages with ElevenLabs TTS integration and WCAG-compliant UI.
@@ -180,27 +189,23 @@ Added `"resolveJsonModule": true` for locale file imports.
 
 #### 1. Language Selector Functionality
 
-- [ ] Open Settings modal from GameMenu
-- [ ] Click language selector dropdown
-- [ ] Verify all 6 languages appear with both native and English names
-- [ ] Select a different language
-- [ ] Verify dropdown closes and shows selected language
+- [x] Open Settings modal from GameMenu
+- [x] Click language selector dropdown
+- [x] Verify all 6 languages appear with both native and English names
+- [x] Select a different language
+- [x] Verify dropdown closes and shows selected language
 
 #### 2. localStorage Persistence
 
-- [ ] Select a non-English language
-- [ ] Refresh page (F5)
-- [ ] Verify selected language persists after reload
+- [x] Select a non-English language
+- [x] Refresh page (F5)
+- [x] Verify selected language persists after reload
 - [ ] Open DevTools → Application → Local Storage
-- [ ] Confirm `k1-language` key contains correct language code
+- [x] Confirm `k1-language` key contains correct language code
 
 #### 3. UI Text Updates
 
-- [ ] Select each language and verify:
-  - [ ] Game menu text updates (Start Game, Settings, etc.)
-  - [ ] Category names update
-  - [ ] Welcome screen text updates
-  - [ ] All visible UI strings change appropriately
+- [ ] Select each language and verify game menu text, category names, welcome screen text, and other visible UI strings
 
 #### 4. Audio System Integration
 
@@ -217,6 +222,8 @@ Added `"resolveJsonModule": true` for locale file imports.
 - [ ] Change language in UI
 - [ ] Re-run command, verify language code updates
 
+Automated coverage note: gameplay-language propagation into the `soundManager` singleton is covered by `src/context/__tests__/language-context.test.tsx`. The remaining checklist items in this section are still manual browser-console verification steps.
+
 #### 6. Welcome Screen i18n
 
 - [ ] Select different language
@@ -228,8 +235,8 @@ Added `"resolveJsonModule": true` for locale file imports.
 #### 6b. Accessibility announcements
 
 - [ ] Open level selection in each target language
-- [ ] Verify screen reader announcement uses translated copy for menu open
-- [ ] Change levels and verify selected-level announcement is localized
+- [x] Verify screen reader announcement uses translated copy for menu open
+- [x] Change levels and verify selected-level announcement is localized
 
 #### 7. WCAG Compliance
 
@@ -242,10 +249,10 @@ Added `"resolveJsonModule": true` for locale file imports.
 
 #### 8. Fallback Behavior
 
-- [ ] Set localStorage to invalid language: `localStorage.setItem('k1-language', 'invalid')`
-- [ ] Refresh page
-- [ ] Verify app defaults to English
-- [ ] Verify no console errors
+- [x] Set invalid languages in `k1-settings`: `localStorage.setItem('k1-settings', JSON.stringify({ displayLanguage: 'invalid', gameplayLanguage: 'invalid' }))`
+- [x] Refresh page
+- [x] Verify app defaults to English
+- [x] Verify no console errors
 
 #### 9. Event Tracking
 
@@ -446,10 +453,10 @@ export interface LanguageConfig {
 
 ### Deployment Checklist
 
-- [ ] Verify all locale files included in build
+- [x] Verify all locale files included in build
 - [ ] Test language selector on production URL
 - [ ] Confirm localStorage works across domains
-- [ ] Monitor bundle size (added ~50KB for i18n + locales)
+- [x] Record current bundle size after build
 - [ ] Check ElevenLabs API rate limits for production
 
 ## Accessibility Compliance

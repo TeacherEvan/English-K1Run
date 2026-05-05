@@ -441,6 +441,38 @@ export class GameplayPage {
     throw new Error(`No visible falling object found for emoji ${emoji}`);
   }
 
+  async clickMovingElement(
+    objectId: string,
+    options: { timeoutMs?: number; retryDelayMs?: number } = {},
+  ) {
+    const { timeoutMs = 2_000, retryDelayMs = 100 } = options;
+    const deadline = Date.now() + timeoutMs;
+    const object = this.page.locator(
+      `[data-testid="falling-object"][data-object-id="${objectId}"]`,
+    );
+    let lastError: unknown;
+
+    while (Date.now() < deadline) {
+      try {
+        const remainingMs = Math.max(1, deadline - Date.now());
+        await object.click({
+          force: true,
+          timeout: Math.min(remainingMs, 1_000),
+        });
+        return;
+      } catch (error) {
+        lastError = error;
+        await this.page.waitForTimeout(retryDelayMs);
+      }
+    }
+
+    const errorMessage =
+      lastError instanceof Error ? lastError.message : String(lastError);
+    throw new Error(
+      `Failed to click moving element ${objectId} within ${timeoutMs}ms: ${errorMessage}`,
+    );
+  }
+
   async tapCurrentTargetAndWaitForResolution() {
     const targetEmoji = (await this.targetEmoji.textContent())?.trim();
     if (!targetEmoji) {
@@ -462,7 +494,12 @@ export class GameplayPage {
       if (await countdown.isVisible().catch(() => false)) return "countdown";
 
       const afterProgress = await this.getProgress(1);
-      const afterTarget = (await this.targetName.textContent())?.trim() ?? "";
+      const afterTarget =
+        (
+          await this.targetName
+            .textContent({ timeout: 250 })
+            .catch(() => null)
+        )?.trim() ?? "";
 
       if (afterProgress > beforeProgress) return "progress";
       if (afterTarget && afterTarget !== beforeTarget) return "target-changed";
@@ -478,10 +515,16 @@ export class GameplayPage {
 
         if (!objectId || attemptedObjectIds.has(objectId)) continue;
 
-        attemptedObjectIds.add(objectId);
-        await candidate.waitFor({ state: "visible", timeout: 1_000 });
-        await candidate.click({ force: true, timeout: 2_000 });
-        break;
+        try {
+          await this.clickMovingElement(objectId, {
+            timeoutMs: 2_000,
+            retryDelayMs: 75,
+          });
+          attemptedObjectIds.add(objectId);
+          break;
+        } catch {
+          continue;
+        }
       }
 
       await this.page.waitForTimeout(150);

@@ -23,6 +23,10 @@ describe('brand metadata', () => {
   it('uses the public English K1 Run branding', () => {
     expect(manifest.name).toBe('English K1 Run')
     expect(manifest.short_name).toBe('English K1 Run')
+    expect(indexHtml).toContain('<title>English K1 Run</title>')
+    expect(indexHtml).not.toContain('Kindergarten Race - Educational Game')
+    expect(vitePwaConfig).toContain('name: "English K1 Run"')
+    expect(vitePwaConfig).toContain('short_name: "English K1 Run"')
   })
 
   it('describes the classroom launch flow', () => {

@@ -51,18 +51,16 @@ describe("resolvePublicAudioUrl", () => {
   });
 
   it("resolves space-based filenames for normalized multi-word keys", async () => {
-    fetchMock
-      .mockResolvedValueOnce(createResponse(false))
-      .mockResolvedValueOnce(createResponse(false))
-      .mockResolvedValueOnce(createResponse(true, "audio/wav"));
+    fetchMock.mockResolvedValueOnce(createResponse(true, "audio/wav"));
 
     await expect(resolvePublicAudioUrl("fire_truck")).resolves.toBe(
       "/sounds/fire truck.wav",
     );
 
-    expect(fetchMock).toHaveBeenNthCalledWith(3, "/sounds/fire truck.wav", {
+    expect(fetchMock).toHaveBeenNthCalledWith(1, "/sounds/fire truck.wav", {
       method: "HEAD",
     });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns null when no public candidate exists", async () => {

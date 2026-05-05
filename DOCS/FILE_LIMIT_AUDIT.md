@@ -1,4 +1,15 @@
+# File Limit Audit
+
 Deprecated. Audit results are delivered via chat to avoid creating extra markdown artifacts.
+
+## May 2026 status snapshot
+
+- `npm run verify` passed. The repo still has one warning in `e2e/specs/menu.spec.ts`, but no lint errors and the production build succeeds.
+- `npx eslint src/ --max-warnings 0` passed.
+- `npx tsc --noEmit` passed.
+- Current `src` line-count audit shows no files above 500 lines. The largest file is `src/lib/file-manager/index.ts` at 378 lines.
+- Targeted language/menu Playwright coverage passed again during this audit.
+- A fresh full-suite rerun is now clean end-to-end: `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e` completed with 219 passed and 12 deployment diagnostics skipped because `PLAYWRIGHT_DEPLOYMENT_URL` was not set.
 
 ---
 
@@ -6,9 +17,9 @@ Deprecated. Audit results are delivered via chat to avoid creating extra markdow
 
 #### 3.1 Refactor performance-monitor-utils.ts (Optional)
 
-**New Structure:**
+##### New Structure
 
-```
+```text
 src/lib/performance/
 ├── index.ts                     # Re-exports all modules
 ├── marks-and-measures.ts        # createPerformanceMark, measurePerformanceBetweenMarks (~100 lines)
@@ -22,9 +33,9 @@ src/lib/performance/
 
 #### 3.2 Refactor sentence-templates.ts (Optional)
 
-**Option A: Split by language**
+##### Option A: Split by language
 
-```
+```text
 src/lib/constants/sentence-templates/
 ├── index.ts                     # Main API and language router
 ├── en.ts                        # English templates
@@ -35,7 +46,7 @@ src/lib/constants/sentence-templates/
 └── zh-hk.ts                     # Cantonese templates
 ```
 
-**Option B: Keep as-is with lazy loading**
+##### Option B: Keep as-is with lazy loading
 
 - Accept data files as exception to 500-line rule
 - Document in coding standards
@@ -47,8 +58,8 @@ src/lib/constants/sentence-templates/
 ### Pre-Refactoring
 
 - [ ] Create feature branch: `refactor/file-limit-compliance`
-- [ ] Run baseline tests: `npm run test:e2e`
-- [ ] Run ESLint: `npx eslint src/ --max-warnings 0`
+- [x] Run baseline tests: `npm run test:e2e`
+- [x] Run ESLint: `npx eslint src/ --max-warnings 0`
 - [ ] Document current import graph
 
 ### During Each File Refactor
@@ -60,11 +71,11 @@ src/lib/constants/sentence-templates/
 
 ### Post-Refactoring
 
-- [ ] Files stay within the preferred size target: Run audit command
-- [ ] All tests pass: `npm run verify`
-- [ ] No ESLint errors: `npx eslint src/ --max-warnings 0`
-- [ ] TypeScript compiles: `npx tsc --noEmit`
-- [ ] E2E tests pass: `npm run test:e2e`
+- [x] Files stay within the preferred size target: Run audit command
+- [x] Verification build passes: `npm run verify`
+- [x] No ESLint errors: `npx eslint src/ --max-warnings 0`
+- [x] TypeScript compiles: `npx tsc --noEmit`
+- [x] E2E tests pass: `npm run test:e2e`
 - [ ] Visual regression check
 - [ ] Update imports in consuming files
 - [ ] Document changes in PR description

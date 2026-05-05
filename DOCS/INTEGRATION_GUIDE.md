@@ -585,8 +585,8 @@ export const EnhancedGameComponent = () => {
 - [x] Add screen reader announcements
 - [x] Add Web Vitals tracking
 - [x] Add component performance monitoring
-- [ ] Respect reduced motion preference
-- [ ] Add environment checks for debug code
+- [x] Respect reduced motion preference
+- [x] Add environment checks for debug code
 
 Applied changes (code references):
 
@@ -599,10 +599,12 @@ Applied changes (code references):
 - `src/lib/event-tracker.ts`, `src/lib/event-metrics/audio-event-tracker.ts`, `src/lib/file-manager/index.ts`, `src/lib/performance/web-vitals-tracker.ts`: replaced ad-hoc ID strings with `generateUniqueIdentifier()`.
 - `src/App.tsx`: added `preloadCriticalResources`, `announceToScreenReader`, web vitals tracking integration (`trackWebVitals`), and component render timing using `measureComponentRenderTime` for app-level monitoring.
 - `src/components/game-menu/GameMenuLevelSelect.tsx`: added focus trap (`createFocusTrap`), keyboard navigation handlers, screen reader announcements, and render timing.
+- `src/hooks/game-logic/tap-state-updater.ts`: checks the reduced-motion setting before triggering screen shake effects.
+- `src/context/settings-context.tsx`, `src/context/language-context.tsx`, and multiple app/debug hooks gate behavior and logging with `import.meta.env` checks.
 
 Notes:
 
-- Remaining items `Respect reduced motion preference` and `Add environment checks for debug code` are intentionally left open for follow-up; reduced motion flags are already available in `src/lib/accessibility/user-preferences.ts` and can be wired where desired.
+- The final two migration items were verified during the May 2026 todo audit and are now marked complete.
 - If you want I can also run tests or create a short migration PR message summarizing these commits.
 
 ---

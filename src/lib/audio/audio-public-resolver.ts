@@ -17,7 +17,14 @@ const buildFileNameCandidates = (key: string): string[] => {
   const trimmed = key.trim().toLowerCase();
   if (!trimmed) return [];
 
-  const variants = new Set<string>([trimmed]);
+  const variants = new Set<string>();
+
+  if (trimmed.includes("_") && !isWelcomeAudioKey(trimmed)) {
+    variants.add(trimmed.replace(/_/g, " "));
+    variants.add(trimmed);
+  } else {
+    variants.add(trimmed);
+  }
 
   if (trimmed.includes("_")) {
     variants.add(trimmed.replace(/_/g, " "));

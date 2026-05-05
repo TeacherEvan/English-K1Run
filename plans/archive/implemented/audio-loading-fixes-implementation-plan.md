@@ -2,13 +2,15 @@
 
 **Related Analysis**: [`audio-loading-issues-analysis-jan2026.md`](audio-loading-issues-analysis-jan2026.md)  
 **Created**: 2026-01-31  
-**Status**: Ready for Implementation
+**Status**: Archived historical plan - superseded by later audio fixes and validation work
 
 ---
 
 ## Overview
 
 This plan provides step-by-step instructions to fix all 23 audio loading issues identified in the console errors. The fixes are organized into 3 phases with clear dependencies and testing checkpoints.
+
+Unchecked items below are preserved as historical proposal content. They should not be treated as current backlog without re-validation against the live audio system.
 
 ---
 

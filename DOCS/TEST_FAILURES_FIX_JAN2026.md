@@ -4,6 +4,17 @@
 **Issue:** 53 failed E2E tests, primarily in Worm Loading Screen Auto-Progression  
 **Status:** ✅ Fixed - Phase 1 Critical Fixes Implemented
 
+## May 2026 verification snapshot
+
+- `playwright.config.ts` now includes CI retries via `retries: isCI ? 2 : 0`.
+- `waitForFunction` is used in multiple E2E helpers and specs, but fixed waits still remain in moving-target helpers, so that enhancement stays open.
+- Added `clickMovingElement()` to `e2e/fixtures/game.fixture.ts` and migrated `e2e/specs/gameplay-bottom-zone.spec.ts` to use it.
+- Updated `tapCurrentTargetAndWaitForResolution()` in `e2e/fixtures/game.fixture.ts` to avoid blocking on disappearing `target-name` UI and to reuse `clickMovingElement()` for moving-target taps.
+- Revalidated the migrated bottom-zone spec with `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npx playwright test e2e/specs/gameplay-bottom-zone.spec.ts --repeat-each=3`.
+- Revalidated the previously flaky mobile gameplay transition with `PLAYWRIGHT_PROJECTS=mobile npx playwright test e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps" --repeat-each=5`.
+- Revalidated the full local suite with `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e` -> 219 passed, 12 skipped (deployment diagnostics require `PLAYWRIGHT_DEPLOYMENT_URL`).
+- This document and `DOCS/E2E_TEST_FIXES_JAN2026.md` were refreshed during the May 2026 todo audit.
+
 ## Problem Summary
 
 The Playwright test suite was experiencing systematic failures (53 out of 335 tests) due to race conditions between React state updates and test expectations in the WormLoadingScreen component.
@@ -134,7 +145,7 @@ const newProgress = await gamePage.gameplay.getProgress(1);
 
 ### Old Timing Chain (Failed)
 
-```
+```text
 User clicks 5 worms
 ├─ 5 clicks × 100ms = 500ms clicking time
 ├─ React state batching/reconciliation ≈ 300ms
@@ -146,7 +157,7 @@ Total: ~1850ms (2000ms timeout = 150ms margin) ❌ Flaky
 
 ### New Timing Chain (Fixed)
 
-```
+```text
 User clicks 5 worms
 ├─ 5 clicks × 250ms = 1250ms clicking time
 ├─ Synchronous completion trigger ≈ 0ms (in click handler)
@@ -249,11 +260,12 @@ All changes are backward-compatible and improve test reliability without affecti
 
 - [ ] Add browser-specific timeout multipliers (`isFirefox ? 1.5x : 1x`)
 - [ ] Implement `waitForFunction` instead of fixed `waitForTimeout`
-- [ ] Add test-level retry mechanism in Playwright config
+- [x] Add test-level retry mechanism in Playwright config
 
 ### Phase 3: Utilities
 
-- [ ] Create `clickMovingElement()` helper in [`game.fixture.ts`](e2e/fixtures/game.fixture.ts)
+- [x] Create `clickMovingElement()` helper in [`game.fixture.ts`](e2e/fixtures/game.fixture.ts)
+- [x] Reuse moving-target retries in `tapCurrentTargetAndWaitForResolution()` for the mobile level-transition path
 - [ ] Add performance tracking for test execution times
 - [ ] Implement visual diff for UI state transitions
 
@@ -267,7 +279,7 @@ All changes are backward-compatible and improve test reliability without affecti
 
 ### Remaining (Out of Scope)
 
-- Other test suites not analyzed in this fix
+- Deployment diagnostics still require `PLAYWRIGHT_DEPLOYMENT_URL` and remain skipped in local matrix runs without that environment variable
 - Potential similar timing issues in other components
 - Browser-specific optimizations
 
@@ -275,12 +287,12 @@ All changes are backward-compatible and improve test reliability without affecti
 
 - [x] Created [`plans/test-failures-analysis-jan2026.md`](plans/test-failures-analysis-jan2026.md) - Full analysis
 - [x] Created this document ([`DOCS/TEST_FAILURES_FIX_JAN2026.md`](DOCS/TEST_FAILURES_FIX_JAN2026.md)) - Implementation summary
-- [ ] Update [`DOCS/E2E_TEST_FIXES_JAN2026.md`](DOCS/E2E_TEST_FIXES_JAN2026.md) if needed (depends on existing content)
+- [x] Update [`DOCS/E2E_TEST_FIXES_JAN2026.md`](DOCS/E2E_TEST_FIXES_JAN2026.md) if needed (depends on existing content)
 
 ## References
 
 - **Analysis Document:** [`plans/test-failures-analysis-jan2026.md`](plans/test-failures-analysis-jan2026.md)
-- **Playwright UI:** http://localhost:9323/#?q=s%3Afailed
+- **Playwright UI:** [Local report](http://localhost:9323/#?q=s%3Afailed)
 - **Project Rules:** [`.kilocode/rules/copilot-Instructions.md`](.kilocode/rules/copilot-Instructions.md)
 - **Original Test Documentation:** [`DOCS/E2E_TEST_FIXES_JAN2026.md`](DOCS/E2E_TEST_FIXES_JAN2026.md)
 

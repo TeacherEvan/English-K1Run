@@ -4,8 +4,6 @@ interface BottomTargetCandidate {
   id: string;
   emoji: string;
   centerY: number;
-  clickX: number;
-  clickY: number;
 }
 
 const BOTTOM_ZONE_START = 0.9;
@@ -59,8 +57,6 @@ const findBottomZoneTarget = async (
         id: bottomTarget.id,
         emoji: bottomTarget.emoji,
         centerY: bottomTarget.centerY,
-        clickX: bottomTarget.clickX,
-        clickY: bottomTarget.clickY,
       };
     }, BOTTOM_ZONE_START);
 
@@ -101,7 +97,9 @@ test.describe("Gameplay bottom-zone interaction", () => {
 
     expect(candidate).not.toBeNull();
 
-    await page.mouse.click(candidate!.clickX, candidate!.clickY);
+    await gamePage.gameplay.clickMovingElement(candidate!.id, {
+      timeoutMs: 3_000,
+    });
     await page.waitForTimeout(500);
 
     const newProgress = await gamePage.gameplay.getProgress(1);

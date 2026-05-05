@@ -2,11 +2,13 @@
 
 **Date:** January 30, 2026  
 **Objective:** Refactor oversized UI components into more compact, easier-to-navigate files  
-**Status:** Architecture Phase
+**Status:** Proposal only - not active implementation backlog (audited May 2026)
 
 ## Executive Summary
 
 This plan addresses the modularization of UI components in [`src/components/`](../src/components/) that have grown large enough to benefit from smaller, easier-to-navigate files. The refactoring follows the established patterns from the [`src/lib/audio/`](../src/lib/audio/) modular structure and maintains backward compatibility while improving maintainability.
+
+Open checklist items in this document are planning placeholders for a future refactor. They are not treated as live repo debt unless this plan is explicitly activated.
 
 ---
 
