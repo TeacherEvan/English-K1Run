@@ -20,6 +20,8 @@ export const MenuActionButtonContent = memo(
         subtitleStyle,
         textClassName,
     }: MenuActionButtonContentProps) => {
+        const subtitleBaseClassName = "mt-1 min-w-0 max-w-full whitespace-normal wrap-anywhere";
+
         return (
             <>
                 {iconWrapperClassName ? (
@@ -34,7 +36,9 @@ export const MenuActionButtonContent = memo(
                     {subtitle && (
                         <span
                             className={
-                                subtitleClassName ?? "mt-1 text-xs font-normal text-muted-foreground/80"
+                                subtitleClassName
+                                    ? `${subtitleBaseClassName} ${subtitleClassName}`
+                                    : `${subtitleBaseClassName} text-xs font-normal text-muted-foreground/80`
                             }
                             style={subtitleStyle}
                         >

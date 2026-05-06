@@ -216,6 +216,16 @@ export class GameMenuPage {
     this.backToMenuButton = page.locator('[data-testid="back-to-menu-button"]');
   }
 
+  private getBrowserTimeoutMultiplier() {
+    return this.page.context().browser()?.browserType().name() === "firefox"
+      ? 1.5
+      : 1;
+  }
+
+  private scaleTimeout(milliseconds: number) {
+    return Math.round(milliseconds * this.getBrowserTimeoutMultiplier());
+  }
+
   async isVisible() {
     return this.container.isVisible();
   }
@@ -336,7 +346,10 @@ export class GameMenuPage {
     // Ensure game HUD is ready before returning (critical for Firefox)
     // Increased timeout for Firefox's slower state transitions
     try {
-      await targetDisplay.waitFor({ state: "visible", timeout: 25_000 });
+      await targetDisplay.waitFor({
+        state: "visible",
+        timeout: this.scaleTimeout(25_000),
+      });
     } catch (error) {
       // HUD can appear after slow asset loads; waitForReady will re-check visibility.
       // Allow caller (beforeEach) to handle the final wait with its own timeout
@@ -400,6 +413,114 @@ export class GameplayPage {
 
   private scaleTimeout(milliseconds: number) {
     return Math.round(milliseconds * this.getBrowserTimeoutMultiplier());
+  }
+
+  private async waitForTargetResolutionSignal(options: {
+    beforeProgress: number;
+    beforeTarget: string;
+    targetEmoji: string;
+    attemptedObjectIds: string[];
+    timeoutMs: number;
+  }) {
+    const {
+      beforeProgress,
+      beforeTarget,
+      targetEmoji,
+      attemptedObjectIds,
+      timeoutMs,
+    } = options;
+
+    try {
+      await this.page.waitForFunction(
+        ({
+          beforeProgress,
+          beforeTarget,
+          targetEmoji,
+          attemptedObjectIds,
+        }) => {
+          const isVisible = (element: Element | null) => {
+            if (!(element instanceof HTMLElement)) return false;
+
+            const style = window.getComputedStyle(element);
+            if (
+              style.display === "none" ||
+              style.visibility === "hidden" ||
+              Number(style.opacity) === 0
+            ) {
+              return false;
+            }
+
+            const rect = element.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+          };
+
+          if (
+            isVisible(document.querySelector('[data-testid="level-complete-popup"]'))
+          ) {
+            return true;
+          }
+
+          if (
+            isVisible(
+              document.querySelector('[data-testid="level-countdown-overlay"]'),
+            )
+          ) {
+            return true;
+          }
+
+          const currentTarget =
+            document
+              .querySelector('[data-testid="target-name"]')
+              ?.textContent?.trim() ?? "";
+          if (currentTarget && currentTarget !== beforeTarget) {
+            return true;
+          }
+
+          const progressStyle =
+            document
+              .querySelector(
+                '[data-testid="player-area-1"] [data-testid="progress-bar"]',
+              )
+              ?.getAttribute("style") ?? "";
+          const progressMatch = progressStyle.match(
+            /width:\s*(\d+(?:\.\d+)?)%/,
+          );
+          const currentProgress = progressMatch ? Number(progressMatch[1]) : 0;
+          if (currentProgress > beforeProgress) {
+            return true;
+          }
+
+          return Array.from(
+            document.querySelectorAll('[data-testid="falling-object"]'),
+          ).some((element) => {
+            if (!(element instanceof HTMLElement) || !isVisible(element)) {
+              return false;
+            }
+
+            const objectId = element.getAttribute("data-object-id");
+            if (!objectId || attemptedObjectIds.includes(objectId)) {
+              return false;
+            }
+
+            const textContent = element.textContent?.trim() ?? "";
+            return textContent.includes(targetEmoji);
+          });
+        },
+        {
+          beforeProgress,
+          beforeTarget,
+          targetEmoji,
+          attemptedObjectIds,
+        },
+        { timeout: this.scaleTimeout(timeoutMs) },
+      );
+    } catch (error) {
+      if (error instanceof Error && error.name === "TimeoutError") {
+        return;
+      }
+
+      throw error;
+    }
   }
 
   async isGameStarted() {
@@ -539,7 +660,13 @@ export class GameplayPage {
         }
       }
 
-      await this.page.waitForTimeout(this.scaleTimeout(150));
+      await this.waitForTargetResolutionSignal({
+        beforeProgress,
+        beforeTarget,
+        targetEmoji,
+        attemptedObjectIds: Array.from(attemptedObjectIds),
+        timeoutMs: 150,
+      });
     }
 
     throw new Error(
@@ -570,7 +697,9 @@ export class GameplayPage {
   async getProgress(player: 1 | 2) {
     const area = player === 1 ? this.player1Area : this.player2Area;
     const progress = area.locator('[data-testid="progress-bar"]');
-    const style = await progress.getAttribute("style");
+    const style = await progress
+      .getAttribute("style", { timeout: this.scaleTimeout(500) })
+      .catch(() => null);
     // Extract width percentage from style
     const match = style?.match(/width:\s*(\d+(?:\.\d+)?)%/);
     return match ? parseFloat(match[1]) : 0;

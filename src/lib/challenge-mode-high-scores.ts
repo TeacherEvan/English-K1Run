@@ -37,6 +37,19 @@ const sortEntries = (entries: ChallengeModeHighScoreEntry[]) =>
     return right.achievedAt.localeCompare(left.achievedAt);
   });
 
+
+export const parseLegacyBestTargetTotal = (value: string | null) => {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return null;
+  }
+
+  return Math.trunc(parsed);
+};
 export const readChallengeModeHighScores =
   (): ChallengeModeHighScoreEntry[] => {
     if (typeof localStorage === "undefined") return [];

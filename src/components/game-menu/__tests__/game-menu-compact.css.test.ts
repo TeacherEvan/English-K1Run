@@ -40,4 +40,15 @@ describe("game-menu compact stylesheet", () => {
     expect(stylesheet).toContain("inset: 1rem 1rem auto !important;");
     expect(stylesheet).toContain("transform: none !important;");
   });
+
+  it("keeps the best score card flush with its summary column on super-ultrawide screens", () => {
+    const stylesheet = readFileSync(
+      resolve(import.meta.dirname, "../game-menu-ultrawide.css"),
+      "utf8",
+    );
+
+    expect(stylesheet).toContain("@media (min-width: 140rem) and (min-height: 70rem)");
+    expect(stylesheet).toContain(".menu-best-time-card {");
+    expect(stylesheet).toContain("margin-left: 0;");
+  });
 });

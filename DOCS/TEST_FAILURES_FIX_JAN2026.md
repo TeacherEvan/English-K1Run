@@ -7,11 +7,13 @@
 ## May 2026 verification snapshot
 
 - `playwright.config.ts` now includes CI retries via `retries: isCI ? 2 : 0`.
+- Added Firefox-specific timeout scaling in `e2e/fixtures/game.fixture.ts` for start-game HUD waits, moving-target retries, and transient progress-bar reads.
 - `waitForFunction` is used in multiple E2E helpers and specs, but fixed waits still remain in moving-target helpers, so that enhancement stays open.
 - Added `clickMovingElement()` to `e2e/fixtures/game.fixture.ts` and migrated `e2e/specs/gameplay-bottom-zone.spec.ts` to use it.
 - Updated `tapCurrentTargetAndWaitForResolution()` in `e2e/fixtures/game.fixture.ts` to avoid blocking on disappearing `target-name` UI and to reuse `clickMovingElement()` for moving-target taps.
 - Revalidated the migrated bottom-zone spec with `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npx playwright test e2e/specs/gameplay-bottom-zone.spec.ts --repeat-each=3`.
 - Revalidated the previously flaky mobile gameplay transition with `PLAYWRIGHT_PROJECTS=mobile npx playwright test e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps" --repeat-each=5`.
+- Revalidated the Firefox-only moving-target and transition regressions with `PLAYWRIGHT_PROJECTS=firefox npx playwright test e2e/specs/gameplay-bottom-zone.spec.ts --repeat-each=3` and `PLAYWRIGHT_PROJECTS=firefox npx playwright test e2e/specs/gameplay.spec.ts -g "should show level transition after 10 correct taps" --repeat-each=3`.
 - Revalidated the full local suite with `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e` -> 219 passed, 12 skipped (deployment diagnostics require `PLAYWRIGHT_DEPLOYMENT_URL`).
 - This document and `DOCS/E2E_TEST_FIXES_JAN2026.md` were refreshed during the May 2026 todo audit.
 
@@ -258,8 +260,8 @@ All changes are backward-compatible and improve test reliability without affecti
 
 ### Phase 2: Stabilization
 
-- [ ] Add browser-specific timeout multipliers (`isFirefox ? 1.5x : 1x`)
-- [ ] Implement `waitForFunction` instead of fixed `waitForTimeout`
+- [x] Add browser-specific timeout multipliers (`isFirefox ? 1.5x : 1x`)
+- [x] Implement `waitForFunction`-based target-resolution waiting instead of fixed polling `waitForTimeout` in `tapCurrentTargetAndWaitForResolution()`
 - [x] Add test-level retry mechanism in Playwright config
 
 ### Phase 3: Utilities

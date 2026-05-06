@@ -18,22 +18,34 @@ export const MENU_PANEL_CLASS =
   "mx-auto w-full max-w-5xl overflow-hidden rounded-4xl border p-6 shadow-[0_28px_80px_rgba(51,65,85,0.14)] sm:p-8 md:p-10";
 
 export const MENU_ACTION_STACK_CLASS =
-  "mx-auto flex w-full max-w-md flex-col gap-3 lg:mx-0";
+  "mx-auto flex w-full max-w-md flex-col gap-4 lg:mx-0";
+
+export const MENU_PRIMARY_GROUP_CLASS =
+  "menu-home-primary-group rounded-[1.85rem] border p-3 shadow-[0_18px_34px_rgba(120,87,23,0.08)]";
 
 export const MENU_BRAND_PILL_CLASS =
   "menu-home-brand-pill inline-flex items-center rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] shadow-sm";
 
 export const MENU_HERO_COPY_CLASS =
-  "menu-home-copy min-w-0 w-full max-w-[32rem] space-y-3";
+  "menu-home-copy min-w-0 w-full max-w-[28rem] space-y-3";
 
 export const MENU_HERO_HEADING_CLASS =
   "menu-home-heading max-w-full text-[clamp(2.9rem,5.8vw,4.85rem)] font-black leading-[0.95] tracking-[-0.045em] wrap-anywhere";
 
 export const MENU_HERO_BODY_CLASS =
-  "menu-home-instructions mx-auto max-w-[24rem] text-[clamp(1.02rem,2vw,1.22rem)] font-medium leading-[1.45] wrap-anywhere lg:mx-0";
+  "menu-home-instructions max-w-[24rem] text-[clamp(1.02rem,2vw,1.22rem)] font-medium leading-[1.45] wrap-anywhere";
 
 export const MENU_SCORE_CARD_CLASS =
-  "menu-best-time-card mt-2 w-full max-w-sm rounded-[1.75rem] border p-5 shadow-[0_18px_46px_rgba(120,87,23,0.22)]";
+  "menu-best-time-card mt-1 w-full max-w-[15.5rem] rounded-[1.9rem] border p-5 shadow-[0_18px_40px_rgba(120,87,23,0.12)]";
+
+export const MENU_SCORE_LABEL_CLASS =
+  "max-w-full text-left text-[0.72rem] font-bold uppercase tracking-[0.18em] wrap-anywhere";
+
+export const MENU_SCORE_VALUE_CLASS =
+  "text-[clamp(2.5rem,5vw,3.75rem)] font-black tracking-[-0.05em] tabular-nums";
+
+export const MENU_MODE_BADGE_CLASS =
+  "mt-3 inline-flex rounded-full border px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.1em]";
 
 export const MENU_UTILITY_GROUP_CLASS =
   "rounded-[1.6rem] border p-3 shadow-[0_12px_28px_rgba(120,87,23,0.08)]";
@@ -117,6 +129,11 @@ export const MENU_PANEL_STYLE = {
   borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 44%, white)`,
 } as const;
 
+export const MENU_PRIMARY_GROUP_STYLE = {
+  borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 26%, white)`,
+  background: `linear-gradient(180deg, color-mix(in oklch, ${MENU_PALETTE.panel} 95%, white), color-mix(in oklch, ${MENU_PALETTE.shell} 92%, ${MENU_PALETTE.sun} 8%))`,
+} as const;
+
 export const MENU_BRAND_PILL_STYLE = {
   borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 40%, white)`,
   background: `color-mix(in oklch, ${MENU_PALETTE.sun} 24%, white)`,
@@ -133,7 +150,25 @@ export const MENU_HERO_BODY_STYLE = {
 
 export const MENU_SCORE_CARD_STYLE = {
   borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 52%, white)`,
-  background: `linear-gradient(145deg, color-mix(in oklch, ${MENU_PALETTE.ink} 74%, ${MENU_PALETTE.sun} 12%), color-mix(in oklch, ${MENU_PALETTE.ink} 84%, black) 72%)`,
+  background: `linear-gradient(160deg, color-mix(in oklch, ${MENU_PALETTE.panel} 94%, white), color-mix(in oklch, ${MENU_PALETTE.sun} 18%, white) 56%, color-mix(in oklch, ${MENU_PALETTE.shell} 90%, ${MENU_PALETTE.leaf} 6%))`,
+} as const;
+
+export const MENU_SCORE_LABEL_STYLE = {
+  color: `color-mix(in oklch, ${MENU_PALETTE.sun} 50%, ${MENU_PALETTE.ink})`,
+} as const;
+
+export const MENU_SCORE_VALUE_STYLE = {
+  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 88%, ${MENU_PALETTE.sun} 12%)`,
+} as const;
+
+export const MENU_SCORE_ICON_STYLE = {
+  color: `color-mix(in oklch, ${MENU_PALETTE.sun} 78%, ${MENU_PALETTE.ink} 12%)`,
+} as const;
+
+export const MENU_MODE_BADGE_STYLE = {
+  borderColor: `color-mix(in oklch, ${MENU_PALETTE.leaf} 24%, white)`,
+  background: `color-mix(in oklch, ${MENU_PALETTE.leaf} 16%, white)`,
+  color: `color-mix(in oklch, ${MENU_PALETTE.leaf} 58%, ${MENU_PALETTE.ink})`,
 } as const;
 
 export const MENU_UTILITY_GROUP_STYLE = {

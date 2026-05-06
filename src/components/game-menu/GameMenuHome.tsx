@@ -21,6 +21,8 @@ import {
     MENU_OVERLAY_STYLE,
     MENU_PANEL_CLASS,
     MENU_PANEL_STYLE,
+    MENU_PRIMARY_GROUP_CLASS,
+    MENU_PRIMARY_GROUP_STYLE,
     MENU_PRIMARY_ACTION_CLASS,
     MENU_PRIMARY_ACTION_STYLE,
     MENU_SECONDARY_ACTION_CLASS,
@@ -107,7 +109,7 @@ export const GameMenuHome = memo(
                     style={MENU_PANEL_STYLE}
                 >
                     <div
-                        className="menu-home-layout grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,24rem)] lg:items-center"
+                        className="menu-home-layout grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(18rem,24rem)] lg:items-start"
                         data-compact-layout={compactLayout}
                     >
                         <GameMenuHero
@@ -119,72 +121,78 @@ export const GameMenuHome = memo(
                             className="menu-home-actions"
                             data-compact-layout={compactLayout}
                         >
-                            <div className="space-y-3">
-                                <Button
-                                    size="lg"
-                                    className={MENU_PRIMARY_ACTION_CLASS}
-                                    style={MENU_PRIMARY_ACTION_STYLE}
-                                    onClick={onStartGame}
-                                    data-testid="start-game-button"
-                                    aria-label={t("game.startGame")}
-                                >
-                                    <span
-                                        className="flex items-center gap-4 w-full"
-                                        data-testid="new-game-button"
+                            <section
+                                className={MENU_PRIMARY_GROUP_CLASS}
+                                style={MENU_PRIMARY_GROUP_STYLE}
+                                aria-label={t("game.startGame")}
+                            >
+                                <div className="space-y-3">
+                                    <Button
+                                        size="lg"
+                                        className={MENU_PRIMARY_ACTION_CLASS}
+                                        style={MENU_PRIMARY_ACTION_STYLE}
+                                        onClick={onStartGame}
+                                        data-testid="start-game-button"
+                                        aria-label={t("game.startGame")}
+                                    >
+                                        <span
+                                            className="flex w-full items-center gap-4"
+                                            data-testid="new-game-button"
+                                        >
+                                            <MenuActionButtonContent
+                                                icon={<PlayIcon className="w-6 h-6 fill-current" />}
+                                                iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--start"
+                                                subtitleClassName={MENU_ACTION_SUBTITLE_LIGHT_CLASS}
+                                                textClassName={MENU_ACTION_TEXT_CLASS}
+                                                title={startGameLabel.title}
+                                                subtitle={startGameLabel.subtitle}
+                                            />
+                                        </span>
+                                    </Button>
+
+                                    <Button
+                                        variant="default"
+                                        size="lg"
+                                        className={MENU_SECONDARY_ACTION_CLASS}
+                                        style={MENU_SECONDARY_ACTION_STYLE}
+                                        onClick={handlePlayAllLevels}
+                                        disabled={!canPlayAllLevels}
+                                        data-testid="play-all-levels-button"
+                                        aria-label={t("game.playAllLevels")}
                                     >
                                         <MenuActionButtonContent
-                                            icon={<PlayIcon className="w-6 h-6 fill-current" />}
-                                            iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--start"
+                                            icon={<TrophyIcon className="w-6 h-6" />}
+                                            iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--challenge"
                                             subtitleClassName={MENU_ACTION_SUBTITLE_LIGHT_CLASS}
                                             textClassName={MENU_ACTION_TEXT_CLASS}
-                                            title={startGameLabel.title}
-                                            subtitle={startGameLabel.subtitle}
+                                            title={playAllLevelsLabel.title}
+                                            subtitle={playAllLevelsLabel.subtitle}
                                         />
-                                    </span>
-                                </Button>
+                                    </Button>
 
-                                <Button
-                                    variant="default"
-                                    size="lg"
-                                    className={MENU_SECONDARY_ACTION_CLASS}
-                                    style={MENU_SECONDARY_ACTION_STYLE}
-                                    onClick={handlePlayAllLevels}
-                                    disabled={!canPlayAllLevels}
-                                    data-testid="play-all-levels-button"
-                                    aria-label={t("game.playAllLevels")}
-                                >
-                                    <MenuActionButtonContent
-                                        icon={<TrophyIcon className="w-6 h-6" />}
-                                        iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--challenge"
-                                            subtitleClassName={MENU_ACTION_SUBTITLE_LIGHT_CLASS}
-                                            textClassName={MENU_ACTION_TEXT_CLASS}
-                                        title={playAllLevelsLabel.title}
-                                        subtitle={playAllLevelsLabel.subtitle}
-                                    />
-                                </Button>
-
-                                <Button
-                                    variant="default"
-                                    size="lg"
-                                    className={MENU_TERTIARY_ACTION_CLASS}
-                                    style={MENU_TERTIARY_ACTION_STYLE}
-                                    onClick={onShowLevels}
-                                    onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
-                                    data-testid="level-select-button"
-                                    aria-label={t("game.levelSelect")}
-                                >
-                                    <MenuActionButtonContent
-                                        icon={<GridIcon className="w-6 h-6" />}
-                                        iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
+                                    <Button
+                                        variant="default"
+                                        size="lg"
+                                        className={MENU_TERTIARY_ACTION_CLASS}
+                                        style={MENU_TERTIARY_ACTION_STYLE}
+                                        onClick={onShowLevels}
+                                        onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
+                                        data-testid="level-select-button"
+                                        aria-label={t("game.levelSelect")}
+                                    >
+                                        <MenuActionButtonContent
+                                            icon={<GridIcon className="w-6 h-6" />}
+                                            iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
                                             subtitleClassName={MENU_ACTION_SUBTITLE_MUTED_CLASS}
                                             textClassName={MENU_ACTION_TEXT_CLASS}
-                                        title={levelSelectLabel.title}
-                                        subtitle={levelSelectLabel.subtitle}
-                                    />
-                                </Button>
-                            </div>
+                                            title={levelSelectLabel.title}
+                                            subtitle={levelSelectLabel.subtitle}
+                                        />
+                                    </Button>
+                                </div>
+                            </section>
 
-                            <div className={MENU_UTILITY_GROUP_CLASS} style={MENU_UTILITY_GROUP_STYLE}>
+                            <section className={MENU_UTILITY_GROUP_CLASS} style={MENU_UTILITY_GROUP_STYLE}>
                                 <p className={MENU_UTILITY_EYEBROW_CLASS} style={MENU_UTILITY_EYEBROW_STYLE}>
                                     {t("menu.moreOptions", { defaultValue: "More options" })}
                                 </p>
@@ -205,7 +213,7 @@ export const GameMenuHome = memo(
                                 <div className="mt-2 px-2">
                                     <GameMenuCreditsDialog />
                                 </div>
-                            </div>
+                            </section>
                         </GameMenuActionStack>
                     </div>
                 </Card>

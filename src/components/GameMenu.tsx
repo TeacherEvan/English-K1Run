@@ -15,6 +15,7 @@ import "./game-menu/game-menu-language-spotlight.css";
 import "./game-menu/game-menu-ultrawide.css";
 import { GameMenuHome } from "./game-menu/GameMenuHome";
 import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
+import { formatBestTargetTotal } from "./game-menu/high-score-formatters";
 
 interface GameMenuProps {
   onStartGame: () => void
@@ -61,14 +62,14 @@ export const GameMenu = memo(({
   highScores = []
 }: GameMenuProps) => {
   // Extract current display resolution scale and updater from settings context
-  const { resolutionScale, setResolutionScale } = useSettings()
+  const { displayLanguage, resolutionScale, setResolutionScale } = useSettings()
 
   const [view, setView] = useState<'main' | 'levels'>(initialView)
   const [languageDiscoveryActive, setLanguageDiscoveryActive] = useState(true)
 
   const formattedBestTargetTotal = useMemo(
-    () => new Intl.NumberFormat().format(bestTargetTotal),
-    [bestTargetTotal],
+    () => formatBestTargetTotal(bestTargetTotal, displayLanguage),
+    [bestTargetTotal, displayLanguage],
   )
 
   // Memoize level icons computation for better performance

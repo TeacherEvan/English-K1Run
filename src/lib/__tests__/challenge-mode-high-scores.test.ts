@@ -1,6 +1,7 @@
 import type { SupportedLanguage } from "@/lib/constants/language-config";
 import {
   getBestChallengeModeScore,
+  parseLegacyBestTargetTotal,
   readChallengeModeHighScores,
   recordChallengeModeHighScore,
 } from "../challenge-mode-high-scores";
@@ -63,5 +64,12 @@ describe("challenge mode high scores", () => {
     expect(readChallengeModeHighScores()).toEqual([
       makeEntry(7, "ja", "2026-04-05T08:00:00.000Z"),
     ]);
+  });
+
+  it("rejects malformed legacy best-total values", () => {
+    expect(parseLegacyBestTargetTotal(null)).toBeNull();
+    expect(parseLegacyBestTargetTotal("not-a-number")).toBeNull();
+    expect(parseLegacyBestTargetTotal("-4")).toBeNull();
+    expect(parseLegacyBestTargetTotal("15.8")).toBe(15);
   });
 });

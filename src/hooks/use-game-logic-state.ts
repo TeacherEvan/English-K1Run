@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { getBestChallengeModeScore } from "../lib/challenge-mode-high-scores";
+import {
+  getBestChallengeModeScore,
+  parseLegacyBestTargetTotal,
+} from "../lib/challenge-mode-high-scores";
 import type {
   FairyTransformObject,
   GameObject,
@@ -52,8 +55,9 @@ export const useGameLogicState = () => {
     if (challengeModeBest !== null) {
       return challengeModeBest;
     }
-    const stored = localStorage.getItem("continuousModeBestTargetTotal");
-    return stored ? parseInt(stored, 10) : null;
+    return parseLegacyBestTargetTotal(
+      localStorage.getItem("continuousModeBestTargetTotal"),
+    );
   });
 
   return {
