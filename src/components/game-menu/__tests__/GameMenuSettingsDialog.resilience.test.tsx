@@ -92,6 +92,8 @@ describe("GameMenuSettingsDialog resilience", () => {
       document.querySelectorAll('[data-slot="tabs-trigger"]'),
     ) as HTMLButtonElement[];
 
+    expect(dialogContent.className).toContain("menu-dialog-shell");
+    expect(dialogContent.className).toContain("menu-settings-dialog");
     expect(dialogContent.className).toContain("max-h-");
     expect(dialogContent.className).toContain("overflow-y-auto");
     expect(tabsList.className).toContain("grid");

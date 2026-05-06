@@ -160,3 +160,14 @@
     font-size: 1rem;
   }
 }
+
+@media (max-height: 44rem) {
+  [data-compact-layout="single-column"].menu-home-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-compact-layout="single-column"].menu-home-actions {
+    display: flex;
+    flex-direction: column;
+  }
+}

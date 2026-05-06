@@ -28,17 +28,37 @@ export { getCSSUpdateStats };
 
 export function useDisplayAdjustment() {
   const { resolutionScale } = useSettings();
-  const [displaySettings, setDisplaySettings] = useState<DisplaySettings>({
-    scale: 1,
-    fontSize: 1,
-    objectSize: 1,
-    turtleSize: 1,
-    spacing: 1,
-    fallSpeed: 1,
-    isLandscape: false,
-    screenWidth: 0,
-    screenHeight: 0,
-    aspectRatio: 1,
+  const [displaySettings, setDisplaySettings] = useState<DisplaySettings>(() => {
+    if (typeof window === "undefined") {
+      return {
+        scale: 1,
+        fontSize: 1,
+        objectSize: 1,
+        turtleSize: 1,
+        spacing: 1,
+        fallSpeed: 1,
+        isLandscape: false,
+        screenWidth: 0,
+        screenHeight: 0,
+        aspectRatio: 1,
+      };
+    }
+
+    const viewport = getViewportMetrics();
+    const scaleValues = calculateScaleValues(viewport, resolutionScale);
+
+    return {
+      scale: scaleValues.scale,
+      fontSize: scaleValues.fontSize,
+      objectSize: scaleValues.objectSize,
+      turtleSize: scaleValues.turtleSize,
+      spacing: scaleValues.spacing,
+      fallSpeed: scaleValues.fallSpeed,
+      isLandscape: viewport.isLandscape,
+      screenWidth: viewport.width,
+      screenHeight: viewport.height,
+      aspectRatio: viewport.aspectRatio,
+    };
   });
 
   const updateDisplaySettingsRef = useRef<(() => void) | null>(null);

@@ -63,7 +63,7 @@ export const MENU_UTILITY_ACTION_CLASS =
   "menu-support-action h-[4.4rem] w-full min-w-0 justify-start gap-4 rounded-[1.4rem] border px-5 text-base font-semibold shadow-[0_10px_18px_rgba(120,87,23,0.08)] hover:-translate-y-0.5";
 
 export const MENU_DIALOG_CLASS =
-  "border shadow-2xl";
+  "menu-dialog-shell border shadow-2xl";
 
 export const MENU_SECTION_SURFACE_CLASS =
   "rounded-[1.65rem] border p-5 shadow-[0_20px_42px_rgba(120,53,15,0.08)]";

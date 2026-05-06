@@ -1,5 +1,6 @@
 import { memo, useCallback, type KeyboardEvent } from "react";
 import type { ChallengeModeHighScoreEntry } from "@/lib/challenge-mode-high-scores";
+import type { GameMenuCompactLayout } from "@/components/game-menu/menu-layout-mode";
 import { useTranslation } from "react-i18next";
 import type { ResolutionScale } from "../../context/settings-context";
 import { useSettings } from "../../context/settings-context";
@@ -42,6 +43,7 @@ interface GameMenuHomeProps {
     continuousMode: boolean;
     languageDiscoveryActive: boolean;
     resolutionScale: ResolutionScale;
+    compactLayout: GameMenuCompactLayout;
     setResolutionScale: (scale: ResolutionScale) => void;
     onLanguageDiscoverySeen: () => void;
     onStartGame: () => void;
@@ -57,6 +59,7 @@ export const GameMenuHome = memo(
         continuousMode,
         languageDiscoveryActive,
         resolutionScale,
+        compactLayout,
         setResolutionScale,
         onLanguageDiscoverySeen,
         onStartGame,
@@ -103,13 +106,19 @@ export const GameMenuHome = memo(
                     className={`${MENU_PANEL_CLASS} menu-home-panel menu-home-shell`}
                     style={MENU_PANEL_STYLE}
                 >
-                    <div className="menu-home-layout grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,24rem)] lg:items-center">
+                    <div
+                        className="menu-home-layout grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,24rem)] lg:items-center"
+                        data-compact-layout={compactLayout}
+                    >
                         <GameMenuHero
                             formattedBestTargetTotal={formattedBestTargetTotal}
                             continuousMode={continuousMode}
                         />
 
-                        <GameMenuActionStack className="menu-home-actions">
+                        <GameMenuActionStack
+                            className="menu-home-actions"
+                            data-compact-layout={compactLayout}
+                        >
                             <div className="space-y-3">
                                 <Button
                                     size="lg"

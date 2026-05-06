@@ -392,6 +392,16 @@ export class GameplayPage {
     this.stopwatch = page.locator('[data-testid="continuous-mode-stopwatch"]');
   }
 
+  private getBrowserTimeoutMultiplier() {
+    return this.page.context().browser()?.browserType().name() === "firefox"
+      ? 1.5
+      : 1;
+  }
+
+  private scaleTimeout(milliseconds: number) {
+    return Math.round(milliseconds * this.getBrowserTimeoutMultiplier());
+  }
+
   async isGameStarted() {
     return this.targetDisplay.isVisible();
   }
@@ -420,7 +430,7 @@ export class GameplayPage {
   }
 
   async tapObjectByEmoji(emoji: string) {
-    const deadline = Date.now() + 8_000;
+    const deadline = Date.now() + this.scaleTimeout(8_000);
 
     while (Date.now() < deadline) {
       const matchingObjects = this.fallingObjects.filter({ hasText: emoji });
@@ -435,7 +445,7 @@ export class GameplayPage {
         return;
       }
 
-      await this.page.waitForTimeout(150);
+      await this.page.waitForTimeout(this.scaleTimeout(150));
     }
 
     throw new Error(`No visible falling object found for emoji ${emoji}`);
@@ -446,7 +456,9 @@ export class GameplayPage {
     options: { timeoutMs?: number; retryDelayMs?: number } = {},
   ) {
     const { timeoutMs = 2_000, retryDelayMs = 100 } = options;
-    const deadline = Date.now() + timeoutMs;
+    const scaledTimeoutMs = this.scaleTimeout(timeoutMs);
+    const scaledRetryDelayMs = this.scaleTimeout(retryDelayMs);
+    const deadline = Date.now() + scaledTimeoutMs;
     const object = this.page.locator(
       `[data-testid="falling-object"][data-object-id="${objectId}"]`,
     );
@@ -462,14 +474,14 @@ export class GameplayPage {
         return;
       } catch (error) {
         lastError = error;
-        await this.page.waitForTimeout(retryDelayMs);
+        await this.page.waitForTimeout(scaledRetryDelayMs);
       }
     }
 
     const errorMessage =
       lastError instanceof Error ? lastError.message : String(lastError);
     throw new Error(
-      `Failed to click moving element ${objectId} within ${timeoutMs}ms: ${errorMessage}`,
+      `Failed to click moving element ${objectId} within ${scaledTimeoutMs}ms: ${errorMessage}`,
     );
   }
 
@@ -487,7 +499,7 @@ export class GameplayPage {
     );
 
     const attemptedObjectIds = new Set<string>();
-    const deadline = Date.now() + 8_000;
+    const deadline = Date.now() + this.scaleTimeout(8_000);
 
     while (Date.now() < deadline) {
       if (await popup.isVisible().catch(() => false)) return "popup";
@@ -527,11 +539,11 @@ export class GameplayPage {
         }
       }
 
-      await this.page.waitForTimeout(150);
+      await this.page.waitForTimeout(this.scaleTimeout(150));
     }
 
     throw new Error(
-      `Target tap for ${targetEmoji} did not resolve within 8000ms`,
+      `Target tap for ${targetEmoji} did not resolve within ${this.scaleTimeout(8_000)}ms`,
     );
   }
 

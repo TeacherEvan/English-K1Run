@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import type { ChallengeModeHighScoreEntry } from "@/lib/challenge-mode-high-scores";
+import type { GameMenuCompactLayout } from "@/components/game-menu/menu-layout-mode";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import type { GamePhase } from "../../types/game";
@@ -12,6 +13,7 @@ interface AppMenuOverlayProps {
     onStartGame: () => void;
     onSelectLevel: (levelIndex: number) => void;
     selectedLevel: number;
+    compactLayout: GameMenuCompactLayout;
     levels: string[];
     gameStarted: boolean;
     winner: boolean;
@@ -29,6 +31,7 @@ export const AppMenuOverlay = ({
     onStartGame,
     onSelectLevel,
     selectedLevel,
+    compactLayout,
     levels,
     gameStarted,
     winner,
@@ -48,6 +51,7 @@ export const AppMenuOverlay = ({
                     onStartGame={onStartGame}
                     onSelectLevel={onSelectLevel}
                     selectedLevel={selectedLevel}
+                    compactLayout={compactLayout}
                     levels={levels}
                     gameStarted={gameStarted}
                     winner={winner}

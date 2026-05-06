@@ -8,6 +8,7 @@ import { usePreloadResources } from "@/app/use-preload-resources";
 import { useTargetTimer } from "@/app/use-target-timer";
 import { AppMenuOverlay } from "@/app/components/AppMenuOverlay";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { getGameMenuCompactLayout } from "@/components/game-menu/menu-layout-mode";
 import { useDisplayAdjustment } from "@/hooks/use-display-adjustment";
 import { GAME_CATEGORIES, useGameLogic } from "@/hooks/use-game-logic";
 import {
@@ -57,6 +58,7 @@ interface AppGameplaySessionProps {
   isE2E: boolean;
   fallSpeed: number;
   selectedLevel: number;
+  compactLayout: import("@/components/game-menu/menu-layout-mode").GameMenuCompactLayout;
   levels: string[];
   continuousMode: boolean;
   backgroundClass: string;
@@ -76,6 +78,7 @@ function AppGameplaySession({
   isE2E,
   fallSpeed,
   selectedLevel,
+  compactLayout,
   levels,
   continuousMode,
   backgroundClass,
@@ -182,6 +185,7 @@ function AppGameplaySession({
         onStartGame={onRequestStart}
         onSelectLevel={onSelectLevel}
         selectedLevel={selectedLevel}
+        compactLayout={compactLayout}
         levels={levels}
         gameStarted={gameState.gameStarted}
         winner={isRunComplete}
@@ -198,6 +202,7 @@ function AppGameplaySession({
 export function AppExperience({ isE2E }: AppExperienceProps) {
   const { t } = useTranslation();
   const { displaySettings } = useDisplayAdjustment();
+  const compactLayout = getGameMenuCompactLayout(displaySettings.screenWidth);
 
   const [selectedLevel, setSelectedLevel] = useState(0);
   const [backgroundClass, setBackgroundClass] = useState(() =>
@@ -266,6 +271,7 @@ export function AppExperience({ isE2E }: AppExperienceProps) {
             isE2E={isE2E}
             fallSpeed={displaySettings.fallSpeed}
             selectedLevel={selectedLevel}
+            compactLayout={compactLayout}
             levels={levelNames}
             continuousMode={continuousMode}
             backgroundClass={backgroundClass}
@@ -294,6 +300,7 @@ export function AppExperience({ isE2E }: AppExperienceProps) {
         isE2E={isE2E}
         fallSpeed={displaySettings.fallSpeed}
         selectedLevel={selectedLevel}
+        compactLayout={compactLayout}
         levels={levelNames}
         continuousMode={continuousMode}
         backgroundClass={backgroundClass}
@@ -318,6 +325,7 @@ export function AppExperience({ isE2E }: AppExperienceProps) {
         onStartGame={handleStartGame}
         onSelectLevel={setSelectedLevel}
         selectedLevel={selectedLevel}
+        compactLayout={compactLayout}
         levels={levelNames}
         gameStarted={false}
         winner={false}

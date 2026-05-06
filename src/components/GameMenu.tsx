@@ -1,5 +1,6 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import type { ChallengeModeHighScoreEntry } from "@/lib/challenge-mode-high-scores";
+import type { GameMenuCompactLayout } from "@/components/game-menu/menu-layout-mode";
 import { useSettings } from "../context/settings-context";
 import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import type { GamePhase } from "../types/game";
@@ -19,6 +20,7 @@ interface GameMenuProps {
   onStartGame: () => void
   onSelectLevel: (levelIndex: number) => void
   selectedLevel: number
+  compactLayout: GameMenuCompactLayout
   levels: string[]
   gameStarted: boolean
   winner: boolean
@@ -46,6 +48,7 @@ export const GameMenu = memo(({
   onStartGame,
   onSelectLevel,
   selectedLevel,
+  compactLayout,
   levels,
   gameStarted,
   winner,
@@ -100,6 +103,7 @@ export const GameMenu = memo(({
           continuousMode={continuousMode}
           languageDiscoveryActive={languageDiscoveryActive}
           resolutionScale={resolutionScale}
+          compactLayout={compactLayout}
           setResolutionScale={setResolutionScale}
           onLanguageDiscoverySeen={handleLanguageDiscoverySeen}
           onStartGame={onStartGame}

@@ -82,6 +82,14 @@ describe("DefaultModeCompletionDialog", () => {
         expect(
             document.querySelector('[data-testid="default-completion-dialog"]'),
         ).not.toBeNull();
+        expect(
+            (document.querySelector('[data-testid="default-completion-dialog"]') as HTMLDivElement)
+                .className,
+        ).toContain("top-[50%]");
+        expect(
+            (document.querySelector('[data-testid="default-completion-dialog"]') as HTMLDivElement)
+                .className,
+        ).not.toContain("top-4");
         expect(document.body.textContent).toContain("きみの勝ち！");
         expect(document.body.textContent).toContain("よくできました！");
         expect(document.body.textContent).toContain("ほかのレベルへ");
