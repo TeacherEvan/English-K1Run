@@ -6,6 +6,17 @@ import {
     setAudioDescriptionsEnabled,
 } from "../../../lib/audio/audio-accessibility";
 import { Button } from "../../ui/button";
+import {
+    MENU_SECTION_BODY_CLASS,
+    MENU_SECTION_BODY_STYLE,
+    MENU_SECTION_SURFACE_CLASS,
+    MENU_SECTION_SURFACE_STYLE,
+    MENU_SECTION_TITLE_CLASS,
+    MENU_SECTION_TITLE_STYLE,
+    MENU_SETTINGS_CONTROL_CLASS,
+    MENU_SETTINGS_COPY_CLASS,
+    MENU_SETTINGS_ROW_CLASS,
+} from "../menu-surface-theme";
 
 export const AccessibilitySettings = memo(() => {
     const { t } = useTranslation();
@@ -34,50 +45,59 @@ export const AccessibilitySettings = memo(() => {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h4 className="font-medium leading-none">{t("settings.accessibility.highContrastTitle")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                        {t("settings.accessibility.highContrastDescription")}
-                    </p>
+            <div className={MENU_SECTION_SURFACE_CLASS} style={MENU_SECTION_SURFACE_STYLE}>
+                <div className={MENU_SETTINGS_ROW_CLASS}>
+                    <div className={MENU_SETTINGS_COPY_CLASS}>
+                        <h4 className={MENU_SECTION_TITLE_CLASS} style={MENU_SECTION_TITLE_STYLE}>{t("settings.accessibility.highContrastTitle")}</h4>
+                        <p className={MENU_SECTION_BODY_CLASS} style={MENU_SECTION_BODY_STYLE}>
+                            {t("settings.accessibility.highContrastDescription")}
+                        </p>
+                    </div>
+                    <Button
+                        variant={highContrast ? "default" : "outline"}
+                        aria-pressed={highContrast}
+                        onClick={() => setHighContrast(!highContrast)}
+                        className={MENU_SETTINGS_CONTROL_CLASS}
+                    >
+                        {highContrast ? t("common.on") : t("common.off")}
+                    </Button>
                 </div>
-                <Button
-                    variant={highContrast ? "default" : "outline"}
-                    aria-pressed={highContrast}
-                    onClick={() => setHighContrast(!highContrast)}
-                >
-                    {highContrast ? t("common.on") : t("common.off")}
-                </Button>
             </div>
-            <div className="flex items-center justify-between">
-                <div>
-                    <h4 className="font-medium leading-none">{t("settings.accessibility.reducedMotionTitle")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                        {t("settings.accessibility.reducedMotionDescription")}
-                    </p>
+            <div className={MENU_SECTION_SURFACE_CLASS} style={MENU_SECTION_SURFACE_STYLE}>
+                <div className={MENU_SETTINGS_ROW_CLASS}>
+                    <div className={MENU_SETTINGS_COPY_CLASS}>
+                        <h4 className={MENU_SECTION_TITLE_CLASS} style={MENU_SECTION_TITLE_STYLE}>{t("settings.accessibility.reducedMotionTitle")}</h4>
+                        <p className={MENU_SECTION_BODY_CLASS} style={MENU_SECTION_BODY_STYLE}>
+                            {t("settings.accessibility.reducedMotionDescription")}
+                        </p>
+                    </div>
+                    <Button
+                        variant={reducedMotion ? "default" : "outline"}
+                        aria-pressed={reducedMotion}
+                        onClick={() => setReducedMotion(!reducedMotion)}
+                        className={MENU_SETTINGS_CONTROL_CLASS}
+                    >
+                        {reducedMotion ? t("common.on") : t("common.off")}
+                    </Button>
                 </div>
-                <Button
-                    variant={reducedMotion ? "default" : "outline"}
-                    aria-pressed={reducedMotion}
-                    onClick={() => setReducedMotion(!reducedMotion)}
-                >
-                    {reducedMotion ? t("common.on") : t("common.off")}
-                </Button>
             </div>
-            <div className="flex items-center justify-between">
-                <div>
-                    <h4 className="font-medium leading-none">{t("settings.accessibility.audioDescriptionsTitle")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                        {t("settings.accessibility.audioDescriptionsDescription")}
-                    </p>
+            <div className={MENU_SECTION_SURFACE_CLASS} style={MENU_SECTION_SURFACE_STYLE}>
+                <div className={MENU_SETTINGS_ROW_CLASS}>
+                    <div className={MENU_SETTINGS_COPY_CLASS}>
+                        <h4 className={MENU_SECTION_TITLE_CLASS} style={MENU_SECTION_TITLE_STYLE}>{t("settings.accessibility.audioDescriptionsTitle")}</h4>
+                        <p className={MENU_SECTION_BODY_CLASS} style={MENU_SECTION_BODY_STYLE}>
+                            {t("settings.accessibility.audioDescriptionsDescription")}
+                        </p>
+                    </div>
+                    <Button
+                        variant={audioDescriptions ? "default" : "outline"}
+                        aria-pressed={audioDescriptions}
+                        onClick={toggleAudioDescriptions}
+                        className={MENU_SETTINGS_CONTROL_CLASS}
+                    >
+                        {audioDescriptions ? t("common.on") : t("common.off")}
+                    </Button>
                 </div>
-                <Button
-                    variant={audioDescriptions ? "default" : "outline"}
-                    aria-pressed={audioDescriptions}
-                    onClick={toggleAudioDescriptions}
-                >
-                    {audioDescriptions ? t("common.on") : t("common.off")}
-                </Button>
             </div>
         </div>
     );

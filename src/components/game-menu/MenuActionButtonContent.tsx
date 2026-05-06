@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from "react";
+import { memo, type CSSProperties, type ReactNode } from "react";
 
 interface MenuActionButtonContentProps {
     icon: ReactNode;
@@ -6,6 +6,7 @@ interface MenuActionButtonContentProps {
     subtitle?: string;
     iconWrapperClassName?: string;
     subtitleClassName?: string;
+    subtitleStyle?: CSSProperties;
     textClassName?: string;
 }
 
@@ -16,6 +17,7 @@ export const MenuActionButtonContent = memo(
         subtitle,
         iconWrapperClassName,
         subtitleClassName,
+        subtitleStyle,
         textClassName,
     }: MenuActionButtonContentProps) => {
         return (
@@ -26,7 +28,7 @@ export const MenuActionButtonContent = memo(
                     icon
                 )}
                 <div className={textClassName ?? "flex min-w-0 flex-1 flex-col items-start leading-tight"}>
-                    <span className="min-w-0 max-w-full overflow-hidden text-ellipsis [overflow-wrap:anywhere]">
+                    <span className="min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-normal wrap-anywhere">
                         {title}
                     </span>
                     {subtitle && (
@@ -34,6 +36,7 @@ export const MenuActionButtonContent = memo(
                             className={
                                 subtitleClassName ?? "mt-1 text-xs font-normal text-muted-foreground/80"
                             }
+                            style={subtitleStyle}
                         >
                             {subtitle}
                         </span>

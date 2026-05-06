@@ -12,6 +12,18 @@ import {
 import { LogOutIcon } from "./icons";
 import { getMenuActionLabel } from "./menu-action-labels";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
+import {
+    MENU_ACTION_TEXT_CLASS,
+    MENU_DIALOG_CLASS,
+    MENU_DIALOG_DESCRIPTION_CLASS,
+    MENU_DIALOG_DESCRIPTION_STYLE,
+    MENU_DIALOG_HEADER_TITLE_CLASS,
+    MENU_DIALOG_STYLE,
+    MENU_DIALOG_TITLE_STYLE,
+    MENU_UTILITY_ACTION_CLASS,
+    MENU_UTILITY_ACTION_STYLE,
+    MENU_UTILITY_SUBTITLE_STYLE,
+} from "./menu-surface-theme";
 
 interface GameMenuExitDialogProps {
     onResetGame?: () => void;
@@ -43,27 +55,29 @@ export const GameMenuExitDialog = memo(
                 <Button
                     variant="outline"
                     size="lg"
-                    className="menu-support-action mt-1 h-[4.4rem] w-full min-w-0 justify-start gap-4 rounded-[1.4rem] border border-[rgba(212,156,84,0.24)] bg-[rgba(255,248,235,0.96)] px-5 text-base font-semibold text-[rgb(122,62,34)] shadow-[0_10px_18px_rgba(120,87,23,0.08)] hover:-translate-y-0.5 hover:bg-[rgba(252,240,220,0.98)] hover:shadow-[0_14px_22px_rgba(120,87,23,0.12)]"
+                    className={`mt-1 ${MENU_UTILITY_ACTION_CLASS}`}
+                    style={MENU_UTILITY_ACTION_STYLE}
                     onClick={handleExit}
                     data-testid="exit-button"
                 >
                     <MenuActionButtonContent
                         icon={<LogOutIcon className="w-5 h-5" />}
-                        subtitleClassName="mt-1 text-sm font-medium text-white/78"
-                        textClassName="menu-action-copy flex flex-col items-start leading-tight"
+                        subtitleClassName="mt-1 text-sm font-medium"
+                        subtitleStyle={MENU_UTILITY_SUBTITLE_STYLE}
+                        textClassName={MENU_ACTION_TEXT_CLASS}
                         title={exitLabel.title}
                         subtitle={exitLabel.subtitle}
                     />
                 </Button>
 
                 <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-                    <DialogContent className="menu-compact-dialog sm:max-w-md">
+                    <DialogContent className={`menu-compact-dialog ${MENU_DIALOG_CLASS} sm:max-w-md`} style={MENU_DIALOG_STYLE}>
                         <DialogHeader>
-                            <DialogTitle className="text-2xl flex items-center gap-2 text-destructive">
+                            <DialogTitle className={MENU_DIALOG_HEADER_TITLE_CLASS} style={MENU_DIALOG_TITLE_STYLE}>
                                 <LogOutIcon className="w-6 h-6" />
                                 {t("menu.exitDialog.title")}
                             </DialogTitle>
-                            <DialogDescription>
+                            <DialogDescription className={MENU_DIALOG_DESCRIPTION_CLASS} style={MENU_DIALOG_DESCRIPTION_STYLE}>
                                 {t("menu.exitDialog.description")}
                             </DialogDescription>
                         </DialogHeader>

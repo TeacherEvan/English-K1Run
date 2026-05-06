@@ -123,6 +123,16 @@ export default defineConfig({
             return "vendor-other";
           }
 
+          const isMenuSettingsChunk =
+            normalizedId.includes(
+              "/src/components/game-menu/GameMenuSettingsDialogPanel",
+            ) ||
+            normalizedId.includes("/src/components/game-menu/settings-sections/");
+
+          if (isMenuSettingsChunk) {
+            return "menu-settings";
+          }
+
           // Application code chunking (lighter strategy)
           // FIXED: Merge all application code into single chunk to eliminate circular dependencies
           // Previously:

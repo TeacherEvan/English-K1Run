@@ -1,4 +1,4 @@
-import { act } from "react";
+import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -20,9 +20,17 @@ const baseGameState: GameState = {
 describe("AppExperience lazy gameplay scene", () => {
     let container: HTMLDivElement;
     let root: Root;
+    let useGameLogicSpy: ReturnType<typeof vi.fn>;
+    let startGameSpy: ReturnType<typeof vi.fn>;
+    let useDisplayAdjustmentSpy: ReturnType<typeof vi.fn>;
+    let useBackgroundRotationSpy: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         vi.resetModules();
+        useGameLogicSpy = vi.fn();
+        startGameSpy = vi.fn();
+        useDisplayAdjustmentSpy = vi.fn();
+        useBackgroundRotationSpy = vi.fn();
         container = document.createElement("div");
         document.body.appendChild(container);
         root = createRoot(container);
@@ -48,12 +56,21 @@ describe("AppExperience lazy gameplay scene", () => {
         vi.doUnmock("@/lib/constants/category-translation");
         vi.doUnmock("@/lib/utils/background-preloader");
         vi.doUnmock("@/components/LoadingSkeleton");
+        vi.doUnmock("../../components/worm-loading");
         vi.doUnmock("react-i18next");
     });
 
-    it("renders the menu overlay while the gameplay scene is still loading", async () => {
-        let resolveSceneModule: ((value: { AppGameplayScene: () => JSX.Element }) => void) | undefined;
-        const sceneModule = new Promise<{ AppGameplayScene: () => JSX.Element }>((resolve) => {
+    it("does not mount gameplay state on the initial menu render and keeps the menu overlay while the gameplay scene loads after start", async () => {
+        let resolveSceneModule:
+            | ((
+                  value: {
+                      AppGameplayScene: ({ onResetGame }: { onResetGame: () => void }) => ReactElement;
+                  },
+              ) => void)
+            | undefined;
+        const sceneModule = new Promise<{
+            AppGameplayScene: ({ onResetGame }: { onResetGame: () => void }) => ReactElement;
+        }>((resolve) => {
             resolveSceneModule = resolve;
         });
 
@@ -65,10 +82,17 @@ describe("AppExperience lazy gameplay scene", () => {
         }));
         vi.doMock("@/app/components/AppGameplayScene", () => sceneModule);
         vi.doMock("@/app/components/AppMenuOverlay", () => ({
-            AppMenuOverlay: () => <div data-testid="menu-overlay" />,
+            AppMenuOverlay: ({ onStartGame }: { onStartGame: () => void }) => (
+                <div data-testid="menu-overlay">
+                    <button data-testid="start-game" onClick={onStartGame} />
+                </div>
+            ),
         }));
         vi.doMock("@/app/use-background-rotation", () => ({
-            useBackgroundRotation: () => undefined,
+            useBackgroundRotation: () => {
+                useBackgroundRotationSpy();
+                return undefined;
+            },
         }));
         vi.doMock("@/app/use-debug-toggle", () => ({ useDebugToggle: () => undefined }));
         vi.doMock("@/app/use-fullscreen-guard", () => ({
@@ -80,27 +104,33 @@ describe("AppExperience lazy gameplay scene", () => {
         }));
         vi.doMock("@/app/use-target-timer", () => ({ useTargetTimer: () => undefined }));
         vi.doMock("@/hooks/use-display-adjustment", () => ({
-            useDisplayAdjustment: () => ({ displaySettings: { fallSpeed: 1 } }),
+            useDisplayAdjustment: () => {
+                useDisplayAdjustmentSpy();
+                return { displaySettings: { fallSpeed: 1 } };
+            },
         }));
         vi.doMock("@/hooks/use-game-logic", () => ({
             GAME_CATEGORIES: [{ name: "Animals & Nature" }],
-            useGameLogic: () => ({
-                gameObjects: [],
-                worms: [],
-                fairyTransforms: [],
-                screenShake: false,
-                gameState: baseGameState,
-                currentCategory: {
-                    name: "Animals & Nature",
-                    items: [],
-                    requiresSequence: false,
-                },
-                handleObjectTap: vi.fn(),
-                handleWormTap: vi.fn(),
-                startGame: vi.fn(),
-                resetGame: vi.fn(),
-                continuousModeHighScore: null,
-            }),
+            useGameLogic: () => {
+                useGameLogicSpy();
+                return {
+                    gameObjects: [],
+                    worms: [],
+                    fairyTransforms: [],
+                    screenShake: false,
+                    gameState: baseGameState,
+                    currentCategory: {
+                        name: "Animals & Nature",
+                        items: [],
+                        requiresSequence: false,
+                    },
+                    handleObjectTap: vi.fn(),
+                    handleWormTap: vi.fn(),
+                    startGame: startGameSpy,
+                    resetGame: vi.fn(),
+                    continuousModeHighScore: null,
+                };
+            },
         }));
         vi.doMock("@/lib/constants/category-translation", () => ({
             getCategoryTranslationKey: () => "animals",
@@ -111,6 +141,11 @@ describe("AppExperience lazy gameplay scene", () => {
         vi.doMock("@/components/LoadingSkeleton", () => ({
             LoadingSkeleton: () => null,
         }));
+        vi.doMock("../../components/worm-loading", () => ({
+            WormLoadingScreen: ({ onComplete }: { onComplete: () => void }) => (
+                <button data-testid="complete-loading" onClick={onComplete} />
+            ),
+        }));
 
         const { AppExperience } = await import("../components/AppExperience");
 
@@ -119,17 +154,76 @@ describe("AppExperience lazy gameplay scene", () => {
             await Promise.resolve();
         });
 
+        expect(useGameLogicSpy).not.toHaveBeenCalled();
+        expect(startGameSpy).not.toHaveBeenCalled();
+        expect(useDisplayAdjustmentSpy).toHaveBeenCalled();
+        expect(useBackgroundRotationSpy).toHaveBeenCalled();
+        expect(document.querySelector('[data-testid="menu-overlay"]')).not.toBeNull();
+        expect(document.querySelector('[data-testid="game-scene"]')).toBeNull();
+
+        await act(async () => {
+            document
+                .querySelector<HTMLButtonElement>('[data-testid="start-game"]')
+                ?.click();
+            await Promise.resolve();
+        });
+
+        expect(useGameLogicSpy).toHaveBeenCalled();
+        expect(startGameSpy).not.toHaveBeenCalled();
+
+        await act(async () => {
+            document
+                .querySelector<HTMLButtonElement>('[data-testid="complete-loading"]')
+                ?.click();
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        expect(startGameSpy).toHaveBeenCalledTimes(1);
         expect(document.querySelector('[data-testid="menu-overlay"]')).not.toBeNull();
         expect(document.querySelector('[data-testid="game-scene"]')).toBeNull();
 
         await act(async () => {
             resolveSceneModule?.({
-                AppGameplayScene: () => <div data-testid="game-scene" />,
+                AppGameplayScene: ({ onResetGame }) => (
+                    <div data-testid="game-scene">
+                        <button data-testid="reset-game" onClick={onResetGame} />
+                    </div>
+                ),
             });
             await Promise.resolve();
             await Promise.resolve();
         });
 
         expect(document.querySelector('[data-testid="game-scene"]')).not.toBeNull();
+
+        await act(async () => {
+            document
+                .querySelector<HTMLButtonElement>('[data-testid="reset-game"]')
+                ?.click();
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        expect(document.querySelector('[data-testid="menu-overlay"]')).not.toBeNull();
+
+        await act(async () => {
+            document
+                .querySelector<HTMLButtonElement>('[data-testid="start-game"]')
+                ?.click();
+            await Promise.resolve();
+        });
+
+        expect(startGameSpy).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+            document
+                .querySelector<HTMLButtonElement>('[data-testid="complete-loading"]')
+                ?.click();
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        expect(startGameSpy).toHaveBeenCalledTimes(2);
     });
 });

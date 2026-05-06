@@ -1,4 +1,4 @@
-import { act } from 'react'
+import { act, useEffect } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -7,6 +7,7 @@ import type { GameState } from '../../types/game'
 
 const backgroundRotationSpy = vi.fn()
 const appMenuOverlaySpy = vi.fn()
+let autoStartRequested = false
 
 let currentGameState: GameState = {
     progress: 0,
@@ -32,8 +33,14 @@ vi.mock('../../app/components/AppGameplayScene', () => ({
     AppGameplayScene: () => <div data-testid="game-scene" />,
 }))
 vi.mock('../../app/components/AppMenuOverlay', () => ({
-    AppMenuOverlay: (props: unknown) => {
+    AppMenuOverlay: (props: { onStartGame: () => void }) => {
         appMenuOverlaySpy(props)
+        useEffect(() => {
+            if (!autoStartRequested) {
+                autoStartRequested = true
+                props.onStartGame()
+            }
+        }, [props])
         return <div data-testid="menu-overlay" />
     },
 }))
@@ -98,12 +105,21 @@ vi.mock('../../components/game-completion/DefaultModeCompletionDialog', () => ({
 vi.mock('../../components/LoadingSkeleton', () => ({
     LoadingSkeleton: () => null,
 }))
+vi.mock('../../components/worm-loading', () => ({
+    WormLoadingScreen: ({ onComplete }: { onComplete: () => void }) => {
+        useEffect(() => {
+            onComplete()
+        }, [onComplete])
+        return null
+    },
+}))
 
 describe('default mode run routing', () => {
     let container: HTMLDivElement
     let root: Root
 
     beforeEach(() => {
+        autoStartRequested = false
         container = document.createElement('div')
         document.body.appendChild(container)
         root = createRoot(container)
@@ -129,6 +145,7 @@ describe('default mode run routing', () => {
         await act(async () => {
             root.render(<AppExperience isE2E />)
             await Promise.resolve()
+            await Promise.resolve()
         })
 
         expect(backgroundRotationSpy).toHaveBeenCalledWith(true, false, expect.any(Function))
@@ -148,6 +165,7 @@ describe('default mode run routing', () => {
 
         await act(async () => {
             root.render(<AppExperience isE2E />)
+            await Promise.resolve()
             await Promise.resolve()
         })
 

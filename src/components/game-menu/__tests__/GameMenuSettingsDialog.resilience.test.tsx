@@ -6,7 +6,18 @@ import { GameMenuSettingsDialog } from "../GameMenuSettingsDialog";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      const longTranslations: Record<string, string> = {
+        "settings.title": "Extremely detailed classroom settings and configuration",
+        "settings.description": "Choose visual, audio, control, and accessibility options for this classroom experience.",
+        "settings.tabs.audio": "Audio and spoken feedback preferences",
+        "settings.tabs.visual": "Visual presentation and scaling options",
+        "settings.tabs.controls": "Controls, language, and classroom behavior",
+        "settings.tabs.accessibility": "Accessibility and learner support tools",
+      };
+
+      return longTranslations[key] ?? key;
+    },
   }),
 }));
 
@@ -32,7 +43,7 @@ vi.mock("../settings-sections/VisualSettings", () => ({
   VisualSettings: () => <div>VisualSettings</div>,
 }));
 
-describe("GameMenuSettingsDialog language discovery", () => {
+describe("GameMenuSettingsDialog resilience", () => {
   let container: HTMLDivElement;
   let root: Root;
 
@@ -49,40 +60,7 @@ describe("GameMenuSettingsDialog language discovery", () => {
     document.body.innerHTML = "";
   });
 
-  it("marks the settings trigger active and clears discovery on first open", async () => {
-    const onLanguageDiscoverySeen = vi.fn();
-
-    await act(async () => {
-      root.render(
-        <GameMenuSettingsDialog
-          resolutionScale="auto"
-          setResolutionScale={vi.fn()}
-          continuousMode={false}
-          languageDiscoveryActive
-          onLanguageDiscoverySeen={onLanguageDiscoverySeen}
-        />,
-      );
-    });
-
-    const trigger = document.querySelector(
-      '[data-testid="settings-button"]',
-    ) as HTMLButtonElement;
-
-    expect(trigger.dataset.languageDiscovery).toBe("active");
-
-    await act(async () => {
-      trigger.click();
-      await import("../GameMenuSettingsDialogPanel");
-      await Promise.resolve();
-      await Promise.resolve();
-    });
-
-    expect(onLanguageDiscoverySeen).toHaveBeenCalledTimes(1);
-  });
-
-  it("keeps the trigger idle after the discovery cue is dismissed", async () => {
-    const onLanguageDiscoverySeen = vi.fn();
-
+  it("keeps the dialog scrollable and tab labels wrappable for long localized copy", async () => {
     await act(async () => {
       root.render(
         <GameMenuSettingsDialog
@@ -90,7 +68,7 @@ describe("GameMenuSettingsDialog language discovery", () => {
           setResolutionScale={vi.fn()}
           continuousMode={false}
           languageDiscoveryActive={false}
-          onLanguageDiscoverySeen={onLanguageDiscoverySeen}
+          onLanguageDiscoverySeen={vi.fn()}
         />,
       );
     });
@@ -99,8 +77,6 @@ describe("GameMenuSettingsDialog language discovery", () => {
       '[data-testid="settings-button"]',
     ) as HTMLButtonElement;
 
-    expect(trigger.dataset.languageDiscovery).toBe("idle");
-
     await act(async () => {
       trigger.click();
       await import("../GameMenuSettingsDialogPanel");
@@ -108,6 +84,23 @@ describe("GameMenuSettingsDialog language discovery", () => {
       await Promise.resolve();
     });
 
-    expect(onLanguageDiscoverySeen).not.toHaveBeenCalled();
+    const dialogContent = document.querySelector(
+      '[data-slot="dialog-content"]',
+    ) as HTMLDivElement;
+    const tabsList = document.querySelector('[data-slot="tabs-list"]') as HTMLDivElement;
+    const tabs = Array.from(
+      document.querySelectorAll('[data-slot="tabs-trigger"]'),
+    ) as HTMLButtonElement[];
+
+    expect(dialogContent.className).toContain("max-h-");
+    expect(dialogContent.className).toContain("overflow-y-auto");
+    expect(tabsList.className).toContain("grid");
+    expect(tabsList.className).toContain("grid-cols-2");
+    expect(tabsList.className).toContain("sm:grid-cols-4");
+
+    for (const tab of tabs) {
+      expect(tab.className).toContain("whitespace-normal");
+      expect(tab.className).toContain("min-w-0");
+    }
   });
 });

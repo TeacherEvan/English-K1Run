@@ -9,6 +9,14 @@ import {
     DialogTrigger,
 } from "../ui/dialog";
 import { InfoIcon } from "./icons";
+import {
+    MENU_DIALOG_CLASS,
+    MENU_DIALOG_HEADER_TITLE_CLASS,
+    MENU_DIALOG_STYLE,
+    MENU_DIALOG_TITLE_STYLE,
+    MENU_SUPPORT_LINK_CLASS,
+    MENU_SUPPORT_LINK_STYLE,
+} from "./menu-surface-theme";
 
 export const GameMenuCreditsDialog = memo(() => {
     const { t } = useTranslation();
@@ -19,15 +27,16 @@ export const GameMenuCreditsDialog = memo(() => {
                 <Button
                     variant="link"
                     size="sm"
-                    className="menu-support-link mt-1 h-auto self-start p-0 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                    className={MENU_SUPPORT_LINK_CLASS}
+                    style={MENU_SUPPORT_LINK_STYLE}
                     data-testid="credits-button"
                 >
                     {t("menu.credits.title")}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="menu-compact-dialog sm:max-w-lg">
+            <DialogContent className={`menu-compact-dialog ${MENU_DIALOG_CLASS} sm:max-w-lg`} style={MENU_DIALOG_STYLE}>
                 <DialogHeader>
-                    <DialogTitle className="text-2xl flex items-center gap-2">
+                    <DialogTitle className={MENU_DIALOG_HEADER_TITLE_CLASS} style={MENU_DIALOG_TITLE_STYLE}>
                         <InfoIcon className="w-6 h-6" />
                         {t("menu.credits.title")}
                     </DialogTitle>

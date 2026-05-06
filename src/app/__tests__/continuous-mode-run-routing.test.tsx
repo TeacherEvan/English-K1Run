@@ -1,4 +1,4 @@
-import { act } from "react";
+import { act, useEffect } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +7,7 @@ import { GameMenuHero } from "../../components/game-menu/GameMenuHero";
 import type { GameState } from "../../types/game";
 
 const appMenuOverlaySpy = vi.fn();
+let autoStartRequested = false;
 
 const currentGameState: GameState = {
     progress: 0,
@@ -45,17 +46,22 @@ vi.mock("../../app/components/AppGameplayScene", () => ({
     AppGameplayScene: () => <div data-testid="game-scene" />,
 }));
 vi.mock("../../app/components/AppMenuOverlay", async () => {
-    const React = await import("react");
     return {
         AppMenuOverlay: (props: {
+            onStartGame: () => void;
             onToggleContinuousMode: (enabled: boolean) => void;
         }) => {
-            const { onToggleContinuousMode } = props;
+            const { onStartGame, onToggleContinuousMode } = props;
             appMenuOverlaySpy(props);
-            React.useEffect(() => {
+            useEffect(() => {
+                if (!autoStartRequested) {
+                    autoStartRequested = true;
+                    onStartGame();
+                    return;
+                }
                 onToggleContinuousMode(true);
                 onToggleContinuousMode(false);
-            }, [onToggleContinuousMode]);
+            }, [onStartGame, onToggleContinuousMode]);
             return <div data-testid="menu-overlay" />;
         },
     };
@@ -119,8 +125,23 @@ vi.mock("../../components/game-completion/DefaultModeCompletionDialog", () => ({
 vi.mock("../../components/LoadingSkeleton", () => ({
     LoadingSkeleton: () => null,
 }));
+vi.mock("../../components/worm-loading", () => ({
+    WormLoadingScreen: ({ onComplete }: { onComplete: () => void }) => {
+        useEffect(() => {
+            onComplete();
+        }, [onComplete]);
+        return null;
+    },
+}));
 vi.mock("../../lib/constants/classroom-brand", () => ({
-    CLASSROOM_BRAND: { signature: "English K1 Run" },
+    CLASSROOM_BRAND: {
+        signature: "English K1 Run",
+        palette: {
+            sun: "oklch(0.85 0.13 80)",
+            panel: "oklch(0.98 0.02 95)",
+            sky: "oklch(0.92 0.05 220)",
+        },
+    },
 }));
 
 describe("continuous mode run routing", () => {
@@ -128,6 +149,7 @@ describe("continuous mode run routing", () => {
     let root: Root;
 
     beforeEach(() => {
+        autoStartRequested = false;
         container = document.createElement("div");
         document.body.appendChild(container);
         root = createRoot(container);
@@ -145,6 +167,7 @@ describe("continuous mode run routing", () => {
     it("keeps the default completion dialog hidden after a continuous run even if the toggle changes", async () => {
         await act(async () => {
             root.render(<AppExperience isE2E />);
+            await Promise.resolve();
             await Promise.resolve();
         });
 

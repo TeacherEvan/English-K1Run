@@ -2,6 +2,17 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button";
 import { LanguageSelector } from "../../ui/language-selector";
+import {
+    MENU_SECTION_BODY_CLASS,
+    MENU_SECTION_BODY_STYLE,
+    MENU_SETTINGS_CONTROL_CLASS,
+    MENU_SECTION_SURFACE_CLASS,
+    MENU_SECTION_SURFACE_STYLE,
+    MENU_SETTINGS_COPY_CLASS,
+    MENU_SETTINGS_ROW_CLASS,
+    MENU_SECTION_TITLE_CLASS,
+    MENU_SECTION_TITLE_STYLE,
+} from "../menu-surface-theme";
 
 interface ControlSettingsProps {
     continuousMode: boolean;
@@ -14,12 +25,12 @@ export const ControlSettings = memo(
 
         return (
             <div className="space-y-4">
-                <div className="space-y-4 rounded-[1.65rem] border border-[rgba(214,144,62,0.24)] bg-[linear-gradient(145deg,rgba(255,248,236,0.98),rgba(241,252,244,0.96)_56%,rgba(255,239,229,0.94))] p-5 shadow-[0_20px_42px_rgba(120,53,15,0.08)]">
+                <div className={`space-y-4 ${MENU_SECTION_SURFACE_CLASS}`} style={MENU_SECTION_SURFACE_STYLE}>
                     <div className="space-y-1">
-                        <h4 className="font-semibold leading-none text-[rgb(123,63,33)]">
+                        <h4 className={MENU_SECTION_TITLE_CLASS} style={MENU_SECTION_TITLE_STYLE}>
                             {t("settings.controls.languageSectionTitle")}
                         </h4>
-                        <p className="max-w-[34rem] text-sm text-[rgba(102,78,56,0.84)]">
+                        <p className={`max-w-136 ${MENU_SECTION_BODY_CLASS}`} style={MENU_SECTION_BODY_STYLE}>
                             {t("settings.controls.languageSectionDescription")}
                         </p>
                     </div>
@@ -36,23 +47,25 @@ export const ControlSettings = memo(
                         />
                     </div>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-border/80 bg-card/95 p-4 shadow-sm">
-                    <div className="space-y-1">
-                        <h4 className="font-medium leading-none">
+                <div className={`flex items-center justify-between ${MENU_SECTION_SURFACE_CLASS}`} style={MENU_SECTION_SURFACE_STYLE}>
+                    <div className={MENU_SETTINGS_ROW_CLASS}>
+                    <div className={MENU_SETTINGS_COPY_CLASS}>
+                        <h4 className={MENU_SECTION_TITLE_CLASS} style={MENU_SECTION_TITLE_STYLE}>
                             {t("game.continuousMode")}
                         </h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className={MENU_SECTION_BODY_CLASS} style={MENU_SECTION_BODY_STYLE}>
                             {t("settings.controls.continuousModeDescription")}
                         </p>
                     </div>
                     <Button
                         variant={continuousMode ? "default" : "outline"}
                         onClick={() => onToggleContinuousMode?.(!continuousMode)}
-                        className={continuousMode ? "bg-green-600 hover:bg-green-700" : ""}
+                        className={`${MENU_SETTINGS_CONTROL_CLASS} ${continuousMode ? "border-transparent text-primary-foreground" : ""}`.trim()}
                         aria-pressed={continuousMode}
                     >
                         {continuousMode ? t("common.on") : t("common.off")}
                     </Button>
+                    </div>
                 </div>
             </div>
         );

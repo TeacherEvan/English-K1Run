@@ -90,6 +90,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement
     root.classList.remove('light-theme', 'dark-theme', 'colorful-theme')
     root.classList.add(`${settings.theme}-theme`)
+    root.classList.toggle('dark', settings.theme === 'dark')
 
     // Apply accessibility classes
     if (settings.highContrast) {

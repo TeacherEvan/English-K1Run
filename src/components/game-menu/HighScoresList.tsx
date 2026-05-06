@@ -4,6 +4,14 @@ import {
   formatHighScoreTimestamp,
   getHighScoreLanguageLabel,
 } from "./high-score-formatters";
+import {
+  MENU_SECTION_BODY_CLASS,
+  MENU_SECTION_BODY_STYLE,
+  MENU_SECTION_SURFACE_CLASS,
+  MENU_SECTION_SURFACE_STYLE,
+  MENU_SECTION_TITLE_CLASS,
+  MENU_SECTION_TITLE_STYLE,
+} from "./menu-surface-theme";
 
 interface HighScoresListProps {
   highScores: ChallengeModeHighScoreEntry[];
@@ -16,10 +24,11 @@ export function HighScoresList({ highScores }: HighScoresListProps) {
     return (
       <div
         data-testid="high-scores-empty"
-        className="rounded-[1.6rem] border border-dashed border-amber-300/80 bg-amber-50/70 px-5 py-5 text-slate-700"
+        className={MENU_SECTION_SURFACE_CLASS}
+        style={MENU_SECTION_SURFACE_STYLE}
       >
-        <p className="text-sm font-semibold text-slate-900">{t("game.highScoresEmpty")}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-700">
+        <p className={MENU_SECTION_TITLE_CLASS} style={MENU_SECTION_TITLE_STYLE}>{t("game.highScoresEmpty")}</p>
+        <p className={`mt-2 leading-6 ${MENU_SECTION_BODY_CLASS}`} style={MENU_SECTION_BODY_STYLE}>
           {t("game.highScoresEmptyGuide", {
             defaultValue:
               "Start Challenge Mode from the home screen, clear as many targets as you can, and your first score will appear here.",

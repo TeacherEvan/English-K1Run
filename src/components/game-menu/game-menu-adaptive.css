@@ -9,6 +9,24 @@
   overflow-y: auto;
 }
 
+.menu-settings-dialog {
+  width: min(100%, 44rem);
+  max-height: min(42rem, calc(100dvh - 3rem));
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.25rem);
+}
+
+.menu-settings-dialog [data-slot="tabs"] {
+  min-height: 0;
+  flex: 1;
+}
+
+.menu-settings-dialog .menu-settings-surface {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
 .menu-settings-tabs-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

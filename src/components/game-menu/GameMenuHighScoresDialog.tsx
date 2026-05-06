@@ -11,6 +11,17 @@ import {
 import { TrophyIcon } from "./icons";
 import { HighScoresList } from "./HighScoresList";
 import { useTranslation } from "react-i18next";
+import {
+  MENU_ACTION_TEXT_CLASS,
+  MENU_DIALOG_CLASS,
+  MENU_DIALOG_DESCRIPTION_CLASS,
+  MENU_DIALOG_DESCRIPTION_STYLE,
+  MENU_DIALOG_HEADER_TITLE_CLASS,
+  MENU_DIALOG_STYLE,
+  MENU_DIALOG_TITLE_STYLE,
+  MENU_UTILITY_ACTION_CLASS,
+  MENU_UTILITY_ACTION_STYLE,
+} from "./menu-surface-theme";
 
 interface GameMenuHighScoresDialogProps {
   highScores: ChallengeModeHighScoreEntry[];
@@ -27,16 +38,20 @@ export function GameMenuHighScoresDialog({
         <Button
           variant="outline"
           size="lg"
-          className="menu-support-action h-[4.4rem] w-full min-w-0 justify-start gap-4 rounded-[1.4rem] border border-[rgba(212,156,84,0.24)] bg-[rgba(255,248,235,0.96)] px-5 text-base font-semibold text-[rgb(63,52,41)] shadow-[0_10px_18px_rgba(120,87,23,0.08)] hover:-translate-y-0.5 hover:bg-[rgba(252,240,220,0.98)] hover:shadow-[0_14px_22px_rgba(120,87,23,0.12)]"
+          className={MENU_UTILITY_ACTION_CLASS}
+          style={MENU_UTILITY_ACTION_STYLE}
           data-testid="high-scores-button"
         >
             <span className="flex min-w-0 items-center gap-4">
             <span className="menu-action-icon-shell menu-action-icon-shell--challenge">
               <TrophyIcon className="h-6 w-6 text-amber-600" />
             </span>
-              <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
+              <span className={MENU_ACTION_TEXT_CLASS}>
               <span className="font-semibold">{t("game.highScores")}</span>
-                <span className="mt-1 max-w-full overflow-hidden text-ellipsis text-sm font-medium text-slate-600 [overflow-wrap:anywhere]">
+                <span
+                  className="mt-1 max-w-full overflow-hidden text-ellipsis whitespace-normal text-sm font-medium text-slate-600"
+                  style={{ overflowWrap: "anywhere" }}
+                >
                 {t("game.highScoresTitle")}
               </span>
             </span>
@@ -44,15 +59,16 @@ export function GameMenuHighScoresDialog({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="border-[rgba(212,156,84,0.24)] bg-[linear-gradient(180deg,rgba(255,252,246,0.99),rgba(249,245,236,0.98))] shadow-2xl sm:max-w-xl"
+        className={`${MENU_DIALOG_CLASS} sm:max-w-xl`}
+        style={MENU_DIALOG_STYLE}
         data-testid="high-scores-dialog"
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
+          <DialogTitle className={MENU_DIALOG_HEADER_TITLE_CLASS} style={MENU_DIALOG_TITLE_STYLE}>
             <TrophyIcon className="h-6 w-6 text-amber-500" />
             {t("game.highScoresTitle")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={MENU_DIALOG_DESCRIPTION_CLASS} style={MENU_DIALOG_DESCRIPTION_STYLE}>
             {t("game.targetsDestroyed")}
           </DialogDescription>
         </DialogHeader>

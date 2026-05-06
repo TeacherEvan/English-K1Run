@@ -3,6 +3,17 @@ import { useTranslation } from "react-i18next";
 import { CLASSROOM_BRAND } from "@/lib/constants/classroom-brand";
 
 import { TrophyIcon } from "./icons";
+import {
+    MENU_BRAND_PILL_CLASS,
+    MENU_BRAND_PILL_STYLE,
+    MENU_HERO_BODY_CLASS,
+    MENU_HERO_BODY_STYLE,
+    MENU_HERO_COPY_CLASS,
+    MENU_HERO_HEADING_CLASS,
+    MENU_HERO_HEADING_STYLE,
+    MENU_SCORE_CARD_CLASS,
+    MENU_SCORE_CARD_STYLE,
+} from "./menu-surface-theme";
 
 interface GameMenuHeroProps {
     formattedBestTargetTotal: string;
@@ -21,7 +32,8 @@ export function GameMenuHero({
         <div className="menu-home-hero flex flex-col items-center gap-5 text-center lg:items-start lg:text-left">
             <div
                 data-testid="menu-brand-pill"
-                className="menu-home-brand-pill inline-flex items-center rounded-full border border-amber-200/80 bg-amber-50/90 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-900 shadow-sm"
+                className={MENU_BRAND_PILL_CLASS}
+                style={MENU_BRAND_PILL_STYLE}
             >
                 {CLASSROOM_BRAND.signature}
             </div>
@@ -47,26 +59,28 @@ export function GameMenuHero({
                 </div>
             </div>
 
-            <div className="menu-home-copy space-y-3">
+            <div className={MENU_HERO_COPY_CLASS}>
                 <h1
-                    className="menu-home-heading text-[clamp(2.9rem,5.8vw,4.85rem)] font-black leading-[0.95] tracking-[-0.045em] text-slate-900"
+                    className={MENU_HERO_HEADING_CLASS}
+                    style={MENU_HERO_HEADING_STYLE}
                     data-testid="game-title"
                 >
                     {t("game.title")}
                 </h1>
-                <p className="menu-home-instructions mx-auto max-w-[24rem] text-[clamp(1.02rem,2vw,1.22rem)] font-medium leading-[1.45] text-slate-700 lg:mx-0">
+                <p className={MENU_HERO_BODY_CLASS} style={MENU_HERO_BODY_STYLE}>
                     {t("menu.instructions")}
                 </p>
             </div>
 
             <div
                 data-testid="menu-best-time-card"
-                className="menu-best-time-card mt-2 w-full max-w-sm rounded-[1.75rem] border border-amber-300/70 bg-[#4b4233]/96 p-5 shadow-[0_18px_46px_rgba(120,87,23,0.22)]"
+                className={MENU_SCORE_CARD_CLASS}
+                style={MENU_SCORE_CARD_STYLE}
             >
                 <div className="flex flex-col items-center">
                     <div className="mb-2 flex items-center gap-2.5">
                         <TrophyIcon className="h-5 w-5 text-amber-300" />
-                        <span className="text-sm font-bold uppercase tracking-[0.18em] text-amber-200/90">
+                        <span className="max-w-full text-center text-sm font-bold uppercase tracking-[0.18em] text-amber-200/90 wrap-anywhere">
                             {t("game.totalTargetsDestroyed")}
                         </span>
                     </div>

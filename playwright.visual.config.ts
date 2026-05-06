@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { createRequire } from "node:module";
 
 const isCI = Boolean(process.env.CI);
 const playwrightHost = process.env.PLAYWRIGHT_HOST ?? "127.0.0.1";
@@ -6,6 +7,15 @@ const playwrightPort = process.env.PLAYWRIGHT_PORT ?? "4173";
 const playwrightBaseURL =
   process.env.PLAYWRIGHT_BASE_URL ??
   `http://${playwrightHost}:${playwrightPort}`;
+const require = createRequire(import.meta.url);
+const hasPlaywrightProgressReporter = (() => {
+  try {
+    require.resolve("playwright-test-progress");
+    return true;
+  } catch {
+    return false;
+  }
+})();
 
 /**
  * Dedicated Playwright configuration for visual regression testing
@@ -38,7 +48,7 @@ export default defineConfig({
   reporter: [
     ["html", { open: "never" }],
     ["list"],
-    ["playwright-test-progress"],
+    ...(hasPlaywrightProgressReporter ? [["playwright-test-progress"]] : []),
   ],
 
   // Global test timeout

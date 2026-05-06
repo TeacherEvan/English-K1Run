@@ -20,6 +20,19 @@ import {
     MENU_OVERLAY_STYLE,
     MENU_PANEL_CLASS,
     MENU_PANEL_STYLE,
+    MENU_PRIMARY_ACTION_CLASS,
+    MENU_PRIMARY_ACTION_STYLE,
+    MENU_SECONDARY_ACTION_CLASS,
+    MENU_SECONDARY_ACTION_STYLE,
+    MENU_TERTIARY_ACTION_CLASS,
+    MENU_TERTIARY_ACTION_STYLE,
+    MENU_ACTION_TEXT_CLASS,
+    MENU_ACTION_SUBTITLE_LIGHT_CLASS,
+    MENU_ACTION_SUBTITLE_MUTED_CLASS,
+    MENU_UTILITY_EYEBROW_CLASS,
+    MENU_UTILITY_EYEBROW_STYLE,
+    MENU_UTILITY_GROUP_CLASS,
+    MENU_UTILITY_GROUP_STYLE,
 } from "./menu-surface-theme";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
@@ -100,7 +113,8 @@ export const GameMenuHome = memo(
                             <div className="space-y-3">
                                 <Button
                                     size="lg"
-                                    className="menu-action-card menu-action-card--start menu-primary-action h-21 gap-4 rounded-3xl border border-emerald-900/10 bg-emerald-600 px-5 text-[1.35rem] font-bold text-white shadow-[0_18px_28px_rgba(22,163,74,0.24)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_34px_rgba(22,163,74,0.26)] focus-visible:ring-emerald-200/70 sm:px-6"
+                                    className={MENU_PRIMARY_ACTION_CLASS}
+                                    style={MENU_PRIMARY_ACTION_STYLE}
                                     onClick={onStartGame}
                                     data-testid="start-game-button"
                                     aria-label={t("game.startGame")}
@@ -112,8 +126,8 @@ export const GameMenuHome = memo(
                                         <MenuActionButtonContent
                                             icon={<PlayIcon className="w-6 h-6 fill-current" />}
                                             iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--start"
-                                            subtitleClassName="mt-1 text-sm font-medium text-white/78"
-                                            textClassName="menu-action-copy flex flex-col items-start leading-tight"
+                                            subtitleClassName={MENU_ACTION_SUBTITLE_LIGHT_CLASS}
+                                            textClassName={MENU_ACTION_TEXT_CLASS}
                                             title={startGameLabel.title}
                                             subtitle={startGameLabel.subtitle}
                                         />
@@ -123,7 +137,8 @@ export const GameMenuHome = memo(
                                 <Button
                                     variant="default"
                                     size="lg"
-                                    className="menu-action-card menu-action-card--challenge menu-secondary-action h-19 gap-4 rounded-3xl border border-amber-900/10 bg-[linear-gradient(135deg,#d38a24,#b86f1b)] text-xl font-bold text-white shadow-[0_16px_24px_rgba(183,110,19,0.2)] hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,#c97f1c,#a76016)] hover:shadow-[0_20px_30px_rgba(183,110,19,0.24)]"
+                                    className={MENU_SECONDARY_ACTION_CLASS}
+                                    style={MENU_SECONDARY_ACTION_STYLE}
                                     onClick={handlePlayAllLevels}
                                     disabled={!canPlayAllLevels}
                                     data-testid="play-all-levels-button"
@@ -132,8 +147,8 @@ export const GameMenuHome = memo(
                                     <MenuActionButtonContent
                                         icon={<TrophyIcon className="w-6 h-6" />}
                                         iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--challenge"
-                                        subtitleClassName="mt-1 text-sm font-medium text-white/78"
-                                        textClassName="menu-action-copy flex flex-col items-start leading-tight"
+                                            subtitleClassName={MENU_ACTION_SUBTITLE_LIGHT_CLASS}
+                                            textClassName={MENU_ACTION_TEXT_CLASS}
                                         title={playAllLevelsLabel.title}
                                         subtitle={playAllLevelsLabel.subtitle}
                                     />
@@ -142,7 +157,8 @@ export const GameMenuHome = memo(
                                 <Button
                                     variant="default"
                                     size="lg"
-                                    className="menu-action-card menu-action-card--map menu-tertiary-action h-19 gap-4 rounded-3xl border border-[rgba(212,156,84,0.28)] bg-[#fbf6ea] text-xl font-bold text-slate-900 shadow-[0_10px_18px_rgba(120,87,23,0.12)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(120,87,23,0.16)]"
+                                    className={MENU_TERTIARY_ACTION_CLASS}
+                                    style={MENU_TERTIARY_ACTION_STYLE}
                                     onClick={onShowLevels}
                                     onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
                                     data-testid="level-select-button"
@@ -151,16 +167,16 @@ export const GameMenuHome = memo(
                                     <MenuActionButtonContent
                                         icon={<GridIcon className="w-6 h-6" />}
                                         iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
-                                        subtitleClassName="mt-1 text-sm font-medium text-slate-600"
-                                        textClassName="menu-action-copy flex flex-col items-start leading-tight"
+                                            subtitleClassName={MENU_ACTION_SUBTITLE_MUTED_CLASS}
+                                            textClassName={MENU_ACTION_TEXT_CLASS}
                                         title={levelSelectLabel.title}
                                         subtitle={levelSelectLabel.subtitle}
                                     />
                                 </Button>
                             </div>
 
-                            <div className="rounded-[1.6rem] border border-[rgba(212,156,84,0.2)] bg-[rgba(255,249,238,0.9)] p-3 shadow-[0_12px_28px_rgba(120,87,23,0.08)]">
-                                <p className="px-2 pb-2 text-xs font-bold uppercase tracking-[0.14em] text-[rgba(146,64,14,0.78)]">
+                            <div className={MENU_UTILITY_GROUP_CLASS} style={MENU_UTILITY_GROUP_STYLE}>
+                                <p className={MENU_UTILITY_EYEBROW_CLASS} style={MENU_UTILITY_EYEBROW_STYLE}>
                                     {t("menu.moreOptions", { defaultValue: "More options" })}
                                 </p>
                                 <div className="grid gap-3">
