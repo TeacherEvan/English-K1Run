@@ -7,7 +7,7 @@ Deprecated. Audit results are delivered via chat to avoid creating extra markdow
 - `npm run verify` passed. The repo still has one warning in `e2e/specs/menu.spec.ts`, but no lint errors and the production build succeeds.
 - `npx eslint src/ --max-warnings 0` passed.
 - `npx tsc --noEmit` passed.
-- Current `src` line-count audit shows no files above 500 lines. The largest file is `src/lib/file-manager/index.ts` at 378 lines.
+- Current `src` line-count audit shows no files above the rough 500-line guideline. The largest file is `src/lib/file-manager/index.ts` at 378 lines.
 - Targeted language/menu Playwright coverage passed again during this audit.
 - A fresh full-suite rerun is now clean end-to-end: `PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e` completed with 219 passed and 12 deployment diagnostics skipped because `PLAYWRIGHT_DEPLOYMENT_URL` was not set.
 
@@ -48,7 +48,7 @@ src/lib/constants/sentence-templates/
 
 ##### Option B: Keep as-is with lazy loading
 
-- Accept data files as exception to 500-line rule
+- Accept data files as an allowed exception to the rough 500-line guideline
 - Document in coding standards
 
 ---
@@ -71,7 +71,7 @@ src/lib/constants/sentence-templates/
 
 ### Post-Refactoring
 
-- [x] Files stay within the preferred size target: Run audit command
+- [x] Files stay within the preferred size guideline where practical: Run audit command
 - [x] Verification build passes: `npm run verify`
 - [x] No ESLint errors: `npx eslint src/ --max-warnings 0`
 - [x] TypeScript compiles: `npx tsc --noEmit`
@@ -119,7 +119,7 @@ git commit -m "refactor(i18n): split sentence templates by language"
 ## Validation Commands
 
 ```powershell
-# Audit for files above the 500-line target
+# Audit for files above the rough 500-line guideline
 Get-ChildItem -Path "src" -Recurse -Include *.ts,*.tsx,*.js,*.jsx,*.css |
   ForEach-Object {
     $lines = (Get-Content $_.FullName | Measure-Object -Line).Lines
@@ -158,7 +158,7 @@ npx tsc --noEmit
 
 ## Success Metrics
 
-1. **Zero files sit above the 500-line target** in `src/` directory
+1. **Zero files sit above the rough 500-line guideline** in `src/` where practical
 2. **All tests pass** with no regressions
 3. **No increase in bundle size** (within 5% tolerance)
 4. **Improved import graph** with no circular dependencies

@@ -46,7 +46,7 @@ test.describe("Visual Screenshots", () => {
     // Click settings button (animations disabled via reducedMotion config)
     const settingsButton = page.locator('[data-testid="settings-button"]');
     await settingsButton.waitFor({ state: "visible", timeout: 5000 });
-    await settingsButton.click({ force: true, timeout: 30000 });
+    await settingsButton.click({ timeout: 30000 });
     // Wait for the current dialog structure instead of an outdated title copy.
     const settingsDialog = page.getByRole("dialog", { name: /settings/i });
     await settingsDialog.waitFor({ state: "visible", timeout: 5000 });

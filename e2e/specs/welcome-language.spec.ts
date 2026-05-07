@@ -1,5 +1,17 @@
+import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../fixtures/game.fixture";
+const thTranslations = JSON.parse(
+  readFileSync(new URL("../../src/locales/th.json", import.meta.url), "utf8"),
+) as {
+  menu: { tapToStart: string };
+  welcome: { readyPrompt: string };
+};
+
+const THAI_WELCOME_COPY = {
+  tapToStart: thTranslations.menu.tapToStart,
+  readyPrompt: thTranslations.welcome.readyPrompt,
+};
 
 async function waitForWelcomeToAdvance(page: Page) {
   await expect
@@ -83,6 +95,12 @@ test.describe("Welcome language picker", () => {
     const languagePicker = page.getByTestId("welcome-language-picker");
     await expect(languagePicker).toHaveCount(0);
     await expect(page.getByTestId("welcome-primary-button")).toBeVisible();
+    await expect(page.getByTestId("welcome-primary-button")).toHaveText(
+      THAI_WELCOME_COPY.tapToStart,
+    );
+    await expect(page.getByTestId("welcome-status-label")).toHaveText(
+      THAI_WELCOME_COPY.readyPrompt,
+    );
 
     await expect
       .poll(() =>

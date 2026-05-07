@@ -207,6 +207,8 @@ Added `"resolveJsonModule": true` for locale file imports.
 
 - [ ] Select each language and verify game menu text, category names, welcome screen text, and other visible UI strings
 
+Automated coverage note: `e2e/specs/settings-language.spec.ts` now verifies the Japanese settings dialog title/description plus the controls-tab display/gameplay language labels and descriptions after a persisted display-language change and reload. The broader cross-screen, all-language visible-copy checklist item remains manual.
+
 #### 4. Audio System Integration
 
 - [ ] Select French, tap an emoji object
@@ -228,9 +230,11 @@ Automated coverage note: gameplay-language propagation into the `soundManager` s
 
 - [ ] Select different language
 - [ ] Start game to trigger WelcomeScreen
-- [ ] Verify tap/start CTA displays in selected language
+- [x] Verify tap/start CTA displays in selected language
 - [ ] Verify narration starts only after user interaction in normal mode
 - [ ] Check translations for "In association with" and "Learning through games"
+
+Automated coverage note: `e2e/specs/welcome-language.spec.ts` now verifies the Thai welcome CTA (`menu.tapToStart`) and ready prompt (`welcome.readyPrompt`) after reload before the player continues.
 
 #### 6b. Accessibility announcements
 
@@ -240,11 +244,11 @@ Automated coverage note: gameplay-language propagation into the `soundManager` s
 
 #### 7. WCAG Compliance
 
-- [ ] Tab to language selector using keyboard only
-- [ ] Press Enter/Space to open dropdown
-- [ ] Use arrow keys to navigate languages
-- [ ] Press Enter to select
-- [ ] Verify focus indicators visible
+- [x] Tab to language selector using keyboard only
+- [x] Press Enter/Space to open dropdown
+- [x] Use arrow keys to navigate languages
+- [x] Press Enter to select
+- [x] Verify focus indicators visible
 - [ ] Test with screen reader (NVDA/JAWS)
 
 #### 8. Fallback Behavior

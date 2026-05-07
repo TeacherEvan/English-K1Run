@@ -110,7 +110,6 @@
 - **Dev server**: `npm run dev`. Verification: `npm run verify` (lint + build). Type checking is available separately via `npm run check-types`; build currently runs `tsc -b && vite build`.
 - **Automated formatting**: Runs via `code_review.ps1` every 5 minutes; do not disable it.
 - **E2E**: Use `?e2e=1` to skip the welcome screen. Page objects/fixtures are in `e2e/fixtures/game.fixture.ts`(../e2e/fixtures/game.fixture.ts); prefer `gamePage.menu.startGame()` patterns. Tests live in `e2e/specs/`(../e2e/specs/).
-
 ## Deployment Considerations
 
 - **CI/CD**: Use GitHub Actions for automated builds and deployments.

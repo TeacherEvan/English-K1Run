@@ -138,9 +138,7 @@ test.describe("Game Menu", () => {
     page,
   }) => {
     const openSettingsDialog = async () => {
-      await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
-        element.click();
-      });
+      await gamePage.menu.settingsButton.click();
 
       const dialog = page.getByRole("dialog", { name: SETTINGS_DIALOG_NAME });
       await expect(dialog).toBeVisible();
@@ -162,14 +160,8 @@ test.describe("Game Menu", () => {
     const chooseThaiForLabel = async (labelPattern: RegExp) => {
       const trigger = page.getByRole("combobox", { name: labelPattern });
 
-      await trigger.evaluate((element: HTMLElement) => {
-        element.click();
-      });
-      await page
-        .getByRole("option", { name: THAI_OPTION_NAME })
-        .evaluate((element: HTMLElement) => {
-          element.click();
-        });
+      await trigger.click();
+      await page.getByRole("option", { name: THAI_OPTION_NAME }).click();
     };
 
     await page.evaluate(() => {
@@ -188,12 +180,7 @@ test.describe("Game Menu", () => {
     await expect(
       settingsDialog.getByRole("heading", { name: "ตั้งค่า" }),
     ).toBeVisible();
-    await settingsDialog
-      .getByRole("button", { name: /Close|ปิด/ })
-      .last()
-      .evaluate((element: HTMLElement) => {
-        element.click();
-      });
+    await settingsDialog.getByRole("button", { name: /Close|ปิด/ }).last().click();
 
     await expect(gamePage.menu.startButton).toContainText("Start Game");
     await expect(gamePage.menu.playAllLevelsButton).toContainText(

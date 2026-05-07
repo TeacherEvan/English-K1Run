@@ -1,6 +1,59 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "../fixtures/game.fixture";
 
+const jaTranslations = JSON.parse(
+  readFileSync(new URL("../../src/locales/ja.json", import.meta.url), "utf8"),
+) as {
+  settings: {
+    title: string;
+    description: string;
+    controls: {
+      displayLanguageTitle: string;
+      displayLanguageDescription: string;
+      gameplayLanguageTitle: string;
+      gameplayLanguageDescription: string;
+    };
+  };
+};
+
+const JA_SETTINGS_COPY = {
+  title: jaTranslations.settings.title,
+  description: jaTranslations.settings.description,
+  displayLanguageTitle: jaTranslations.settings.controls.displayLanguageTitle,
+  displayLanguageDescription:
+    jaTranslations.settings.controls.displayLanguageDescription,
+  gameplayLanguageTitle: jaTranslations.settings.controls.gameplayLanguageTitle,
+  gameplayLanguageDescription:
+    jaTranslations.settings.controls.gameplayLanguageDescription,
+};
+
+const normalizeOptionText = (value: string | null | undefined) =>
+  value?.replace(/\s+/g, " ").trim() ?? "";
+
 test.describe("Settings language selection", () => {
+  test("allows pointer switching from Controls to Visual settings tab", async ({
+    gamePage,
+    page,
+  }) => {
+    await gamePage.goto();
+    await gamePage.waitForReady();
+
+    await gamePage.menu.settingsButton.click();
+
+    const dialog = page.getByRole("dialog");
+    const controlsTab = dialog.getByRole("tab", { name: /Controls/ });
+    const visualTab = dialog.getByRole("tab", { name: /Visual/ });
+
+    await expect(dialog).toBeVisible();
+    await expect(controlsTab).toHaveAttribute("aria-selected", "true");
+
+    await visualTab.click();
+
+    await expect(visualTab).toHaveAttribute("aria-selected", "true");
+    await expect(controlsTab).toHaveAttribute("aria-selected", "false");
+    await expect(dialog.getByRole("heading", { name: /Theme/ })).toBeVisible();
+  });
+
   test("shows all supported languages with English and native labels", async ({
     gamePage,
     page,
@@ -8,13 +61,14 @@ test.describe("Settings language selection", () => {
     await gamePage.goto();
     await gamePage.waitForReady();
 
-    await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
-      element.click();
-    });
+    await gamePage.menu.settingsButton.click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await dialog.getByRole("tab").nth(2).click();
+    await expect(dialog.getByRole("tab", { name: /Controls/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await expect(
       dialog.getByRole("heading", { name: /Language/ }),
     ).toBeVisible();
@@ -43,14 +97,14 @@ test.describe("Settings language selection", () => {
     await gamePage.goto();
     await gamePage.waitForReady();
 
-    await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
-      element.click();
-    });
+    await gamePage.menu.settingsButton.click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-
-    await dialog.getByRole("tab").nth(2).click();
+    await expect(dialog.getByRole("tab", { name: /Controls/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await expect(
       dialog.getByRole("heading", { name: /Language/ }),
     ).toBeVisible();
@@ -91,13 +145,39 @@ test.describe("Settings language selection", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
     await gamePage.waitForReady();
 
-    await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
-      element.click();
-    });
+    await gamePage.menu.settingsButton.click();
 
     const reloadedDialog = page.getByRole("dialog", { name: /Settings|設定/ });
     await expect(reloadedDialog).toBeVisible();
-    await reloadedDialog.getByRole("tab").nth(2).click();
+    await expect(
+      reloadedDialog.getByRole("heading", { name: JA_SETTINGS_COPY.title }),
+    ).toBeVisible();
+    await expect(
+      reloadedDialog.getByText(JA_SETTINGS_COPY.description, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      reloadedDialog.getByRole("tab", { name: /Controls|操作/ }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(
+      reloadedDialog.getByText(JA_SETTINGS_COPY.displayLanguageTitle, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      reloadedDialog.getByText(JA_SETTINGS_COPY.displayLanguageDescription, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      reloadedDialog.getByText(JA_SETTINGS_COPY.gameplayLanguageTitle, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      reloadedDialog.getByText(JA_SETTINGS_COPY.gameplayLanguageDescription, {
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(reloadedDialog.getByRole("combobox").nth(0)).toContainText(
       "Japanese",
     );
@@ -109,13 +189,16 @@ test.describe("Settings language selection", () => {
   test("supports keyboard-only display language selection from the controls tab", async ({
     gamePage,
     page,
-  }) => {
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === "mobile" || testInfo.project.name === "visual",
+      "Keyboard-only selector coverage runs in interactive desktop browser projects.",
+    );
+
     await gamePage.goto();
     await gamePage.waitForReady();
 
-    await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
-      element.click();
-    });
+    await gamePage.menu.settingsButton.click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
@@ -180,11 +263,39 @@ test.describe("Settings language selection", () => {
         }),
       );
 
-    await page.keyboard.press("Enter");
+    await page.keyboard.press("Space");
     await expect(page.getByRole("option", { name: /^English/ })).toBeVisible();
+
+    const readActiveOptionText = async () =>
+      normalizeOptionText(
+        await page.evaluate(() => {
+          const highlightedOption = document.querySelector(
+            '[role="option"][data-highlighted]',
+          );
+          const activeOption =
+            document.activeElement instanceof HTMLElement &&
+            document.activeElement.getAttribute("role") === "option"
+              ? document.activeElement
+              : null;
+
+          return (highlightedOption ?? activeOption)?.textContent ?? null;
+        }),
+      );
+
+    await expect.poll(readActiveOptionText).not.toBe("");
+    let activeOptionText = await readActiveOptionText();
 
     for (let step = 0; step < 3; step += 1) {
       await page.keyboard.press("ArrowDown");
+
+      const nextOptionText = await readActiveOptionText();
+      if (nextOptionText && nextOptionText !== activeOptionText) {
+        activeOptionText = nextOptionText;
+        break;
+      }
+
+      await expect.poll(readActiveOptionText).not.toBe(activeOptionText);
+      activeOptionText = await readActiveOptionText();
     }
 
     await page.keyboard.press("Enter");

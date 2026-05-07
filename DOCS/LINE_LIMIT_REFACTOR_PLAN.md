@@ -1,9 +1,9 @@
 # File Size Audit & Refactor Plan
 
 ## Objective
-Use a **rough 500-line target** as a maintainability signal by auditing current large files, identifying code smells, and laying out a pragmatic refactor plan that aligns with the project’s architecture (touch-first gameplay, audio modules, and performance-sensitive UI).
+Use a **rough 500-line guideline** as a maintainability signal by auditing current large files, identifying code smells, and laying out a pragmatic refactor plan that aligns with the project’s architecture (touch-first gameplay, audio modules, and performance-sensitive UI). It is a strong recommendation, not a hard rule, and exceptions are acceptable when they improve clarity or preserve the owning abstraction.
 
-## Audit Summary (Files Above The 500-Line Target)
+## Audit Summary (Files Above The Rough 500-Line Guideline)
 Line counts are from the current working tree at the time of this audit. The list prioritizes gameplay- and user-facing code first, then shared utilities, then documentation/generator scripts.
 
 | Priority | File | Lines | Area | Code Smells / Risks |
@@ -25,7 +25,7 @@ Line counts are from the current working tree at the time of this audit. The lis
 | P2 | `DOCS/INTEGRATION_GUIDE.md` | 599 | Docs | Feature guides combined; hard to keep concise. |
 | P2 | `DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md` | 519 | Docs | Single long narrative; better as multiple sections. |
 | P2 | `jobcard.md` | 852 | Docs | Large scoped narrative; should be segmented. |
-| P2 | `C-jobcard.md` | 1014 | Docs | Same as above; substantially above the preferred size target. |
+| P2 | `C-jobcard.md` | 1014 | Docs | Same as above; substantially above the preferred size guideline. |
 | P2 | `DOCS/ARCHIVE/A-ACTIONABLE_RECOMMENDATIONS_2026-01-17.md` | 1201 | Docs | Archived but still exceeds limit. |
 | P2 | `DOCS/ARCHIVE/C-CODE_REVIEW_REPORT_2026-01-17.md` | 938 | Docs | Archived but still exceeds limit. |
 | P2 | `package-lock.json` | 19364 | Generated | Auto-generated lockfile; requires policy exception or procedural handling and should be reviewed for dependency bloat separately. |
@@ -69,7 +69,7 @@ Recent work shows value in **extracting inline CSS into dedicated files**, **ESL
 - Move large onboarding sections in `README.md` into `DOCS/` and link them.
 
 ### Generated Files Policy
-- `package-lock.json` sits far above the preferred size target. Decide between:
+- `package-lock.json` sits far above the preferred size guideline. Decide between:
   1. **Workspace-level lockfiles** (split by package if tooling allows), or
   2. **Policy exception for generated artifacts** documented in the repo, or
   3. **.gitattributes marking generated files** to exclude lockfiles from line-count tooling while keeping them tracked.
