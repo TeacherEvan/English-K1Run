@@ -4,7 +4,7 @@
   display: grid;
   place-items: end center;
   overflow: hidden;
-  background: #08121f;
+  background: #e8e0c6;
 }
 
 .startup-loading-screen__background,
@@ -22,50 +22,70 @@
 .startup-loading-screen__overlay {
   background: linear-gradient(
     180deg,
-    rgba(5, 12, 22, 0.18) 0%,
-    rgba(5, 12, 22, 0.42) 58%,
-    rgba(5, 12, 22, 0.68) 100%
+    rgba(253, 248, 236, 0.08) 0%,
+    rgba(84, 110, 67, 0.18) 52%,
+    rgba(61, 78, 48, 0.38) 100%
   );
 }
 
 .startup-loading-screen__hud {
   position: relative;
   z-index: 1;
-  width: min(92vw, 22rem);
+  width: min(92vw, 24rem);
   margin: 0 1rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
-  padding: 0.9rem 1rem 1rem;
-  border-radius: 1rem;
-  background: rgba(8, 18, 31, 0.58);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+  padding: 1rem 1rem 1.05rem;
+  border: 1px solid rgba(120, 87, 23, 0.18);
+  border-radius: 1.45rem;
+  background: rgba(250, 244, 229, 0.94);
+  color: #24311f;
+  box-shadow: 0 20px 46px rgba(70, 55, 22, 0.2);
 }
 
+.startup-loading-screen__eyebrow,
 .startup-loading-screen__label,
 .startup-loading-screen__phase {
   margin: 0;
   text-align: center;
 }
 
+.startup-loading-screen__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(120, 87, 23, 0.88);
+}
+
 .startup-loading-screen__label {
-  font-size: clamp(0.95rem, 1.4vw, 1.08rem);
+  margin-top: 0.35rem;
+  font-size: clamp(0.98rem, 1.4vw, 1.14rem);
   font-weight: 700;
 }
 
 .startup-loading-screen__progress {
-  margin: 0.75rem 0 0.55rem;
+  margin: 0.8rem 0 0.6rem;
+}
+
+.startup-loading-screen__progress[data-slot="progress"] {
+  height: 0.55rem;
+  background: rgba(120, 87, 23, 0.14);
+}
+
+.startup-loading-screen__progress [data-slot="progress-indicator"] {
+  background: linear-gradient(90deg, rgba(93, 143, 91, 0.95), rgba(211, 162, 62, 0.95));
+  box-shadow: none;
 }
 
 .startup-loading-screen__phase {
   font-size: 0.82rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.82;
+  color: rgba(58, 47, 28, 0.74);
 }
 
 @media (min-width: 1024px) {
   .startup-loading-screen__hud {
-    width: min(26rem, 28vw);
+    width: min(27rem, 30vw);
     margin-bottom: 2.4rem;
   }
 }

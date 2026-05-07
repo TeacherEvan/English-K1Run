@@ -128,3 +128,5 @@ e2e/test-results
 .fake
 # Allure
 allure-results/
+
+.vercel

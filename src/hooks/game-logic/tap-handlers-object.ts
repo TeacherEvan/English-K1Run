@@ -1,13 +1,12 @@
 import { eventTracker } from "../../lib/event-tracker";
 import type { PlayerSide } from "../../types/game";
-import { playTapAudioFeedback } from "./tap-audio-effects";
 import type { HandleObjectTapDependencies } from "./tap-handlers-types";
 import { updateStateOnTap } from "./tap-state-updater";
 import { validateObjectTap } from "./tap-validation";
 
 /**
  * Builds the tap handler for falling objects.
- * Orchestrates validation, audio feedback, and state updates.
+ * Orchestrates validation and state updates.
  */
 export const createHandleObjectTap = (
   dependencies: HandleObjectTapDependencies,
@@ -50,9 +49,6 @@ export const createHandleObjectTap = (
       if (!validation) return;
 
       const { tappedObject, isCorrect, tapLatency } = validation;
-
-      // Play audio feedback
-      playTapAudioFeedback(isCorrect);
 
       // Track tap event
       eventTracker.trackObjectTap(

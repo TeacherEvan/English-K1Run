@@ -3,7 +3,7 @@
  *
  * Tests verify that the game uses the correct audio playback methods:
  * - Target announcements use full sentences (playSoundEffect.voice)
- * - Single-word tap feedback has been removed per December 2025 requirements
+ * - Gameplay tap feedback no longer exposes a separate helper
  */
 
 vi.mock("react", async () => {
@@ -18,9 +18,8 @@ vi.mock("react", async () => {
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as targetAnnouncements from "../../lib/audio/target-announcements";
-import { playSoundEffect, soundManager } from "../../lib/sound-manager";
+import { playSoundEffect } from "../../lib/sound-manager";
 import { useTargetAnnouncement } from "../game-logic/game-effects/target-announcement";
-import { playTapAudioFeedback } from "../game-logic/tap-audio-effects";
 
 describe("Sound Manager Audio Call Behavior", () => {
   beforeEach(() => {
@@ -79,20 +78,6 @@ describe("Sound Manager Audio Call Behavior", () => {
     expect(() => {
       void playSoundEffect.stopAll();
     }).not.toThrow();
-  });
-
-  describe("tap audio feedback helper", () => {
-    it("plays nothing when the tap is correct", () => {
-      const spy = vi.spyOn(soundManager, "playSound");
-      playTapAudioFeedback(true);
-      expect(spy).not.toHaveBeenCalled();
-    });
-
-    it("plays nothing when the tap is incorrect", () => {
-      const spy = vi.spyOn(soundManager, "playSound");
-      playTapAudioFeedback(false);
-      expect(spy).not.toHaveBeenCalled();
-    });
   });
 
   describe("target announcement audio", () => {

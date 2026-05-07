@@ -96,6 +96,20 @@ describe('WelcomeScreen', () => {
         ).toBeNull()
     })
 
+    it('keeps the startup language choice as the only active task on first launch', async () => {
+        await renderWelcomeScreen()
+
+        expect(
+            document.querySelector('[data-testid="welcome-language-shell"]'),
+        ).not.toBeNull()
+        expect(
+            document.querySelector('[data-testid="welcome-status-panel"]'),
+        ).toBeNull()
+        expect(
+            document.querySelector('[data-testid="welcome-primary-button"]'),
+        ).toBeNull()
+    })
+
     it('shows an explicit start control when the chooser is skipped and routes that gesture through the primary action', async () => {
         localStorage.setItem(
             'k1-startup-state',

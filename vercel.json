@@ -35,11 +35,62 @@
       ]
     },
     {
+      "source": "/sounds/(.*).wav",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "audio/wav"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*).mp3",
       "headers": [
         {
           "key": "Content-Type",
           "value": "audio/mpeg"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/sounds/(.*).mp3",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "audio/mpeg"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/New_welcome_video.mp4",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "video/mp4"
         },
         {
           "key": "Cache-Control",
@@ -66,6 +117,10 @@
         {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "autoplay=(self)"
         }
       ]
     }

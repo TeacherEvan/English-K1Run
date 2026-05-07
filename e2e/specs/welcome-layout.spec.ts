@@ -26,25 +26,22 @@ test.describe("Welcome layout", () => {
     const languageShell = page.locator(
       '[data-testid="welcome-language-shell"]',
     );
-    const statusPanel = page.locator('[data-testid="welcome-status-panel"]');
 
     await expect(welcomeScreen).toBeVisible();
     await expect(video).toBeVisible();
     await expect(languageShell).toBeVisible();
-    await expect(statusPanel).toBeVisible();
+    await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
 
     const viewport = page.viewportSize();
     const languageBox = await languageShell.boundingBox();
-    const statusBox = await statusPanel.boundingBox();
 
     expect(viewport).toBeTruthy();
     expect(languageBox).toBeTruthy();
-    expect(statusBox).toBeTruthy();
 
-    expect(languageBox!.x).toBeGreaterThan(viewport!.width * 0.55);
-    expect(statusBox!.x).toBeGreaterThan(viewport!.width * 0.5);
-    expect(languageBox!.width).toBeLessThan(340);
-    expect(statusBox!.width).toBeLessThan(400);
+    expect(languageBox!.x + languageBox!.width / 2).toBeGreaterThanOrEqual(
+      viewport!.width * 0.5,
+    );
+    expect(languageBox!.width).toBeLessThan(620);
   });
 
   test("desktop removes the startup language chooser after a selection", async ({
@@ -59,18 +56,17 @@ test.describe("Welcome layout", () => {
       '[data-testid="welcome-language-shell"]',
     );
     const thaiButton = page.locator('[data-testid="welcome-language-th"]');
-    const statusPanel = page.locator('[data-testid="welcome-status-panel"]');
 
     await expect(welcomeScreen).toBeVisible();
     await expect(video).toBeVisible();
     await expect(languageShell).toBeVisible();
-    await expect(statusPanel).toBeVisible();
+    await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
 
     await thaiButton.click();
 
     await expect(languageShell).toHaveCount(0);
     await expect(video).toBeVisible();
-    await expect(statusPanel).toHaveCount(0);
+    await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
 
     await waitForWelcomeToAdvance(page);
     await expect
@@ -92,18 +88,17 @@ test.describe("Welcome layout", () => {
     );
     const thaiButton = page.locator('[data-testid="welcome-language-th"]');
     const video = page.locator('[data-testid="welcome-video"]');
-    const statusPanel = page.locator('[data-testid="welcome-status-panel"]');
 
     await expect(welcomeScreen).toBeVisible();
     await expect(languageShell).toBeVisible();
     await expect(video).toBeVisible();
-    await expect(statusPanel).toBeVisible();
+    await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
 
     await thaiButton.click();
 
     await expect(languageShell).toHaveCount(0);
     await expect(video).toBeVisible();
-    await expect(statusPanel).toHaveCount(0);
+    await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
   });
 
   test("desktop keeps the intro nearly unobstructed after language selection", async ({
@@ -158,22 +153,17 @@ test.describe("Welcome layout", () => {
     const languageShell = page.locator(
       '[data-testid="welcome-language-shell"]',
     );
-    const statusPanel = page.locator('[data-testid="welcome-status-panel"]');
 
     await expect(languageShell).toBeVisible();
-    await expect(statusPanel).toBeVisible();
+    await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
 
     const languageBox = await languageShell.boundingBox();
-    const statusBox = await statusPanel.boundingBox();
 
     expect(languageBox).toBeTruthy();
-    expect(statusBox).toBeTruthy();
 
     const languageCenter = languageBox!.x + languageBox!.width / 2;
-    const statusCenter = statusBox!.x + statusBox!.width / 2;
 
     expect(Math.abs(languageCenter - 195)).toBeLessThan(40);
-    expect(Math.abs(statusCenter - 195)).toBeLessThan(40);
-    expect(statusBox!.y).toBeGreaterThan(languageBox!.y);
+    expect(languageBox!.y).toBeLessThan(420);
   });
 });

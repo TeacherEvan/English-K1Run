@@ -146,7 +146,7 @@ export const WelcomeScreen = memo(({ onComplete, audioConfig }: WelcomeScreenPro
 
       <div className="welcome-scrim" aria-hidden="true" />
       <div
-        className={`welcome-panels ${isLanguageShellVisible ? '' : 'welcome-panels--language-hidden'}`.trim()}
+        className={`welcome-panels ${isLanguageShellVisible ? 'welcome-panels--language-active' : 'welcome-panels--language-hidden'}`.trim()}
       >
         {isLanguageShellVisible ? (
           <WelcomeLanguageShell

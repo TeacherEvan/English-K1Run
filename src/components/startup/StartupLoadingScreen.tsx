@@ -1,4 +1,5 @@
 import { Progress } from '@/components/ui/progress'
+import { CLASSROOM_BRAND } from '@/lib/constants/classroom-brand'
 import { memo } from 'react'
 
 import './StartupLoadingScreen.css'
@@ -24,6 +25,7 @@ export const StartupLoadingScreen = memo(
       />
       <div className="startup-loading-screen__overlay" aria-hidden="true" />
       <div className="startup-loading-screen__hud">
+        <p className="startup-loading-screen__eyebrow">{CLASSROOM_BRAND.signature}</p>
         <p className="startup-loading-screen__label">{label}</p>
         <Progress
           value={percentage}

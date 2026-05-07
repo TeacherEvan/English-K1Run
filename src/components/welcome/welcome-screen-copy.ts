@@ -46,8 +46,8 @@ export const shouldShowWelcomeStatusPanel = ({
   showIntroStartPrompt,
 }: WelcomeStatusPanelVisibilityOptions) =>
   !showFallbackImage &&
-  (isLanguageShellVisible ||
-    showIntroStartPrompt ||
+  !isLanguageShellVisible &&
+  (showIntroStartPrompt ||
     phase === "playingNarration" ||
     phase === "readyToContinue" ||
     phase === "transitioningToMenu" ||

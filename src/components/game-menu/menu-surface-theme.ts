@@ -48,10 +48,10 @@ export const MENU_MODE_BADGE_CLASS =
   "mt-3 inline-flex rounded-full border px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.1em]";
 
 export const MENU_UTILITY_GROUP_CLASS =
-  "rounded-[1.6rem] border p-3 shadow-[0_12px_28px_rgba(120,87,23,0.08)]";
+  "border-t px-1 pt-4";
 
 export const MENU_UTILITY_EYEBROW_CLASS =
-  "px-2 pb-2 text-xs font-bold uppercase tracking-[0.14em]";
+  "px-3 pb-2 text-[0.68rem] font-bold uppercase tracking-[0.18em]";
 
 export const MENU_ACTION_TEXT_CLASS =
   "menu-action-copy flex min-w-0 flex-1 flex-col items-start leading-tight";
@@ -72,7 +72,7 @@ export const MENU_TERTIARY_ACTION_CLASS =
   "menu-action-card menu-action-card--map menu-tertiary-action h-19 gap-4 rounded-3xl border text-xl font-bold shadow-[0_10px_18px_rgba(120,87,23,0.12)] hover:-translate-y-0.5";
 
 export const MENU_UTILITY_ACTION_CLASS =
-  "menu-support-action h-[4.4rem] w-full min-w-0 justify-start gap-4 rounded-[1.4rem] border px-5 text-base font-semibold shadow-[0_10px_18px_rgba(120,87,23,0.08)] hover:-translate-y-0.5";
+  "menu-support-action h-[4rem] w-full min-w-0 justify-start gap-4 rounded-[1.2rem] border px-4 text-[0.98rem] font-semibold shadow-none hover:-translate-y-0.5";
 
 export const MENU_DIALOG_CLASS =
   "menu-dialog-shell border shadow-2xl";
@@ -173,11 +173,11 @@ export const MENU_MODE_BADGE_STYLE = {
 
 export const MENU_UTILITY_GROUP_STYLE = {
   borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 24%, white)`,
-  background: `linear-gradient(180deg, color-mix(in oklch, ${MENU_PALETTE.panel} 94%, white), color-mix(in oklch, ${MENU_PALETTE.shell} 92%, white))`,
+  background: "transparent",
 } as const;
 
 export const MENU_UTILITY_EYEBROW_STYLE = {
-  color: `color-mix(in oklch, ${MENU_PALETTE.sun} 52%, ${MENU_PALETTE.ink})`,
+  color: `color-mix(in oklch, ${MENU_PALETTE.sun} 40%, ${MENU_PALETTE.ink})`,
 } as const;
 
 export const MENU_PRIMARY_ACTION_STYLE = {
@@ -206,19 +206,19 @@ export const MENU_TERTIARY_SUBTITLE_STYLE = {
 } as const;
 
 export const MENU_UTILITY_ACTION_STYLE = {
-  borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 24%, white)`,
-  background: `linear-gradient(145deg, color-mix(in oklch, ${MENU_PALETTE.panel} 92%, white), color-mix(in oklch, ${MENU_PALETTE.shell} 88%, white))`,
-  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 84%, ${MENU_PALETTE.sun} 12%)`,
+  borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 16%, white)`,
+  background: `color-mix(in oklch, ${MENU_PALETTE.panel} 58%, transparent)`,
+  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 80%, ${MENU_PALETTE.sun} 10%)`,
 } as const;
 
 export const MENU_UTILITY_ACTION_ACTIVE_STYLE = {
-  borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 42%, white)`,
-  background: `linear-gradient(145deg, color-mix(in oklch, ${MENU_PALETTE.sun} 22%, white), color-mix(in oklch, ${MENU_PALETTE.panel} 86%, ${MENU_PALETTE.leaf} 10%))`,
-  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 80%, ${MENU_PALETTE.sun} 16%)`,
+  borderColor: `color-mix(in oklch, ${MENU_PALETTE.sun} 34%, white)`,
+  background: `linear-gradient(145deg, color-mix(in oklch, ${MENU_PALETTE.sun} 16%, white), color-mix(in oklch, ${MENU_PALETTE.panel} 76%, ${MENU_PALETTE.leaf} 8%))`,
+  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 80%, ${MENU_PALETTE.sun} 18%)`,
 } as const;
 
 export const MENU_UTILITY_SUBTITLE_STYLE = {
-  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 56%, white)`,
+  color: `color-mix(in oklch, ${MENU_PALETTE.ink} 52%, white)`,
 } as const;
 
 export const MENU_DIALOG_STYLE = {

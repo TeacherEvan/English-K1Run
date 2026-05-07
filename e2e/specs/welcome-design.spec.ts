@@ -20,13 +20,12 @@ test.describe("Welcome design alignment", () => {
     await gotoWelcome(page);
   });
 
-  test("shows a readable welcome status panel and primary CTA", async ({
+  test("keeps first launch focused on language choice only", async ({
     page,
   }) => {
-    await expect(page.getByTestId("welcome-status-panel")).toContainText(
-      /tap once to begin|please wait for the welcome audio/i,
-    );
-    await expect(page.getByTestId("welcome-primary-button")).toBeVisible();
+    await expect(page.getByTestId("welcome-language-shell")).toBeVisible();
+    await expect(page.getByTestId("welcome-status-panel")).toHaveCount(0);
+    await expect(page.getByTestId("welcome-primary-button")).toHaveCount(0);
   });
 
   test("keeps the language shell visible inside the mobile viewport", async ({
@@ -46,8 +45,8 @@ test.describe("Welcome design alignment", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await gotoWelcome(page);
 
-    await expect(page.getByTestId("welcome-status-panel")).toBeVisible();
     await expect(page.getByTestId("welcome-language-shell")).toBeVisible();
-    await expect(page.getByTestId("welcome-primary-button")).toBeVisible();
+    await expect(page.getByTestId("welcome-status-panel")).toHaveCount(0);
+    await expect(page.getByTestId("welcome-primary-button")).toHaveCount(0);
   });
 });
