@@ -39,4 +39,22 @@ describe("SoundFadePlayback", () => {
       }),
     );
   });
+
+  it("returns the fallback playback result when no buffer is available", async () => {
+    const playback = new SoundFadePlayback({
+      isEnabled: () => true,
+      ensureInitialized: vi.fn().mockResolvedValue(undefined),
+      getAudioContext: () => ({ state: "running" }) as AudioContext,
+      loadBufferForName: vi.fn().mockResolvedValue(null),
+      playSound: vi.fn().mockResolvedValue(false),
+      startBufferWithFadeIn: vi.fn(),
+      startBufferWithFadeInAsync: vi.fn(),
+      trackPlaybackStart: vi.fn(),
+      trackPlaybackEnd: vi.fn(),
+    });
+
+    await expect(
+      playback.playSoundWithFadeAsync("welcome_evan_intro"),
+    ).resolves.toBe(false);
+  });
 });

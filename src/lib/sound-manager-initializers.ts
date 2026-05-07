@@ -99,7 +99,7 @@ export interface FadePlaybackInitOptions {
     soundName: string,
     playbackRate?: number,
     volumeOverride?: number,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   trackPlaybackStart: (soundName: string) => void;
   trackPlaybackEnd: (soundName?: string) => void;
 }

@@ -117,20 +117,19 @@ export class CentralAudioManager {
           ? await Promise.race<boolean>([
               soundManager
                 .playSoundWithFadeAsync(key, playbackRate, volume, fadeInMs)
-                .then(() => true),
+                .then((played) => played),
               new Promise<boolean>((resolve) => {
                 playbackTimeout = setTimeout(() => {
                   resolve(false);
                 }, expectedDurationMs + PLAYBACK_TIMEOUT_BUFFER_MS);
               }),
             ])
-          : (await soundManager.playSoundWithFadeAsync(
+          : await soundManager.playSoundWithFadeAsync(
               key,
               playbackRate,
               volume,
               fadeInMs,
-            ),
-            true);
+            );
 
       if (!playbackResult) {
         if (this.isCurrentToken(channel, token)) {

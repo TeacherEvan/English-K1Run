@@ -89,8 +89,8 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
     soundName: string,
     playbackRate = 0.9,
     volumeOverride?: number,
-  ): Promise<void> => {
-    if (!deps.isEnabled()) return;
+  ): Promise<boolean> => {
+    if (!deps.isEnabled()) return false;
     const startTime = performance.now();
     deps.trackPlaybackStart(soundName);
     try {
@@ -101,7 +101,7 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
             playbackRate,
             volume: volumeOverride ?? deps.getVolume(),
           });
-          if (played) return;
+          if (played) return true;
         }
       }
       if (deps.preferHTMLAudio()) {
@@ -116,7 +116,7 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
             undefined,
             volumeOverride,
           );
-          if (played) return;
+          if (played) return true;
         }
       }
       await deps.ensureInitialized();
@@ -124,23 +124,23 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
         if (
           await tryHtmlAudioFallback(soundName, playbackRate, volumeOverride)
         ) {
-          return;
+          return true;
         }
         console.warn(`[SoundPlayback] No audio context for "${soundName}"`);
-        return;
+        return false;
       }
       const buffer = await deps.loadBufferForName(soundName, false);
       if (!buffer) {
         if (
           await tryHtmlAudioFallback(soundName, playbackRate, volumeOverride)
         ) {
-          return;
+          return true;
         }
         console.warn(
           `[SoundPlayback] Failed to load buffer for "${soundName}"`,
         );
         describeIfEnabled(`Sound: ${soundName}`);
-        return;
+        return false;
       }
       await deps.startBufferAsync(
         buffer,
@@ -156,9 +156,11 @@ export const createSoundPlayback = (deps: SoundPlaybackDependencies) => {
         success: true,
         duration: performance.now() - startTime,
       });
+      return true;
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
       describeIfEnabled(`Sound failed: ${soundName}`);
+      return false;
     } finally {
       deps.trackPlaybackEnd(soundName);
     }

@@ -16,7 +16,7 @@ export interface SoundFadeDependencies {
     soundName: string,
     playbackRate?: number,
     volumeOverride?: number,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   startBufferWithFadeIn: (
     buffer: AudioBuffer,
     delaySeconds: number,
@@ -76,21 +76,25 @@ export class SoundFadePlayback {
     playbackRate = 0.9,
     volumeOverride?: number,
     fadeInMs = 150,
-  ): Promise<void> {
-    if (!this.deps.isEnabled()) return;
+  ): Promise<boolean> {
+    if (!this.deps.isEnabled()) return false;
     const startTime = performance.now();
     this.deps.trackPlaybackStart(soundName);
     try {
       await this.deps.ensureInitialized();
       if (!this.deps.getAudioContext()) {
         this.deps.trackPlaybackEnd(soundName);
-        return;
+        return false;
       }
       const buffer = await this.deps.loadBufferForName(soundName, false);
       if (!buffer) {
-        await this.deps.playSound(soundName, playbackRate, volumeOverride);
+        const played = await this.deps.playSound(
+          soundName,
+          playbackRate,
+          volumeOverride,
+        );
         this.deps.trackPlaybackEnd(soundName);
-        return;
+        return played;
       }
       // Wait for audio to complete before resolving
       await this.deps.startBufferWithFadeInAsync(
@@ -108,8 +112,10 @@ export class SoundFadePlayback {
         success: true,
         duration: performance.now() - startTime,
       });
+      return true;
     } catch (error) {
       console.error("[SoundManager] Failed to play sound:", error);
+      return false;
     } finally {
       this.deps.trackPlaybackEnd(soundName);
     }

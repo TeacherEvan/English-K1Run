@@ -44,11 +44,14 @@ export const shouldShowWelcomeStatusPanel = ({
   phase,
   showFallbackImage,
   showIntroStartPrompt,
-}: WelcomeStatusPanelVisibilityOptions) =>
-  !showFallbackImage &&
-  !isLanguageShellVisible &&
-  (showIntroStartPrompt ||
-    phase === "playingNarration" ||
-    phase === "readyToContinue" ||
-    phase === "transitioningToMenu" ||
-    Boolean(diagnosticLabel));
+}: WelcomeStatusPanelVisibilityOptions) => {
+  if (showFallbackImage || isLanguageShellVisible) {
+    return false;
+  }
+
+  if (showIntroStartPrompt || Boolean(diagnosticLabel)) {
+    return true;
+  }
+
+  return phase === "transitioningToMenu";
+};

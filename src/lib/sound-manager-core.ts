@@ -130,8 +130,8 @@ class SoundManager {
     soundName: string,
     playbackRate = 0.9,
     volumeOverride?: number,
-  ): Promise<void> {
-    await this.playback.playSound(soundName, playbackRate, volumeOverride);
+  ): Promise<boolean> {
+    return this.playback.playSound(soundName, playbackRate, volumeOverride);
   }
 
   async playSoundWithFade(
@@ -153,8 +153,8 @@ class SoundManager {
     playbackRate = 0.9,
     volumeOverride?: number,
     fadeInMs = 150,
-  ): Promise<void> {
-    await this.fadePlayback.playSoundWithFadeAsync(
+  ): Promise<boolean> {
+    return this.fadePlayback.playSoundWithFadeAsync(
       soundName,
       playbackRate,
       volumeOverride,
