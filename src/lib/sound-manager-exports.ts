@@ -9,6 +9,8 @@ export const playSoundEffect = {
   welcome: async () => soundManager.playSound("welcome"),
   stopAll: () => soundManager.stopAllAudio(),
   targetMiss: () => soundManager.playSound("explosion"),
+  byName: (name: string, playbackRate = 0.9) =>
+    soundManager.playSound(name, playbackRate),
 };
 
 export const prefetchAudioKeys = (keys: string[]) =>

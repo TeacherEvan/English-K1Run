@@ -86,7 +86,7 @@ export const GameMenuSettingsDialog = memo(
                         />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className={`menu-settings-dialog ${MENU_DIALOG_CLASS} flex max-h-[min(90vh,42rem)] flex-col overflow-y-auto overflow-x-hidden sm:max-w-xl`} style={MENU_DIALOG_STYLE}>
+                <DialogContent className={`menu-settings-dialog ${MENU_DIALOG_CLASS} flex max-h-[min(90vh,42rem)] flex-col overflow-hidden sm:max-w-xl`} style={MENU_DIALOG_STYLE}>
                     <DialogHeader>
                         <DialogTitle className={MENU_DIALOG_HEADER_TITLE_CLASS} style={MENU_DIALOG_TITLE_STYLE}>
                             <SettingsIcon className="w-6 h-6" />

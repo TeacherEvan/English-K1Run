@@ -1,9 +1,5 @@
 import { generateUniqueIdentifier } from "../semantic-utils";
-import type {
-  LayoutShift,
-  PerformanceEventTiming,
-  WebVitalMetric,
-} from "./types";
+import type { WebVitalMetric } from "./types";
 
 /**
  * Track Core Web Vitals metrics

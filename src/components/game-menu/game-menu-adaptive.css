@@ -6,7 +6,7 @@
 .menu-settings-dialog,
 .menu-compact-dialog {
   max-height: calc(100dvh - 1.5rem);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .menu-settings-dialog {
@@ -112,5 +112,26 @@
 @container (max-width: 26rem) {
   .level-select-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-height: 44rem) {
+  .menu-settings-dialog,
+  .menu-compact-dialog {
+    inset: 0.75rem 1rem auto !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+    max-width: none !important;
+    transform: none !important;
+    max-height: calc(100dvh - 1.5rem);
+    padding: 1rem;
+  }
+
+  .menu-settings-dialog .menu-settings-surface,
+  .menu-compact-dialog .menu-settings-surface {
+    margin-top: 0.9rem;
+    max-height: min(54vh, 22rem);
+    overflow-y: auto;
   }
 }
