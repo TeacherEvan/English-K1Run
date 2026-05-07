@@ -76,7 +76,7 @@ src/lib/constants/sentence-templates/
 - [x] No ESLint errors: `npx eslint src/ --max-warnings 0`
 - [x] TypeScript compiles: `npx tsc --noEmit`
 - [x] E2E tests pass: `npm run test:e2e`
-- [ ] Visual regression check
+- [x] Visual regression check
 - [ ] Update imports in consuming files
 - [ ] Document changes in PR description
 

@@ -105,6 +105,8 @@
 
 ## Developer Workflows
 
+- **Backend agent**: For backend, server, CI, deployment, dashboard API, or Playwright test-server work, use `.github/agents/backend-mechanics.agent.md` as the single canonical backend agent for this repository.
+- **No duplicate backend agents**: Do not add renamed or near-identical backend agent variants unless the scope is materially different from the canonical backend mechanics agent.
 - **Dev server**: `npm run dev`. Verification: `npm run verify` (lint + build). Type checking is available separately via `npm run check-types`; build currently runs `tsc -b && vite build`.
 - **Automated formatting**: Runs via `code_review.ps1` every 5 minutes; do not disable it.
 - **E2E**: Use `?e2e=1` to skip the welcome screen. Page objects/fixtures are in `e2e/fixtures/game.fixture.ts`(../e2e/fixtures/game.fixture.ts); prefer `gamePage.menu.startGame()` patterns. Tests live in `e2e/specs/`(../e2e/specs/).

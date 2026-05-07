@@ -392,6 +392,8 @@ useEffect(() => {
 
 ### Before Committing
 
+Template note: these checklists are reusable review prompts, not persistent branch status. Copy the relevant items into a task note, PR description, or jobcard when you need a completion record.
+
 **Always run:**
 
 ```bash
@@ -592,6 +594,8 @@ export function calculateSafeSpawnPosition(params: SpawnPositionParams): {
 ---
 
 ## ✅ Code Review Checklist
+
+Template note: leave this document as a reusable checklist library. Track task-specific completion in the active plan, jobcard, PR description, or implementation summary instead of checking boxes here permanently.
 
 ### For Reviewers
 

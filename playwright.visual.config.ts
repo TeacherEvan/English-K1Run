@@ -48,6 +48,7 @@ export default defineConfig({
   reporter: [
     ["html", { open: "never" }],
     ["list"],
+    ["./e2e/reporters/test-duration-reporter.ts"],
     ...(hasPlaywrightProgressReporter ? [["playwright-test-progress"]] : []),
   ],
 

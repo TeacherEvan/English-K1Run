@@ -87,7 +87,9 @@ export function GameMenuHero({
                 >
                     <div className="flex flex-col items-start">
                         <div className="mb-2 flex items-center gap-2.5">
-                            <TrophyIcon className="h-5 w-5" style={MENU_SCORE_ICON_STYLE} />
+                            <span style={MENU_SCORE_ICON_STYLE}>
+                                <TrophyIcon className="h-5 w-5" />
+                            </span>
                             <span className={MENU_SCORE_LABEL_CLASS} style={MENU_SCORE_LABEL_STYLE}>
                                 {t("game.totalTargetsDestroyed")}
                             </span>

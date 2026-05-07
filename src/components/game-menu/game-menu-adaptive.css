@@ -73,6 +73,23 @@
   gap: clamp(1.4rem, 3.2vw, 2.4rem);
 }
 
+[data-compact-layout="single-column"].menu-home-layout {
+  gap: clamp(1rem, 4vw, 1.25rem);
+}
+
+[data-compact-layout="single-column"].menu-home-actions {
+  order: -1;
+  gap: clamp(0.75rem, 3.5vw, 1rem);
+}
+
+[data-compact-layout="single-column"].menu-home-hero {
+  gap: clamp(1rem, 4vw, 1.35rem);
+}
+
+[data-compact-layout="single-column"].menu-home-summary {
+  gap: 0.9rem;
+}
+
 [data-compact-layout="balanced"].menu-home-actions {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(15rem, 0.85fr);

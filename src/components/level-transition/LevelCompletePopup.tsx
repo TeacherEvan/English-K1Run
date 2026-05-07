@@ -36,7 +36,10 @@ export const LevelCompletePopup = ({
             data-testid="level-complete-popup"
             style={{ zIndex: UI_LAYER_MATRIX.HUD_CRITICAL }}
         >
-            <div className="w-full max-w-md rounded-4xl border border-[color-mix(in_oklch,var(--accent)_40%,transparent)] bg-[color-mix(in_oklch,var(--background)_86%,oklch(0.96_0.04_95))] px-6 py-5 text-center shadow-[0_24px_60px_oklch(0.45_0.09_65_/_0.18)] backdrop-blur-md">
+            <div
+                className="w-full max-w-md rounded-4xl border border-[color-mix(in_oklch,var(--accent)_40%,transparent)] bg-[color-mix(in_oklch,var(--background)_86%,oklch(0.96_0.04_95))] px-6 py-5 text-center shadow-[0_24px_60px_oklch(0.45_0.09_65/0.18)] backdrop-blur-md"
+                data-testid="level-complete-popup-card"
+            >
                 <div role="status" aria-live="polite" className="sr-only">
                     {announcement}
                 </div>

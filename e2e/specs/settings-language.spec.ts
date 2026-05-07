@@ -106,6 +106,114 @@ test.describe("Settings language selection", () => {
     );
   });
 
+  test("supports keyboard-only display language selection from the controls tab", async ({
+    gamePage,
+    page,
+  }) => {
+    await gamePage.goto();
+    await gamePage.waitForReady();
+
+    await gamePage.menu.settingsButton.evaluate((element: HTMLElement) => {
+      element.click();
+    });
+
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+
+    const controlsTab = dialog.getByRole("tab", { name: /Controls/ });
+    await expect(controlsTab).toHaveAttribute("aria-selected", "true");
+    await expect(
+      dialog.getByRole("heading", { name: /Language/ }),
+    ).toBeVisible();
+
+    const displayLanguage = dialog.getByRole("combobox").nth(0);
+    const unfocusedStyles = await displayLanguage.evaluate((element) => {
+      const styles = window.getComputedStyle(element);
+
+      return {
+        borderColor: styles.borderColor,
+        boxShadow: styles.boxShadow,
+        outlineColor: styles.outlineColor,
+        outlineStyle: styles.outlineStyle,
+        outlineWidth: styles.outlineWidth,
+      };
+    });
+
+    await controlsTab.focus();
+    await expect(controlsTab).toBeFocused();
+    for (let step = 0; step < 5; step += 1) {
+      if (await displayLanguage.evaluate((element) => element === document.activeElement)) {
+        break;
+      }
+
+      await page.keyboard.press("Tab");
+    }
+    await expect(displayLanguage).toBeFocused();
+
+    await expect
+      .poll(() =>
+        displayLanguage.evaluate((element, previousStyles) => {
+          const styles = window.getComputedStyle(element);
+
+          return {
+            hasVisibleFocusChange:
+              styles.borderColor !== previousStyles.borderColor ||
+              styles.boxShadow !== previousStyles.boxShadow ||
+              styles.outlineColor !== previousStyles.outlineColor ||
+              styles.outlineStyle !== previousStyles.outlineStyle ||
+              styles.outlineWidth !== previousStyles.outlineWidth,
+            isFocusVisible: element.matches(":focus-visible"),
+            styles: {
+              borderColor: styles.borderColor,
+              boxShadow: styles.boxShadow,
+              outlineColor: styles.outlineColor,
+              outlineStyle: styles.outlineStyle,
+              outlineWidth: styles.outlineWidth,
+            },
+          };
+        }, unfocusedStyles),
+      )
+      .toEqual(
+        expect.objectContaining({
+          hasVisibleFocusChange: true,
+          isFocusVisible: true,
+        }),
+      );
+
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("option", { name: /^English/ })).toBeVisible();
+
+    for (let step = 0; step < 3; step += 1) {
+      await page.keyboard.press("ArrowDown");
+    }
+
+    await page.keyboard.press("Enter");
+
+    await expect(displayLanguage).not.toContainText("English");
+
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const settings = JSON.parse(
+            localStorage.getItem("k1-settings") ?? "{}",
+          ) as {
+            displayLanguage?: string;
+          };
+
+          return {
+            displayLanguage: settings.displayLanguage,
+            persistedLanguage: localStorage.getItem("k1-language"),
+          };
+        }),
+      )
+      .toEqual(
+        expect.objectContaining({
+          displayLanguage: expect.not.stringMatching(/^en$/),
+          persistedLanguage: expect.not.stringMatching(/^en$/),
+        }),
+      );
+  });
+
   test("falls back to English when invalid language settings are stored", async ({
     gamePage,
     page,

@@ -107,7 +107,6 @@ test.describe("Game Menu", () => {
   });
 
   test("should open the High Scores dialog with a seeded Challenge Mode score", async ({
-    gamePage,
     page,
   }) => {
     const highScoresButton = page.getByTestId("high-scores-button");

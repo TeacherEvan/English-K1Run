@@ -123,7 +123,12 @@ export default defineConfig({
           : undefined),
 
   // Reporter configuration with visual diff support
-  reporter: [["html", { open: "never" }], ["list"], ["allure-playwright"]],
+  reporter: [
+    ["html", { open: "never" }],
+    ["list"],
+    ["allure-playwright"],
+    ["./e2e/reporters/test-duration-reporter.ts"],
+  ],
 
   // Global test timeout
   timeout: 60_000,

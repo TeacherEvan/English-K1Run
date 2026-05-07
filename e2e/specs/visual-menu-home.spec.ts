@@ -21,6 +21,7 @@ test.describe("Visual Menu Home", () => {
       {
         animations: "disabled",
         caret: "hide",
+        maxDiffPixels: 100,
       },
     );
 

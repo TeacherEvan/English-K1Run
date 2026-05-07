@@ -268,8 +268,8 @@ All changes are backward-compatible and improve test reliability without affecti
 
 - [x] Create `clickMovingElement()` helper in [`game.fixture.ts`](e2e/fixtures/game.fixture.ts)
 - [x] Reuse moving-target retries in `tapCurrentTargetAndWaitForResolution()` for the mobile level-transition path
-- [ ] Add performance tracking for test execution times
-- [ ] Implement visual diff for UI state transitions
+- [x] Add performance tracking for test execution times
+- [x] Implement visual diff for UI state transitions
 
 ## Related Issues
 
