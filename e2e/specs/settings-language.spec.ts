@@ -47,7 +47,11 @@ test.describe("Settings language selection", () => {
     await expect(dialog).toBeVisible();
     await expect(controlsTab).toHaveAttribute("aria-selected", "true");
 
-    await visualTab.click();
+    if (test.info().project.use.hasTouch) {
+      await visualTab.tap();
+    } else {
+      await visualTab.click();
+    }
 
     await expect(visualTab).toHaveAttribute("aria-selected", "true");
     await expect(controlsTab).toHaveAttribute("aria-selected", "false");

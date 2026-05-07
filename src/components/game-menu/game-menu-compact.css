@@ -130,6 +130,7 @@
     right: 1rem !important;
     width: auto !important;
     max-width: none !important;
+    translate: none !important;
     transform: none !important;
     max-height: calc(100dvh - 1.5rem);
     padding: 1rem;
