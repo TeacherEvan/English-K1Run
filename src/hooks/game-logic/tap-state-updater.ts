@@ -95,6 +95,11 @@ export const updateStateOnTap = (
         });
       }
 
+      // Once a level transition starts, skip the normal target-advance path.
+      if (!continuousMode && newState.phase !== "playing") {
+        return newState;
+      }
+
       if (!currentCategory.requiresSequence && !newState.winner) {
         const nextTarget = generateRandomTarget();
         newState.currentTarget = nextTarget.name;

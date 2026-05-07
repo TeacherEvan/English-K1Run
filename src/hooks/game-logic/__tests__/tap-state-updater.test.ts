@@ -110,4 +110,23 @@ describe("updateStateOnTap", () => {
     expect(state.progress).toBe(0);
     expect(state.streak).toBe(0);
   });
+
+  it("does not queue an extra target spawn after a level transition starts", () => {
+    state = {
+      ...baseState(),
+      progress: 95,
+      targetsClearedThisLevel: 9,
+      levelQueue: [0, 1],
+      levelQueueIndex: 0,
+    };
+
+    const deps = makeDeps();
+
+    updateStateOnTap(true, deps);
+
+    expect(state.phase).toBe("levelComplete");
+    expect(state.pendingLevel).toBe(1);
+    expect(state.currentTarget).toBe("apple");
+    expect(deps.spawnImmediateTargets).not.toHaveBeenCalled();
+  });
 });

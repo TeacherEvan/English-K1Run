@@ -56,6 +56,13 @@
   z-index: 1;
 }
 
+@media (min-width: 64rem) and (min-aspect-ratio: 16/10) {
+  .welcome-video {
+    object-fit: contain;
+    object-position: center center;
+  }
+}
+
 .welcome-fallback-pop {
   animation: fallback-pop 1.2s ease-out forwards;
   clip-path: circle(0% at 50% 50%);

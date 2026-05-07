@@ -32,6 +32,14 @@ test.describe("Welcome layout", () => {
     await expect(languageShell).toBeVisible();
     await expect(page.locator('[data-testid="welcome-status-panel"]')).toHaveCount(0);
 
+    await expect
+      .poll(() =>
+        video.evaluate(
+          (element) => window.getComputedStyle(element).objectFit,
+        ),
+      )
+      .toBe("contain");
+
     const viewport = page.viewportSize();
     const languageBox = await languageShell.boundingBox();
 

@@ -65,21 +65,26 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     activateObject()
   }
 
-  // Memoize style calculations to prevent recalculation on every render
-  // Performance optimization: Use translate3d for GPU acceleration and isolate scale to font-size
-  // to prevent composition layer recalculation from CSS variable changes
+  // Detect object types for styling
+  const isLetter = /^[A-Za-z]$/.test(object.emoji)
+  const isNumericText = /^\d+$/.test(object.emoji)
+  const hitAreaScale = isNumericText ? 0.92 : 0.88
+
+  // Memoize style calculations to prevent recalculation on every render.
+  // Keep the visual glyph size while trimming the interactive box slightly.
   const objectStyle = useMemo(() => ({
     left: `${object.x}%`,
     top: 0,
+    width: `calc(${(object.size * hitAreaScale).toFixed(2)}px * var(--object-scale, 1))`,
+    height: `calc(${(object.size * hitAreaScale).toFixed(2)}px * var(--object-scale, 1))`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     transform: `translate3d(-50%, ${object.y}px, 0)`,
     fontSize: `calc(${object.size}px * var(--object-scale, 1))`,
     lineHeight: 1,
     zIndex: UI_LAYER_MATRIX.GAMEPLAY_OBJECTS,
-  }), [object.x, object.y, object.size])
-
-  // Detect object types for styling
-  const isLetter = /^[A-Za-z]$/.test(object.emoji)
-  const isNumericText = /^\d+$/.test(object.emoji)
+  }), [hitAreaScale, object.size, object.x, object.y])
 
   return (
     <div

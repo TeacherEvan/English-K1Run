@@ -4,15 +4,14 @@ import { centralAudioManager } from "../../../lib/audio/central-audio-manager";
 import { speechSynthesizer } from "../../../lib/audio/speech-synthesizer";
 import {
   getTargetSentence,
-  playTargetSentence,
 } from "../../../lib/audio/target-announcements";
 import { eventTracker } from "../../../lib/event-tracker";
 import { soundManager } from "../../../lib/sound-manager";
 import type { GamePhase, GameState } from "../../../types/game";
 
 /**
- * Manages the target announcement overlay and speech playback.
- * Uses soundManager.playWord for robust multi-fallback audio delivery.
+ * Manages the target announcement overlay and sentence playback.
+ * Uses soundManager.playWord so gameplay can fall back to clips or speech.
  */
 export const useTargetAnnouncement = (
   gameStarted: boolean,
@@ -68,7 +67,7 @@ export const useTargetAnnouncement = (
         data: { target: currentTarget },
       });
 
-      await playTargetSentence(currentTarget, language);
+      await soundManager.playWord(currentTarget);
 
       eventTracker.trackEvent({
         type: "info",

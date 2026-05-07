@@ -17,8 +17,7 @@ vi.mock("react", async () => {
 });
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as targetAnnouncements from "../../lib/audio/target-announcements";
-import { playSoundEffect } from "../../lib/sound-manager";
+import { playSoundEffect, soundManager } from "../../lib/sound-manager";
 import { useTargetAnnouncement } from "../game-logic/game-effects/target-announcement";
 
 describe("Sound Manager Audio Call Behavior", () => {
@@ -56,17 +55,18 @@ describe("Sound Manager Audio Call Behavior", () => {
     }).not.toThrow();
   });
 
-  it("should only export voice, welcome, stopAll, and targetMiss", () => {
+  it("should export the expected sound effect helpers", () => {
     // Verify that we only have the expected sound effects and control methods
     // voiceWordOnly was removed in December 2025 per issue requirements
     // welcome method added in December 2025 for welcome screen audio
     // targetMiss retained for game audio feedback
     const exportedMethods = Object.keys(playSoundEffect);
-    expect(exportedMethods).toHaveLength(4);
+    expect(exportedMethods).toHaveLength(5);
     expect(exportedMethods).toContain("voice");
     expect(exportedMethods).toContain("welcome");
     expect(exportedMethods).toContain("stopAll");
     expect(exportedMethods).toContain("targetMiss");
+    expect(exportedMethods).toContain("byName");
     expect(exportedMethods).not.toContain("voiceWordOnly");
     expect(exportedMethods).not.toContain("sticker");
   });
@@ -81,16 +81,16 @@ describe("Sound Manager Audio Call Behavior", () => {
   });
 
   describe("target announcement audio", () => {
-    it("plays the target sentence through the strict-language target helper", async () => {
+    it("plays the target through the sound-manager fallback chain", async () => {
       const playSpy = vi
-        .spyOn(targetAnnouncements, "playTargetSentence")
-        .mockResolvedValue("I eat a red apple.");
+        .spyOn(soundManager, "playWord")
+        .mockResolvedValue();
       const setState = vi.fn();
 
       useTargetAnnouncement(true, "playing", "apple", "🍎", setState);
       await Promise.resolve();
 
-      expect(playSpy).toHaveBeenCalledWith("apple", "en");
+      expect(playSpy).toHaveBeenCalledWith("apple");
     });
   });
 });
