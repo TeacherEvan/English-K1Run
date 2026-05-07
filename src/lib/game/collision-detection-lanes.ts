@@ -56,7 +56,7 @@ export function processLaneCollisions(
 
       const horizontalGap = Math.abs(currentObject.x - otherObject.x);
 
-      if (horizontalGap >= minimumSeparationDistance || horizontalGap === 0) {
+      if (horizontalGap >= minimumSeparationDistance) {
         continue;
       }
 
