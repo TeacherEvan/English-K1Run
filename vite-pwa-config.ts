@@ -36,20 +36,6 @@ export const englishK1RunPwaConfig = {
     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
     runtimeCaching: [
       {
-        urlPattern:
-          /\/(?:New_welcome_video\.mp4|sounds\/welcome.*\.(?:wav|mp3|ogg))$/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "welcome-media-cache-v1",
-          cacheableResponse: { statuses: [0, 200] },
-          expiration: {
-            maxEntries: 24,
-            maxAgeSeconds: 90 * 24 * 60 * 60,
-            purgeOnQuotaError: true,
-          },
-        },
-      },
-      {
         urlPattern: /\.(?:wav|mp3|ogg)$/i,
         handler: "CacheFirst",
         options: {

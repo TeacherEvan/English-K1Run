@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { englishK1RunPwaConfig } from "../../vite-pwa-config";
 
 describe("englishK1RunPwaConfig", () => {
-  it("keeps branded welcome media explicitly covered", () => {
+  it("keeps branded welcome assets covered without service-worker caching the intro video", () => {
     const includeAssets = englishK1RunPwaConfig.includeAssets ?? [];
     const runtimeCaching = englishK1RunPwaConfig.workbox?.runtimeCaching ?? [];
 
@@ -15,7 +15,7 @@ describe("englishK1RunPwaConfig", () => {
       String(rule.urlPattern).includes("New_welcome_video"),
     );
 
-    expect(welcomeMediaRule).toBeDefined();
+    expect(welcomeMediaRule).toBeUndefined();
   });
 
   it("does not precache decorative background sets by default", () => {
