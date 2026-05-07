@@ -4,8 +4,6 @@ import type { Page } from "@playwright/test";
  * Audio Mock - Prevents actual audio playback during tests
  */
 export class AudioMock {
-  private playedSounds: string[] = [];
-
   constructor(private page: Page) {}
 
   async setup() {
@@ -92,9 +90,5 @@ export class AudioMock {
         window.speechSynthesis.cancel = () => {};
       }
     });
-  }
-
-  getPlayedSounds() {
-    return this.playedSounds;
   }
 }

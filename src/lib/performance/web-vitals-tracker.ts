@@ -14,17 +14,6 @@ export const trackWebVitals = (
 
   if (typeof PerformanceObserver === "undefined") return;
 
-  const reportMetric = (metric: Metric) => {
-    onMetric({
-      name: metric.name,
-      value: metric.value,
-      id: metric.id,
-      rating: metric.rating,
-      delta: metric.delta,
-      navigationType: metric.navigationType,
-    });
-  };
-
   const supportedEntryTypes = Array.isArray(
     PerformanceObserver.supportedEntryTypes,
   )
