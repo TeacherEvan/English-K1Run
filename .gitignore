@@ -130,3 +130,4 @@ e2e/test-results
 allure-results/
 
 .vercel
+.env*

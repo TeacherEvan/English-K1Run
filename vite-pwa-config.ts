@@ -30,7 +30,6 @@ export const englishK1RunPwaConfig = {
     globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,ttf,eot}"],
     globIgnores: [
       "**/welcome-sangsom.png",
-      "**/Gemini_Generated_Image_895eeq895eeq895e.png",
       "**/backgrounds/**",
     ],
     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
