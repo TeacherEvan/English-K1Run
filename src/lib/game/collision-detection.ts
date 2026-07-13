@@ -8,4 +8,3 @@ export {
   partitionByLane,
   processLaneCollisions,
 } from "./collision-detection-lanes";
-export { applyWormObjectCollision } from "./collision-detection-worm";

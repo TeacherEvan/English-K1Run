@@ -9,17 +9,6 @@
 
 // Collision detection
 export {
-  applyWormObjectCollision,
   partitionByLane,
   processLaneCollisions,
 } from "./collision-detection";
-
-// Worm management
-export {
-  countAliveWorms,
-  createWorms,
-  killWorm,
-  removeDeadWorms,
-  updateWormPosition,
-  updateWorms,
-} from "./worm-manager";

@@ -47,7 +47,6 @@ export const activateQueuedLevel = ({
   if (activeLevel === null || activeLevel === undefined) return;
 
   const currentCategory = GAME_CATEGORIES[activeLevel];
-  if (currentCategory.requiresSequence) currentCategory.sequenceIndex = 0;
 
   lastEmojiAppearance.current.clear();
   targetPool.current = [];
@@ -86,6 +85,7 @@ export const activateQueuedLevel = ({
     progress: 0,
     streak: 0,
     targetsClearedThisLevel: 0,
+    sequenceIndex: 0,
     ...stateUpdates,
   }));
 

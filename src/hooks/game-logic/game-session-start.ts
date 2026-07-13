@@ -45,11 +45,6 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
       multiTouchHandler.enable();
       eventTracker.startPerformanceMonitoring();
 
-      // Initialize sequence for sequence-based categories
-      if (GAME_CATEGORIES[safeLevel].requiresSequence) {
-        GAME_CATEGORIES[safeLevel].sequenceIndex = 0;
-      }
-
       // Reset game state tracking
       lastEmojiAppearance.current.clear();
       targetPool.current = [];
@@ -90,6 +85,7 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
             continuousCategoryClearCount: 0,
             continuousLevelEndsAt: Date.now() + levelDurationMs,
             continuousRunScore: 0,
+            sequenceIndex: 0,
           },
         });
         return;
@@ -118,6 +114,7 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
           continuousRunScore: 0,
           progress: 0,
           streak: 0,
+          sequenceIndex: 0,
         };
         eventTracker.trackGameStateChange(
           { ...prev },

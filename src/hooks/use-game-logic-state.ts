@@ -45,6 +45,7 @@ export const useGameLogicState = () => {
     announcementSentence: "",
     multiplier: 1.0,
     lastMilestone: 0,
+    sequenceIndex: 0,
   }));
 
   const [continuousModeHighScore, setContinuousModeHighScore] = useState<

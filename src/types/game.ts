@@ -59,6 +59,7 @@ export interface GameState {
   activePowerUps?: ActivePowerUp[];
   /** Last milestone reached (for preventing re-trigger) */
   lastMilestone?: number;
+  sequenceIndex?: number;
 }
 
 export interface ActivePowerUp {

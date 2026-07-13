@@ -39,19 +39,23 @@ describe("updateStateOnTap", () => {
     lastMilestone: 0,
   });
 
-  const makeDeps = () => ({
-    gameState: state,
-    currentCategory,
-    reducedMotion: false,
-    generateRandomTarget: () => ({ name: "apple", emoji: "🍎" }),
-    spawnImmediateTargets: vi.fn(),
-    continuousMode: false,
-    refillTargetPool: vi.fn(),
-    setGameState: (updater: GameState | ((prev: GameState) => GameState)) => {
-      state = typeof updater === "function" ? updater(state) : updater;
-    },
-    setScreenShake: vi.fn(),
-  });
+  const makeDeps = () => {
+    const deps = {
+      gameState: state,
+      currentCategory,
+      reducedMotion: false,
+      generateRandomTarget: () => ({ name: "apple", emoji: "🍎" }),
+      spawnImmediateTargets: vi.fn(),
+      continuousMode: false,
+      refillTargetPool: vi.fn(),
+      setGameState: (updater: GameState | ((prev: GameState) => GameState)) => {
+        state = typeof updater === "function" ? updater(state) : updater;
+        deps.gameState = state;
+      },
+      setScreenShake: vi.fn(),
+    };
+    return deps;
+  };
 
   beforeEach(() => {
     state = baseState();
@@ -128,5 +132,32 @@ describe("updateStateOnTap", () => {
     expect(state.pendingLevel).toBe(1);
     expect(state.currentTarget).toBe("apple");
     expect(deps.spawnImmediateTargets).not.toHaveBeenCalled();
+  });
+
+  it("advances sequenceIndex in state for sequence-based categories", () => {
+    state = {
+      ...baseState(),
+      sequenceIndex: 0,
+    };
+    const seqCategory = {
+      name: "Seq",
+      items: [
+        { emoji: "A", name: "A" },
+        { emoji: "B", name: "B" },
+      ],
+      requiresSequence: true,
+    };
+    const deps = makeDeps();
+    deps.currentCategory = seqCategory;
+    deps.generateRandomTarget = (_levelOverride?: number) => {
+      const idx = state.sequenceIndex ?? 0;
+      const item = seqCategory.items[idx % seqCategory.items.length];
+      return { name: item.name, emoji: item.emoji };
+    };
+
+    updateStateOnTap(true, deps);
+
+    expect(state.sequenceIndex).toBe(1);
+    expect(deps.spawnImmediateTargets).toHaveBeenCalled();
   });
 });

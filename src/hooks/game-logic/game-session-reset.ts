@@ -1,4 +1,3 @@
-import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
 import { multiTouchHandler } from "../../lib/touch-handler";
 import type { GameSessionDependencies } from "./game-session-types";
@@ -21,10 +20,6 @@ export const createResetGame = (dependencies: GameSessionDependencies) => {
   } = dependencies;
 
   return () => {
-    GAME_CATEGORIES.forEach((cat) => {
-      cat.sequenceIndex = 0;
-    });
-
     multiTouchHandler.disable();
     eventTracker.stopPerformanceMonitoring();
 
@@ -66,6 +61,7 @@ export const createResetGame = (dependencies: GameSessionDependencies) => {
       continuousRunScore: 0,
       targetChangeTime: Date.now() + 10000,
       streak: 0,
+      sequenceIndex: 0,
     });
   };
 };

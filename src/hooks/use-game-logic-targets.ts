@@ -5,7 +5,7 @@ import { createTargetPoolManager } from "./game-logic/target-pool";
 
 interface TargetPoolRefs {
   targetPool: MutableRefObject<Array<{ emoji: string; name: string }>>;
-  gameStateRef: MutableRefObject<{ level: number }>;
+  gameStateRef: MutableRefObject<{ level: number; sequenceIndex?: number }>;
   gameStateLevel: number;
 }
 
@@ -28,6 +28,7 @@ export const useGameLogicTargets = ({
         targetPoolRef: targetPool,
         clampLevel,
         getLevel: () => gameStateRef.current.level,
+        getSequenceIndex: () => gameStateRef.current.sequenceIndex ?? 0,
       }),
     [clampLevel, gameStateRef, targetPool],
   );
