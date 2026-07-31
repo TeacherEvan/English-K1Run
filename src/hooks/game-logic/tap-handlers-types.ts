@@ -23,6 +23,7 @@ export interface HandleObjectTapDependencies {
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
   continuousModeTargetCount: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
   continuousModeHighScore: number | null;
   continuousModeStartTime: number | null;
   setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;

@@ -35,6 +35,7 @@ interface InteractionDeps {
   setWorms: Dispatch<SetStateAction<WormObject[]>>;
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>;
   wormSpeedMultiplier: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
 }
 
 /**
@@ -60,6 +61,7 @@ export const useGameLogicInteractions = ({
   setWorms,
   setFairyTransforms,
   wormSpeedMultiplier,
+  sequenceIndicesRef,
 }: InteractionDeps) => {
   const handleObjectTap = useMemo(
     () =>
@@ -80,6 +82,7 @@ export const useGameLogicInteractions = ({
         setGameState,
         setScreenShake,
         setGameObjects,
+        sequenceIndicesRef,
       }),
     [
       gameObjectsRef,
@@ -98,6 +101,7 @@ export const useGameLogicInteractions = ({
       setGameState,
       setScreenShake,
       setGameObjects,
+      sequenceIndicesRef,
     ],
   );
 

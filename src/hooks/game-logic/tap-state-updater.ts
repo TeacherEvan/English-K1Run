@@ -1,5 +1,4 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
-import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
 import type { GameState, GameCategory } from "../../types/game";
 import { handleProgressWin } from "./tap-handlers-object-win";
@@ -12,6 +11,7 @@ export interface TapStateUpdateDependencies {
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
   continuousModeTargetCount: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
   continuousModeHighScore: number | null;
   continuousModeStartTime: number | null;
   setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;
@@ -34,6 +34,7 @@ export const updateStateOnTap = (
     generateRandomTarget,
     spawnImmediateTargets,
     continuousMode,
+    sequenceIndicesRef,
     continuousModeTargetCount,
     continuousModeHighScore,
     continuousModeStartTime,
@@ -59,6 +60,7 @@ export const updateStateOnTap = (
           newState,
           continuousMode,
           continuousModeTargetCount,
+          sequenceIndicesRef,
           continuousModeHighScore,
           continuousModeStartTime,
           setContinuousModeHighScore,
@@ -83,8 +85,8 @@ export const updateStateOnTap = (
       }
 
       if (currentCategory.requiresSequence) {
-        const nextIndex = (currentCategory.sequenceIndex || 0) + 1;
-        GAME_CATEGORIES[prev.level].sequenceIndex = nextIndex;
+        const nextIndex = (sequenceIndicesRef.current[prev.level] || 0) + 1;
+        sequenceIndicesRef.current[prev.level] = nextIndex;
 
         if (nextIndex < currentCategory.items.length) {
           const nextTarget = generateRandomTarget();

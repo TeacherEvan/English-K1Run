@@ -18,6 +18,7 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
     lastEmojiAppearance,
     targetPool,
     continuousModeTargetCount,
+    sequenceIndicesRef,
     progressiveSpawnTimeoutRefs,
     recurringSpawnIntervalRef,
     wormSpeedMultiplier,
@@ -39,7 +40,7 @@ export const createStartGame = (dependencies: GameSessionDependencies) => {
 
       // Initialize sequence for sequence-based categories
       if (GAME_CATEGORIES[safeLevel].requiresSequence) {
-        GAME_CATEGORIES[safeLevel].sequenceIndex = 0;
+        sequenceIndicesRef.current[safeLevel] = 0;
       }
 
       // Reset game state tracking

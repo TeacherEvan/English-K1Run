@@ -29,6 +29,7 @@ export const createHandleObjectTap = (
     setGameState,
     setScreenShake,
     setGameObjects,
+    sequenceIndicesRef,
   } = dependencies;
 
   return (objectId: string, playerSide: PlayerSide) => {
@@ -96,6 +97,7 @@ export const createHandleObjectTap = (
         generateRandomTarget,
         spawnImmediateTargets,
         continuousMode,
+        sequenceIndicesRef,
         continuousModeTargetCount,
         continuousModeHighScore,
         continuousModeStartTime,

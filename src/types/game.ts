@@ -50,7 +50,6 @@ export interface GameCategory {
   name: string;
   items: GameCategoryItem[];
   requiresSequence?: boolean;
-  sequenceIndex?: number;
 }
 
 export interface GameCategoryItem {

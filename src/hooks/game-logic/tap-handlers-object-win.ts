@@ -8,6 +8,7 @@ interface ProgressWinDeps {
   newState: GameState;
   continuousMode: boolean;
   continuousModeTargetCount: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
   continuousModeHighScore: number | null;
   continuousModeStartTime: number | null;
   setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;
@@ -28,6 +29,7 @@ export const handleProgressWin = ({
   newState,
   continuousMode,
   continuousModeTargetCount,
+  sequenceIndicesRef,
   continuousModeHighScore,
   continuousModeStartTime,
   setContinuousModeHighScore,
@@ -48,7 +50,7 @@ export const handleProgressWin = ({
       newState.level = nextLevel;
 
       if (GAME_CATEGORIES[nextLevel].requiresSequence) {
-        GAME_CATEGORIES[nextLevel].sequenceIndex = 0;
+        sequenceIndicesRef.current[nextLevel] = 0;
       }
 
       refillTargetPool(nextLevel);

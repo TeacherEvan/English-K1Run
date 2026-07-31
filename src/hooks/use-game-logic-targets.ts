@@ -7,6 +7,7 @@ interface TargetPoolRefs {
   targetPool: MutableRefObject<Array<{ emoji: string; name: string }>>;
   gameStateRef: MutableRefObject<{ level: number }>;
   gameStateLevel: number;
+  sequenceIndicesRef: MutableRefObject<number[]>;
 }
 
 /**
@@ -16,6 +17,7 @@ export const useGameLogicTargets = ({
   targetPool,
   gameStateRef,
   gameStateLevel,
+  sequenceIndicesRef,
 }: TargetPoolRefs) => {
   const clampLevel = useCallback((levelIndex: number) => {
     if (Number.isNaN(levelIndex)) return 0;
@@ -28,8 +30,9 @@ export const useGameLogicTargets = ({
         targetPoolRef: targetPool,
         clampLevel,
         getLevel: () => gameStateRef.current.level,
+        sequenceIndicesRef,
       }),
-    [clampLevel, gameStateRef, targetPool],
+    [clampLevel, gameStateRef, targetPool, sequenceIndicesRef],
   );
 
   const currentCategory = useMemo(
