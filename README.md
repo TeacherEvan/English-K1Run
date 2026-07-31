@@ -132,6 +132,17 @@ Then check `CONSOLE_EXAMPLES.md` and `AUDIO_SETUP.md`.
 - Do not rely on client-side premium API secrets for competition readiness
 - Validate audio assets before deployment
 
+### Mobile / Native Build (Capacitor)
+
+The project also ships native Android and iOS apps via **Capacitor 8.5.0**, wrapping the existing web build for app-store distribution. No rewrite of the web app was needed — it remains PWA-first.
+
+- Capacitor packages added: `@capacitor/core@^8.5.0`, `@capacitor/cli@^8.5.0`, `@capacitor/android@^8.5.0`, `@capacitor/ios@^8.5.0`.
+- `capacitor.config.ts` (repo root): `appId` `com.teacherevan.kindergartenrace`, `appName` `Kindergarten Race`, `webDir` `dist`.
+- Native projects `android/` and `ios/` are generated and committed to the repo.
+- Workflow: `npm run build` emits to `dist/`, then `npx cap sync` copies `dist/` into the native app; `npx cap add android` / `npx cap add ios` initialize the native shells.
+- New npm scripts: `cap:sync`, `cap:add:android`, `cap:add:ios`, `cap:build:android` (`npm run build && cap sync android`), `cap:build:ios` (`npm run build && cap sync ios`).
+- Android builds on Linux with the Android SDK. iOS builds require macOS + Xcode (the `ios/` scaffolding generates fine on Linux but cannot be compiled there).
+
 ## Contributing
 
 - Keep source and docs files under the repo’s size conventions where possible.
