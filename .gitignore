@@ -128,3 +128,6 @@ e2e/test-results
 .fake
 # Allure
 allure-results/
+
+# Vercel build output (local build artifact)
+.vercel/
