@@ -170,8 +170,9 @@ Test duration: 30.7s (chromium), 34.0s (total with welcome screen test)
 ## Related Documentation
 
 - **Playwright Best Practices**: [microsoft/playwright - Actionability](https://playwright.dev/docs/actionability)
-- **E2E Testing Guide**: `DOCS/E2E_TESTING_IMPROVEMENTS_DEC2025.md`
-- **Touch Handling**: `DOCS/MULTI_TOUCH_IMPLEMENTATION.md`
+- **Best Practices**: `DOCS/BEST_PRACTICES.md`
+- **Codebase navigation**: `DOCS/CODEBASE_INDEX.md`
+- **Follow-up implementation summary**: `DOCS/TEST_FAILURES_FIX_JAN2026.md`
 
 ## Prevention
 

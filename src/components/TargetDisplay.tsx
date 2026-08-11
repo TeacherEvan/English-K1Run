@@ -1,4 +1,8 @@
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useSettings } from '../context/settings-context'
+import { getCategoryTranslationKey } from '../lib/constants/category-translation'
+import { getTargetDisplayLabel } from '../lib/constants/target-labels'
 import type { GameCategory } from '../types/game'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
@@ -11,99 +15,120 @@ interface TargetDisplayProps {
   onClick?: () => void
   /** Current point multiplier from combo system */
   multiplier?: number
+  /** In continuous mode the target emoji is hidden to rely on audio */
+  continuousMode?: boolean
 }
 
-export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier }: TargetDisplayProps) => {
+export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier, continuousMode }: TargetDisplayProps) => {
+  const { t } = useTranslation()
+  const { gameplayLanguage } = useSettings()
+  const categoryKey = getCategoryTranslationKey(category.name)
+  const categoryLabel = categoryKey
+    ? t(`categories.${categoryKey}`, { lng: gameplayLanguage })
+    : category.name
+  const targetLabel = getTargetDisplayLabel(currentTarget, gameplayLanguage, category.name)
+  const findLabel = t('game.find', { lng: gameplayLanguage })
+  const inOrderLabel = t('game.inOrder', { lng: gameplayLanguage })
   // Determine if multiplier is active (greater than 1)
   const hasActiveMultiplier = multiplier && multiplier > 1
 
   return (
-    <Card data-testid="target-display" className="bg-transparent text-foreground mx-auto cursor-pointer hover:scale-105 transition-transform"
+    <Card data-testid="target-display" className="bg-transparent text-foreground"
       onClick={onClick}
       style={{
-        padding: `calc(0.5rem * var(--spacing-scale, 1))`,
-        // Subtle background for better visibility without obstruction
-        // Add golden glow when multiplier is active
-        backgroundColor: hasActiveMultiplier ? 'rgba(255, 251, 235, 0.95)' : 'rgba(255, 255, 255, 0.85)',
-        border: hasActiveMultiplier ? '2px solid rgba(251, 191, 36, 0.8)' : '2px solid rgba(255, 255, 255, 0.95)',
+        padding: `calc(0.3rem * var(--spacing-scale, 1))`,
+        // Very subtle background - minimal obstruction
+        backgroundColor: hasActiveMultiplier ? 'rgba(255, 251, 235, 0.88)' : 'rgba(255, 255, 255, 0.65)',
+        border: hasActiveMultiplier ? '2px solid rgba(251, 191, 36, 0.7)' : '1px solid rgba(255, 255, 255, 0.8)',
         boxShadow: hasActiveMultiplier
-          ? '0 4px 12px rgba(251, 191, 36, 0.3), 0 0 20px rgba(251, 191, 36, 0.2)'
-          : '0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.2)',
-        backdropFilter: 'blur(8px)',
-        borderRadius: '12px',
+          ? '0 2px 6px rgba(251, 191, 36, 0.2), 0 0 12px rgba(251, 191, 36, 0.12)'
+          : '0 2px 6px rgba(0, 0, 0, 0.08), 0 0 8px rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(4px)',
+        borderRadius: '8px',
         maxWidth: 'fit-content',
-        minWidth: '120px',
-        pointerEvents: onClick ? 'auto' : 'none' // Enable clicks when handler is provided
+        minWidth: '85px',
+        pointerEvents: onClick ? 'auto' : 'none'
       }}>
       <div className="text-center">
         {/* Multiplier Badge - shown when combo multiplier is active */}
         {hasActiveMultiplier && (
-          <Badge variant="default" className="mb-1 font-bold animate-pulse"
+          <Badge
+            variant="default"
+            className="mb-1 font-bold transition-transform duration-300 ease-in-out"
             style={{
-              fontSize: `calc(0.65rem * var(--font-scale, 1))`,
-              padding: `calc(0.2rem * var(--spacing-scale, 1)) calc(0.4rem * var(--spacing-scale, 1))`,
+              fontSize: `calc(0.55rem * var(--font-scale, 1))`,
+              padding: `calc(0.1rem * var(--spacing-scale, 1)) calc(0.3rem * var(--spacing-scale, 1))`,
               backgroundColor: 'rgba(251, 191, 36, 0.9)',
               color: 'rgb(120, 53, 15)',
               border: '1px solid rgba(217, 119, 6, 0.5)',
-              fontWeight: '700'
-            }}>
-            🔥 {multiplier}x Points!
+              fontWeight: '700',
+              transform: 'scale(1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            🔥 {multiplier}x
           </Badge>
         )}
 
         <Badge variant="secondary" className="mb-1 font-semibold"
           style={{
-            fontSize: `calc(0.7rem * var(--font-scale, 1))`,
-            padding: `calc(0.25rem * var(--spacing-scale, 1)) calc(0.5rem * var(--spacing-scale, 1))`,
+            fontSize: `calc(0.6rem * var(--font-scale, 1))`,
+            padding: `calc(0.15rem * var(--spacing-scale, 1)) calc(0.35rem * var(--spacing-scale, 1))`,
             backgroundColor: 'rgba(59, 130, 246, 0.2)',
             color: 'rgb(30, 64, 175)',
             border: '1px solid rgba(59, 130, 246, 0.3)',
             fontWeight: '600'
           }}>
-          {category.name}
+          {categoryLabel}
         </Badge>
 
         <div className="text-center mb-1">
-          <div data-testid="target-emoji" className="mb-1 bounce-in" key={targetEmoji}
+          <div data-testid="target-emoji" className="mb-1" key={targetEmoji}
             style={{
-              fontSize: `calc(2.5rem * var(--object-scale, 1))`,
+              fontSize: `calc(1.75rem * var(--object-scale, 1))`,
               lineHeight: '1',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+              filter: continuousMode ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))',
+              opacity: continuousMode ? 0.85 : 1,
             }}>
-            {targetEmoji}
+            {continuousMode ? '❓' : targetEmoji}
           </div>
           <div data-testid="target-name" className="font-bold"
             style={{
-              fontSize: `calc(1rem * var(--font-scale, 1))`,
+              fontSize: `calc(0.8rem * var(--font-scale, 1))`,
               color: 'rgb(30, 64, 175)',
               textShadow: '0 1px 2px rgba(255,255,255,0.8)',
-              letterSpacing: '0.02em'
+              letterSpacing: '0.01em'
             }}>
-            Find: {currentTarget}
+            {findLabel}: {targetLabel}
           </div>
         </div>
 
         {category.requiresSequence && (
           <div className="font-medium"
             style={{
-              fontSize: `calc(0.75rem * var(--font-scale, 1))`,
+              fontSize: `calc(0.65rem * var(--font-scale, 1))`,
               color: 'rgb(220, 38, 38)',
               fontWeight: '600',
-              marginTop: '0.25rem'
+              marginTop: '0.2rem'
             }}>
-            📝 In Order!
+            📝 {inOrderLabel}
           </div>
         )}
 
         {timeRemaining !== undefined && timeRemaining > 0 && !category.requiresSequence && (
-          <div style={{ marginTop: `calc(0.5rem * var(--spacing-scale, 1))` }}>
+          <div style={{ marginTop: `calc(0.4rem * var(--spacing-scale, 1))` }}>
             <div className="font-medium"
               style={{
-                fontSize: `calc(0.75rem * var(--font-scale, 1))`,
+                fontSize: `calc(0.65rem * var(--font-scale, 1))`,
                 color: 'rgb(120, 113, 108)',
                 fontWeight: '500'
               }}>
-              Next: {Math.ceil(timeRemaining / 1000)}s
+              {Math.ceil(timeRemaining / 1000)}s
             </div>
             <div
               className="rounded-full overflow-hidden"
@@ -114,7 +139,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               }}
             >
               <div
-                className="h-full rounded-full transition-all duration-1000"
+                className="h-full rounded-full transition-[width] duration-500 ease-linear"
                 style={{
                   width: `${(timeRemaining / 10000) * 100}%`,
                   backgroundColor: 'rgb(34, 197, 94)',

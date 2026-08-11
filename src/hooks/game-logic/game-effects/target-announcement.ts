@@ -1,12 +1,18 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect } from "react";
+import { centralAudioManager } from "../../../lib/audio/central-audio-manager";
 import { speechSynthesizer } from "../../../lib/audio/speech-synthesizer";
-import { getTargetSentence } from "../../../lib/audio/target-announcements";
+import {
+  getTargetSentence,
+  playTargetSentence,
+} from "../../../lib/audio/target-announcements";
+import { eventTracker } from "../../../lib/event-tracker";
 import { soundManager } from "../../../lib/sound-manager";
 import type { GameState } from "../../../types/game";
 
 /**
  * Manages the target announcement overlay and speech playback.
+ * Uses soundManager.playWord for robust multi-fallback audio delivery.
  */
 export const useTargetAnnouncement = (
   gameStarted: boolean,
@@ -30,6 +36,19 @@ export const useTargetAnnouncement = (
 
     const announceTarget = async () => {
       speechSynthesizer.stop();
+
+      // stop any other managed audio so the sentence is isolated
+      centralAudioManager.stopAllManaged();
+      const active = centralAudioManager.getActiveChannels();
+      if (active.length > 0) {
+        eventTracker.trackEvent({
+          type: "warning",
+          category: "audio_overlap",
+          message: "active channels present before target announcement",
+          data: { active },
+        });
+      }
+
       const sentence = getTargetSentence(currentTarget, language);
       if (cancelled) return;
 
@@ -40,15 +59,22 @@ export const useTargetAnnouncement = (
         announcementSentence: sentence,
       }));
 
-      if (!sentence) {
-        setGameState((prev) => ({
-          ...prev,
-          announcementActive: false,
-        }));
-        return;
-      }
+      // track start/stop so we can audit that only target sentences are played
+      eventTracker.trackEvent({
+        type: "info",
+        category: "audio_announcement",
+        message: "start",
+        data: { target: currentTarget },
+      });
 
-      await speechSynthesizer.speakAsync(sentence, { langCode: language });
+      await playTargetSentence(currentTarget, language);
+
+      eventTracker.trackEvent({
+        type: "info",
+        category: "audio_announcement",
+        message: "end",
+        data: { target: currentTarget },
+      });
 
       if (!cancelled) {
         setGameState((prev) => ({

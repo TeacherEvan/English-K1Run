@@ -1,10 +1,17 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const isCI = Boolean(process.env.CI);
+const playwrightHost = process.env.PLAYWRIGHT_HOST ?? "127.0.0.1";
+const playwrightPort = process.env.PLAYWRIGHT_PORT ?? "4173";
+const playwrightBaseURL =
+  process.env.PLAYWRIGHT_BASE_URL ??
+  `http://${playwrightHost}:${playwrightPort}`;
+
 /**
  * Dedicated Playwright configuration for visual regression testing
  * Optimized for deterministic screenshot comparison across different machines
- * 
- * Usage: 
+ *
+ * Usage:
  *   npm run test:e2e:visual    (run visual tests)
  *   npx playwright test --config=playwright.visual.config.ts
  */
@@ -19,7 +26,7 @@ export default defineConfig({
   fullyParallel: false,
 
   // Fail on CI if accidentally left test.only
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
 
   // No retries for visual tests - they should be deterministic
   retries: 0,
@@ -54,7 +61,7 @@ export default defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL for navigation
-    baseURL: "http://localhost:5174",
+    baseURL: playwrightBaseURL,
 
     // Disable tracing for visual tests (performance)
     trace: "off",
@@ -122,7 +129,7 @@ export default defineConfig({
 
   // Update mode for CI - only create missing snapshots
   // Use 'all' in development to update all baselines
-  updateSnapshots: process.env.CI ? "missing" : "missing",
+  updateSnapshots: isCI ? "missing" : "missing",
 
   // Full-page screenshots by default for visual regression
   screenshot: "only-on-failure",
@@ -132,9 +139,11 @@ export default defineConfig({
 
   // WebServer configuration
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5174",
-    reuseExistingServer: !process.env.CI,
+    command:
+      process.env.PLAYWRIGHT_WEB_SERVER_COMMAND ??
+      `npm run dev -- --host ${playwrightHost} --port ${playwrightPort} --strictPort`,
+    url: playwrightBaseURL,
+    reuseExistingServer: !isCI,
     timeout: 120_000,
   },
 });

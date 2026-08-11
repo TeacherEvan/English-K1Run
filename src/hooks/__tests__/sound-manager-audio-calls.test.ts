@@ -3,11 +3,24 @@
  *
  * Tests verify that the game uses the correct audio playback methods:
  * - Target announcements use full sentences (playSoundEffect.voice)
- * - Single-word tap feedback has been removed per December 2025 requirements
+ * - Tap feedback uses non-verbal sound effects through the sound manager
  */
 
+vi.mock("react", async () => {
+  const actual = await vi.importActual<typeof import("react")>("react");
+  return {
+    ...actual,
+    useEffect: (effect: () => void | (() => void)) => {
+      effect();
+    },
+  };
+});
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { playSoundEffect } from "../../lib/sound-manager";
+import * as targetAnnouncements from "../../lib/audio/target-announcements";
+import { playSoundEffect, soundManager } from "../../lib/sound-manager";
+import { useTargetAnnouncement } from "../game-logic/game-effects/target-announcement";
+import { playTapAudioFeedback } from "../game-logic/tap-audio-effects";
 
 describe("Sound Manager Audio Call Behavior", () => {
   beforeEach(() => {
@@ -35,15 +48,6 @@ describe("Sound Manager Audio Call Behavior", () => {
     }).not.toThrow();
   });
 
-  it("should have sticker celebration sound effect", () => {
-    expect(playSoundEffect.sticker).toBeDefined();
-    expect(typeof playSoundEffect.sticker).toBe("function");
-
-    expect(() => {
-      void playSoundEffect.sticker();
-    }).not.toThrow();
-  });
-
   it("should export target-miss sound effect for game events", () => {
     expect(playSoundEffect.targetMiss).toBeDefined();
     expect(typeof playSoundEffect.targetMiss).toBe("function");
@@ -53,7 +57,7 @@ describe("Sound Manager Audio Call Behavior", () => {
     }).not.toThrow();
   });
 
-  it("should only export voice, sticker, welcome, stopAll, and targetMiss", () => {
+  it("should export the expected sound effect helpers", () => {
     // Verify that we only have the expected sound effects and control methods
     // voiceWordOnly was removed in December 2025 per issue requirements
     // welcome method added in December 2025 for welcome screen audio
@@ -61,11 +65,12 @@ describe("Sound Manager Audio Call Behavior", () => {
     const exportedMethods = Object.keys(playSoundEffect);
     expect(exportedMethods).toHaveLength(5);
     expect(exportedMethods).toContain("voice");
-    expect(exportedMethods).toContain("sticker");
     expect(exportedMethods).toContain("welcome");
     expect(exportedMethods).toContain("stopAll");
     expect(exportedMethods).toContain("targetMiss");
+    expect(exportedMethods).toContain("byName");
     expect(exportedMethods).not.toContain("voiceWordOnly");
+    expect(exportedMethods).not.toContain("sticker");
   });
 
   it("should have stopAll method to stop all audio", () => {
@@ -75,5 +80,33 @@ describe("Sound Manager Audio Call Behavior", () => {
     expect(() => {
       void playSoundEffect.stopAll();
     }).not.toThrow();
+  });
+
+  describe("tap audio feedback helper", () => {
+    it("plays the success sound when the tap is correct", () => {
+      const spy = vi.spyOn(soundManager, "playSound");
+      playTapAudioFeedback(true);
+      expect(spy).toHaveBeenCalledWith("success", 1);
+    });
+
+    it("plays the wrong sound when the tap is incorrect", () => {
+      const spy = vi.spyOn(soundManager, "playSound");
+      playTapAudioFeedback(false);
+      expect(spy).toHaveBeenCalledWith("wrong", 0.8);
+    });
+  });
+
+  describe("target announcement audio", () => {
+    it("plays the target sentence through the strict-language target helper", async () => {
+      const playSpy = vi
+        .spyOn(targetAnnouncements, "playTargetSentence")
+        .mockResolvedValue("I eat a red apple.");
+      const setState = vi.fn();
+
+      useTargetAnnouncement(true, "apple", "🍎", setState);
+      await Promise.resolve();
+
+      expect(playSpy).toHaveBeenCalledWith("apple", "en");
+    });
   });
 });

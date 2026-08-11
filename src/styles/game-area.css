@@ -34,12 +34,7 @@
       transparent 30%
     );
   pointer-events: none;
-  z-index: 1;
-}
-
-.game-area > * {
-  position: relative;
-  z-index: 2;
+  z-index: 0;
 }
 
 .bg-background {

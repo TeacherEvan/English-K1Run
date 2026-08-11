@@ -1,0 +1,88 @@
+.welcome-status-panel--pulse {
+  animation: welcome-panel-pulse 2s ease-in-out infinite;
+}
+
+.welcome-primary-button {
+  width: 100%;
+  margin-top: 0.9rem;
+  border: 0;
+  border-radius: 9999px;
+  padding: 0.95rem 1.2rem;
+  background: rgba(37, 99, 235, 0.94);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.welcome-primary-button:hover,
+.welcome-primary-button:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.welcome-primary-button:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+.welcome-primary-button--readyToStart {
+  background: rgba(37, 99, 235, 0.94);
+}
+
+.welcome-primary-button--playingNarration {
+  background: rgba(71, 85, 105, 0.94);
+}
+
+.welcome-primary-button--readyToContinue {
+  background: rgba(22, 163, 74, 0.94);
+}
+
+.welcome-primary-button--transitioningToMenu {
+  background: rgba(14, 116, 144, 0.94);
+}
+
+.welcome-primary-button__text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+.welcome-status-panel__diagnostic {
+  margin-top: 0.65rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.9rem;
+  background: rgba(251, 191, 36, 0.16);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  color: rgba(255, 248, 235, 0.96);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.welcome-progress {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.welcome-progress-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.welcome-progress-dot--active {
+  background: #f59e0b;
+}
+
+.welcome-progress-dot--complete {
+  background: #22c55e;
+}

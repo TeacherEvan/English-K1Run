@@ -52,7 +52,10 @@ export async function prefetchAudioKeys(
   await audioContextManager.ensureInitialized();
   if (!audioContextManager.getContext()) return;
 
-  const unique = Array.from(new Set(keys.map((key) => key.trim()).filter(Boolean)));
+  const unique = Array.from(
+    new Set(keys.map((key) => key.trim()).filter(Boolean)),
+  );
+  const runImmediately = unique.length <= 1;
 
   const work = async () => {
     if (options.useAudioSprite && audioSpritePlayer.isConfigured()) {
@@ -74,19 +77,31 @@ export async function prefetchAudioKeys(
     }
 
     const concurrency = Math.max(1, options.concurrency ?? DEFAULT_CONCURRENCY);
-    await runWithConcurrency(candidatesToLoad, concurrency, async (candidate) => {
-      try {
-        await audioBufferLoader.loadFromIndex(candidate);
-      } catch {
-        // Ignore failures during background prefetch
-      }
-    });
+    await runWithConcurrency(
+      candidatesToLoad,
+      concurrency,
+      async (candidate) => {
+        try {
+          await audioBufferLoader.loadFromIndex(candidate);
+        } catch {
+          // Ignore failures during background prefetch
+        }
+      },
+    );
   };
+
+  if (runImmediately) {
+    await work();
+    return;
+  }
 
   if ("requestIdleCallback" in window) {
     (
       window as unknown as {
-        requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void;
+        requestIdleCallback: (
+          cb: () => void,
+          opts?: { timeout: number },
+        ) => void;
       }
     ).requestIdleCallback(
       () => {

@@ -1,10 +1,28 @@
-/* Welcome Screen Styles - Video Background */
+.welcome-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(250, 204, 21, 0.22),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 78% 14%,
+      rgba(56, 189, 248, 0.16),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.78) 0%,
+      rgba(15, 23, 42, 0.94) 100%
+    );
+}
 
-/* ===== VIDEO BACKGROUND ===== */
 .welcome-video {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -17,58 +35,248 @@
   clip-path: circle(0% at 50% 50%);
 }
 
-.welcome-image-overlay {
+.welcome-scrim {
   position: absolute;
-  bottom: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
+  inset: 0;
   pointer-events: none;
-  animation: image-pulse 2s ease-in-out infinite;
+  z-index: 20;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.18) 0%,
+      rgba(15, 23, 42, 0.04) 34%,
+      rgba(15, 23, 42, 0.5) 100%
+    ),
+    radial-gradient(
+      circle at top,
+      rgba(253, 224, 71, 0.22),
+      rgba(255, 248, 237, 0) 46%
+    );
 }
 
-.welcome-image-text {
-  font-size: 1.5rem;
+.welcome-panels {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: clamp(0.75rem, 2vh, 1.25rem);
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    clamp(0.85rem, 2vw, 1.5rem)
+    max(1.25rem, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.welcome-language-shell,
+.welcome-status-panel {
+  position: relative;
+  left: auto;
+  transform: none;
+  width: min(100%, 32rem);
+  border: 1px solid rgba(253, 224, 71, 0.5);
+  border-radius: 1.75rem;
+  background: rgba(255, 248, 237, 0.92);
+  box-shadow: 0 20px 48px rgba(51, 65, 85, 0.2);
+  backdrop-filter: blur(14px);
+  z-index: 35;
+  pointer-events: auto;
+}
+
+.welcome-language-shell {
+  padding: 1rem 1rem 1.1rem;
+  text-align: center;
+  align-self: start;
+}
+
+.welcome-status-panel {
+  padding: 1.1rem;
+  text-align: center;
+  align-self: end;
+}
+
+.welcome-language-shell__pill,
+.welcome-status-panel__eyebrow {
+  margin: 0;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: white;
-  text-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 215, 0, 0.4);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #92400e;
+}
+
+.welcome-language-shell__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(254, 243, 199, 0.96);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.welcome-language-shell__title,
+.welcome-status-panel__label {
+  margin: 0.7rem 0 0;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.welcome-language-shell__title {
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
+}
+
+.welcome-status-panel__label {
+  font-size: clamp(1.1rem, 2.7vw, 1.35rem);
+  line-height: 1.35;
+}
+
+.welcome-language-shell__description {
+  margin: 0.45rem auto 0;
+  max-width: 26rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(51, 65, 85, 0.88);
+}
+
+.welcome-language-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.welcome-language-button {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 1rem;
+  padding: 0.85rem 0.75rem;
+  background: rgba(255, 255, 255, 0.75);
+  color: #0f172a;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.welcome-language-button:hover,
+.welcome-language-button:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.welcome-language-button:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.welcome-language-button--selected {
+  background: rgba(220, 252, 231, 0.95);
+  border-color: rgba(34, 197, 94, 0.52);
+}
+
+.welcome-language-button-label,
+.welcome-language-button-native {
+  display: block;
+}
+
+.welcome-language-button-label {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.welcome-language-button-native {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: rgba(51, 65, 85, 0.72);
 }
 
 @media (orientation: landscape) {
-  .welcome-video {
-    object-fit: contain;
-    background: linear-gradient(180deg, #7ec8ff 0%, #eaf5ff 45%, #b7e07a 100%);
+  .welcome-language-shell {
+    width: min(30rem, 92vw);
+  }
+
+  .welcome-status-panel {
+    width: min(28rem, 92vw);
   }
 }
 
-@keyframes fallback-pop {
-  0% {
-    clip-path: circle(0% at 50% 50%);
-    transform: scale(0.98);
-    opacity: 0;
+@media (max-width: 34rem) {
+  .welcome-language-shell,
+  .welcome-status-panel {
+    border-radius: 1.35rem;
   }
-  60% {
-    clip-path: circle(45% at 50% 50%);
-    opacity: 1;
+
+  .welcome-language-shell {
+    padding: 0.9rem 0.9rem 1rem;
   }
-  100% {
-    clip-path: circle(75% at 50% 50%);
-    transform: scale(1);
-    opacity: 1;
+
+  .welcome-status-panel {
+    padding: 1rem;
+  }
+
+  .welcome-language-button {
+    padding: 0.75rem 0.65rem;
   }
 }
 
-@keyframes image-pulse {
-  0%,
-  100% {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1);
+@media (max-height: 42rem) {
+  .welcome-panels {
+    gap: 0.75rem;
+    padding-block: max(0.8rem, env(safe-area-inset-top)) max(0.9rem, env(safe-area-inset-bottom));
   }
-  50% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.05);
+
+  .welcome-language-shell {
+    padding: 0.85rem 0.9rem 0.95rem;
+  }
+
+  .welcome-status-panel {
+    padding: 0.9rem;
+  }
+
+  .welcome-language-shell__title,
+  .welcome-status-panel__label {
+    font-size: clamp(1rem, 2.8vw, 1.25rem);
+  }
+
+  .welcome-language-shell__description {
+    font-size: 0.88rem;
+  }
+
+  .welcome-primary-button {
+    margin-top: 0.7rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .welcome-primary-button__text {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-height: 31rem) and (min-width: 30rem) {
+  .welcome-panels {
+    grid-template-columns: minmax(15rem, 1fr) minmax(14rem, 22rem);
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .welcome-language-shell,
+  .welcome-status-panel {
+    width: min(100%, 24rem);
+  }
+
+  .welcome-language-shell {
+    align-self: center;
+    justify-self: end;
+  }
+
+  .welcome-status-panel {
+    align-self: center;
+    justify-self: start;
   }
 }
