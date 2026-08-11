@@ -8,6 +8,13 @@
 
 Successfully implemented multi-language support for the English-K1Run kindergarten educational game, enabling students to select from 6 languages with ElevenLabs TTS integration and WCAG-compliant UI.
 
+## March 2026 follow-up polish
+
+- Public-facing product copy was aligned to `English K1 Run` across the active locale files.
+- Added localized accessibility announcement keys for level-select open/change events.
+- Extended localized UI coverage to menu actions, target display labels, victory copy, and gameplay ARIA labels.
+- Welcome flow now starts narration from explicit user gesture in normal mode instead of auto-start side effects.
+
 ## Supported Languages
 
 | Language              | Code    | Voice ID               | Model                  |
@@ -73,7 +80,7 @@ Successfully implemented multi-language support for the English-K1Run kindergart
     - Keyboard navigation support
     - ARIA labels for accessibility
 
-### Modified Files (6)
+### Modified Files (expanded over follow-up slices)
 
 1. **`src/lib/audio/speech-synthesizer.ts`**
    - Added `currentLanguage` property
@@ -107,21 +114,28 @@ Successfully implemented multi-language support for the English-K1Run kindergart
    - Integrated `useTranslation()` hook
    - Replaced hardcoded phase content with i18n translations
    - Uses `t('welcome.association')`, `t('welcome.learning')`, etc.
+   - March 2026: visible CTA now uses localized tap/start copy and branded alt text
 
-7. **`src/lib/event-tracker.ts`**
+7. **`src/components/game-menu/GameMenuHome.tsx` / `GameMenuLevelSelect.tsx` / `TargetDisplay.tsx` / `PlayerArea.tsx`**
+   - Replaced visible English literals with locale-backed strings
+   - Added localized screen-reader announcements for level selection
+   - Aligned gameplay/menu labels with the active language
+
+8. **`src/lib/event-tracker.ts`**
    - Extended `GameEvent` type with `'language_change'`
    - Added `trackLanguageChange(language, previousLanguage)` method
    - Anonymized tracking (only language codes, no user data)
 
-8. **`scripts/generate-audio.cjs`**
+9. **`scripts/generate-audio.cjs`**
    - Updated to use `eleven_multilingual_v2` model
    - Added multi-language voice IDs configuration
    - Extended `generateAudio()` to accept `languageCode` and `voiceId` parameters
    - Added `language_code` parameter to API requests
    - Documentation for multi-language batch generation
 
-9. **`tsconfig.json`**
-   - Added `"resolveJsonModule": true` for locale file imports
+10. **`tsconfig.json`**
+
+Added `"resolveJsonModule": true` for locale file imports.
 
 ## Key Features
 
@@ -207,8 +221,15 @@ Successfully implemented multi-language support for the English-K1Run kindergart
 
 - [ ] Select different language
 - [ ] Start game to trigger WelcomeScreen
-- [ ] Verify phase 1-2 text displays in selected language
+- [ ] Verify tap/start CTA displays in selected language
+- [ ] Verify narration starts only after user interaction in normal mode
 - [ ] Check translations for "In association with" and "Learning through games"
+
+#### 6b. Accessibility announcements
+
+- [ ] Open level selection in each target language
+- [ ] Verify screen reader announcement uses translated copy for menu open
+- [ ] Change levels and verify selected-level announcement is localized
 
 #### 7. WCAG Compliance
 

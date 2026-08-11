@@ -38,6 +38,7 @@ export interface SpeechControlsDependencies {
 export const createSpeechControls = (deps: SpeechControlsDependencies) => {
   const speechPlayback = new SpeechPlayback();
   let currentLanguage: SupportedLanguage = "en";
+  speechPlayback.setLanguage(currentLanguage);
 
   const playWord = (phrase: string, volumeOverride?: number) => {
     deps.stopAllAudio();
@@ -92,6 +93,7 @@ export const createSpeechControls = (deps: SpeechControlsDependencies) => {
   const setLanguage = (langCode: SupportedLanguage) => {
     if (currentLanguage === langCode) return;
     currentLanguage = langCode;
+    speechPlayback.setLanguage(langCode);
     try {
       speechSynthesizer.setLanguage(langCode);
     } catch {

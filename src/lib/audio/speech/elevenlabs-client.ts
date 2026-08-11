@@ -63,16 +63,13 @@ export interface ElevenLabsOptions {
  */
 function getApiKey(): string | null {
   if (typeof window === "undefined") return null;
-  const apiKey =
-    import.meta.env.VITE_ELEVENLABS_API_KEY ||
-    import.meta.env.ELEVENLABS_API_KEY ||
-    null;
+  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || null;
 
   if (!apiKey && import.meta.env.DEV) {
     console.warn(
-      "[ElevenLabs] API key not configured. Set VITE_ELEVENLABS_API_KEY in .env file.\n" +
-        "Audio will fall back to Web Speech API (robotic voice).\n" +
-        "See .env.example for configuration details.",
+      "[ElevenLabs] Live browser TTS is disabled. Set VITE_ELEVENLABS_API_KEY in .env only if you need on-demand ElevenLabs testing during development.\n" +
+        "Production and competition builds should prefer pre-generated audio assets.\n" +
+        "See AUDIO_SETUP.md and .env.example for the current setup.",
     );
   }
 
@@ -82,9 +79,10 @@ function getApiKey(): string | null {
 /**
  * Get voice ID for a specific language
  */
-function getVoiceId(langCode: SupportedLanguage): string {
+function getVoiceId(langCode: SupportedLanguage): string | null {
   const config = getLanguageConfig(langCode);
-  return config.elevenLabsVoiceId;
+  const voiceId = config.elevenLabsVoiceId.trim();
+  return voiceId || null;
 }
 
 /**
@@ -96,6 +94,15 @@ export async function testElevenLabsConnection(): Promise<boolean> {
     if (import.meta.env.DEV) {
       console.info(
         "[ElevenLabs] Skipping connection test - no API key configured",
+      );
+    }
+    return false;
+  }
+
+  if (typeof window !== "undefined") {
+    if (import.meta.env.DEV) {
+      console.info(
+        "[ElevenLabs] Skipping browser-side connectivity probe to avoid noisy CORS/network errors. Use pre-generated audio assets or server-side generation scripts for verification.",
       );
     }
     return false;
@@ -147,6 +154,11 @@ export async function generateSpeech(
   }
 
   const voiceId = options.voiceId || getVoiceId(options.languageCode || "en");
+  if (!voiceId) {
+    throw new Error(
+      `No verified ElevenLabs voice configured for ${options.languageCode || "en"}`,
+    );
+  }
   const settings = options.useSoftSettings
     ? SOFT_VOICE_SETTINGS
     : DEFAULT_VOICE_SETTINGS;

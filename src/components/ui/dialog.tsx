@@ -1,5 +1,6 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { forwardRef, type ComponentProps } from "react"
+import { useTranslation } from "react-i18next"
 // import XIcon from "lucide-react/dist/esm/icons/x"
 
 const XIcon = () => (
@@ -20,7 +21,10 @@ const XIcon = () => (
   </svg>
 )
 
+import { UI_LAYER_MATRIX } from "@/lib/constants/ui-layer-matrix"
 import { cn } from "@/lib/utils"
+
+const DIALOG_LAYER = UI_LAYER_MATRIX.DEBUG_OVERLAY + 1
 
 function Dialog({
   ...props
@@ -58,8 +62,9 @@ const DialogOverlay = forwardRef<
     <DialogPrimitive.Overlay
       ref={ref}
       data-slot="dialog-overlay"
+      style={{ zIndex: DIALOG_LAYER }}
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-70 bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-[color-mix(in_oklch,var(--foreground)_14%,white)]/38 supports-backdrop-filter:backdrop-blur-xs dark:bg-black/52",
         className
       )}
       {...props}
@@ -72,22 +77,25 @@ const DialogContent = forwardRef<
   HTMLDivElement,
   ComponentProps<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
+  const { t } = useTranslation()
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={ref}
         data-slot="dialog-content"
+        style={{ zIndex: DIALOG_LAYER }}
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-70 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+          "bg-[color-mix(in_oklch,var(--background)_94%,oklch(0.96_0.02_92))] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-3xl border border-[color-mix(in_oklch,var(--border)_78%,oklch(0.87_0.05_95))] p-6 shadow-[0_24px_60px_rgba(51,65,85,0.18)] duration-200 sm:max-w-lg",
           className
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+        <DialogPrimitive.Close className="ring-offset-background focus-visible:ring-ring/70 absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-full border border-border/70 bg-background/88 text-foreground/72 opacity-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:text-foreground hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none touch-manipulation supports-backdrop-filter:backdrop-blur-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
           <XIcon />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t("common.close")}</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>

@@ -1,3 +1,5 @@
+import { JAPANESE_GAMEPLAY_COMPLETION_TEMPLATES } from "./ja-gameplay-completions";
+
 export const JAPANESE_SENTENCE_TEMPLATES: Record<string, string> = {
   // Fruits & Vegetables
   apple: "赤いリンゴを食べます",
@@ -61,4 +63,5 @@ export const JAPANESE_SENTENCE_TEMPLATES: Record<string, string> = {
   c: "シーは猫のシー",
   d: "ディーは犬のディー",
   e: "イーは象のイー",
+  ...JAPANESE_GAMEPLAY_COMPLETION_TEMPLATES,
 };

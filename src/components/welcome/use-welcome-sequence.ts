@@ -4,8 +4,14 @@
  */
 import { useWelcomeAudioSequence } from "@/components/welcome/use-welcome-audio-sequence";
 import {
+  getWelcomePhase,
+  isWelcomeInteractionLocked,
+  type WelcomePhase,
+} from "@/components/welcome/welcome-phase";
+import {
   stopWelcomeSequence,
   type WelcomeAudioConfig,
+  type WelcomePlaybackDiagnostic,
 } from "@/lib/audio/welcome-audio-sequencer";
 import { soundManager } from "@/lib/sound-manager";
 import { startTransition, useCallback, useEffect, useState } from "react";
@@ -17,12 +23,14 @@ interface WelcomeSequenceOptions {
 
 export interface WelcomeSequenceState {
   fadeOut: boolean;
+  phase: WelcomePhase;
   readyToContinue: boolean;
   isSequencePlaying: boolean;
   videoLoaded: boolean;
   showFallbackImage: boolean;
   currentAudioIndex: number;
   totalAudioCount: number;
+  lastDiagnostic: WelcomePlaybackDiagnostic | null;
   handlePrimaryAction: () => void;
   handleVideoCanPlay: () => void;
   handleVideoEnded: () => void;
@@ -46,9 +54,16 @@ export const useWelcomeSequence = ({
     isSequencePlaying,
     currentAudioIndex,
     totalAudioCount,
+    lastDiagnostic,
     requestStart,
     markReadyToContinue,
   } = useWelcomeAudioSequence({ audioConfig, isE2E });
+
+  const phase = getWelcomePhase({
+    fadeOut,
+    readyToContinue,
+    isSequencePlaying,
+  });
 
   const proceed = useCallback(() => {
     stopWelcomeSequence();
@@ -58,6 +73,10 @@ export const useWelcomeSequence = ({
   }, [onComplete]);
 
   const handlePrimaryAction = useCallback(() => {
+    if (fadeOut || isWelcomeInteractionLocked(phase)) {
+      return;
+    }
+
     if (isE2E) {
       proceed();
       return;
@@ -69,7 +88,7 @@ export const useWelcomeSequence = ({
     }
 
     proceed();
-  }, [isE2E, proceed, readyToContinue, requestStart]);
+  }, [fadeOut, isE2E, phase, proceed, readyToContinue, requestStart]);
 
   useEffect(() => {
     if (!isE2E) return;
@@ -99,9 +118,7 @@ export const useWelcomeSequence = ({
   useEffect(() => {
     if (!videoLoaded || isE2E) return;
     if (import.meta.env.DEV) {
-      console.log(
-        "[WelcomeScreen] Video loaded, ready for user interaction",
-      );
+      console.log("[WelcomeScreen] Video loaded, ready for user interaction");
     }
     // Audio will start when user taps via handlePrimaryAction
   }, [isE2E, videoLoaded]);
@@ -116,19 +133,23 @@ export const useWelcomeSequence = ({
 
   const handleVideoCanPlay = useCallback(() => setVideoLoaded(true), []);
   const handleVideoEnded = useCallback(() => {
-    setShowFallbackImage(true);
     markReadyToContinue();
   }, [markReadyToContinue]);
-  const handleVideoError = useCallback(() => setVideoLoaded(false), []);
+  const handleVideoError = useCallback(() => {
+    setVideoLoaded(false);
+    setShowFallbackImage(true);
+  }, []);
 
   return {
     fadeOut,
+    phase,
     readyToContinue,
     isSequencePlaying,
     videoLoaded,
     showFallbackImage,
     currentAudioIndex,
     totalAudioCount,
+    lastDiagnostic,
     handlePrimaryAction,
     handleVideoCanPlay,
     handleVideoEnded,

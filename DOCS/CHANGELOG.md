@@ -1,6 +1,38 @@
-# Changelog - Kindergarten Race Game
+# Changelog - English K1 Run
 
 This file consolidates major changes, bug fixes, and enhancements made to the project.
+
+## August 2026 - Native Mobile Builds (Capacitor 8.5.0)
+
+### Native Android + iOS Support (Aug 1, 2026)
+
+- **Capacitor 8.5.0 Added**: Wrapped the existing PWA web build for native Android and iOS distribution. No web-app rewrite required — the project stays PWA-first.
+- **Packages**: `@capacitor/core@^8.5.0`, `@capacitor/cli@^8.5.0`, `@capacitor/android@^8.5.0`, `@capacitor/ios@^8.5.0`.
+- **Config**: `capacitor.config.ts` created at repo root (`appId` `com.teacherevan.kindergartenrace`, `appName` `Kindergarten Race`, `webDir` `dist`).
+- **Native Projects**: `android/` and `ios/` generated and committed to the repo.
+- **Scripts**: `cap:sync`, `cap:add:android`, `cap:add:ios`, `cap:build:android` (`npm run build && cap sync android`), `cap:build:ios` (`npm run build && cap sync ios`).
+- **Workflow**: `npm run build` → `dist/`, then `npx cap sync` copies it into the native shells; `npx cap add android` / `npx cap add ios` initialize them.
+- **Build Targets**: Android builds on Linux with the Android SDK; iOS requires macOS + Xcode to compile (the `ios/` scaffolding generates on Linux but cannot be built there).
+
+## March 2026 - Competition Polish Slice
+
+### Documentation & Navigation Spring Clean (Mar 16, 2026)
+
+- **Documentation consolidation**: Reduced the active documentation surface to a smaller trusted set headed by `README.md`, `AUDIO_SETUP.md`, `jobcard.md`, `DOCS/A-README.md`, and `DOCS/CODEBASE_INDEX.md`.
+- **Redundant-doc cleanup**: Removed stale root-level summaries and an outdated roadmap-style TODO file that duplicated or contradicted current guidance.
+- **Navigation improvements**: Expanded the docs landing page and codebase index with clearer reading order, system maps, directory roles, and search tips.
+- **Reference repair**: Updated stale links in repo guidance to point at maintained docs instead of deleted or nonexistent files.
+- **Validation**: `npm run lint`, `npm run build`, and `npm run test:run` pass after the cleanup.
+
+
+### Welcome, Localization & Branding (Mar 10, 2026)
+
+- **Deterministic Welcome Start**: Removed non-deterministic auto-start paths so welcome narration begins from explicit user interaction in normal mode.
+- **Localized Accessibility Announcements**: Level-select screen-reader announcements now use locale keys instead of hardcoded English strings.
+- **Core UI Localization**: Target display, victory copy, menu labels, and gameplay ARIA labels now rely on translated strings.
+- **Brand Alignment**: Unified active player-facing copy around `English K1 Run` and updated the menu title Playwright expectation.
+- **Documentation Sync**: Updated roadmap, jobcard, README-family docs, and Copilot instructions to reflect the implementation slice.
+- **Verification Note**: Editor diagnostics were clean; terminal lint/Playwright verification remained blocked until dependencies are installed.
 
 ## February 2026 - Target Audio & Phonics
 
@@ -86,7 +118,7 @@ This file consolidates major changes, bug fixes, and enhancements made to the pr
 - **Performance Optimization**: Added input validation guards, pre-calculated collision radii, maintained existing spatial coherence optimizations.
 - **Best Practices**: Implemented TypeScript best practices with proper error handling, consistent naming, and input validation.
 - **Future-Proofing**: Added TODO comment for potential spatial partitioning (quadtree) if object counts scale beyond 500.
-- **Documentation**: Created `COLLISION_DETECTION_IMPROVEMENTS_JAN2026.md` with detailed technical specifications and testing recommendations.
+- **Documentation**: Practical collision guidance now lives in `jobcard.md` and `.github/copilot-instructions.md`.
 - **Impact**: Improved maintainability, robustness, and performance while preserving existing collision behavior.
 
 ### navigateWithRetry Method Improvements (Jan 17, 2026)

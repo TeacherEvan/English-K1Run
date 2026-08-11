@@ -1,0 +1,15 @@
+[
+  "scripts/generate-audio.cjs",
+  "e2e/fixtures/game.fixture.ts",
+  "e2e/specs/accessibility.spec.ts",
+  "scripts/validate-audio-files.cjs",
+  "src/lib/file-manager/index.ts",
+  "src/lib/audio/speech-playback.ts",
+  "scripts/download-backgrounds.js",
+  "scripts/generate-sentence-audio.cjs",
+  "src/lib/resource-preloader.ts",
+  "src/lib/event-metrics/emoji-tracker.ts",
+  "scripts/generate-missing-welcome-audio.cjs",
+  "scripts/generate-welcome-audio-hf.cjs",
+  "scripts/generate-requirements.cjs"
+]

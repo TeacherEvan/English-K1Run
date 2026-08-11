@@ -20,6 +20,7 @@ export interface TargetPoolDependencies {
   targetPoolRef: MutableRefObject<Array<{ emoji: string; name: string }>>;
   clampLevel: (levelIndex: number) => number;
   getLevel: () => number;
+  sequenceIndicesRef: MutableRefObject<number[]>;
 }
 
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -37,7 +38,8 @@ const getCategory = (levelIndex: number): GameCategory =>
 export const createTargetPoolManager = (
   dependencies: TargetPoolDependencies,
 ): TargetPoolManager => {
-  const { targetPoolRef, clampLevel, getLevel } = dependencies;
+  const { targetPoolRef, clampLevel, getLevel, sequenceIndicesRef } =
+    dependencies;
 
   const refillTargetPool = (levelIndex?: number) => {
     const level = levelIndex !== undefined ? levelIndex : getLevel();
@@ -51,7 +53,7 @@ export const createTargetPoolManager = (
     const category = getCategory(levelIndex);
 
     if (category.requiresSequence) {
-      const sequenceIndex = category.sequenceIndex || 0;
+      const sequenceIndex = sequenceIndicesRef.current[levelIndex] || 0;
       const targetItem = category.items[sequenceIndex % category.items.length];
       return { name: targetItem.name, emoji: targetItem.emoji };
     }

@@ -1,7 +1,18 @@
 import { devices, expect, test } from "@playwright/test";
 
+import { skipWormLoadingIfPresent } from "../utils/worm-loading";
+
+const tabletDevice = (() => {
+  const { browserName, defaultBrowserType, isMobile, ...deviceConfig } =
+    devices["iPad Pro 11"];
+  void browserName;
+  void defaultBrowserType;
+  void isMobile;
+  return deviceConfig;
+})();
+
 // Use tablet device for touch testing
-test.use({ ...devices["iPad Pro 11"], hasTouch: true });
+test.use({ ...tabletDevice, hasTouch: true });
 
 /**
  * Retry page navigation with exponential backoff for transient server errors
@@ -47,23 +58,6 @@ async function navigateWithRetry(
   }
 
   throw lastError;
-}
-
-async function skipWormLoadingIfPresent(page: import("@playwright/test").Page) {
-  const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
-  const skipButton = page.locator('[data-testid="skip-loading-button"]');
-
-  try {
-    await loadingScreen.waitFor({ state: "visible", timeout: 5_000 });
-    await skipButton.waitFor({ state: "visible", timeout: 5000 });
-    await skipButton.click();
-    await loadingScreen.waitFor({ state: "detached", timeout: 10_000 });
-  } catch (error) {
-    // Loading screen may be disabled or already dismissed; swallow timeout errors
-    if (error instanceof Error && !/Timeout/.test(error.message)) {
-      throw error;
-    }
-  }
 }
 
 test.describe("Touch Interactions - Tablet", () => {

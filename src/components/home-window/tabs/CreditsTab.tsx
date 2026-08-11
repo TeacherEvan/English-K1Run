@@ -23,7 +23,7 @@ export const CreditsTab = memo(() => (
                 </div>
                 <div>
                     <h3 className="font-semibold text-foreground">Version</h3>
-                    <p>Kindergarten Race v2.0 - Dec 2025</p>
+                    <p>English K1 Run v2.0 - Dec 2025</p>
                 </div>
             </div>
         </div>
