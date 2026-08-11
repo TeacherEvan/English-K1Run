@@ -15,6 +15,7 @@ export interface HandleObjectTapDependencies {
   gameObjectsRef: MutableRefObject<GameObject[]>;
   gameState: GameState;
   currentCategory: (typeof GAME_CATEGORIES)[number];
+  reducedMotion: boolean;
   generateRandomTarget: (levelOverride?: number) => {
     name: string;
     emoji: string;
@@ -22,6 +23,7 @@ export interface HandleObjectTapDependencies {
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
   continuousModeTargetCount: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
   continuousModeHighScore: number | null;
   continuousModeStartTime: number | null;
   setContinuousModeHighScore: Dispatch<SetStateAction<number | null>>;

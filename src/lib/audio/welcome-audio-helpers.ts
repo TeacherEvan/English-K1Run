@@ -6,6 +6,7 @@ import { WelcomeAudioSequencer } from "./welcome-audio-sequencer-core";
 import type {
   AudioAssetMetadata,
   WelcomeAudioConfig,
+  WelcomePlaybackDiagnostic,
 } from "./welcome-audio-types";
 
 export const welcomeAudioSequencer = new WelcomeAudioSequencer();
@@ -46,8 +47,13 @@ export async function playWelcomeSequence(
     total: number,
     asset: AudioAssetMetadata,
   ) => void,
+  onDiagnostic?: (diagnostic: WelcomePlaybackDiagnostic) => void,
 ): Promise<void> {
-  return welcomeAudioSequencer.playWelcomeSequence(config, onProgress);
+  return welcomeAudioSequencer.playWelcomeSequence(
+    config,
+    onProgress,
+    onDiagnostic,
+  );
 }
 
 export function stopWelcomeSequence(): void {

@@ -53,7 +53,7 @@ export function getPreferredVoice(
   if (voices.length === 0) return null;
 
   const langPrefixes = LANG_PREFIX_MAP[langCode];
-  if (!langPrefixes) return voices[0];
+  if (!langPrefixes) return null;
 
   // Filter voices by language
   const langVoices = voices.filter((v) =>
@@ -71,7 +71,11 @@ export function getPreferredVoice(
     if (baseVoices.length > 0) return baseVoices[0];
   }
 
-  return voices[0];
+  return null;
+}
+
+export function hasPreferredVoice(langCode: SupportedLanguage): boolean {
+  return getPreferredVoice(langCode) !== null;
 }
 
 /**
@@ -105,12 +109,22 @@ export function speak(options: WebSpeechOptions): boolean {
 
     const utterance = new SpeechSynthesisUtterance(text);
     const langCode = options.langCode || "en";
+    const voice = getPreferredVoice(langCode);
+
+    if (langCode !== "en" && !voice) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[WebSpeech] No matching voice available for ${langCode}; skipping cross-language fallback.`,
+        );
+      }
+      return false;
+    }
 
     utterance.rate = options.rate ?? 1.0;
     utterance.pitch = options.pitch ?? 1.0;
     utterance.volume = options.volume ?? 0.6;
+    utterance.lang = langCode;
 
-    const voice = getPreferredVoice(langCode);
     if (voice) {
       utterance.voice = voice;
     }
@@ -151,12 +165,23 @@ export function speakAsync(options: WebSpeechOptions): Promise<boolean> {
 
       const utterance = new SpeechSynthesisUtterance(text);
       const langCode = options.langCode || "en";
+      const voice = getPreferredVoice(langCode);
+
+      if (langCode !== "en" && !voice) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[WebSpeech] No matching voice available for ${langCode}; skipping cross-language fallback.`,
+          );
+        }
+        resolve(false);
+        return;
+      }
 
       utterance.rate = options.rate ?? 1.0;
       utterance.pitch = options.pitch ?? 1.0;
       utterance.volume = options.volume ?? 0.6;
+      utterance.lang = langCode;
 
-      const voice = getPreferredVoice(langCode);
       if (voice) {
         utterance.voice = voice;
       }

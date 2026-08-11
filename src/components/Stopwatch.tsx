@@ -1,4 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useSettings } from '../context/settings-context'
+import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { Card } from './ui/card'
 
 interface StopwatchProps {
@@ -21,6 +24,8 @@ interface StopwatchProps {
  * timer session (when stopping or unmounting).
  */
 export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: StopwatchProps) => {
+    const { t } = useTranslation()
+    const { gameplayLanguage } = useSettings()
     const [currentTime, setCurrentTime] = useState(0)
     const timeRef = useRef(0)
     const reportedRef = useRef(false)
@@ -66,14 +71,15 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
 
     return (
         <div
-            className="fixed top-4 right-4 z-40 flex flex-col gap-2 pointer-events-none"
+            className="fixed top-4 right-4 flex flex-col gap-2 pointer-events-none"
+            style={{ zIndex: UI_LAYER_MATRIX.HUD_SECONDARY }}
             data-testid="continuous-mode-stopwatch"
         >
             <Card className="bg-black/80 backdrop-blur border-2 border-yellow-500/50 p-3 rounded-xl shadow-2xl">
-                <div className="flex flex-col gap-1 min-w-[120px]">
+                <div className="flex flex-col gap-1 min-w-30">
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase tracking-wider text-yellow-500/80 font-bold">
-                            Best Time
+                            {t('game.bestTime', { lng: gameplayLanguage })}
                         </span>
                         <span
                             className="text-xl font-mono font-bold text-yellow-400 animate-pulse"
@@ -87,7 +93,7 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
 
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase tracking-wider text-red-500/80 font-bold">
-                            Current
+                            {t('game.currentTime', { lng: gameplayLanguage })}
                         </span>
                         <span
                             className={`text-xl font-mono font-bold text-red-500 ${isRunning ? 'animate-pulse' : ''}`}

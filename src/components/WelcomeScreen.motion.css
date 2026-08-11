@@ -1,0 +1,43 @@
+@media (prefers-reduced-motion: reduce) {
+  .welcome-fallback-pop,
+  .welcome-status-panel--pulse,
+  .welcome-primary-button,
+  .welcome-language-button {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .welcome-primary-button,
+  .welcome-language-button {
+    transform: none !important;
+  }
+}
+
+@keyframes fallback-pop {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+    transform: scale(0.98);
+    opacity: 0;
+  }
+  60% {
+    clip-path: circle(45% at 50% 50%);
+    opacity: 1;
+  }
+  100% {
+    clip-path: circle(75% at 50% 50%);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes welcome-panel-pulse {
+  0%,
+  100% {
+    opacity: 0.92;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px) scale(1.01);
+  }
+}

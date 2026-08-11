@@ -1,7 +1,17 @@
 {
   "game": {
-    "title": "Turtle Race",
+    "title": "English K1 Run",
     "startGame": "Start Game",
+    "playAllLevels": "Play All Levels",
+    "levelSelect": "Level Select",
+    "selectLevel": "Select Level",
+    "back": "Back",
+    "backToLevels": "Back to Levels",
+    "bestTime": "Best Time",
+    "currentTime": "Current Time",
+    "continuousMode": "Continuous Mode",
+    "find": "Find",
+    "inOrder": "In Order",
     "settings": "Settings",
     "resume": "Resume",
     "quit": "Quit Game",
@@ -11,11 +21,22 @@
     "volume": "Volume"
   },
   "menu": {
-    "welcome": "Welcome to Turtle Race!",
+    "welcome": "Welcome to English K1 Run!",
     "instructions": "Tap the falling objects to help your turtle win!",
     "tapToStart": "Tap to start",
+    "tapToContinue": "Tap to continue",
     "pressEnter": "Press ENTER to start",
-    "pressSpace": "Press SPACE to start"
+    "pressSpace": "Press SPACE to start",
+    "exitDialog": {
+      "title": "Exit Game",
+      "description": "Are you sure you want to exit?"
+    },
+    "credits": {
+      "title": "Credits",
+      "createdBy": "Created By",
+      "inAssociationWith": "In Association With",
+      "specialThanks": "Special Thanks To"
+    }
   },
   "categories": {
     "fruits": "Fruits & Vegetables",
@@ -24,10 +45,16 @@
     "shapes": "Shapes & Colors",
     "animals": "Animals & Nature",
     "things": "Things That Go",
-    "weather": "Weather Wonders"
+    "weather": "Weather Wonders",
+    "feelings": "Feelings & Actions",
+    "body": "Body Parts"
   },
   "messages": {
     "gameWon": "You win! Great job!",
+    "victoryTitle": "You Win!",
+    "completionTitle": "Well done!",
+    "completionDescription": "Try some of the other levels!",
+    "completionButton": "Try other levels",
     "gameOver": "Game Over",
     "score": "Score",
     "perfect": "Perfect!"
@@ -37,13 +64,91 @@
     "associationThai": "ร่วมกับ",
     "learning": "Learning through games",
     "learningThai": "เรียนรู้ผ่านการเล่น",
-    "forEveryone": "for everyone!"
+    "forEveryone": "for everyone!",
+    "languageTitle": "Choose your language",
+    "languageDescription": "Pick English or Thai before the welcome audio starts. You can change it later in Settings.",
+    "readyPrompt": "Tap once to begin",
+    "listening": "Listening...",
+    "listeningHint": "Please wait for the welcome audio",
+    "thaiVoiceUnavailable": "Thai welcome voice unavailable on this device, continuing silently.",
+    "readyContinue": "Ready to continue",
+    "transitioning": "Opening menu..."
   },
   "accessibility": {
     "volumeControl": "Volume Control",
     "languageSelection": "Language Selection",
     "gameBoard": "Game Board",
     "score": "Current Score",
-    "targetObject": "Target Object"
+    "targetObject": "Target Object",
+    "levelSelectionOpened": "Level selection menu opened",
+    "selectedLevel": "Selected level: {{level}}",
+    "completionDialogAnnouncement": "Well done! Try some of the other levels!"
+  },
+  "common": {
+    "on": "On",
+    "off": "Off",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "loading": {
+    "wormTitle": "Catch the Worms!",
+    "wormReady": "Great job! Getting ready...",
+    "wormRemainingOne": "1 worm remaining...",
+    "wormRemainingMany": "{{count}} worms remaining...",
+    "wormComplete": "All worms caught! Starting game...",
+    "skipToGame": "Skip to Game (or catch all worms!)",
+    "skipToGameAria": "Skip to game immediately without catching worms"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Configure audio, visuals, controls, and accessibility",
+    "tabs": {
+      "audio": "Audio",
+      "visual": "Visual",
+      "controls": "Controls",
+      "accessibility": "Accessibility"
+    },
+    "audio": {
+      "soundTitle": "Sound",
+      "soundDescription": "Enable or mute all game audio",
+      "masterVolume": "Master Volume"
+    },
+    "visual": {
+      "themeTitle": "Theme",
+      "themeDescription": "Choose a color theme for the interface",
+      "displayScaleTitle": "Display Scale",
+      "displayScaleDescription": "Adjust UI size for your screen",
+      "themeOptions": {
+        "colorful": "Colorful",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "scaleOptions": {
+        "auto": "Auto",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "Language",
+      "languageSectionDescription": "Choose the menu/button language and the gameplay text/voice language.",
+      "displayLanguageTitle": "Menu and buttons language",
+      "displayLanguageDescription": "Applies to menus, buttons, and on-screen interface text.",
+      "gameplayLanguageTitle": "Gameplay text and voice language",
+      "gameplayLanguageDescription": "Applies to gameplay prompts, target sentences, and voiceovers.",
+      "selectDisplayLanguage": "Select menu and buttons language",
+      "selectGameplayLanguage": "Select gameplay text and voice language",
+      "languageGroupLabel": "Languages",
+      "continuousModeDescription": "Play without winning or stopping"
+    },
+    "accessibility": {
+      "highContrastTitle": "High Contrast",
+      "highContrastDescription": "Improve visibility with higher contrast colors",
+      "reducedMotionTitle": "Reduced Motion",
+      "reducedMotionDescription": "Minimize animations and movement",
+      "audioDescriptionsTitle": "Audio Descriptions",
+      "audioDescriptionsDescription": "Speak short descriptions when audio is missing"
+    }
   }
 }

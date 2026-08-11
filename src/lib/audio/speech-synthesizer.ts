@@ -38,11 +38,11 @@ export class SpeechSynthesizer {
   private async checkElevenLabsAvailability(): Promise<void> {
     try {
       this.elevenLabsAvailable = await testElevenLabsConnection();
-      
+
       if (!this.elevenLabsAvailable && import.meta.env.DEV) {
         console.info(
-          "[SpeechSynthesizer] ElevenLabs unavailable - using Web Speech API fallback.\n" +
-          "For high-quality voice: Configure VITE_ELEVENLABS_API_KEY in .env"
+          "[SpeechSynthesizer] Live ElevenLabs TTS unavailable - using Web Speech API fallback.\n" +
+            "Set VITE_ELEVENLABS_API_KEY only for development-time browser TTS.",
         );
       }
     } catch (error) {
@@ -50,7 +50,7 @@ export class SpeechSynthesizer {
       if (import.meta.env.DEV) {
         console.warn(
           "[SpeechSynthesizer] Error checking ElevenLabs availability:",
-          error
+          error,
         );
       }
     }
@@ -83,7 +83,7 @@ export class SpeechSynthesizer {
       this.speakWithElevenLabs(text, options).catch(() => {
         if (import.meta.env.DEV) {
           console.warn(
-            `[SpeechSynthesizer] ElevenLabs failed for "${text.substring(0, 50)}..." - using Web Speech fallback`
+            `[SpeechSynthesizer] ElevenLabs failed for "${text.substring(0, 50)}..." - using Web Speech fallback`,
           );
         }
         // Fallback to Web Speech on failure
@@ -94,7 +94,9 @@ export class SpeechSynthesizer {
 
     // Fallback to Web Speech
     if (import.meta.env.DEV) {
-      console.info(`[SpeechSynthesizer] Using Web Speech API for "${text.substring(0, 50)}..."`);
+      console.info(
+        `[SpeechSynthesizer] Using Web Speech API for "${text.substring(0, 50)}..."`,
+      );
     }
     return this.speakWithWebSpeech(text, options);
   }

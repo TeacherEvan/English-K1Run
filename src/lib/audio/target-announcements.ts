@@ -5,11 +5,13 @@
  * single-word audio clips.
  */
 
-import { getSentenceTemplate } from "../constants/sentence-templates";
 import type { SupportedLanguage } from "../constants/language-config";
+import { getLocalizedSentenceTemplate } from "../constants/sentence-templates";
 import { speechSynthesizer } from "./speech-synthesizer";
 
 const MIN_WORD_COUNT = 2;
+const NON_SPACE_SENTENCE_PATTERN =
+  /[\u0E00-\u0E7F\u3040-\u30FF\u3400-\u9FFF\uF900-\uFAFF]/u;
 
 const normalizeText = (text: string) => text.replace(/\s+/g, " ").trim();
 
@@ -31,13 +33,24 @@ const buildFallbackSentence = (name: string) => {
   return `Find the ${normalized}.`;
 };
 
+const usesNonSpaceScript = (text: string) =>
+  NON_SPACE_SENTENCE_PATTERN.test(text);
+
 const ensureSentence = (text: string, fallbackName: string) => {
   const normalized = normalizeText(text);
   if (!normalized) return buildFallbackSentence(fallbackName);
-  if (isSingleWord(normalized)) return buildFallbackSentence(fallbackName);
+  const nonSpaceScript = usesNonSpaceScript(normalized);
+  if (isSingleWord(normalized) && !nonSpaceScript) {
+    return buildFallbackSentence(fallbackName);
+  }
   const wordCount = normalized.split(" ").length;
-  if (wordCount < MIN_WORD_COUNT) return buildFallbackSentence(fallbackName);
+  if (wordCount < MIN_WORD_COUNT && !nonSpaceScript) {
+    return buildFallbackSentence(fallbackName);
+  }
   const endsWithPunctuation = /[.!?。！？]$/.test(normalized);
+  if (nonSpaceScript) {
+    return normalized;
+  }
   return endsWithPunctuation ? normalized : `${normalized}.`;
 };
 
@@ -45,7 +58,15 @@ export const getTargetSentence = (
   targetName: string,
   language: SupportedLanguage,
 ): string => {
-  const template = getSentenceTemplate(targetName, language) || "";
+  const template = getLocalizedSentenceTemplate(targetName, language) || "";
+  if (!template && language !== "en") {
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[TargetAnnouncements] Missing ${language} sentence template for "${targetName}"; skipping English audio fallback.`,
+      );
+    }
+    return "";
+  }
   return ensureSentence(template, targetName);
 };
 

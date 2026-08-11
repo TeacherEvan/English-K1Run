@@ -27,4 +27,5 @@ export {
 export type {
   AudioAssetMetadata,
   WelcomeAudioConfig,
+  WelcomePlaybackDiagnostic,
 } from "./welcome-audio-types";

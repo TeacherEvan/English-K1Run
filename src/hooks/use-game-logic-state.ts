@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import type {
   FairyTransformObject,
   GameObject,
@@ -36,6 +37,12 @@ export const useGameLogicState = () => {
   const [continuousModeStartTime, setContinuousModeStartTime] = useState<
     number | null
   >(null);
+
+  // Per-session sequence cursor for sequence-based categories. Lives in a ref
+  // (not on the frozen GAME_CATEGORIES constant) so sessions never share state.
+  const sequenceIndicesRef = useRef<number[]>(
+    new Array(GAME_CATEGORIES.length).fill(0),
+  );
   const [continuousModeHighScore, setContinuousModeHighScore] = useState<
     number | null
   >(() => {
@@ -56,6 +63,7 @@ export const useGameLogicState = () => {
     gameState,
     setGameState,
     continuousModeTargetCount,
+    sequenceIndicesRef,
     continuousModeStartTime,
     setContinuousModeStartTime,
     continuousModeHighScore,
