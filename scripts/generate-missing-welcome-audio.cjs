@@ -6,32 +6,12 @@
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
-
-function loadDotEnvIfPresent() {
-  try {
-    const envPath = path.join(__dirname, "..", ".env");
-    if (!fs.existsSync(envPath)) return;
-    const raw = fs.readFileSync(envPath, "utf8");
-    for (const line of raw.split(/\r?\n/)) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const eq = trimmed.indexOf("=");
-      if (eq <= 0) continue;
-      const key = trimmed.slice(0, eq).trim();
-      if (!key || process.env[key]) continue;
-      let value = trimmed.slice(eq + 1).trim();
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
-        value = value.slice(1, -1);
-      }
-      process.env[key] = value;
-    }
-  } catch {
-    // Ignore .env parsing issues and fall back to shell env vars.
-  }
-}
+const {
+  assertConfiguredThaiVoice,
+  hasFlag,
+  loadDotEnvIfPresent,
+  readFlagValue,
+} = require("./audio-script-utils.cjs");
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) {
@@ -105,6 +85,11 @@ const OUTPUT_DIR = path.join(__dirname, "..", "sounds");
 const PUBLIC_OUTPUT_DIR = path.join(__dirname, "..", "public", "sounds");
 const VOICE_ID_ENGLISH = process.env.ELEVENLABS_VOICE_ID || "";
 const VOICE_ID_THAI = process.env.ELEVENLABS_VOICE_ID_TH || "";
+const forceOverwrite = hasFlag("--force");
+const requestedLanguage = readFlagValue("--lang") ?? "all";
+const selectedLanguage = ["all", "en", "th"].includes(requestedLanguage)
+  ? requestedLanguage
+  : "all";
 
 const MISSING_FILES = [
   {
@@ -117,7 +102,7 @@ const MISSING_FILES = [
     filename: "welcome_evan_intro_thai.mp3",
     text: "ยินดีต้อนรับสู่ Super Student ของคุณครูอีแวน มาเรียนอย่างสนุกด้วยกันนะ!",
     voiceId: VOICE_ID_THAI,
-    languageCode: undefined,
+    languageCode: "th",
   },
   {
     filename: "welcome_sangsom_association.mp3",
@@ -129,7 +114,7 @@ const MISSING_FILES = [
     filename: "welcome_sangsom_association_thai.mp3",
     text: "ร่วมกับโรงเรียนอนุบาลสังสม",
     voiceId: VOICE_ID_THAI,
-    languageCode: undefined,
+    languageCode: "th",
   },
 ];
 
@@ -156,20 +141,48 @@ async function main() {
     process.exit(1);
   }
 
+  try {
+    const { selectedVoice } = await assertConfiguredThaiVoice(
+      process.env.ELEVENLABS_API_KEY,
+      VOICE_ID_THAI,
+    );
+    console.log(
+      `Thai voice: ${selectedVoice.name} (${selectedVoice.voice_id})`,
+    );
+  } catch (error) {
+    console.error(`❌ Error: ${error.message}`);
+    process.exit(1);
+  }
+
+  const filesToGenerate = MISSING_FILES.filter((file) =>
+    selectedLanguage === "all" ? true : file.languageCode === selectedLanguage,
+  );
+
+  console.log(
+    `Scope: ${selectedLanguage === "all" ? "all welcome audio" : `${selectedLanguage} welcome audio only`}`,
+  );
+  console.log(
+    `Mode: ${forceOverwrite ? "force overwrite existing files" : "generate only missing files"}`,
+  );
+
   ensureDir(OUTPUT_DIR);
   ensureDir(PUBLIC_OUTPUT_DIR);
 
   let successCount = 0;
   let failCount = 0;
 
-  for (let i = 0; i < MISSING_FILES.length; i++) {
-    const file = MISSING_FILES[i];
+  for (let i = 0; i < filesToGenerate.length; i++) {
+    const file = filesToGenerate[i];
     const outputPath = path.join(OUTPUT_DIR, file.filename);
     const publicPath = path.join(PUBLIC_OUTPUT_DIR, file.filename);
 
-    if (fs.existsSync(outputPath) && fs.existsSync(publicPath)) {
+    if (
+      !forceOverwrite &&
+      fs.existsSync(outputPath) &&
+      fs.existsSync(publicPath)
+    ) {
       console.log(
-        `[${i + 1}/${MISSING_FILES.length}] ⊘ Skipping "${file.filename}" (already exists)`,
+        `[${i + 1}/${filesToGenerate.length}] ⊘ Skipping "${file.filename}" (already exists)`,
       );
       successCount++;
       continue;
@@ -177,7 +190,7 @@ async function main() {
 
     try {
       process.stdout.write(
-        `[${i + 1}/${MISSING_FILES.length}] Generating "${file.filename}"...`,
+        `[${i + 1}/${filesToGenerate.length}] Generating "${file.filename}"...`,
       );
       await generateAudio(
         file.text,
@@ -188,7 +201,7 @@ async function main() {
       fs.copyFileSync(outputPath, publicPath);
       successCount++;
       console.log(" ✓");
-      if (i < MISSING_FILES.length - 1) await sleep(500);
+      if (i < filesToGenerate.length - 1) await sleep(500);
     } catch (error) {
       failCount++;
       console.log(` ✗ (${error.message})`);

@@ -884,9 +884,9 @@ export const UI_LAYER_MATRIX = {
 ## Appendix C: Related Documentation
 
 - [`plans/ui-layer-forensic-audit-feb2026.md`](plans/ui-layer-forensic-audit-feb2026.md) - Original forensic audit
-- [`DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md`](DOCS/ARCHITECTURE_DECISION_RECORD_DEC2025.md) - Architecture decisions
-- [`DOCS/MULTI_TOUCH_IMPLEMENTATION.md`](DOCS/MULTI_TOUCH_IMPLEMENTATION.md) - Touch handling details
-- [`C-JOB_CARD_AUDIO_AUDIT_JAN2026.md`](C-JOB_CARD_AUDIO_AUDIT_JAN2026.md) - Audio system audit
+- [`README.md`](../README.md) - Current architecture and command entry points
+- [`DOCS/CODEBASE_INDEX.md`](../DOCS/CODEBASE_INDEX.md) - Navigation map for the codebase
+- [`AUDIO_SETUP.md`](../AUDIO_SETUP.md) - Current audio setup and environment guidance
 
 ---
 

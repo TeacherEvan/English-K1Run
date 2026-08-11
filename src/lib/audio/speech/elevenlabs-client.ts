@@ -79,9 +79,10 @@ function getApiKey(): string | null {
 /**
  * Get voice ID for a specific language
  */
-function getVoiceId(langCode: SupportedLanguage): string {
+function getVoiceId(langCode: SupportedLanguage): string | null {
   const config = getLanguageConfig(langCode);
-  return config.elevenLabsVoiceId;
+  const voiceId = config.elevenLabsVoiceId.trim();
+  return voiceId || null;
 }
 
 /**
@@ -93,6 +94,15 @@ export async function testElevenLabsConnection(): Promise<boolean> {
     if (import.meta.env.DEV) {
       console.info(
         "[ElevenLabs] Skipping connection test - no API key configured",
+      );
+    }
+    return false;
+  }
+
+  if (typeof window !== "undefined") {
+    if (import.meta.env.DEV) {
+      console.info(
+        "[ElevenLabs] Skipping browser-side connectivity probe to avoid noisy CORS/network errors. Use pre-generated audio assets or server-side generation scripts for verification.",
       );
     }
     return false;
@@ -144,6 +154,11 @@ export async function generateSpeech(
   }
 
   const voiceId = options.voiceId || getVoiceId(options.languageCode || "en");
+  if (!voiceId) {
+    throw new Error(
+      `No verified ElevenLabs voice configured for ${options.languageCode || "en"}`,
+    );
+  }
   const settings = options.useSoftSettings
     ? SOFT_VOICE_SETTINGS
     : DEFAULT_VOICE_SETTINGS;

@@ -20,6 +20,12 @@ import { GAME_CATEGORIES, useGameLogic } from "./hooks/use-game-logic";
 import { getCategoryTranslationKey } from "./lib/constants/category-translation";
 import { useLazyBackgroundPreloader } from "./lib/utils/background-preloader";
 
+const DefaultModeCompletionDialog = lazy(() =>
+  import("./components/game-completion/DefaultModeCompletionDialog").then(
+    (m) => ({ default: m.DefaultModeCompletionDialog }),
+  ),
+);
+
 const FireworksDisplay = lazy(() =>
   import("./components/FireworksDisplay").then((m) => ({
     default: m.FireworksDisplay,
@@ -34,15 +40,7 @@ const EmojiRotationMonitor = lazy(() =>
 function App() {
   const { t } = useTranslation();
   const { displaySettings } = useDisplayAdjustment();
-
-  useLazyBackgroundPreloader();
-  useAppBootSignal();
-  useWebVitalsMonitor();
-  useRenderMeasurement();
-  usePreloadResources();
-
   const isE2E = useE2EMode();
-  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
   const [timeRemaining, setTimeRemaining] = useState(10000);
   const [selectedLevel, setSelectedLevel] = useState(0);
@@ -55,6 +53,12 @@ function App() {
     isE2E ? "menu" : "welcome",
   );
   const [debugVisible, setDebugVisible] = useState(false);
+
+  useAppBootSignal();
+  useWebVitalsMonitor();
+  useRenderMeasurement();
+
+  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
   const {
     gameObjects,
@@ -72,6 +76,12 @@ function App() {
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode,
   });
+
+  usePreloadResources(startupStep === "menu" && !isLoading);
+
+  useLazyBackgroundPreloader(
+    startupStep === "menu" && !isLoading && !gameState.gameStarted,
+  );
 
   useFullscreenGuard(gameState.gameStarted, isE2E);
   useDebugToggle(setDebugVisible);
@@ -149,6 +159,12 @@ function App() {
               isVisible={!!gameState.winner}
               winner={gameState.winner}
             />
+          </Suspense>
+        )}
+
+        {gameState.winner && !continuousMode && (
+          <Suspense fallback={null}>
+            <DefaultModeCompletionDialog isVisible={!!gameState.winner} />
           </Suspense>
         )}
 

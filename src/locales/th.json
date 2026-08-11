@@ -8,6 +8,7 @@
     "back": "กลับ",
     "backToLevels": "กลับไปยังหน้าด่าน",
     "bestTime": "เวลาที่ดีที่สุด",
+    "currentTime": "เวลาปัจจุบัน",
     "continuousMode": "โหมดต่อเนื่อง",
     "find": "หา",
     "inOrder": "ตามลำดับ",
@@ -51,6 +52,9 @@
   "messages": {
     "gameWon": "คุณชนะ! ทำได้ดีมากขอบคุณ!",
     "victoryTitle": "คุณชนะ!",
+    "completionTitle": "เก่งมาก!",
+    "completionDescription": "ลองไปเล่นด่านอื่น ๆ ดูสิ!",
+    "completionButton": "ลองด่านอื่น",
     "gameOver": "สิ้นสุดเกม",
     "score": "คะแนน",
     "perfect": "สมบูรณ์แบบ!"
@@ -66,6 +70,7 @@
     "readyPrompt": "แตะหนึ่งครั้งเพื่อเริ่ม",
     "listening": "กำลังเล่นเสียง...",
     "listeningHint": "โปรดรอจนเสียงต้อนรับจบ",
+    "thaiVoiceUnavailable": "อุปกรณ์นี้ไม่มีเสียงต้อนรับภาษาไทย จึงข้ามเสียงต่อไปแบบเงียบ",
     "readyContinue": "พร้อมไปต่อ",
     "transitioning": "กำลังเปิดเมนู..."
   },
@@ -76,7 +81,8 @@
     "score": "คะแนนปัจจุบัน",
     "targetObject": "วัตถุเป้าหมาย",
     "levelSelectionOpened": "เปิดเมนูเลือกด่านแล้ว",
-    "selectedLevel": "ด่านที่เลือก: {{level}}"
+    "selectedLevel": "ด่านที่เลือก: {{level}}",
+    "completionDialogAnnouncement": "เก่งมาก! ลองไปเล่นด่านอื่น ๆ ดูสิ!"
   },
   "common": {
     "on": "เปิด",

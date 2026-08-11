@@ -1,16 +1,24 @@
 import { memo, useCallback, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "../../context/settings-context";
 import type { ResolutionScale } from "../../context/settings-context";
+import { useSettings } from "../../context/settings-context";
 import { useHomeMenuAudio } from "../../hooks/use-home-menu-audio";
 import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { GameMenuActionStack } from "./GameMenuActionStack";
 import { GameMenuCreditsDialog } from "./GameMenuCreditsDialog";
 import { GameMenuExitDialog } from "./GameMenuExitDialog";
+import { GameMenuHero } from "./GameMenuHero";
 import { GameMenuSettingsDialog } from "./GameMenuSettingsDialog";
 import { GridIcon, PlayIcon, TrophyIcon } from "./icons";
 import { getMenuActionLabel } from "./menu-action-labels";
+import {
+    MENU_OVERLAY_CLASS,
+    MENU_OVERLAY_STYLE,
+    MENU_PANEL_CLASS,
+    MENU_PANEL_STYLE,
+} from "./menu-surface-theme";
 import { MenuActionButtonContent } from "./MenuActionButtonContent";
 
 interface GameMenuHomeProps {
@@ -63,56 +71,27 @@ export const GameMenuHome = memo(
 
         return (
             <div
-                className="fixed inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-300 pointer-events-auto"
-                style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
+                className={MENU_OVERLAY_CLASS}
+                style={{
+                    ...MENU_OVERLAY_STYLE,
+                    zIndex: UI_LAYER_MATRIX.MENU_OVERLAY,
+                }}
                 data-testid="game-menu"
             >
-                <Card className="w-full max-w-4xl mx-4 p-8 bg-card/50 border-4 border-primary/20 shadow-2xl backdrop-blur-md">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                        {/* Left Column: Title & Mascot */}
-                        <div className="flex flex-col items-center text-center space-y-6">
-                            <div className="text-8xl animate-bounce cursor-default select-none filter drop-shadow-lg">
-                                🐢
-                            </div>
-                            <div className="space-y-2">
-                                <h1
-                                    className="text-4xl md:text-5xl font-bold text-primary tracking-tight drop-shadow-sm"
-                                    data-testid="game-title"
-                                >
-                                    {t("game.title")}
-                                </h1>
-                                <p className="text-base md:text-lg font-medium text-primary/80 max-w-sm">
-                                    {t("menu.instructions")}
-                                </p>
-                            </div>
+                <Card
+                    className={`${MENU_PANEL_CLASS} menu-home-panel menu-home-shell`}
+                    style={MENU_PANEL_STYLE}
+                >
+                    <div className="menu-home-layout grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,24rem)] lg:items-center">
+                        <GameMenuHero
+                            formattedBestTime={formattedBestTime}
+                            continuousMode={continuousMode}
+                        />
 
-                            <div className="mt-8 p-6 bg-black/80 rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)] w-full max-w-xs transform hover:scale-105 transition-transform duration-300 group">
-                                <div className="flex flex-col items-center">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <TrophyIcon className="w-5 h-5 text-yellow-500 group-hover:rotate-12 transition-transform" />
-                                        <span className="text-yellow-500 font-bold uppercase tracking-widest text-sm">
-                                            {t("game.bestTime")}
-                                        </span>
-                                    </div>
-                                    <div
-                                        className="text-4xl font-mono font-bold text-yellow-400 group-hover:text-yellow-300 transition-colors"
-                                        style={{ textShadow: "0 0 20px rgba(234,179,8,0.6)" }}
-                                    >
-                                        {formattedBestTime}
-                                    </div>
-                                    {continuousMode && (
-                                        <div className="mt-2 text-xs text-white/60 bg-green-900/50 px-2 py-1 rounded-full border border-green-500/30">
-                                            {t("game.continuousMode")}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-3 w-full max-w-sm mx-auto">
+                        <GameMenuActionStack className="menu-home-actions">
                             <Button
                                 size="lg"
-                                className="h-20 text-2xl font-bold shadow-lg hover:scale-105 hover:shadow-primary/25 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-green-700 hover:bg-green-800 text-white"
+                                className="menu-action-card menu-action-card--start menu-primary-action min-h-[5.25rem] gap-4 rounded-3xl border border-emerald-900/10 bg-emerald-600 px-5 text-[1.35rem] font-bold text-white shadow-[0_18px_28px_rgba(22,163,74,0.24)] hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-[0_22px_34px_rgba(22,163,74,0.26)] focus-visible:ring-emerald-200/70 sm:px-6"
                                 onClick={onStartGame}
                                 data-testid="start-game-button"
                                 aria-label={t("game.startGame")}
@@ -123,7 +102,9 @@ export const GameMenuHome = memo(
                                 >
                                     <MenuActionButtonContent
                                         icon={<PlayIcon className="w-6 h-6 fill-current" />}
-                                        iconWrapperClassName="p-2 bg-white/20 rounded-full"
+                                        iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--start"
+                                        subtitleClassName="mt-1 text-sm font-medium text-white/78"
+                                        textClassName="menu-action-copy flex flex-col items-start leading-tight"
                                         title={startGameLabel.title}
                                         subtitle={startGameLabel.subtitle}
                                     />
@@ -133,7 +114,7 @@ export const GameMenuHome = memo(
                             <Button
                                 variant="default"
                                 size="lg"
-                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4 border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 bg-blue-700 hover:bg-blue-800 text-white"
+                                className="menu-action-card menu-action-card--challenge menu-secondary-action min-h-[4.75rem] gap-4 rounded-3xl border border-blue-950/10 bg-blue-600 text-xl font-bold text-white shadow-[0_16px_24px_rgba(37,99,235,0.2)] hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-[0_20px_30px_rgba(37,99,235,0.24)]"
                                 onClick={handlePlayAllLevels}
                                 disabled={!canPlayAllLevels}
                                 data-testid="play-all-levels-button"
@@ -141,7 +122,9 @@ export const GameMenuHome = memo(
                             >
                                 <MenuActionButtonContent
                                     icon={<TrophyIcon className="w-6 h-6" />}
-                                    iconWrapperClassName="p-2 bg-white/20 rounded-full"
+                                    iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--challenge"
+                                    subtitleClassName="mt-1 text-sm font-medium text-white/78"
+                                    textClassName="menu-action-copy flex flex-col items-start leading-tight"
                                     title={playAllLevelsLabel.title}
                                     subtitle={playAllLevelsLabel.subtitle}
                                 />
@@ -150,7 +133,7 @@ export const GameMenuHome = memo(
                             <Button
                                 variant="default"
                                 size="lg"
-                                className="h-16 text-xl font-bold shadow-md hover:scale-105 transition-all duration-200 gap-4"
+                                className="menu-action-card menu-action-card--map menu-tertiary-action min-h-[4.75rem] gap-4 rounded-3xl border border-stone-200 bg-[#fbf6ea] text-xl font-bold text-stone-900 shadow-[0_10px_18px_rgba(87,83,78,0.12)] hover:-translate-y-0.5 hover:bg-[#f4ecd8] hover:shadow-[0_16px_24px_rgba(87,83,78,0.16)]"
                                 onClick={onShowLevels}
                                 onKeyDown={(event) => handleMenuKeyDown(event, onShowLevels)}
                                 data-testid="level-select-button"
@@ -158,6 +141,9 @@ export const GameMenuHome = memo(
                             >
                                 <MenuActionButtonContent
                                     icon={<GridIcon className="w-6 h-6" />}
+                                    iconWrapperClassName="menu-action-icon-shell menu-action-icon-shell--map"
+                                    subtitleClassName="mt-1 text-sm font-medium text-stone-600"
+                                    textClassName="menu-action-copy flex flex-col items-start leading-tight"
                                     title={levelSelectLabel.title}
                                     subtitle={levelSelectLabel.subtitle}
                                 />
@@ -173,7 +159,7 @@ export const GameMenuHome = memo(
                             <GameMenuExitDialog onResetGame={onResetGame} />
 
                             <GameMenuCreditsDialog />
-                        </div>
+                        </GameMenuActionStack>
                     </div>
                 </Card>
             </div>

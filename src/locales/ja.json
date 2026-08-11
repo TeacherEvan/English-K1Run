@@ -6,7 +6,9 @@
     "levelSelect": "レベル選択",
     "selectLevel": "レベルを選ぶ",
     "back": "戻る",
+    "backToLevels": "レベル一覧へ戻る",
     "bestTime": "ベストタイム",
+    "currentTime": "現在のタイム",
     "continuousMode": "連続モード",
     "find": "見つけよう",
     "inOrder": "順番どおり",
@@ -50,6 +52,9 @@
   "messages": {
     "gameWon": "あなたが勝ちました!素晴らしい!",
     "victoryTitle": "きみの勝ち！",
+    "completionTitle": "よくできました！",
+    "completionDescription": "ほかのレベルもやってみましょう！",
+    "completionButton": "ほかのレベルへ",
     "gameOver": "ゲーム終了",
     "score": "スコア",
     "perfect": "完璧です!"
@@ -65,6 +70,7 @@
     "readyPrompt": "1回タップしてはじめる",
     "listening": "再生中...",
     "listeningHint": "ウェルカム音声が終わるまで待ってください",
+    "thaiVoiceUnavailable": "この端末ではタイ語のウェルカム音声が使えないため、無音で続行します。",
     "readyContinue": "つづけられます",
     "transitioning": "メニューをひらいています..."
   },
@@ -75,7 +81,8 @@
     "score": "現在のスコア",
     "targetObject": "ターゲットオブジェクト",
     "levelSelectionOpened": "レベル選択メニューを開きました",
-    "selectedLevel": "選択中のレベル: {{level}}"
+    "selectedLevel": "選択中のレベル: {{level}}",
+    "completionDialogAnnouncement": "よくできました！ほかのレベルもやってみましょう！"
   },
   "common": {
     "on": "オン",

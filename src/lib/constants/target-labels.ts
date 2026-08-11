@@ -1,4 +1,8 @@
 import type { SupportedLanguage } from "./language-config";
+import { FRENCH_TARGET_LABELS } from "./target-labels-fr";
+import { JAPANESE_TARGET_LABELS } from "./target-labels-ja";
+import { MANDARIN_TARGET_LABELS } from "./target-labels-zh-cn";
+import { CANTONESE_TARGET_LABELS } from "./target-labels-zh-hk";
 
 const THAI_TARGET_LABELS: Record<string, string> = {
   apple: "แอปเปิ้ล",
@@ -127,19 +131,35 @@ const THAI_TARGET_LABELS: Record<string, string> = {
   z: "แซด",
 };
 
+const TARGET_LABELS_BY_LANGUAGE: Partial<
+  Record<SupportedLanguage, Record<string, string>>
+> = {
+  th: THAI_TARGET_LABELS,
+  fr: FRENCH_TARGET_LABELS,
+  ja: JAPANESE_TARGET_LABELS,
+  "zh-CN": MANDARIN_TARGET_LABELS,
+  "zh-HK": CANTONESE_TARGET_LABELS,
+};
+
+const ORANGE_COLOR_LABELS: Partial<Record<SupportedLanguage, string>> = {
+  th: "สีส้ม",
+  ja: "オレンジいろ",
+  "zh-CN": "橙色",
+  "zh-HK": "橙色",
+};
+
 export const getTargetDisplayLabel = (
   targetName: string,
   language: SupportedLanguage,
   categoryName?: string,
 ) => {
   const normalizedTarget = targetName.toLowerCase().trim();
-  if (language !== "th") {
-    return targetName;
-  }
+
   if (normalizedTarget === "orange" && categoryName === "Shapes & Colors") {
-    return "สีส้ม";
+    return ORANGE_COLOR_LABELS[language] ?? targetName;
   }
-  return THAI_TARGET_LABELS[normalizedTarget] ?? targetName;
+
+  return TARGET_LABELS_BY_LANGUAGE[language]?.[normalizedTarget] ?? targetName;
 };
 
 export { THAI_TARGET_LABELS };

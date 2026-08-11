@@ -6,7 +6,9 @@
     "levelSelect": "Choix du niveau",
     "selectLevel": "Sélectionner un niveau",
     "back": "Retour",
+    "backToLevels": "Retour aux niveaux",
     "bestTime": "Meilleur temps",
+    "currentTime": "Temps actuel",
     "continuousMode": "Mode continu",
     "find": "Trouve",
     "inOrder": "Dans l'ordre",
@@ -50,6 +52,9 @@
   "messages": {
     "gameWon": "Vous gagnez! Excellent travail!",
     "victoryTitle": "Victoire !",
+    "completionTitle": "Bravo !",
+    "completionDescription": "Essayez d'autres niveaux !",
+    "completionButton": "Voir d'autres niveaux",
     "gameOver": "Fin du Jeu",
     "score": "Score",
     "perfect": "Parfait!"
@@ -65,6 +70,7 @@
     "readyPrompt": "Touchez une fois pour commencer",
     "listening": "Lecture en cours...",
     "listeningHint": "Veuillez attendre la fin de l'audio d'accueil",
+    "thaiVoiceUnavailable": "La voix d'accueil thaïe n'est pas disponible sur cet appareil, poursuite silencieuse.",
     "readyContinue": "Prêt à continuer",
     "transitioning": "Ouverture du menu..."
   },
@@ -75,7 +81,8 @@
     "score": "Score Actuel",
     "targetObject": "Objet Cible",
     "levelSelectionOpened": "Menu de sélection des niveaux ouvert",
-    "selectedLevel": "Niveau sélectionné : {{level}}"
+    "selectedLevel": "Niveau sélectionné : {{level}}",
+    "completionDialogAnnouncement": "Bravo ! Essayez d'autres niveaux !"
   },
   "common": {
     "on": "Activé",

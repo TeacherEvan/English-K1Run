@@ -15,14 +15,20 @@ interface TargetDisplayProps {
   onClick?: () => void
   /** Current point multiplier from combo system */
   multiplier?: number
+  /** In continuous mode the target emoji is hidden to rely on audio */
+  continuousMode?: boolean
 }
 
-export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier }: TargetDisplayProps) => {
+export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeRemaining, onClick, multiplier, continuousMode }: TargetDisplayProps) => {
   const { t } = useTranslation()
   const { gameplayLanguage } = useSettings()
   const categoryKey = getCategoryTranslationKey(category.name)
-  const categoryLabel = categoryKey ? t(`categories.${categoryKey}`) : category.name
+  const categoryLabel = categoryKey
+    ? t(`categories.${categoryKey}`, { lng: gameplayLanguage })
+    : category.name
   const targetLabel = getTargetDisplayLabel(currentTarget, gameplayLanguage, category.name)
+  const findLabel = t('game.find', { lng: gameplayLanguage })
+  const inOrderLabel = t('game.inOrder', { lng: gameplayLanguage })
   // Determine if multiplier is active (greater than 1)
   const hasActiveMultiplier = multiplier && multiplier > 1
 
@@ -86,9 +92,10 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
             style={{
               fontSize: `calc(1.75rem * var(--object-scale, 1))`,
               lineHeight: '1',
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))'
+              filter: continuousMode ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))',
+              opacity: continuousMode ? 0.85 : 1,
             }}>
-            {targetEmoji}
+            {continuousMode ? '❓' : targetEmoji}
           </div>
           <div data-testid="target-name" className="font-bold"
             style={{
@@ -97,7 +104,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               textShadow: '0 1px 2px rgba(255,255,255,0.8)',
               letterSpacing: '0.01em'
             }}>
-            {t('game.find')}: {targetLabel}
+            {findLabel}: {targetLabel}
           </div>
         </div>
 
@@ -109,7 +116,7 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
               fontWeight: '600',
               marginTop: '0.2rem'
             }}>
-            📝 {t('game.inOrder')}
+            📝 {inOrderLabel}
           </div>
         )}
 

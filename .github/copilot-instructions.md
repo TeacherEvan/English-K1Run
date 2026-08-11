@@ -34,12 +34,13 @@
 ## Audio, i18n, and Welcome Flow
 
 - **Audio fallback chain**: Web Audio → HTMLAudio → Speech Synthesis → tones. Key mapping lives in `src/lib/sound-manager.ts`(../src/lib/sound-manager.ts) (e.g., emoji_apple.wav registers `"apple"` and `"emoji_apple"`).
-- **Audio asset location**: Runtime fallback resolves `/sounds/<key>.<ext>` from public assets when bundled sounds are missing.
+- **Audio asset location**: Source `.wav` files live in `sounds/`; at runtime the browser fetches `/sounds/<key>.<ext>` from the static host. Missing files are repo-side issues that fall through to speech fallback.
 - **Home menu association audio**: Sangsom association lines must play only once per session when the home menu is first accessible (gate repeated replays on reopen/remount).
 - **Welcome start contract**: In normal mode, welcome narration must start only from explicit user gesture; do not auto-start from display-adjustment signals or fallback timers. Safety timers may unlock continue state, but must not trigger playback.
 - **Target spawn audio**: Disabled to prevent repeated “Target spawned” playback unless a valid `target_spawn` file is restored and explicitly required.
 - **No one-word audio**: New audio content must be full sentences only (no single-word recordings).
 - **Language config and voices**: `src/lib/constants/language-config.ts`(../src/lib/constants/language-config.ts). Translations: `src/locales/`(../src/locales/).
+- **Sentence-template coverage**: Missing localized templates fall back to English before playback; treat missing French or other language coverage as a repo content gap, not a Vercel problem.
 - **Localized accessibility copy**: Screen-reader-only announcements must use translation keys under `accessibility.*`; do not leave English literals in gameplay/menu announcements.
 - **Welcome screen narration**: Four phases and respects reduced motion; e2e mode disables animations when `?e2e=1` is present.
 
@@ -101,7 +102,7 @@
 
 - **CI/CD**: Use GitHub Actions for automated builds and deployments.
 - **Monitoring**: Integrate error tracking (e.g., Sentry) and performance monitoring.
-- **Caching**: Implement service worker for offline capabilities; cache static assets.
+- **Caching**: Implement service worker for offline capabilities; cache static assets. Audio under `/sounds/*` is served statically and fetched by the browser at runtime.
 - **Environment variables**: Use `.env` files; never commit secrets.
 
 ## Adding Content

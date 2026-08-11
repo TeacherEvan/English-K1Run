@@ -56,8 +56,8 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
 const ELEVENLABS_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || "";
 
 // Multi-language voice IDs (from src/lib/constants/language-config.ts)
-// English uses "Alice" (E4IXevHtHpKGh0bvrPPr) - default voice for English audio generation
-// Thai male voice changed to "Daniel" - softer, warmer narrator voice
+// English uses the configured English narrator voice.
+// Thai must use a verified native Thai-capable voice via ELEVENLABS_VOICE_ID_TH.
 const VOICE_IDS = {
   en: process.env.ELEVENLABS_VOICE_ID || "",
   fr: process.env.ELEVENLABS_VOICE_ID_FR || "",
@@ -78,6 +78,16 @@ const LANGUAGE_CODES = {
 
 const VOICE_ID = VOICE_IDS.en; // Legacy fallback
 const VOICE_ID_THAI = VOICE_IDS.th; // Legacy compatibility
+
+function getPhraseAudioOptions(phrase) {
+  const isThai =
+    phrase.endsWith("_thai") || phrase === "welcome_sangsom_association_thai";
+
+  return {
+    voiceId: isThai ? VOICE_ID_THAI : VOICE_ID,
+    languageCode: isThai ? LANGUAGE_CODES.th : LANGUAGE_CODES.en,
+  };
+}
 
 const WELCOME_ASSOCIATION_THAI_TEXT =
   process.env.WELCOME_ASSOCIATION_THAI_TEXT || "";
@@ -566,7 +576,8 @@ async function main() {
         `[${i + 1}/${AUDIO_PHRASES.length}] Generating "${phrase}"...`,
       );
 
-      await generateAudio(phrase, outputPath);
+      const { voiceId, languageCode } = getPhraseAudioOptions(phrase);
+      await generateAudio(phrase, outputPath, languageCode, voiceId);
       successCount++;
 
       console.log(" ✓");

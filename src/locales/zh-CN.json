@@ -6,7 +6,9 @@
     "levelSelect": "关卡选择",
     "selectLevel": "选择关卡",
     "back": "返回",
+    "backToLevels": "返回关卡选择",
     "bestTime": "最佳时间",
+    "currentTime": "当前时间",
     "continuousMode": "连续模式",
     "find": "寻找",
     "inOrder": "按顺序",
@@ -50,6 +52,9 @@
   "messages": {
     "gameWon": "你赢了!做得很好!",
     "victoryTitle": "你赢了！",
+    "completionTitle": "做得好！",
+    "completionDescription": "试试其他关卡吧！",
+    "completionButton": "去试试其他关卡",
     "gameOver": "游戏结束",
     "score": "分数",
     "perfect": "完美!"
@@ -65,6 +70,7 @@
     "readyPrompt": "点击一次即可开始",
     "listening": "正在播放...",
     "listeningHint": "请等待欢迎音频播放完毕",
+    "thaiVoiceUnavailable": "此设备不支持泰语欢迎语音，将静默继续。",
     "readyContinue": "可以继续了",
     "transitioning": "正在打开菜单..."
   },
@@ -75,7 +81,8 @@
     "score": "当前分数",
     "targetObject": "目标对象",
     "levelSelectionOpened": "关卡选择菜单已打开",
-    "selectedLevel": "已选择关卡：{{level}}"
+    "selectedLevel": "已选择关卡：{{level}}",
+    "completionDialogAnnouncement": "做得好！试试其他关卡吧！"
   },
   "common": {
     "on": "开启",

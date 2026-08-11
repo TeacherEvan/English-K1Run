@@ -11,6 +11,7 @@ import {
 import {
   stopWelcomeSequence,
   type WelcomeAudioConfig,
+  type WelcomePlaybackDiagnostic,
 } from "@/lib/audio/welcome-audio-sequencer";
 import { soundManager } from "@/lib/sound-manager";
 import { startTransition, useCallback, useEffect, useState } from "react";
@@ -29,6 +30,7 @@ export interface WelcomeSequenceState {
   showFallbackImage: boolean;
   currentAudioIndex: number;
   totalAudioCount: number;
+  lastDiagnostic: WelcomePlaybackDiagnostic | null;
   handlePrimaryAction: () => void;
   handleVideoCanPlay: () => void;
   handleVideoEnded: () => void;
@@ -52,6 +54,7 @@ export const useWelcomeSequence = ({
     isSequencePlaying,
     currentAudioIndex,
     totalAudioCount,
+    lastDiagnostic,
     requestStart,
     markReadyToContinue,
   } = useWelcomeAudioSequence({ audioConfig, isE2E });
@@ -130,10 +133,12 @@ export const useWelcomeSequence = ({
 
   const handleVideoCanPlay = useCallback(() => setVideoLoaded(true), []);
   const handleVideoEnded = useCallback(() => {
-    setShowFallbackImage(true);
     markReadyToContinue();
   }, [markReadyToContinue]);
-  const handleVideoError = useCallback(() => setVideoLoaded(false), []);
+  const handleVideoError = useCallback(() => {
+    setVideoLoaded(false);
+    setShowFallbackImage(true);
+  }, []);
 
   return {
     fadeOut,
@@ -144,6 +149,7 @@ export const useWelcomeSequence = ({
     showFallbackImage,
     currentAudioIndex,
     totalAudioCount,
+    lastDiagnostic,
     handlePrimaryAction,
     handleVideoCanPlay,
     handleVideoEnded,

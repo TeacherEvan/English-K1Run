@@ -4,6 +4,8 @@ import { GAME_CATEGORIES } from "../lib/constants/game-categories";
 import { formatBestTime } from "../lib/utils";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
+import "./game-menu/game-menu-adaptive.css";
+import "./game-menu/game-menu-storybook.css";
 import { GameMenuHome } from "./game-menu/GameMenuHome";
 import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
 
@@ -63,12 +65,10 @@ export const GameMenu = memo(({
 
   // Memoize view transition handlers to prevent unnecessary re-renders
   const handleShowLevels = useCallback(() => {
-    console.log("[GameMenu] handleShowLevels: Switching from 'main' to 'levels' view");
-    setView('levels');
+    setView('levels')
   }, [])
   const handleBackToMain = useCallback(() => {
-    console.log("[GameMenu] handleBackToMain: Switching from 'levels' to 'main' view");
-    setView('main');
+    setView('main')
   }, [])
 
   if (gameStarted && !winner) return null

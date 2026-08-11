@@ -25,13 +25,20 @@ export function getSentenceTemplate(
   phrase: string,
   language: SupportedLanguage = DEFAULT_LANGUAGE,
 ): string | undefined {
+  const localizedTemplate = getLocalizedSentenceTemplate(phrase, language);
   const normalizedPhrase = phrase.toLowerCase().trim();
-  const templates = LANGUAGE_TEMPLATES[language] || ENGLISH_SENTENCE_TEMPLATES;
 
   // Try language-specific template first, fall back to English if not found
-  return (
-    templates[normalizedPhrase] || ENGLISH_SENTENCE_TEMPLATES[normalizedPhrase]
-  );
+  return localizedTemplate || ENGLISH_SENTENCE_TEMPLATES[normalizedPhrase];
+}
+
+export function getLocalizedSentenceTemplate(
+  phrase: string,
+  language: SupportedLanguage = DEFAULT_LANGUAGE,
+): string | undefined {
+  const normalizedPhrase = phrase.toLowerCase().trim();
+  const templates = LANGUAGE_TEMPLATES[language] || ENGLISH_SENTENCE_TEMPLATES;
+  return templates[normalizedPhrase];
 }
 
 /**

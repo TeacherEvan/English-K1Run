@@ -14,6 +14,13 @@ export interface AudioAssetMetadata {
   fallbackText?: string;
 }
 
+export interface WelcomePlaybackDiagnostic {
+  type: "thai-voice-unavailable";
+  assetKey: string;
+  language: SupportedLanguage;
+  fallbackMode: "silent";
+}
+
 export interface WelcomeAudioConfig {
   language?: SupportedLanguage;
   sourcePriority: ("elevenlabs" | "generated" | "fallback")[];

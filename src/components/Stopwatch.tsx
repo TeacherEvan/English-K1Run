@@ -1,4 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useSettings } from '../context/settings-context'
 import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { Card } from './ui/card'
 
@@ -22,6 +24,8 @@ interface StopwatchProps {
  * timer session (when stopping or unmounting).
  */
 export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: StopwatchProps) => {
+    const { t } = useTranslation()
+    const { gameplayLanguage } = useSettings()
     const [currentTime, setCurrentTime] = useState(0)
     const timeRef = useRef(0)
     const reportedRef = useRef(false)
@@ -75,7 +79,7 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
                 <div className="flex flex-col gap-1 min-w-30">
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase tracking-wider text-yellow-500/80 font-bold">
-                            Best Time
+                            {t('game.bestTime', { lng: gameplayLanguage })}
                         </span>
                         <span
                             className="text-xl font-mono font-bold text-yellow-400 animate-pulse"
@@ -89,7 +93,7 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
 
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase tracking-wider text-red-500/80 font-bold">
-                            Current
+                            {t('game.currentTime', { lng: gameplayLanguage })}
                         </span>
                         <span
                             className={`text-xl font-mono font-bold text-red-500 ${isRunning ? 'animate-pulse' : ''}`}

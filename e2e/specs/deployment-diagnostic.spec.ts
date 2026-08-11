@@ -126,7 +126,7 @@ test.describe("Deployment Diagnostics", () => {
       timeout: 10000,
     });
 
-    await page.click('[data-testid="welcome-screen"]');
+    await page.click('[data-testid="welcome-screen"]', { force: true });
 
     const hasAudioDebug = await page.evaluate(() => "__audioDebug" in window);
     test.skip(

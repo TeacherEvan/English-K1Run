@@ -2,7 +2,10 @@ import type { Dispatch, SetStateAction } from "react";
 import { useEffect } from "react";
 import { centralAudioManager } from "../../../lib/audio/central-audio-manager";
 import { speechSynthesizer } from "../../../lib/audio/speech-synthesizer";
-import { getTargetSentence } from "../../../lib/audio/target-announcements";
+import {
+  getTargetSentence,
+  playTargetSentence,
+} from "../../../lib/audio/target-announcements";
 import { eventTracker } from "../../../lib/event-tracker";
 import { soundManager } from "../../../lib/sound-manager";
 import type { GameState } from "../../../types/game";
@@ -64,9 +67,7 @@ export const useTargetAnnouncement = (
         data: { target: currentTarget },
       });
 
-      // Use soundManager.playWord for the full fallback chain.
-      // The manager already stops queued/current word playback before speaking.
-      await soundManager.playWord(currentTarget, undefined);
+      await playTargetSentence(currentTarget, language);
 
       eventTracker.trackEvent({
         type: "info",

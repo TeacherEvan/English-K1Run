@@ -8,6 +8,7 @@ import { validateWelcomeAudioIntegrity } from "@/lib/audio/welcome-audio-integri
 import {
   playWelcomeSequence,
   type WelcomeAudioConfig,
+  type WelcomePlaybackDiagnostic,
 } from "@/lib/audio/welcome-audio-sequencer";
 import { soundManager } from "@/lib/sound-manager";
 
@@ -21,21 +22,23 @@ interface WelcomeAudioRunnerOptions {
     key: string,
     duration: number,
   ) => void;
+  onDiagnostic?: (diagnostic: WelcomePlaybackDiagnostic) => void;
   onDevLog: (message: string, data?: Record<string, unknown>) => void;
 }
 
-const SEQUENCE_TIMEOUT_MS = 15000;
+const SEQUENCE_TIMEOUT_MS = 25000;
 
 export const runWelcomeAudioSequence = async ({
   config,
   isCancelled,
   isReady,
   onProgress,
+  onDiagnostic,
   onDevLog,
 }: WelcomeAudioRunnerOptions) => {
   const sequenceTimeout = new Promise<void>((_, reject) =>
     setTimeout(() => {
-      reject(new Error("Sequence timeout after 15s"));
+      reject(new Error("Sequence timeout after 25s"));
     }, SEQUENCE_TIMEOUT_MS),
   );
 
@@ -68,9 +71,13 @@ export const runWelcomeAudioSequence = async ({
       throw new Error("Sequence cancelled");
     }
 
-    await playWelcomeSequence(config, (current, total, asset) => {
-      onProgress(current, total, asset.key, asset.duration);
-    });
+    await playWelcomeSequence(
+      config,
+      (current, total, asset) => {
+        onProgress(current, total, asset.key, asset.duration);
+      },
+      onDiagnostic,
+    );
   };
 
   await Promise.race([runSequence(), sequenceTimeout]);

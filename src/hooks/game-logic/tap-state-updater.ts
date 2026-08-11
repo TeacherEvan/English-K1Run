@@ -7,7 +7,10 @@ export interface TapStateUpdateDependencies {
   gameState: GameState;
   currentCategory: GameCategory;
   reducedMotion: boolean;
-  generateRandomTarget: (levelOverride?: number) => { name: string; emoji: string };
+  generateRandomTarget: (levelOverride?: number) => {
+    name: string;
+    emoji: string;
+  };
   spawnImmediateTargets: () => void;
   continuousMode: boolean;
   continuousModeTargetCount: MutableRefObject<number>;
@@ -51,8 +54,10 @@ export const updateStateOnTap = (
     if (isCorrect) {
       newState.streak += 1;
 
-      const basePoints = 20;
-      newState.progress = Math.min(prev.progress + basePoints, 100);
+      newState.progress = Math.min(
+        prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
+        PROGRESS_MAX,
+      );
 
       if (newState.progress >= 100) {
         handleProgressWin({
@@ -102,7 +107,10 @@ export const updateStateOnTap = (
       }
     } else {
       newState.streak = 0;
-      newState.progress = Math.max(prev.progress - 20, 0);
+      newState.progress = Math.max(
+        prev.progress - DEFAULT_MODE_PROGRESS_PENALTY,
+        0,
+      );
       eventTracker.trackGameStateChange(
         { ...prev },
         { ...newState },
