@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import {
     Dialog,
@@ -10,42 +11,44 @@ import {
 import { InfoIcon } from "./icons";
 
 export const GameMenuCreditsDialog = memo(() => {
+    const { t } = useTranslation();
+
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <Button
                     variant="link"
                     size="sm"
-                    className="text-muted-foreground/60 h-auto p-0 text-xs mt-2"
+                    className="menu-support-link mt-1 h-auto self-start p-0 text-sm font-semibold text-slate-600 hover:text-slate-900"
                     data-testid="credits-button"
                 >
-                    Credits / เครดิต
+                    {t("menu.credits.title")}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="menu-compact-dialog sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle className="text-2xl flex items-center gap-2">
                         <InfoIcon className="w-6 h-6" />
-                        Credits / เครดิต
+                        {t("menu.credits.title")}
                     </DialogTitle>
                 </DialogHeader>
                 <div className="py-8 text-center space-y-6">
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                            Created By
+                            {t("menu.credits.createdBy")}
                         </p>
                         <h3 className="text-2xl font-bold text-primary">TEACHER EVAN</h3>
                     </div>
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                            In Association With
+                            {t("menu.credits.inAssociationWith")}
                         </p>
                         <h3 className="text-xl font-bold text-orange-500">
                             SANGSOM KINDERGARTEN
                         </h3>
                     </div>
                     <div className="p-4 bg-muted/50 rounded-xl">
-                        <p className="text-sm font-semibold mb-2">SPECIAL THANKS TO</p>
+                        <p className="text-sm font-semibold mb-2">{t("menu.credits.specialThanks")}</p>
                         <p className="text-lg">TEACHER MIKE AND TEACHER LEE</p>
                     </div>
                 </div>

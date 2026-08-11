@@ -1,0 +1,47 @@
+English-K1Run — TODO Index (2026-04-03)
+========================================
+
+This file is a compact index of open planning references.
+Detailed checklists live in the referenced source documents.
+
+STARTUP PAYLOAD SAFETY
+  Plan overview:   .github/superpower/plan/2026-04-03-startup-payload-safety-plan.md
+  Tasks 1-2:       .github/superpower/plan/2026-04-03-startup-payload-tasks-1-2.md
+  Tasks 3-5:       .github/superpower/plan/2026-04-03-startup-payload-tasks-3-5.md
+
+BEST PRACTICES CHECKLISTS
+  Source:          BEST_PRACTICES.md (lines 402-615)
+  Key items:       No new ESLint errors; all tests passing; TS compilation OK;
+                   code follows style guide; bundle size within limits.
+
+FILE LIMIT COMPLIANCE
+  Source:          FILE_LIMIT_AUDIT.md (lines 49-70)
+  Key items:       All files ≤ 200 lines; no circular deps; bundle size checked.
+
+LANGUAGE SELECTION (Jan 2026)
+  Source:          DOCS/LANGUAGE_SELECTION_IMPLEMENTATION_JAN2026.md (lines 183-453)
+  Key items:       Language selector UI, persistence, speech synthesis, accessibility.
+  Outstanding:     Translations for ~80 items × 5 languages; audio for 6 languages.
+
+TEST FAILURES FIX (Jan 2026)
+  Source:          DOCS/TEST_FAILURES_FIX_JAN2026.md (lines 250-278)
+  Key items:       Browser-specific timeout multipliers; clickMovingElement() helper.
+
+AUDIO LOADING FIXES
+  Source:          plans/audio-loading-fixes-implementation-plan.md (lines 967-1001)
+  Key items:       Convert audio formats; generate missing welcome audio files;
+                   add speech synthesis fallback; create E2E audio tests.
+
+GAME REFACTORING
+  Source:          plans/game-refactoring-plan.md (lines 256-264)
+  Key items:       Objects spawn/fall; tap detection; win condition; no console errors.
+
+UI MODULARIZATION
+  Source:          plans/ui-component-modularization-plan.md (lines 564-745)
+  Key items:       No file > 200 lines; memo on presentational components;
+                   accessibility attributes preserved.
+
+VISUAL / AUDIO FIXES
+  Source:          plans/visual-audio-fixes-implementation-plan.md (lines 251-845)
+  Key items:       Falling objects visible/tappable; z-order correct;
+                   tap sounds; full verify run.

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
+import { UI_LAYER_MATRIX } from "../../lib/constants/ui-layer-matrix";
 
 const GameMenu = lazy(() =>
     import("../../components/GameMenu").then((m) => ({ default: m.GameMenu })),
@@ -31,18 +32,25 @@ export const AppMenuOverlay = ({
     onToggleContinuousMode,
     bestTime,
 }: AppMenuOverlayProps) => (
-    <Suspense fallback={<LoadingSkeleton variant="menu" />}>
-        <GameMenu
-            onStartGame={onStartGame}
-            onSelectLevel={onSelectLevel}
-            selectedLevel={selectedLevel}
-            levels={levels}
-            gameStarted={gameStarted}
-            winner={winner}
-            continuousMode={continuousMode}
-            onToggleContinuousMode={onToggleContinuousMode}
-            bestTime={bestTime}
-            initialView="main"
-        />
-    </Suspense>
+    <div
+        className="fixed inset-0 pointer-events-none"
+        style={{ zIndex: UI_LAYER_MATRIX.MENU_OVERLAY }}
+    >
+        <div className="pointer-events-auto">
+            <Suspense fallback={<LoadingSkeleton variant="menu" />}>
+                <GameMenu
+                    onStartGame={onStartGame}
+                    onSelectLevel={onSelectLevel}
+                    selectedLevel={selectedLevel}
+                    levels={levels}
+                    gameStarted={gameStarted}
+                    winner={winner}
+                    continuousMode={continuousMode}
+                    onToggleContinuousMode={onToggleContinuousMode}
+                    bestTime={bestTime}
+                    initialView="main"
+                />
+            </Suspense>
+        </div>
+    </div>
 );

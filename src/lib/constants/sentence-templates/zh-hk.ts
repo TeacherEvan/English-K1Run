@@ -1,3 +1,5 @@
+import { CANTONESE_GAMEPLAY_COMPLETION_TEMPLATES } from "./zh-hk-gameplay-completions";
+
 export const CANTONESE_SENTENCE_TEMPLATES: Record<string, string> = {
   // Fruits & Vegetables
   apple: "我食紅色嘅蘋果",
@@ -61,4 +63,5 @@ export const CANTONESE_SENTENCE_TEMPLATES: Record<string, string> = {
   c: "C 係 貓",
   d: "D 係 狗",
   e: "E 係 大笨象",
+  ...CANTONESE_GAMEPLAY_COMPLETION_TEMPLATES,
 };

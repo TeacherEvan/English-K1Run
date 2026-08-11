@@ -1,4 +1,6 @@
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
 import { Card } from './ui/card'
 
 /**
@@ -44,21 +46,22 @@ interface PlayerAreaProps {
  * </PlayerArea>
  * ```
  */
-export const PlayerArea = memo(({ 
-  playerNumber, 
-  progress, 
-  children, 
-  isWinner 
+export const PlayerArea = memo(({
+  playerNumber,
+  progress,
+  children,
+  isWinner
 }: PlayerAreaProps) => {
+  const { t } = useTranslation()
   // Clamp progress to valid range (0-100) for safety
   const normalizedProgress = Math.max(0, Math.min(progress, 100))
 
   return (
-    <Card 
-      data-testid={`player-area-${playerNumber}`} 
-      className="relative h-full border-0 game-area overflow-hidden"
+    <Card
+      data-testid={`player-area-${playerNumber}`}
+      className="relative h-full rounded-none border-0 shadow-none transition-none hover:translate-y-0 hover:shadow-none game-area overflow-hidden"
       role="main"
-      aria-label={`Player ${playerNumber} game area`}
+      aria-label={`${t('accessibility.gameBoard')} ${playerNumber}`}
     >
       {/* 
         Hidden progress indicator retained for telemetry & E2E test hooks
@@ -81,11 +84,12 @@ export const PlayerArea = memo(({
       {/* 
         Primary Game Area
         Contains all interactive game elements (falling objects, worms, effects)
-        Top padding (pt-24) reserves space for target display
+        Top inset reserves space for the center-top target display without
+        introducing a padded overlay layer across the whole board.
       */}
-      <div 
-        data-testid="game-area" 
-        className="absolute inset-0 pt-24"
+      <div
+        data-testid="game-area"
+        className="absolute inset-x-0 top-24 bottom-0"
         aria-live="polite"
         aria-atomic="false"
       >
@@ -98,13 +102,14 @@ export const PlayerArea = memo(({
         Blocks interaction with game elements underneath
       */}
       {isWinner && (
-        <div 
-          className="absolute inset-0 bg-success/20 flex items-center justify-center z-30"
+        <div
+          className="absolute inset-0 bg-success/20 flex items-center justify-center"
+          style={{ zIndex: UI_LAYER_MATRIX.GAMEPLAY_OVERLAY }}
           role="alert"
           aria-live="assertive"
         >
           <div className="text-center bounce-in">
-            <div 
+            <div
               className="text-8xl mb-4"
               role="img"
               aria-label="Trophy"
@@ -112,7 +117,7 @@ export const PlayerArea = memo(({
               🏆
             </div>
             <div className="text-primary text-3xl font-bold drop-shadow-lg">
-              You Win!
+              {t('messages.victoryTitle')}
             </div>
           </div>
         </div>

@@ -1,7 +1,17 @@
 {
   "game": {
-    "title": "カメレース",
+    "title": "English K1 Run",
     "startGame": "ゲームを始める",
+    "playAllLevels": "すべてのレベルで遊ぶ",
+    "levelSelect": "レベル選択",
+    "selectLevel": "レベルを選ぶ",
+    "back": "戻る",
+    "backToLevels": "レベル一覧へ戻る",
+    "bestTime": "ベストタイム",
+    "currentTime": "現在のタイム",
+    "continuousMode": "連続モード",
+    "find": "見つけよう",
+    "inOrder": "順番どおり",
     "settings": "設定",
     "resume": "再開",
     "quit": "ゲーム終了",
@@ -11,11 +21,22 @@
     "volume": "音量"
   },
   "menu": {
-    "welcome": "カメレースへようこそ!",
+    "welcome": "English K1 Run へようこそ!",
     "instructions": "落ちてくるオブジェクトをタップして、あなたのカメが勝つのを手伝ってください!",
     "tapToStart": "タップして開始",
+    "tapToContinue": "タップして続ける",
     "pressEnter": "ENTERキーを押して開始",
-    "pressSpace": "SPACEキーを押して開始"
+    "pressSpace": "SPACEキーを押して開始",
+    "exitDialog": {
+      "title": "ゲームを終了",
+      "description": "本当に終了しますか？"
+    },
+    "credits": {
+      "title": "クレジット",
+      "createdBy": "制作",
+      "inAssociationWith": "協力",
+      "specialThanks": "特別感謝"
+    }
   },
   "categories": {
     "fruits": "果物と野菜",
@@ -24,10 +45,16 @@
     "shapes": "形と色",
     "animals": "動物と自然",
     "things": "動く乗り物",
-    "weather": "天気のふしぎ"
+    "weather": "天気のふしぎ",
+    "feelings": "気持ちと動き",
+    "body": "からだの部分"
   },
   "messages": {
     "gameWon": "あなたが勝ちました!素晴らしい!",
+    "victoryTitle": "きみの勝ち！",
+    "completionTitle": "よくできました！",
+    "completionDescription": "ほかのレベルもやってみましょう！",
+    "completionButton": "ほかのレベルへ",
     "gameOver": "ゲーム終了",
     "score": "スコア",
     "perfect": "完璧です!"
@@ -37,13 +64,82 @@
     "associationThai": "ร่วมกับ",
     "learning": "ゲームを通じて学ぶ",
     "learningThai": "เรียนรู้ผ่านการเล่น",
-    "forEveryone": "みんなのために！"
+    "forEveryone": "みんなのために！",
+    "languageTitle": "言語を選んでください",
+    "languageDescription": "ウェルカム音声が始まる前に英語またはタイ語を選べます。あとで設定から変更することもできます。",
+    "readyPrompt": "1回タップしてはじめる",
+    "listening": "再生中...",
+    "listeningHint": "ウェルカム音声が終わるまで待ってください",
+    "thaiVoiceUnavailable": "この端末ではタイ語のウェルカム音声が使えないため、無音で続行します。",
+    "readyContinue": "つづけられます",
+    "transitioning": "メニューをひらいています..."
   },
   "accessibility": {
     "volumeControl": "音量コントロール",
     "languageSelection": "言語選択",
     "gameBoard": "ゲームボード",
     "score": "現在のスコア",
-    "targetObject": "ターゲットオブジェクト"
+    "targetObject": "ターゲットオブジェクト",
+    "levelSelectionOpened": "レベル選択メニューを開きました",
+    "selectedLevel": "選択中のレベル: {{level}}",
+    "completionDialogAnnouncement": "よくできました！ほかのレベルもやってみましょう！"
+  },
+  "common": {
+    "on": "オン",
+    "off": "オフ",
+    "cancel": "キャンセル",
+    "close": "閉じる"
+  },
+  "settings": {
+    "title": "設定",
+    "description": "音声、表示、操作、アクセシビリティを設定します",
+    "tabs": {
+      "audio": "音声",
+      "visual": "表示",
+      "controls": "操作",
+      "accessibility": "アクセシビリティ"
+    },
+    "audio": {
+      "soundTitle": "サウンド",
+      "soundDescription": "ゲーム内の音声を有効化またはミュートします",
+      "masterVolume": "主音量"
+    },
+    "visual": {
+      "themeTitle": "テーマ",
+      "themeDescription": "インターフェースの配色テーマを選びます",
+      "displayScaleTitle": "表示サイズ",
+      "displayScaleDescription": "画面に合わせてUIの大きさを調整します",
+      "themeOptions": {
+        "colorful": "カラフル",
+        "light": "ライト",
+        "dark": "ダーク"
+      },
+      "scaleOptions": {
+        "auto": "自動",
+        "small": "小",
+        "medium": "中",
+        "large": "大"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "言語",
+      "languageSectionDescription": "メニュー/ボタンの言語と、ゲーム本文/音声の言語を選択します。",
+      "displayLanguageTitle": "メニューとボタンの言語",
+      "displayLanguageDescription": "メニュー、ボタン、画面上のUIテキストに適用されます。",
+      "gameplayLanguageTitle": "ゲーム本文と音声の言語",
+      "gameplayLanguageDescription": "ゲームの指示、ターゲット文、音声案内に適用されます。",
+      "selectDisplayLanguage": "メニューとボタンの言語を選択",
+      "selectGameplayLanguage": "ゲーム本文と音声の言語を選択",
+      "languageGroupLabel": "言語",
+      "continuousModeDescription": "クリアや停止をせずに遊び続けます"
+    },
+    "accessibility": {
+      "highContrastTitle": "高コントラスト",
+      "highContrastDescription": "色の差を大きくして見やすくします",
+      "reducedMotionTitle": "動きを減らす",
+      "reducedMotionDescription": "アニメーションや動きを少なくします",
+      "audioDescriptionsTitle": "音声説明",
+      "audioDescriptionsDescription": "音声がない場合に短い説明を読み上げます"
+    }
   }
 }

@@ -184,3 +184,8 @@ export const GAME_CATEGORIES: GameCategory[] = [
         ]
     }
 ]
+
+// Freeze to prevent accidental runtime mutation (sequence progress, etc. must
+// live in per-session React state/refs, never on this shared constant).
+GAME_CATEGORIES.forEach((category) => Object.freeze(category))
+Object.freeze(GAME_CATEGORIES)

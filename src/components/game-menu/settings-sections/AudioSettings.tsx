@@ -1,9 +1,11 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "../../../context/settings-context";
 import { Button } from "../../ui/button";
 import { Slider } from "../../ui/slider";
 
 export const AudioSettings = memo(() => {
+    const { t } = useTranslation();
     const { volume, soundEnabled, setVolume, setSoundEnabled } = useSettings();
     const volumePercent = Math.round(volume * 100);
 
@@ -11,9 +13,9 @@ export const AudioSettings = memo(() => {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h4 className="font-medium leading-none">Sound</h4>
+                    <h4 className="font-medium leading-none">{t("settings.audio.soundTitle")}</h4>
                     <p className="text-sm text-muted-foreground">
-                        Enable or mute all game audio
+                        {t("settings.audio.soundDescription")}
                     </p>
                 </div>
                 <Button
@@ -21,12 +23,12 @@ export const AudioSettings = memo(() => {
                     aria-pressed={soundEnabled}
                     onClick={() => setSoundEnabled(!soundEnabled)}
                 >
-                    {soundEnabled ? "On" : "Off"}
+                    {soundEnabled ? t("common.on") : t("common.off")}
                 </Button>
             </div>
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <h4 className="font-medium leading-none">Master Volume</h4>
+                    <h4 className="font-medium leading-none">{t("settings.audio.masterVolume")}</h4>
                     <span className="text-sm text-muted-foreground">{volumePercent}%</span>
                 </div>
                 <Slider
@@ -35,7 +37,7 @@ export const AudioSettings = memo(() => {
                     max={100}
                     step={1}
                     onValueChange={(values) => setVolume(values[0] / 100)}
-                    aria-label="Master volume"
+                    aria-label={t("settings.audio.masterVolume")}
                 />
             </div>
         </div>

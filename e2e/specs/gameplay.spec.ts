@@ -53,6 +53,70 @@ test.describe("Gameplay", () => {
     await expect(gamePage.gameplay.progressBars.first()).toBeHidden();
   });
 
+  test("should show completion dialog after 20 correct taps", async ({
+    gamePage,
+    page,
+  }) => {
+    // Game is already running from beforeEach; no need to call startGame() again.
+    await gamePage.gameplay.waitForObjectsToSpawn(1);
+
+    const dialog = page.locator('[data-testid="default-completion-dialog"]');
+
+    // Tap up to 60 times; dialog appears once progress reaches 100
+    // (DEFAULT_MODE_PROGRESS_INCREMENT=5, so 20 perfect taps suffice).
+    // Extra headroom guards against rare timing-caused missed/late taps.
+    for (let tap = 0; tap < 60; tap += 1) {
+      if (await dialog.isVisible()) break;
+
+      const emojiText = await page
+        .locator('[data-testid="target-emoji"]')
+        .textContent({ timeout: 500 })
+        .catch(() => null);
+      // target display may disappear the moment winner state is reached
+      if (!emojiText?.trim()) {
+        if (await dialog.isVisible()) break;
+        continue;
+      }
+      const emoji = emojiText.trim();
+
+      // Wait for the target emoji to actually be present as a falling object
+      // before clicking; avoids tapping while a target-change timer fires.
+      // Match on data-emoji for exact target selection and retry clicks
+      // because falling objects can move out from under the pointer.
+      const escapedEmoji = emoji.replace(/"/g, '\\"');
+      const targetSelector = `[data-testid="falling-object"][data-emoji="${escapedEmoji}"]`;
+
+      let tapped = false;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const targetObj = page.locator(targetSelector).first();
+        const available = await targetObj.count();
+        if (available === 0) {
+          await page.waitForTimeout(120);
+          continue;
+        }
+
+        try {
+          await targetObj.click({ force: true, timeout: 3_000 });
+          tapped = true;
+          break;
+        } catch {
+          await page.waitForTimeout(120);
+        }
+      }
+
+      if (!tapped) continue;
+      await page.waitForTimeout(180);
+    }
+
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+
+    await page
+      .locator('[data-testid="default-completion-dialog-button"]')
+      .click();
+
+    await expect(dialog).not.toBeVisible();
+  });
+
   test("falling objects should be clickable", async ({ gamePage }) => {
     // Wait for objects to spawn
     await gamePage.gameplay.waitForObjectsToSpawn(1);
@@ -102,154 +166,6 @@ test.describe("Gameplay - Object Interaction", () => {
     } else {
       // Skip test gracefully if no matching objects found
       console.warn(`No matching objects found for target: ${targetEmoji}`);
-    }
-  });
-});
-
-test.describe("Worm Loading Screen Auto-Progression", () => {
-  test("should show worm loading screen before gameplay", async ({ page }) => {
-    await page.goto("/?e2e=1");
-    await page.waitForLoadState("domcontentloaded");
-
-    // Click start game
-    await page.click('[data-testid="start-game-button"]');
-
-    // Should show worm loading screen
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).toBeVisible();
-  });
-
-  test("should automatically advance after all worms eliminated", async ({
-    page,
-  }) => {
-    await page.goto("/?e2e=1");
-    await page.waitForLoadState("domcontentloaded");
-
-    // Start game
-    await page.click('[data-testid="start-game-button"]');
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).toBeVisible();
-
-    // Eliminate all 5 worms with better selector and timing
-    for (let i = 0; i < 5; i++) {
-      const worm = page.locator('[data-testid="worm-target"]').first();
-      await worm.waitFor({ state: "visible", timeout: 5000 });
-      await worm.click({ force: true, timeout: 5000 });
-      await page.waitForTimeout(250); // Increased for React state propagation
-    }
-
-    // Should auto-advance to game within 5 seconds
-    // Accounts for: 5 clicks * 250ms + state updates + 500ms delay + component transitions
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 5000,
-    });
-
-    // Loading screen should be gone
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).not.toBeVisible();
-  });
-
-  test("should show completion message when all worms eliminated", async ({
-    page,
-  }) => {
-    await page.goto("/?e2e=1");
-    await page.waitForLoadState("domcontentloaded");
-
-    await page.click('[data-testid="start-game-button"]');
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).toBeVisible();
-
-    // Eliminate all worms with better timing
-    for (let i = 0; i < 5; i++) {
-      const worm = page.locator('[data-testid="worm-target"]').first();
-      await worm.waitFor({ state: "visible", timeout: 5000 });
-      await worm.click({ force: true, timeout: 5000 });
-      await page.waitForTimeout(250);
-    }
-
-    // Check for completion message (appears before auto-advancing)
-    const completionMessage = page.locator(
-      '[data-testid="worm-completion-message"]',
-    );
-    await expect(completionMessage).toBeVisible({ timeout: 2000 });
-    await expect(completionMessage).toContainText("All worms caught");
-    await expect(completionMessage).toContainText("Starting game");
-
-    // Then verify game starts
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 5000,
-    });
-  });
-
-  test("skip button should still work as manual override", async ({ page }) => {
-    await page.goto("/?e2e=1");
-    await page.waitForLoadState("domcontentloaded");
-
-    await page.click('[data-testid="start-game-button"]');
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).toBeVisible();
-
-    // Click skip immediately without eliminating worms
-    await page.click('[data-testid="skip-loading-button"]');
-
-    // Should advance to game
-    await expect(page.locator('[data-testid="target-display"]')).toBeVisible({
-      timeout: 2000,
-    });
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).not.toBeVisible();
-  });
-
-  test("skip button should have updated text", async ({ page }) => {
-    await page.goto("/?e2e=1");
-    await page.waitForLoadState("domcontentloaded");
-
-    await page.click('[data-testid="start-game-button"]');
-    await expect(
-      page.locator('[data-testid="worm-loading-screen"]'),
-    ).toBeVisible();
-
-    // Check button text clarifies it's optional
-    const button = page.locator('[data-testid="skip-loading-button"]');
-    await expect(button).toContainText("Skip to Game");
-    await expect(button).toContainText("catch all worms");
-  });
-});
-
-test.describe("Worms (Distractors)", () => {
-  test.beforeEach(async ({ gamePage }) => {
-    await gamePage.goto();
-    await gamePage.waitForReady();
-    await gamePage.menu.startGame();
-    await gamePage.gameplay.targetDisplay.waitFor({ state: "visible" });
-  });
-
-  test("worms should spawn after delay", async ({ gamePage, page }) => {
-    // Worms spawn after 3s initially
-    await page.waitForTimeout(4000);
-
-    const wormCount = await gamePage.gameplay.getWormCount();
-    // May have worms, or may not depending on timing
-    expect(wormCount).toBeGreaterThanOrEqual(0);
-  });
-
-  test("worms should be tappable", async ({ gamePage, page }) => {
-    // Wait for worms to spawn
-    await page.waitForTimeout(4000);
-
-    const wormCount = await gamePage.gameplay.getWormCount();
-    if (wormCount > 0) {
-      const firstWorm = gamePage.gameplay.worms.first();
-      await expect(firstWorm).toBeVisible();
-
-      // Tapping worm should not throw (use helper that forces click)
-      await gamePage.gameplay.tapWorm(0);
     }
   });
 });

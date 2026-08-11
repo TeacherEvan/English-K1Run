@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useSettings } from "../context/settings-context";
 import type { UseGameLogicOptions } from "../types/game";
 import {
   useAnimationLoop,
@@ -30,6 +31,7 @@ export type {
 
 export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const { fallSpeedMultiplier = 1, continuousMode = false } = options;
+  const { reducedMotion } = useSettings();
   const {
     gameObjects,
     setGameObjects,
@@ -46,6 +48,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setContinuousModeStartTime,
     continuousModeHighScore,
     setContinuousModeHighScore,
+    sequenceIndicesRef,
   } = useGameLogicState();
 
   const { viewportRef } = useGameLogicViewport();
@@ -73,6 +76,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     targetPool,
     gameStateRef,
     gameStateLevel: gameState.level,
+    sequenceIndicesRef,
   });
 
   useTargetAnnouncement(
@@ -98,6 +102,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     gameObjectsRef,
     gameState,
     currentCategory,
+    reducedMotion,
     generateRandomTarget,
     spawnImmediateTargets,
     continuousMode,
@@ -113,6 +118,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setWorms,
     setFairyTransforms,
     wormSpeedMultiplier,
+    sequenceIndicesRef,
   });
 
   const { startGame, resetGame } = useGameLogicSession({
@@ -124,6 +130,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     lastEmojiAppearance,
     targetPool,
     continuousModeTargetCount,
+    sequenceIndicesRef,
     progressiveSpawnTimeoutRefs,
     recurringSpawnIntervalRef,
     wormSpeedMultiplier,
@@ -158,7 +165,13 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
         setGameState,
         spawnImmediateTargets,
       }),
-    [currentCategory, spawnImmediateTargets],
+    [
+      gameObjectsRef,
+      gameStateRef,
+      currentCategory,
+      setGameState,
+      spawnImmediateTargets,
+    ],
   );
 
   return {

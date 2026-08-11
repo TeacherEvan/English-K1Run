@@ -16,6 +16,7 @@ interface InteractionDeps {
   gameObjectsRef: MutableRefObject<GameObject[]>;
   gameState: GameState;
   currentCategory: GameCategory;
+  reducedMotion: boolean;
   generateRandomTarget: (levelOverride?: number) => {
     name: string;
     emoji: string;
@@ -34,6 +35,7 @@ interface InteractionDeps {
   setWorms: Dispatch<SetStateAction<WormObject[]>>;
   setFairyTransforms: Dispatch<SetStateAction<FairyTransformObject[]>>;
   wormSpeedMultiplier: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
 }
 
 /**
@@ -43,6 +45,7 @@ export const useGameLogicInteractions = ({
   gameObjectsRef,
   gameState,
   currentCategory,
+  reducedMotion,
   generateRandomTarget,
   spawnImmediateTargets,
   continuousMode,
@@ -58,6 +61,7 @@ export const useGameLogicInteractions = ({
   setWorms,
   setFairyTransforms,
   wormSpeedMultiplier,
+  sequenceIndicesRef,
 }: InteractionDeps) => {
   const handleObjectTap = useMemo(
     () =>
@@ -65,6 +69,7 @@ export const useGameLogicInteractions = ({
         gameObjectsRef,
         gameState,
         currentCategory,
+        reducedMotion,
         generateRandomTarget,
         spawnImmediateTargets,
         continuousMode,
@@ -77,11 +82,13 @@ export const useGameLogicInteractions = ({
         setGameState,
         setScreenShake,
         setGameObjects,
+        sequenceIndicesRef,
       }),
     [
       gameObjectsRef,
       gameState,
       currentCategory,
+      reducedMotion,
       generateRandomTarget,
       spawnImmediateTargets,
       continuousMode,
@@ -94,6 +101,7 @@ export const useGameLogicInteractions = ({
       setGameState,
       setScreenShake,
       setGameObjects,
+      sequenceIndicesRef,
     ],
   );
 

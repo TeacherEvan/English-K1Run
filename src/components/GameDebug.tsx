@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from './ui/card'
+import { useSettings } from '../context/settings-context'
+import { getTargetDisplayLabel } from '../lib/constants/target-labels'
 
 interface GameDebugProps {
     gameStarted: boolean
@@ -17,6 +19,10 @@ export function GameDebug({ gameStarted, objectCount, targetEmoji, currentTarget
         fallSpeedScale: '0'
     })
     const [isVisible, setIsVisible] = useState(false)
+    const { gameplayLanguage } = useSettings()
+    const localizedTarget = currentTarget
+        ? getTargetDisplayLabel(currentTarget, gameplayLanguage)
+        : 'None'
 
     useEffect(() => {
         const updateCssVars = () => {
@@ -73,7 +79,7 @@ export function GameDebug({ gameStarted, objectCount, targetEmoji, currentTarget
 
                 <div className="flex justify-between">
                     <span className="font-semibold">Target:</span>
-                    <span>{currentTarget || 'None'}</span>
+                    <span>{localizedTarget}</span>
                 </div>
 
                 <div className="flex justify-between">
