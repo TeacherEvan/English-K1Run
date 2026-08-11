@@ -2,6 +2,18 @@
 
 This file consolidates major changes, bug fixes, and enhancements made to the project.
 
+## August 2026 - Native Mobile Builds (Capacitor 8.5.0)
+
+### Native Android + iOS Support (Aug 1, 2026)
+
+- **Capacitor 8.5.0 Added**: Wrapped the existing PWA web build for native Android and iOS distribution. No web-app rewrite required — the project stays PWA-first.
+- **Packages**: `@capacitor/core@^8.5.0`, `@capacitor/cli@^8.5.0`, `@capacitor/android@^8.5.0`, `@capacitor/ios@^8.5.0`.
+- **Config**: `capacitor.config.ts` created at repo root (`appId` `com.teacherevan.kindergartenrace`, `appName` `Kindergarten Race`, `webDir` `dist`).
+- **Native Projects**: `android/` and `ios/` generated and committed to the repo.
+- **Scripts**: `cap:sync`, `cap:add:android`, `cap:add:ios`, `cap:build:android` (`npm run build && cap sync android`), `cap:build:ios` (`npm run build && cap sync ios`).
+- **Workflow**: `npm run build` → `dist/`, then `npx cap sync` copies it into the native shells; `npx cap add android` / `npx cap add ios` initialize them.
+- **Build Targets**: Android builds on Linux with the Android SDK; iOS requires macOS + Xcode to compile (the `ios/` scaffolding generates on Linux but cannot be built there).
+
 ## March 2026 - Competition Polish Slice
 
 ### Documentation & Navigation Spring Clean (Mar 16, 2026)

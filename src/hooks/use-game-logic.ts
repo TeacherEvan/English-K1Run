@@ -48,6 +48,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setContinuousModeStartTime,
     continuousModeHighScore,
     setContinuousModeHighScore,
+    sequenceIndicesRef,
   } = useGameLogicState();
 
   const { viewportRef } = useGameLogicViewport();
@@ -75,6 +76,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     targetPool,
     gameStateRef,
     gameStateLevel: gameState.level,
+    sequenceIndicesRef,
   });
 
   useTargetAnnouncement(
@@ -116,6 +118,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setWorms,
     setFairyTransforms,
     wormSpeedMultiplier,
+    sequenceIndicesRef,
   });
 
   const { startGame, resetGame } = useGameLogicSession({
@@ -127,6 +130,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     lastEmojiAppearance,
     targetPool,
     continuousModeTargetCount,
+    sequenceIndicesRef,
     progressiveSpawnTimeoutRefs,
     recurringSpawnIntervalRef,
     wormSpeedMultiplier,

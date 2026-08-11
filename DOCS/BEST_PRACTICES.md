@@ -463,6 +463,30 @@ Refs: #456
 3. Lazy load debug/admin components
 4. Review and update manual chunking in `vite.config.ts`
 
+### Mobile / Native Build (Capacitor)
+
+The project supports native Android and iOS builds via **Capacitor 8.5.0**, wrapping the existing PWA web build (no rewrite of the web app was required).
+
+- Packages added: `@capacitor/core@^8.5.0`, `@capacitor/cli@^8.5.0`, `@capacitor/android@^8.5.0`, `@capacitor/ios@^8.5.0`.
+- Config lives in `capacitor.config.ts` at the repo root: `appId: com.teacherevan.kindergartenrace`, `appName: Kindergarten Race`, `webDir: dist`.
+- The native project shells `android/` and `ios/` are generated and committed to the repository.
+
+**Build & sync workflow:**
+
+```bash
+npm run build            # Emit the web bundle to dist/
+npx cap sync             # Copy dist/ into the native android/ and ios/ projects
+npx cap add android      # (one-time) Initialize the Android shell
+npx cap add ios          # (one-time) Initialize the iOS shell
+```
+
+**Convenience scripts:** `cap:sync`, `cap:add:android`, `cap:add:ios`, `cap:build:android` (`npm run build && cap sync android`), `cap:build:ios` (`npm run build && cap sync ios`).
+
+**Platform notes:**
+
+- Android apps build on Linux with the Android SDK installed.
+- iOS apps require macOS + Xcode to compile. The `ios/` scaffolding can be generated on Linux, but it cannot be built there.
+
 ---
 
 ## 📚 Documentation Best Practices

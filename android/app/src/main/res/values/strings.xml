@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kindergarten Race</string>
+    <string name="title_activity_main">Kindergarten Race</string>
+    <string name="package_name">com.teacherevan.kindergartenrace</string>
+    <string name="custom_url_scheme">com.teacherevan.kindergartenrace</string>
+</resources>

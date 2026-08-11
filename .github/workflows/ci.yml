@@ -1,5 +1,11 @@
 name: CI/CD Pipeline
 
+# Least-privilege permissions. The bundle-size job comments on PRs, which
+# needs pull-requests: write; everything else only reads.
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   push:
     branches: [main, develop]
@@ -12,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [20.x, 22.x, 24.x]
 
     steps:
       - name: Checkout code
@@ -33,16 +39,18 @@ jobs:
       - name: Enforce 200-LOC hard limit
         run: npm run audit:loc
 
+      # Real type check (npm run check-types uses --noCheck, which skips errors;
+      # tsc -b type-checks against the strict tsconfig and emits nothing).
       - name: Type check
-        run: npm run check-types
+        run: npx tsc -b
 
+      # Hard gate: a failing unit test MUST block the pipeline.
       - name: Run unit tests
         run: npm run test:run
-        continue-on-error: true # Allow to continue if tests fail (for now)
 
+      # Hard gate: fail only on high/critical advisories (not transitive noise).
       - name: Security audit
-        run: npm audit --audit-level=moderate
-        continue-on-error: true # Don't fail build on moderate vulnerabilities
+        run: npm audit --audit-level=high
 
       - name: Build application
         run: npm run build
@@ -71,7 +79,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "24.x"
           cache: "npm"
 
       - name: Install dependencies
@@ -105,7 +113,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "24.x"
           cache: "npm"
 
       - name: Install dependencies
@@ -172,7 +180,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "24.x"
           cache: "npm"
 
       - name: Install dependencies
