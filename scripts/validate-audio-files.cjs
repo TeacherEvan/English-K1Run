@@ -18,9 +18,7 @@ const path = require("path");
 // Critical system sounds that MUST exist
 const CRITICAL_FILES = [
   "welcome",
-  "success",
   "wrong",
-  "win",
   "tap",
 
   // New welcome files
@@ -295,7 +293,7 @@ function validateAudioFiles() {
 
   // Check for .wav files that should exist
   console.log("🔧 Checking for format issues...");
-  const criticalWavFiles = ["wrong", "success", "welcome"];
+  const criticalWavFiles = ["wrong", "welcome"];
   for (const fileName of criticalWavFiles) {
     const wavPath = path.join(soundsDir, fileName + ".wav");
     const mp3Path = path.join(soundsDir, fileName + ".mp3");
@@ -307,7 +305,7 @@ function validateAudioFiles() {
     }
   }
   console.log(
-    `  ${3 - warnings.filter((w) => w.includes(".wav")).length}/3 critical .wav files found\n `,
+    `  ${2 - warnings.filter((w) => w.includes(".wav")).length}/2 critical .wav files found\n `,
   );
 
   // Report results

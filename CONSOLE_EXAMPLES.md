@@ -1,145 +1,90 @@
-# Console Output Examples
+# Console Output Reference
 
-This document shows examples of console messages you'll see with the improved audio logging.
+This file is a compact reference for current audio-related console messages.
 
-## Scenario 1: No ElevenLabs API Key (Current Issue)
+## Source-of-truth note
 
-### Before Changes
-```
-(Silent failure - no indication why robotic voice is being used)
-```
+For live setup instructions, use:
 
-### After Changes
-```javascript
-[ElevenLabs] API key not configured. Set VITE_ELEVENLABS_API_KEY in .env file.
-Audio will fall back to Web Speech API (robotic voice).
-See .env.example for configuration details.
+- `AUDIO_SETUP.md`
+- `.env.example`
+- `README.md`
+
+This file is only a log-pattern reference.
+
+## Common scenarios
+
+### Live browser ElevenLabs disabled
+
+```text
+[ElevenLabs] Live browser TTS is disabled. Set VITE_ELEVENLABS_API_KEY in .env only if you need on-demand ElevenLabs testing during development.
+Production and competition builds should prefer pre-generated audio assets.
+See AUDIO_SETUP.md and .env.example for the current setup.
 
 [ElevenLabs] Skipping connection test - no API key configured
 
-[SpeechSynthesizer] ElevenLabs unavailable - using Web Speech API fallback.
-For high-quality voice: Configure VITE_ELEVENLABS_API_KEY in .env
-
-[HomeMenuAudio] Resuming suspended AudioContext
-[HomeMenuAudio] Playing English association message
-[HomeMenuAudio] English association audio not available: Failed to load audio
-Make sure welcome_sangsom_association.mp3 exists in public/sounds/
-
-[HomeMenuAudio] Playing Thai association message
-[HomeMenuAudio] Thai association audio not available: Failed to load audio
-Make sure welcome_sangsom_association_thai.mp3 exists in public/sounds/
-
-[HomeMenuAudio] Audio sequence completed
+[SpeechSynthesizer] Live ElevenLabs TTS unavailable - using Web Speech API fallback.
+Set VITE_ELEVENLABS_API_KEY only for development-time browser TTS.
 ```
 
-## Scenario 2: Valid API Key, Missing Audio Files
+### Valid live browser key
 
-### Console Output
-```javascript
+```text
 [ElevenLabs] API connection successful ✓
-
-[HomeMenuAudio] Resuming suspended AudioContext
-[HomeMenuAudio] Playing English association message
-[HomeMenuAudio] English association audio not available: Failed to load audio
-Make sure welcome_sangsom_association.mp3 exists in public/sounds/
-
-[SpeechSynthesizer] Using Web Speech API for "In association with Sangsom Kindergarten..."
-
-[HomeMenuAudio] Playing Thai association message
-[HomeMenuAudio] Thai association audio not available: Failed to load audio
-Make sure welcome_sangsom_association_thai.mp3 exists in public/sounds/
-
-[SpeechSynthesizer] Using Web Speech API for "ร่วมกับโรงเรียนอนุบาลสังสม"
-
-[HomeMenuAudio] Audio sequence completed
 ```
 
-## Scenario 3: Everything Working (Ideal State)
+### Invalid or expired live browser key
 
-### Console Output
-```javascript
-[ElevenLabs] API connection successful ✓
-
-[HomeMenuAudio] Resuming suspended AudioContext
-[HomeMenuAudio] Playing English association message
-[HomeMenuAudio] Playing Thai association message
-[HomeMenuAudio] Audio sequence completed
-```
-
-## Scenario 4: Invalid/Expired API Key
-
-### Console Output
-```javascript
+```text
 [ElevenLabs] API connection failed with status 401.
 Please check your API key validity at https://elevenlabs.io
+```
 
-[SpeechSynthesizer] ElevenLabs unavailable - using Web Speech API fallback.
-For high-quality voice: Configure VITE_ELEVENLABS_API_KEY in .env
+### Network problem reaching ElevenLabs
 
+```text
+[ElevenLabs] API connection error: Failed to fetch
+```
+
+### Web Speech fallback in use
+
+```text
+[SpeechSynthesizer] Using Web Speech API for "In association with Sangsom Kindergarten..."
+```
+
+## Home menu audio messages
+
+Typical messages:
+
+```text
 [HomeMenuAudio] Resuming suspended AudioContext
 [HomeMenuAudio] Playing English association message
-[SpeechSynthesizer] Using Web Speech API for "In association with Sangsom Kindergarten..."
 [HomeMenuAudio] Playing Thai association message
-[SpeechSynthesizer] Using Web Speech API for "ร่วมกับโรงเรียนอนุบาลสังสม"
 [HomeMenuAudio] Audio sequence completed
 ```
 
-## Scenario 5: Network Error (Can't Reach ElevenLabs)
+If an asset is missing, the warning should point to the sound key or file path. Start with:
 
-### Console Output
-```javascript
-[ElevenLabs] API connection error: Failed to fetch
-
-[SpeechSynthesizer] ElevenLabs unavailable - using Web Speech API fallback.
-For high-quality voice: Configure VITE_ELEVENLABS_API_KEY in .env
-
-[HomeMenuAudio] Resuming suspended AudioContext
-[HomeMenuAudio] Playing English association message
-[HomeMenuAudio] English association audio not available: Failed to load audio
-Make sure welcome_sangsom_association.mp3 exists in public/sounds/
-
-[SpeechSynthesizer] Using Web Speech API for "In association with Sangsom Kindergarten..."
+```text
+npm run audio:validate
 ```
 
-## Message Breakdown
+## Fast diagnosis table
 
-### `[ElevenLabs]` Messages
-- **Source**: `src/lib/audio/speech/elevenlabs-client.ts`
-- **Purpose**: Indicates ElevenLabs API status
-- **Action**: Check API key configuration if you see warnings
+| Symptom                          | Likely message                         | Next step                                                  |
+| -------------------------------- | -------------------------------------- | ---------------------------------------------------------- |
+| Web Speech instead of ElevenLabs | `Live ElevenLabs TTS unavailable`      | Confirm whether live browser TTS is intentionally disabled |
+| Browser TTS test not working     | `API connection failed` or `error`     | Check `VITE_ELEVENLABS_API_KEY` and restart dev server     |
+| Missing welcome/menu audio       | home-menu audio warnings               | Run `npm run audio:validate` and regenerate assets         |
+| General audio drift              | mixed `[ElevenLabs]` and fallback logs | Re-read `AUDIO_SETUP.md` and confirm `.env` usage          |
 
-### `[SpeechSynthesizer]` Messages
-- **Source**: `src/lib/audio/speech-synthesizer.ts`
-- **Purpose**: Shows which audio synthesis method is being used
-- **Action**: If seeing "Web Speech API", check ElevenLabs configuration
+## Debugging tips
 
-### `[HomeMenuAudio]` Messages
-- **Source**: `src/hooks/use-home-menu-audio.ts`
-- **Purpose**: Tracks home menu audio playback sequence
-- **Action**: If files are missing, run `npm run audio:generate-welcome`
+1. Open browser DevTools.
+2. Filter by `ElevenLabs`, `SpeechSynthesizer`, or `HomeMenuAudio`.
+3. Check the Network tab for `/sounds/` failures.
+4. Use `AUDIO_SETUP.md` for the current env model.
 
-### `[WelcomeScreen]` Messages
-- **Source**: `src/components/WelcomeScreen.tsx`
-- **Purpose**: Tracks welcome screen audio sequence
-- **Action**: Check welcome audio files if you see errors
+## Production note
 
-## Production Mode
-
-In production builds (`npm run build`), these console messages are automatically suppressed since they're behind `import.meta.env.DEV` checks. Only critical errors will be logged.
-
-## Debugging Tips
-
-1. **Open Browser DevTools**: Press F12 to see console
-2. **Filter by Component**: Use filter box to search for specific messages (e.g., "ElevenLabs", "HomeMenuAudio")
-3. **Check Network Tab**: Look for failed audio file requests
-4. **Verify Environment**: Type `import.meta.env.VITE_ELEVENLABS_API_KEY` in console (will be undefined if not set)
-
-## Quick Diagnosis
-
-| Symptom | Console Message | Solution |
-|---------|----------------|----------|
-| Robotic voice | "ElevenLabs unavailable" | Add API key to .env |
-| No audio on home screen | "audio not available" | Generate audio files |
-| API key warning | "API key not configured" | Create .env file |
-| 401 error | "connection failed with status 401" | Check API key validity |
-| Network error | "connection error: Failed to fetch" | Check internet connection |
+Most of these messages are development-focused and sit behind `import.meta.env.DEV`. Production and competition builds should rely on verified assets instead of browser-side premium TTS.

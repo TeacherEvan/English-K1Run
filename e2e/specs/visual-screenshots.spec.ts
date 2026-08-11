@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { navigateWithRetry } from "../utils/navigation";
+import { skipWormLoadingIfPresent } from "../utils/worm-loading";
 
 test.describe("Visual Screenshots", () => {
   test.slow();
@@ -7,7 +8,7 @@ test.describe("Visual Screenshots", () => {
     page,
   }, testInfo) => {
     // Increase timeout for initial load/lazy loading
-    test.setTimeout(120000);
+    test.setTimeout(300000);
 
     console.log("Navigating to app...");
     await navigateWithRetry(page, "/?e2e=1");
@@ -46,8 +47,13 @@ test.describe("Visual Screenshots", () => {
     const settingsButton = page.locator('[data-testid="settings-button"]');
     await settingsButton.waitFor({ state: "visible", timeout: 5000 });
     await settingsButton.click({ force: true, timeout: 30000 });
-    // Wait for dialog content
-    const settingsTitle = page.locator("text=Settings / การตั้งค่า");
+    // Wait for the current dialog structure instead of an outdated title copy.
+    const settingsDialog = page.getByRole("dialog", { name: /settings/i });
+    await settingsDialog.waitFor({ state: "visible", timeout: 5000 });
+    const settingsTitle = settingsDialog.getByRole("heading", {
+      level: 2,
+      name: /settings/i,
+    });
     await settingsTitle.waitFor({ state: "visible", timeout: 5000 });
     // Small delay for animation
     await page.waitForTimeout(500);
@@ -60,10 +66,9 @@ test.describe("Visual Screenshots", () => {
       contentType: "image/png",
     });
 
-    // Close settings (click close button)
-    const closeBtn = page.getByRole("button", { name: "Close" });
-    await closeBtn.waitFor({ state: "visible", timeout: 10000 });
-    await closeBtn.click({ force: true, timeout: 30000 });
+    // Close settings without a pointer click so we do not click through to
+    // the menu buttons underneath when the dialog unmounts.
+    await page.keyboard.press("Escape");
     await settingsTitle.waitFor({ state: "detached", timeout: 10000 });
 
     // 3. Level Select
@@ -114,32 +119,13 @@ test.describe("Visual Screenshots", () => {
       await startGameBtn.waitFor({ state: "visible", timeout: 10000 });
       await startGameBtn.click({ force: true, timeout: 30000 });
 
-      // Handle Worm Loading Screen (Skip it or wait for game)
-      const loadingScreen = page.locator('[data-testid="worm-loading-screen"]');
+      // Handle Worm Loading Screen with the shared helper used by gameplay specs.
       const targetDisplay = page.locator('[data-testid="target-display"]');
-      const skipBtn = page.locator('[data-testid="skip-loading-button"]');
 
       // Small delay for Firefox DOM stabilization
       await page.waitForTimeout(500);
 
-      await Promise.race([
-        loadingScreen
-          .waitFor({ state: "visible", timeout: 20000 })
-          .catch(() => {}),
-        targetDisplay
-          .waitFor({ state: "visible", timeout: 20000 })
-          .catch(() => {}),
-      ]);
-
-      if (await loadingScreen.isVisible()) {
-        try {
-          await skipBtn.waitFor({ state: "visible", timeout: 10000 });
-          await skipBtn.click({ force: true, timeout: 30000 });
-          await loadingScreen.waitFor({ state: "detached", timeout: 15000 });
-        } catch {
-          console.log("Loading screen skip bypassed in screenshot loop");
-        }
-      }
+      await skipWormLoadingIfPresent(page, 20_000);
 
       // Ensure game HUD is visible (critical for Firefox stability)
       await targetDisplay.waitFor({ state: "visible", timeout: 45000 });

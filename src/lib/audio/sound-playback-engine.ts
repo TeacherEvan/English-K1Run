@@ -109,6 +109,24 @@ export class SoundPlaybackEngine {
     );
   }
 
+  startBufferWithFadeInAsync(
+    buffer: AudioBuffer,
+    delaySeconds = 0,
+    soundKey?: string,
+    playbackRate = 1.0,
+    volumeOverride?: number,
+    fadeInMs = 150,
+  ): Promise<void> {
+    return this.fader.startBufferWithFadeInAsync(
+      buffer,
+      delaySeconds,
+      soundKey,
+      playbackRate,
+      volumeOverride,
+      fadeInMs,
+    );
+  }
+
   startBufferAsync(
     buffer: AudioBuffer,
     delaySeconds = 0,

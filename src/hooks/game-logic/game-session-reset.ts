@@ -1,4 +1,3 @@
-import { GAME_CATEGORIES } from "../../lib/constants/game-categories";
 import { eventTracker } from "../../lib/event-tracker";
 import { multiTouchHandler } from "../../lib/touch-handler";
 import type { GameSessionDependencies } from "./game-session-types";
@@ -10,6 +9,7 @@ export const createResetGame = (dependencies: GameSessionDependencies) => {
   const {
     lastEmojiAppearance,
     targetPool,
+    sequenceIndicesRef,
     progressiveSpawnTimeoutRefs,
     recurringSpawnIntervalRef,
     wormSpeedMultiplier,
@@ -21,9 +21,7 @@ export const createResetGame = (dependencies: GameSessionDependencies) => {
   } = dependencies;
 
   return () => {
-    GAME_CATEGORIES.forEach((cat) => {
-      cat.sequenceIndex = 0;
-    });
+    sequenceIndicesRef.current.fill(0);
 
     multiTouchHandler.disable();
     eventTracker.stopPerformanceMonitoring();

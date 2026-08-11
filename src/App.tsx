@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 import "./App.css";
 
+import { useTranslation } from "react-i18next";
 import { pickRandomBackground } from "./app/backgrounds";
 import { AppGameplayScene } from "./app/components/AppGameplayScene";
 import { AppMenuOverlay } from "./app/components/AppMenuOverlay";
@@ -16,7 +17,14 @@ import { useTargetTimer } from "./app/use-target-timer";
 import { useWebVitalsMonitor } from "./app/use-web-vitals-monitor";
 import { useDisplayAdjustment } from "./hooks/use-display-adjustment";
 import { GAME_CATEGORIES, useGameLogic } from "./hooks/use-game-logic";
+import { getCategoryTranslationKey } from "./lib/constants/category-translation";
 import { useLazyBackgroundPreloader } from "./lib/utils/background-preloader";
+
+const DefaultModeCompletionDialog = lazy(() =>
+  import("./components/game-completion/DefaultModeCompletionDialog").then(
+    (m) => ({ default: m.DefaultModeCompletionDialog }),
+  ),
+);
 
 const FireworksDisplay = lazy(() =>
   import("./components/FireworksDisplay").then((m) => ({
@@ -30,16 +38,9 @@ const EmojiRotationMonitor = lazy(() =>
 );
 
 function App() {
+  const { t } = useTranslation();
   const { displaySettings } = useDisplayAdjustment();
-
-  useLazyBackgroundPreloader();
-  useAppBootSignal();
-  useWebVitalsMonitor();
-  useRenderMeasurement();
-  usePreloadResources();
-
   const isE2E = useE2EMode();
-  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
 
   const [timeRemaining, setTimeRemaining] = useState(10000);
   const [selectedLevel, setSelectedLevel] = useState(0);
@@ -53,6 +54,12 @@ function App() {
   );
   const [debugVisible, setDebugVisible] = useState(false);
 
+  useAppBootSignal();
+  useWebVitalsMonitor();
+  useRenderMeasurement();
+
+  const wormAutoCompleteMs = isE2E ? 12000 : undefined;
+
   const {
     gameObjects,
     worms,
@@ -64,12 +71,17 @@ function App() {
     handleWormTap,
     startGame,
     resetGame,
-    changeTargetToVisibleEmoji,
     continuousModeHighScore,
   } = useGameLogic({
     fallSpeedMultiplier: displaySettings.fallSpeed,
     continuousMode,
   });
+
+  usePreloadResources(startupStep === "menu" && !isLoading);
+
+  useLazyBackgroundPreloader(
+    startupStep === "menu" && !isLoading && !gameState.gameStarted,
+  );
 
   useFullscreenGuard(gameState.gameStarted, isE2E);
   useDebugToggle(setDebugVisible);
@@ -91,8 +103,12 @@ function App() {
   }, [selectedLevel, startGame]);
 
   const levelNames = useMemo(
-    () => GAME_CATEGORIES.map((cat) => cat.name),
-    [],
+    () =>
+      GAME_CATEGORIES.map((cat) => {
+        const categoryKey = getCategoryTranslationKey(cat.name);
+        return categoryKey ? t(`categories.${categoryKey}`) : cat.name;
+      }),
+    [t],
   );
 
   const handleWelcomeComplete = useCallback(() => {
@@ -102,6 +118,8 @@ function App() {
   const handleToggleContinuousMode = useCallback((enabled: boolean) => {
     setContinuousMode(enabled);
   }, []);
+
+  const appAnimationClass = gameState.gameStarted ? "" : "app-bg-animated";
 
   if (startupStep === "welcome" || isLoading) {
     return (
@@ -118,7 +136,7 @@ function App() {
   return (
     <>
       <div
-        className={`h-screen overflow-hidden relative app app-bg-animated ${backgroundClass}`}
+        className={`h-screen overflow-hidden relative isolate app ${appAnimationClass} ${backgroundClass}`.trim()}
       >
         <AppGameplayScene
           gameState={gameState}
@@ -133,7 +151,6 @@ function App() {
           onResetGame={resetGame}
           onObjectTap={handleObjectTap}
           onWormTap={handleWormTap}
-          onChangeTargetToVisibleEmoji={changeTargetToVisibleEmoji}
         />
 
         {gameState.winner && (
@@ -142,6 +159,12 @@ function App() {
               isVisible={!!gameState.winner}
               winner={gameState.winner}
             />
+          </Suspense>
+        )}
+
+        {gameState.winner && !continuousMode && (
+          <Suspense fallback={null}>
+            <DefaultModeCompletionDialog isVisible={!!gameState.winner} />
           </Suspense>
         )}
 

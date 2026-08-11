@@ -7,9 +7,10 @@ import { WELCOME_AUDIO_ASSETS } from "./welcome-audio-assets";
 import { playAudioSequence } from "./welcome-audio-player";
 import {
   DEFAULT_WELCOME_CONFIG,
-  PRIMARY_WELCOME_AUDIO_KEY,
+  getPrimaryWelcomeAudioKey,
   type AudioAssetMetadata,
   type WelcomeAudioConfig,
+  type WelcomePlaybackDiagnostic,
 } from "./welcome-audio-types";
 import { loadAudioWithDuration } from "./welcome-audio-utils";
 
@@ -62,6 +63,44 @@ export class WelcomeAudioSequencer {
       });
   }
 
+  private dedupeByCategory(assets: AudioAssetMetadata[]): AudioAssetMetadata[] {
+    const seenCategories = new Set<AudioAssetMetadata["category"]>();
+    return assets.filter((asset) => {
+      if (seenCategories.has(asset.category)) {
+        return false;
+      }
+      seenCategories.add(asset.category);
+      return true;
+    });
+  }
+
+  private filterByLanguage(
+    assets: AudioAssetMetadata[],
+    language?: WelcomeAudioConfig["language"],
+  ): {
+    assets: AudioAssetMetadata[];
+    language: WelcomeAudioConfig["language"];
+  } {
+    if (!language) {
+      return {
+        assets: assets.filter((asset) => asset.language === "en"),
+        language: "en",
+      };
+    }
+
+    const localizedAssets = assets.filter(
+      (asset) => asset.language === language,
+    );
+    if (localizedAssets.length > 0) {
+      return { assets: localizedAssets, language };
+    }
+
+    return {
+      assets: assets.filter((asset) => asset.language === "en"),
+      language: "en",
+    };
+  }
+
   getWelcomeAudioSequence(
     config: Partial<WelcomeAudioConfig> = {},
   ): AudioAssetMetadata[] {
@@ -70,17 +109,21 @@ export class WelcomeAudioSequencer {
     let assets = [...WELCOME_AUDIO_ASSETS];
     assets = this.filterBySourcePriority(assets, fullConfig.sourcePriority);
 
+    const filtered = this.filterByLanguage(assets, fullConfig.language);
+    assets = filtered.assets;
+
     if (fullConfig.filterActiveTargets) {
       assets = assets.filter(
         (asset) => !this.isAssociatedWithActiveTarget(asset),
       );
     }
 
+    assets = this.dedupeByCategory(assets);
+
     assets = this.sortByDuration(assets, fullConfig.durationSortOrder);
 
-    const primaryIndex = assets.findIndex(
-      (asset) => asset.key === PRIMARY_WELCOME_AUDIO_KEY,
-    );
+    const primaryKey = getPrimaryWelcomeAudioKey(filtered.language ?? "en");
+    const primaryIndex = assets.findIndex((asset) => asset.key === primaryKey);
     if (primaryIndex > 0) {
       const [primaryAsset] = assets.splice(primaryIndex, 1);
       assets.unshift(primaryAsset);
@@ -104,6 +147,7 @@ export class WelcomeAudioSequencer {
       total: number,
       asset: AudioAssetMetadata,
     ) => void,
+    onDiagnostic?: (diagnostic: WelcomePlaybackDiagnostic) => void,
   ): Promise<void> {
     if (this.isPlaying) {
       if (import.meta.env.DEV) {
@@ -130,7 +174,7 @@ export class WelcomeAudioSequencer {
       currentProgress: this.currentProgress,
     };
 
-    await playAudioSequence(assets, config, state, onProgress);
+    await playAudioSequence(assets, config, state, onProgress, onDiagnostic);
 
     this.isPlaying = state.isPlaying;
   }

@@ -4,17 +4,22 @@
 		{
 			"label": "Run E2E Tests",
 			"type": "shell",
-			"command": "npm run test:e2e"
+			"command": "PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e"
 		},
 		{
 			"label": "Run E2E Tests Again",
 			"type": "shell",
-			"command": "npm run test:e2e"
+			"command": "PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e"
 		},
 		{
 			"label": "Run Menu Tests",
 			"type": "shell",
-			"command": "npm run test:e2e -- -g \"Game Menu\""
+			"command": "PLAYWRIGHT_PROJECTS=chromium,firefox,mobile npm run test:e2e -- -g \"Game Menu\""
+		},
+		{
+			"label": "Run E2E Tests (Full Matrix)",
+			"type": "shell",
+			"command": "PLAYWRIGHT_ENABLE_WEBKIT=1 npm run test:e2e"
 		},
 		{
 			"label": "Dev Server",

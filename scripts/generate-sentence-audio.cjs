@@ -8,6 +8,8 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
+const EXCLUDED_REINFORCEMENT_KEYS = new Set(["success", "win"]);
+
 function loadDotEnvIfPresent() {
   try {
     const envPath = path.join(__dirname, "..", ".env");
@@ -153,15 +155,15 @@ async function main() {
     welcome: "Welcome to the game.",
     welcome_evan_intro:
       "Welcome to Teacher Evan's Super Student English Program.",
+    welcome_evan_intro_thai:
+      "ยินดีต้อนรับสู่ Super Student ของคุณครูอีแวน มาเรียนอย่างสนุกด้วยกันนะ!",
     welcome_sangsom_association: "In association with Sangsom Kindergarten.",
     welcome_sangsom_association_thai: "ร่วมกับโรงเรียนอนุบาลสังสม",
     welcome_association: "In association with Sangsom Kindergarten.",
     welcome_association_thai: "ร่วมกับโรงเรียนอนุบาลสังสม",
     welcome_learning: "Welcome to learning English.",
     welcome_learning_thai: "ยินดีต้อนรับสู่การเรียนภาษาอังกฤษ",
-    success: "Great job, you are correct.",
     wrong: "Try again, that was not correct.",
-    win: "You win, great work.",
     tap: "Tap the screen to start.",
     explosion: "The explosion is loud.",
     laser: "The laser is bright.",
@@ -201,6 +203,7 @@ async function main() {
     .filter((name) => name.endsWith(".wav"));
   const welcomeMp3 = [
     "welcome_evan_intro.mp3",
+    "welcome_evan_intro_thai.mp3",
     "welcome_sangsom_association.mp3",
     "welcome_sangsom_association_thai.mp3",
   ].filter((name) => fs.existsSync(path.join(soundsDir, name)));
@@ -214,6 +217,12 @@ async function main() {
   for (let i = 0; i < wavFiles.length; i++) {
     const filename = wavFiles[i];
     const key = filename.replace(/\.wav$/i, "");
+    if (EXCLUDED_REINFORCEMENT_KEYS.has(key)) {
+      console.log(
+        `[${i + 1}/${wavFiles.length}] Skipping reinforcement key: ${filename}`,
+      );
+      continue;
+    }
     const sentence = buildSentence(key, templates, overrides);
     const isThai =
       key.endsWith("_thai") || key === "welcome_sangsom_association_thai";
@@ -229,7 +238,7 @@ async function main() {
       outputPath,
       voiceId,
       settings,
-      isThai ? undefined : "en",
+      isThai ? "th" : "en",
     );
     console.log(" ✓");
     await sleep(250);
@@ -250,7 +259,7 @@ async function main() {
       outputPath,
       voiceId,
       voiceSettingsSoft,
-      isThai ? undefined : "en",
+      isThai ? "th" : "en",
     );
     console.log(" ✓");
     await sleep(250);

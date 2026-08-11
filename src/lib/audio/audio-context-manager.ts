@@ -23,7 +23,6 @@ export class AudioContextManager {
 
   constructor() {
     this.detectMobile();
-    void this.initializeAudioContext();
     this.setupUserInteractionListener();
   }
 

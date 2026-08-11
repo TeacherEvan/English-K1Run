@@ -21,6 +21,7 @@ export interface GameSessionDependencies {
   lastEmojiAppearance: MutableRefObject<Map<string, number>>;
   targetPool: MutableRefObject<Array<{ emoji: string; name: string }>>;
   continuousModeTargetCount: MutableRefObject<number>;
+  sequenceIndicesRef: MutableRefObject<number[]>;
   progressiveSpawnTimeoutRefs: MutableRefObject<NodeJS.Timeout[]>;
   recurringSpawnIntervalRef: MutableRefObject<NodeJS.Timeout | undefined>;
   wormSpeedMultiplier: MutableRefObject<number>;

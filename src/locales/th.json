@@ -1,7 +1,17 @@
 {
   "game": {
-    "title": "การแข่งเต่า",
+    "title": "English K1 Run",
     "startGame": "เริ่มเกม",
+    "playAllLevels": "เล่นทุกระดับ",
+    "levelSelect": "เลือกระดับ",
+    "selectLevel": "เลือกด่าน",
+    "back": "กลับ",
+    "backToLevels": "กลับไปยังหน้าด่าน",
+    "bestTime": "เวลาที่ดีที่สุด",
+    "currentTime": "เวลาปัจจุบัน",
+    "continuousMode": "โหมดต่อเนื่อง",
+    "find": "หา",
+    "inOrder": "ตามลำดับ",
     "settings": "ตั้งค่า",
     "resume": "ดำเนินการต่อ",
     "quit": "ออกจากเกม",
@@ -11,11 +21,22 @@
     "volume": "ระดับเสียง"
   },
   "menu": {
-    "welcome": "ยินดีต้อนรับสู่การแข่งเต่า!",
+    "welcome": "ยินดีต้อนรับสู่ English K1 Run!",
     "instructions": "แตะวัตถุที่ตกลงมาเพื่อช่วยให้เต่าของคุณชนะ!",
     "tapToStart": "แตะเพื่อเริ่มต้น",
+    "tapToContinue": "แตะเพื่อไปต่อ",
     "pressEnter": "กด ENTER เพื่อเริ่มต้น",
-    "pressSpace": "กด SPACE เพื่อเริ่มต้น"
+    "pressSpace": "กด SPACE เพื่อเริ่มต้น",
+    "exitDialog": {
+      "title": "ออกจากเกม",
+      "description": "คุณแน่ใจหรือไม่ว่าต้องการออก?"
+    },
+    "credits": {
+      "title": "เครดิต",
+      "createdBy": "สร้างโดย",
+      "inAssociationWith": "ร่วมกับ",
+      "specialThanks": "ขอขอบคุณเป็นพิเศษ"
+    }
   },
   "categories": {
     "fruits": "ผลไม้และผัก",
@@ -24,10 +45,16 @@
     "shapes": "รูปร่างและสี",
     "animals": "สัตว์และธรรมชาติ",
     "things": "สิ่งที่เคลื่อนไหว",
-    "weather": "ปรากฏการณ์ลมฟ้าอากาศ"
+    "weather": "ปรากฏการณ์ลมฟ้าอากาศ",
+    "feelings": "ความรู้สึกและการกระทำ",
+    "body": "ส่วนต่างๆ ของร่างกาย"
   },
   "messages": {
     "gameWon": "คุณชนะ! ทำได้ดีมากขอบคุณ!",
+    "victoryTitle": "คุณชนะ!",
+    "completionTitle": "เก่งมาก!",
+    "completionDescription": "ลองไปเล่นด่านอื่น ๆ ดูสิ!",
+    "completionButton": "ลองด่านอื่น",
     "gameOver": "สิ้นสุดเกม",
     "score": "คะแนน",
     "perfect": "สมบูรณ์แบบ!"
@@ -37,13 +64,91 @@
     "associationThai": "ร่วมกับ",
     "learning": "เรียนรู้ผ่านการเล่น",
     "learningThai": "เรียนรู้ผ่านการเล่น",
-    "forEveryone": "สำหรับทุกคน!"
+    "forEveryone": "สำหรับทุกคน!",
+    "languageTitle": "เลือกภาษาของคุณ",
+    "languageDescription": "เลือกภาษาอังกฤษหรือภาษาไทยก่อนที่เสียงต้อนรับจะเริ่ม คุณสามารถเปลี่ยนได้ภายหลังในเมนูตั้งค่า",
+    "readyPrompt": "แตะหนึ่งครั้งเพื่อเริ่ม",
+    "listening": "กำลังเล่นเสียง...",
+    "listeningHint": "โปรดรอจนเสียงต้อนรับจบ",
+    "thaiVoiceUnavailable": "อุปกรณ์นี้ไม่มีเสียงต้อนรับภาษาไทย จึงข้ามเสียงต่อไปแบบเงียบ",
+    "readyContinue": "พร้อมไปต่อ",
+    "transitioning": "กำลังเปิดเมนู..."
   },
   "accessibility": {
     "volumeControl": "ควบคุมระดับเสียง",
     "languageSelection": "การเลือกภาษา",
     "gameBoard": "บอร์ดเกม",
     "score": "คะแนนปัจจุบัน",
-    "targetObject": "วัตถุเป้าหมาย"
+    "targetObject": "วัตถุเป้าหมาย",
+    "levelSelectionOpened": "เปิดเมนูเลือกด่านแล้ว",
+    "selectedLevel": "ด่านที่เลือก: {{level}}",
+    "completionDialogAnnouncement": "เก่งมาก! ลองไปเล่นด่านอื่น ๆ ดูสิ!"
+  },
+  "common": {
+    "on": "เปิด",
+    "off": "ปิด",
+    "cancel": "ยกเลิก",
+    "close": "ปิด"
+  },
+  "loading": {
+    "wormTitle": "จับหนอนกันเถอะ!",
+    "wormReady": "เก่งมาก! กำลังเตรียมเกม...",
+    "wormRemainingOne": "เหลือหนอนอีก 1 ตัว...",
+    "wormRemainingMany": "เหลือหนอนอีก {{count}} ตัว...",
+    "wormComplete": "จับหนอนได้ครบแล้ว! กำลังเริ่มเกม...",
+    "skipToGame": "ข้ามไปเล่นเกมเลย (หรือจับหนอนให้ครบ!)",
+    "skipToGameAria": "ข้ามไปยังเกมทันทีโดยไม่ต้องจับหนอน"
+  },
+  "settings": {
+    "title": "ตั้งค่า",
+    "description": "ปรับแต่งเสียง ภาพ การควบคุม และการช่วยการเข้าถึง",
+    "tabs": {
+      "audio": "เสียง",
+      "visual": "ภาพ",
+      "controls": "การควบคุม",
+      "accessibility": "การช่วยการเข้าถึง"
+    },
+    "audio": {
+      "soundTitle": "เสียง",
+      "soundDescription": "เปิดหรือปิดเสียงทั้งหมดของเกม",
+      "masterVolume": "ระดับเสียงหลัก"
+    },
+    "visual": {
+      "themeTitle": "ธีม",
+      "themeDescription": "เลือกชุดสีสำหรับหน้าตาโปรแกรม",
+      "displayScaleTitle": "ขนาดการแสดงผล",
+      "displayScaleDescription": "ปรับขนาดส่วนติดต่อให้เหมาะกับหน้าจอของคุณ",
+      "themeOptions": {
+        "colorful": "สีสันสดใส",
+        "light": "สว่าง",
+        "dark": "มืด"
+      },
+      "scaleOptions": {
+        "auto": "อัตโนมัติ",
+        "small": "เล็ก",
+        "medium": "กลาง",
+        "large": "ใหญ่"
+      }
+    },
+    "controls": {
+      "languageSectionTitle": "ภาษา",
+      "languageSectionDescription": "เลือกภาษาสำหรับเมนูและปุ่ม รวมถึงภาษาสำหรับข้อความเกมและเสียง",
+      "displayLanguageTitle": "ภาษาเมนูและปุ่ม",
+      "displayLanguageDescription": "ใช้กับเมนู ปุ่ม และข้อความบนหน้าจอ",
+      "gameplayLanguageTitle": "ภาษาข้อความเกมและเสียง",
+      "gameplayLanguageDescription": "ใช้กับคำสั่งในเกม ประโยคเป้าหมาย และเสียงบรรยาย",
+      "selectDisplayLanguage": "เลือกภาษาเมนูและปุ่ม",
+      "selectGameplayLanguage": "เลือกภาษาข้อความเกมและเสียง",
+      "languageGroupLabel": "ภาษา",
+      "continuousModeDescription": "เล่นต่อเนื่องโดยไม่หยุดเมื่อชนะ"
+    },
+    "accessibility": {
+      "highContrastTitle": "คอนทราสต์สูง",
+      "highContrastDescription": "เพิ่มความชัดเจนด้วยสีที่ตัดกันมากขึ้น",
+      "reducedMotionTitle": "ลดการเคลื่อนไหว",
+      "reducedMotionDescription": "ลดแอนิเมชันและการเคลื่อนไหวบนหน้าจอ",
+      "audioDescriptionsTitle": "คำบรรยายเสียง",
+      "audioDescriptionsDescription": "พูดคำอธิบายสั้น ๆ เมื่อไม่มีไฟล์เสียง"
+    }
   }
 }
