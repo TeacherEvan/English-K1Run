@@ -274,8 +274,8 @@ All changes are backward-compatible and improve test reliability without affecti
 ## Documentation Updates
 
 - [x] Created [`plans/test-failures-analysis-jan2026.md`](plans/test-failures-analysis-jan2026.md) - Full analysis
-- [x] Created this document ([`DOCS/TEST_FAILURES_FIX_JAN2026.md`](DOCS/TEST_FAILURES_FIX_JAN2026.md)) - Implementation summary
-- [ ] Update [`DOCS/E2E_TEST_FIXES_JAN2026.md`](DOCS/E2E_TEST_FIXES_JAN2026.md) if needed (depends on existing content)
+- [x] Created this document ([`TEST_FAILURES_FIX_JAN2026.md`](TEST_FAILURES_FIX_JAN2026.md)) - Implementation summary
+- [ ] Update [`E2E_TEST_FIXES_JAN2026.md`](E2E_TEST_FIXES_JAN2026.md) if needed (depends on existing content)
 
 ## References
 
