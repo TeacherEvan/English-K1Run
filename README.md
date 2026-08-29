@@ -1,4 +1,5 @@
 # English K1 Run
+<img width="1279" height="1018" alt="Screenshot from 2026-08-29 11-47-22" src="https://github.com/user-attachments/assets/afaf7849-12b3-4e48-9919-a501953399ad" />
 
 Single-player, touch-first classroom game built with React 19, TypeScript, and Vite. The current public-facing product name is **English K1 Run**.
 
@@ -12,6 +13,14 @@ Single-player, touch-first classroom game built with React 19, TypeScript, and V
 - **Target devices:** tablets, touch displays, classroom browsers
 
 ## Quick start
+<img width="1279" height="1018" alt="Screenshot from 2026-08-29 11-47-27" src="https://github.com/user-attachments/assets/138e276d-51ae-4c5f-97b4-2835771ac082" />
+
+<img width="1275" height="1021" alt="Screenshot from 2026-08-29 11-49-43" src="https://github.com/user-attachments/assets/b5afdcc3-c0cd-4648-ad69-2c28f917b9b5" />
+
+<img width="1275" height="1021" alt="Screenshot from 2026-08-29 11-50-36" src="https://github.com/user-attachments/assets/3200b9c2-678b-48a7-81ac-2540191d6fef" />
+
+<img width="1275" height="1021" alt="Screenshot from 2026-08-29 11-48-44" src="https://github.com/user-attachments/assets/c6f861af-d024-4c91-b228-d8afb8be7c79" />
+
 
 ### Prerequisites
 
@@ -20,6 +29,7 @@ Single-player, touch-first classroom game built with React 19, TypeScript, and V
 - Modern browser
 
 ### Install and run
+<img width="708" height="814" alt="Screenshot from 2026-08-29 11-47-48" src="https://github.com/user-attachments/assets/da25046a-a1c2-4bb6-932e-47730b0be511" />
 
 ```bash
 git clone https://github.com/TeacherEvan/English-K1Run.git
