@@ -131,3 +131,4 @@ allure-results/
 
 # Vercel build output (local build artifact)
 .vercel/
+docs/.scratch-audit/
