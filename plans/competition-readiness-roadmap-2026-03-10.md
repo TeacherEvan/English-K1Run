@@ -1,3 +1,5 @@
+> **Resolution (2026-09-06)**: status set to DONE by surgical-implementation plan-audit pass — work was already shipped and is reflected in `DOCS/` completion summaries + `jobcard.md` timeline. See `plans/archive/2026-09-06-plans-audit-resolution.md` for evidence per plan. Do not re-derive.
+
 # Competition Readiness Roadmap — English-K1Run
 
 Date: 2026-03-10
