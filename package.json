@@ -48,7 +48,7 @@
     "dashboard": "concurrently \"npm run dashboard:server\" \"npm run dashboard:ui\""
   },
   "dependencies": {
-    "@capacitor/android": "^8.5.0",
+    "@capacitor/android": "^8.5.1",
     "@capacitor/ios": "^8.5.1",
     "@radix-ui/react-aspect-ratio": "^1.1.15",
     "@radix-ui/react-avatar": "^1.1.3",
