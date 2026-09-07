@@ -1,5 +1,8 @@
 # English K1 Run Startup Payload Safety Plan
 
+
+> **Status: DONE (2026-09-07)** — Post-hoc snapshot. All 5 tasks already shipped. See resolution note `plans/archive/2026-09-06-plans-audit-resolution.md` (parallels `plans/` audit). Live-code evidence: `src/test/pwa-welcome-config.test.ts` (Task 1), `src/lib/utils/background-preloader.test.ts` (Task 2), `scripts/check-welcome-build-assets.cjs` (Task 3), `package.json` `verify:welcome-assets` script (Task 4). `vite-pwa-config.ts` already has welcome-sangsom + welcome*.mp3/wav in `includeAssets` and `welcome-media-cache-v1` runtime rule. Plans audit (2026-09-06) covered `plans/` only; this `.github/superpower/plan/` set was missed. Resolution appended in-place so future dispatcher scans short-circuit.
+
 **Goal:** Reduce startup/install payload cost **without changing the branded welcome experience** — no changes to welcome layout, interaction, sequencing, audio behavior, or appearance.
 
 **Architecture:** Keep all work inside the startup-performance lane:

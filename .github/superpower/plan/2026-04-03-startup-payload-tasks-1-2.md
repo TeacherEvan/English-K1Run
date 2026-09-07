@@ -1,5 +1,8 @@
 # Startup Payload Safety — Tasks 1 & 2
 
+
+> **Status: DONE (2026-09-07)** — Tasks 1 & 2 shipped. See `2026-04-03-startup-payload-safety-plan.md` resolution banner.
+
 See [plan overview](2026-04-03-startup-payload-safety-plan.md) for goals and constraints.
 
 ## Task 1: Lock in welcome-media safety with a config test

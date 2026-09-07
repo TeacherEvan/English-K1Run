@@ -1,5 +1,8 @@
 # Startup Payload Safety — Tasks 3, 4 & 5
 
+
+> **Status: DONE (2026-09-07)** — Tasks 3, 4 & 5 shipped. See `2026-04-03-startup-payload-safety-plan.md` resolution banner.
+
 See [plan overview](2026-04-03-startup-payload-safety-plan.md) for goals and constraints.
 
 ## Task 3: Add a build artifact verifier

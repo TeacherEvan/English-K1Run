@@ -1,5 +1,8 @@
 # Completion Win Experience Plan
 
+
+> **Status: DONE (2026-09-07)** — Post-hoc snapshot. All 5 tasks already shipped. See resolution note `plans/archive/2026-09-06-plans-audit-resolution.md`. Live-code evidence: `src/components/game-completion/__tests__/DefaultModeCompletionDialog.test.tsx` (Task 1, full coverage: render, SR announce, 4000ms auto-dismiss, CTA dismiss, clean reopen), `src/components/game-completion/DefaultModeCompletionDialog.tsx` has `AUTO_CLOSE_MS = 4000`, `dismissed` local state, `open = isVisible && !dismissed`, announce-only-when-open (Task 2), `src/styles/animations/utility.css` has `completion-countdown` keyframes + `animate-completion-countdown` (Task 3), `src/components/ui/dialog.tsx` has softened overlay tint, `supports-backdrop-filter:backdrop-blur-xs`, `size-11` touch-safe close, focus-visible ring + ring-offset, touch-manipulation (Task 4), `src/test/setup.ts` sets `IS_REACT_ACT_ENVIRONMENT = true` (Task 5).
+
 ## Goal
 
 Deliver a polished, touch-first default-mode completion dialog that feels warm and celebratory, preserves the existing winner flow, improves shared dialog affordances, and adds regression coverage.
