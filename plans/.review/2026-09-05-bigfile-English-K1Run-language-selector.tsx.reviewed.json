@@ -1,0 +1,9 @@
+{
+  "plan": "2026-09-05-bigfile-English-K1Run-language-selector.tsx.md",
+  "verdict": "READY-WITH-WARNINGS",
+  "ready_for_impl": true,
+  "gaps": [
+    "llm_unreachable"
+  ],
+  "reviewed_at": "2026-09-05T02:39:23.658352+07:00"
+}
