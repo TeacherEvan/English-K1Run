@@ -1,3 +1,5 @@
+> **Status: DONE (2026-09-11)** — Post-hoc snapshot. All objectives already shipped. See resolution note `plans/archive/2026-09-06-plans-audit-resolution.md`. Live-code evidence: `src/app/components/AppGameplayScene.tsx` (full-screen tappable play area, top-center target indicator, HUD non-intercepting). Do not re-derive.
+
 # Gameplay Interaction Recovery Implementation Plan
 
 **Date**: 2026-03-10  

@@ -1,3 +1,5 @@
+> **Status: DONE (2026-09-11)** — Post-hoc snapshot. Policy already enforced. See resolution note `plans/archive/2026-09-06-plans-audit-resolution.md`. Live-code evidence: max source file = `src/lib/file-manager/index.ts` at 378 lines (< 500 limit); all P0/P1/P2 violators from the audit are now under limit or archived. Do not re-derive.
+
 # Line Limit Audit & Refactor Plan (<= 500 Lines)
 
 ## Objective

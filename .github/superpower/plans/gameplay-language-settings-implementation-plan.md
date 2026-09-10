@@ -1,3 +1,5 @@
+> **Status: DONE (2026-09-11)** — Post-hoc snapshot. All objectives already shipped. See resolution note `plans/archive/2026-09-06-plans-audit-resolution.md`. Live-code evidence: `src/context/settings-context.tsx`, `src/locales/*.json` (6 locales), menu button English primary + gameplay-language subtitle. Do not re-derive.
+
 # Gameplay Language Settings Implementation Plan
 
 **Date**: 2026-03-12  

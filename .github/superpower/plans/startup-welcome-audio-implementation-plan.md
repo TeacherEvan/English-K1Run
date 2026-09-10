@@ -1,3 +1,5 @@
+> **Status: DONE (2026-09-11)** — Post-hoc snapshot. All objectives already shipped. See resolution note `plans/archive/2026-09-06-plans-audit-resolution.md`. Live-code evidence: `vite-pwa-config.ts` (`welcome-media-cache-v1` runtime rule), `src/lib/audio/welcome-audio-helpers.ts`, `src/test/pwa-welcome-config.test.ts`, `src/lib/utils/background-preloader.test.ts`. Do not re-derive.
+
 # Startup Welcome Audio Implementation Plan
 
 ## Scope
