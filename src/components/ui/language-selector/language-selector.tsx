@@ -8,24 +8,14 @@ import { useSettings } from '@/context/settings-context'
 import { useLanguage } from '@/hooks/use-language'
 import { LANGUAGE_OPTIONS, type SupportedLanguage } from '@/lib/constants/language-config'
 import { cn } from '@/lib/utils'
-import { SVG_NAMESPACE } from './svg-constants'
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { useTranslation } from 'react-i18next'
-// import { Check, ChevronDown } from 'lucide-react'
+import { CheckIcon } from './check-icon'
+import { ChevronDownIcon } from './chevron-down-icon'
 import React, { useState } from 'react'
 
-const Check = ({ className }: { className?: string }) => (
-    <svg xmlns={SVG_NAMESPACE} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("lucide lucide-check", className)}>
-        <path d="M20 6 9 17l-5-5" />
-    </svg>
-)
-const ChevronDown = ({ className }: { className?: string }) => (
-    <svg xmlns={SVG_NAMESPACE} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("lucide lucide-chevron-down", className)}>
-        <path d="m6 9 6 6 6-6" />
-    </svg>
-)
 
-interface LanguageSelectorProps {
+export interface LanguageSelectorProps {
     className?: string
     onLanguageChange?: (language: SupportedLanguage) => void
     showLabel?: boolean
@@ -115,7 +105,7 @@ export const LanguageSelector = React.forwardRef<
                         </span>
                     </SelectPrimitive.Value>
                     <SelectPrimitive.Icon asChild>
-                        <ChevronDown
+                        <ChevronDownIcon
                             className={cn(
                                 'size-4 opacity-50 transition-transform duration-200',
                                 isOpen && 'rotate-180'
@@ -157,7 +147,7 @@ export const LanguageSelector = React.forwardRef<
                                     >
                                         <span className="absolute left-2 flex size-3.5 items-center justify-center">
                                             <SelectPrimitive.ItemIndicator asChild>
-                                                <Check
+                                                <CheckIcon
                                                     className="size-4 font-bold text-primary"
                                                     aria-hidden="true"
                                                 />
@@ -177,7 +167,7 @@ export const LanguageSelector = React.forwardRef<
 
                         {/* Scrollbar (optional, visible on overflow) */}
                         <SelectPrimitive.ScrollDownButton className="flex cursor-default items-center justify-center bg-popover py-1 text-muted-foreground">
-                            <ChevronDown className="size-4" aria-hidden="true" />
+                            <ChevronDownIcon className="size-4" aria-hidden="true" />
                         </SelectPrimitive.ScrollDownButton>
                     </SelectPrimitive.Content>
                 </SelectPrimitive.Portal>
