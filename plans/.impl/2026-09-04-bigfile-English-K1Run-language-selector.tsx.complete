@@ -1,0 +1,12 @@
+{
+  "plan": "2026-09-04-bigfile-English-K1Run-language-selector.tsx.md",
+  "verdict": "READY-WITH-WARNINGS",
+  "started_at": "2026-09-10T14:43:34.082415+07:00",
+  "duration_s": 2700.3,
+  "result": {
+    "returncode": 124,
+    "stdout_tail": "timeout",
+    "stderr_tail": "timed out after 45min"
+  },
+  "completed_at": "2026-09-10T15:28:34.372423+07:00"
+}
