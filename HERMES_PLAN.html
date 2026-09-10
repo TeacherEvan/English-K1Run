@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HERMES_PLAN · English-K1Run</title>
+<style>
+ :root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d;--acc:#58a6ff}
+ *{box-sizing:border-box} body{font:14px/1.5 system-ui,Segoe UI,Arial;background:var(--bg);color:var(--fg);margin:0;padding:18px}
+ h1{font-size:20px;margin:0 0 4px} .sub{color:var(--muted);margin-bottom:14px}
+ section{border:1px solid var(--line);border-radius:10px;padding:14px;background:#161b22}
+ .item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+ .item:last-child{border-bottom:0}
+ .tick{flex:0 0 38px;height:38px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#888;font-size:18px;cursor:pointer}
+ .body{flex:1} .area{font-weight:700;color:var(--acc)} .action{color:var(--fg)}
+ .note{width:100%;margin-top:6px;background:#0d1117;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px}
+ .meta{color:var(--muted);font-size:12px;margin-top:10px}
+ .save{margin-top:14px;background:var(--acc);color:#06101f;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
+ code{background:#0d1117;padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+</style></head>
+<body>
+
+<section data-group="GAMES" data-branch="main" data-commits="839" data-lang="Node/JS">
+ <h1>HERMES_PLAN · English-K1Run</h1>
+ <div class="sub">GAMES · Node/JS · branch <code>main</code> · 839 commits · last: 2 days ago | docs(english-k1run): audit + fix doc drift</div>
+ <p class="sub">Tick each workstream: <b>White</b>=skip · <b style="color:#28a745">Green 👍</b>=approve/keep · <b style="color:#dc3545">Red 🖕</b>=clarify/change. Then <b>Save</b> writes <code>HERMES_PLAN.ai.json</code> to this repo root (place of birth).</p>
+ 
+        <div class="item" data-area="Refactor">
+          <button class="tick" data-s="0" onclick="cycle(this)" title="Skip / no change"> </button>
+          <div class="body">
+            <div class="area">Refactor</div>
+            <div class="action">Land plans/game-refactoring-plan.md + ui-component-modularization-plan (React 19, single-player offline-first).</div>
+            <input class="note" placeholder="note / clarification…" />
+          </div>
+        </div>
+        <div class="item" data-area="Audio">
+          <button class="tick" data-s="0" onclick="cycle(this)" title="Skip / no change"> </button>
+          <div class="body">
+            <div class="area">Audio</div>
+            <div class="action">Resolve audio-loading-issues-analysis + pre-generate voice assets (avoid live ElevenLabs in prod).</div>
+            <input class="note" placeholder="note / clarification…" />
+          </div>
+        </div>
+        <div class="item" data-area="Visuals/audio">
+          <button class="tick" data-s="0" onclick="cycle(this)" title="Skip / no change"> </button>
+          <div class="body">
+            <div class="area">Visuals/audio</div>
+            <div class="action">Execute visual-audio-fixes-implementation-plan.md + completion/win experience.</div>
+            <input class="note" placeholder="note / clarification…" />
+          </div>
+        </div>
+        <div class="item" data-area="Line limits">
+          <button class="tick" data-s="0" onclick="cycle(this)" title="Skip / no change"> </button>
+          <div class="body">
+            <div class="area">Line limits</div>
+            <div class="action">Apply DOCS/LINE_LIMIT_REFACTOR_PLAN.md to trim oversized modules.</div>
+            <input class="note" placeholder="note / clarification…" />
+          </div>
+        </div>
+ <div class="meta">Existing plans in repo: .github/superpower/plan/2026-04-03-startup-payload-tasks-3-5.md, .github/superpower/plan/2026-04-03-startup-payload-tasks-1-2.md, .github/superpower/plan/2026-04-03-startup-payload-safety-plan.md, .github/superpower/plan/2026-04-01-completion-win-experience-plan.md, .github/superpower/plans/startup-welcome-audio-implementation-plan.md, .github/superpower/plans/gameplay-language-settings-implementation-plan.md, .github/superpower/plans/gameplay-interaction-recovery-implementation-plan.md, sounds/airplane.wav, dist/sounds/airplane.wav, .vercel/output/static/sounds/airplane.wav, ios/App/App/public/sounds/airplane.wav, public/sounds/airplane.wav</div>
+ <button class="save" onclick="save(this,'English-K1Run')">Save ▼</button>
+</section>
+
+<script>
+const COLORS=['#ffffff','#28a745','#dc3545'];        // 0 white, 1 green, 2 red
+const GLYPH=['','👍','🖕'];                            // 0 none, 1 approve, 2 reject/change
+function cycle(btn){
+  let s=parseInt(btn.dataset.s||'0');
+  s=(s+1)%3; btn.dataset.s=s;
+  btn.style.background=COLORS[s];
+  btn.style.color = s===0 ? '#888' : '#fff';
+  btn.textContent = GLYPH[s] || '';
+  btn.title = ['Skip / no change','Approve / keep','Clarify / change'].indexOf('')>=0?['Skip / no change','Approve / keep','Clarify / change'][s]:'';
+}
+async function save(btn, repo){
+  const doc=btn.closest('section')||document;
+  const items=[...doc.querySelectorAll('.item')].map(it=>{
+    const b=it.querySelector('.tick'); const s=parseInt(b.dataset.s||'0');
+    return {area:it.dataset.area, status:['skip','approve','change'][s], note:it.querySelector('.note')?it.querySelector('.note').value:''};
+  });
+  const meta={repo:repo, generated:'2026-08-15 18:55', group:doc.dataset.group||'',
+              branch:doc.dataset.branch||'', commits:doc.dataset.commits||'', lang:doc.dataset.lang||''};
+  const blob={meta:meta, items:items,
+    compact: items.filter(i=>i.status!=='skip').map(i=>({a:i.area[0],s:i.status[0],n:i.note})),
+    instructions: meta.repo+' plan: execute items marked approve (a); revisit items marked change (c). skip=ignore.'};
+  const name='HERMES_PLAN.ai.json';
+  const text=JSON.stringify(blob,null,2);
+  // write to place of birth via download (file sits in repo root)
+  const a=document.createElement('a');
+  const f=new Blob([text],{type:'application/json'});
+  a.href=URL.createObjectURL(f); a.download=name; a.click();
+  // best-effort: write directly into the repo (place of birth) when the browser allows FS Access
+  if(window.showSaveFilePicker){{
+    try{{ const h=await showSaveFilePicker({{suggestedName:name}}); const w=await h.createWritable(); await w.write(text); await w.close(); }}catch(e){{}}
+  }}
+  try{{ await navigator.clipboard.writeText(text); }}catch(e){{}}
+  btn.textContent='✓ saved '+name+' (clipboard too)'; setTimeout(()=>btn.textContent='Save ▼',2200);
+}
+</script>
+
+</body></html>

@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "repo": "English-K1Run",
+    "group": "GAMES",
+    "generated": "2026-08-15 18:55",
+    "branch": "main",
+    "commits": "839",
+    "lang": "Node/JS",
+    "status": "proposed"
+  },
+  "items": [
+    {
+      "area": "Refactor",
+      "action": "Land plans/game-refactoring-plan.md + ui-component-modularization-plan (React 19, single-player offline-first)."
+    },
+    {
+      "area": "Audio",
+      "action": "Resolve audio-loading-issues-analysis + pre-generate voice assets (avoid live ElevenLabs in prod)."
+    },
+    {
+      "area": "Visuals/audio",
+      "action": "Execute visual-audio-fixes-implementation-plan.md + completion/win experience."
+    },
+    {
+      "area": "Line limits",
+      "action": "Apply DOCS/LINE_LIMIT_REFACTOR_PLAN.md to trim oversized modules."
+    }
+  ],
+  "instructions": "English-K1Run (GAMES): proposed workstreams. Agent reads HERMES_PLAN.html ticks: approve(a)=implement, change(c)=revisit/clarify, skip=ignore. Compact form below.",
+  "compact": [
+    {
+      "a": "R",
+      "summary": "Land plans/game-refactoring-plan.md + ui-component-modularization-plan (React 19, single-player offline-first)."
+    },
+    {
+      "a": "A",
+      "summary": "Resolve audio-loading-issues-analysis + pre-generate voice assets (avoid live ElevenLabs in prod)."
+    },
+    {
+      "a": "V",
+      "summary": "Execute visual-audio-fixes-implementation-plan.md + completion/win experience."
+    },
+    {
+      "a": "L",
+      "summary": "Apply DOCS/LINE_LIMIT_REFACTOR_PLAN.md to trim oversized modules."
+    }
+  ]
+}
