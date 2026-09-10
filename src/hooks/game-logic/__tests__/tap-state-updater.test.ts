@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { MutableRefObject } from "react";
 import { GAME_CATEGORIES } from "../../../lib/constants/game-categories";
 import type { GameState } from "../../../types/game";
 import { updateStateOnTap } from "../tap-state-updater";
@@ -37,7 +38,8 @@ describe("updateStateOnTap", () => {
     generateRandomTarget: () => ({ name: "apple", emoji: "🍎" }),
     spawnImmediateTargets: vi.fn(),
     continuousMode: false,
-    continuousModeTargetCount: { current: 0 },
+    continuousModeTargetCount: { current: 0 } as MutableRefObject<number>,
+    sequenceIndicesRef: { current: [0] } as MutableRefObject<number[]>,
     continuousModeHighScore: null,
     continuousModeStartTime: null,
     setContinuousModeHighScore: vi.fn(),
