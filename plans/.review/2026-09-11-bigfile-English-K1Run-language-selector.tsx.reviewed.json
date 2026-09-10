@@ -1,0 +1,12 @@
+{
+  "plan": "2026-09-11-bigfile-English-K1Run-language-selector.tsx.md",
+  "verdict": "NEEDS-REVISION",
+  "ready_for_impl": false,
+  "gaps": [
+    "**OBJ-004\u2013OBJ-012 are identical filler.** Nine \"hardening passes\" with verbatim-identical text, no line anchors, no symbol anchors, no distinct targets. This directly contradicts the plan's own claim of being \"file-aware \u2026 NOT a generic N-slice filler.\" A real hardening pass would name a specific loose type or prop-drilling site (e.g., `SelectPrimitive.ItemProps`, `SVG_NAMESPACE` usage, `SupportedLanguage` union). These nine objectives contribute zero actionable work.",
+    "**DoD section is truncated.** The plan cuts off mid-sentence: *\"preserving behav\"* \u2014 no completion, no checklist for the split/shrink criteria, no rollback conditions. The DoD is not a DoD.",
+    "**Structural checker reports `objectives=0`** despite the plan listing 12 numbered objectives. The checker also reports `has_header=None`, `has_imports=None`, `has_why=None`, `has_dod=None`, `has_security=None`. Either the plan format doesn't match what the checker expects, or the objectives aren't parseable. Either way, the plan fails its own structural gate.",
+    "**OBJ-001 is under-scoped.** It asks to \"verify whether other dashboard pages also import `cn`\" but the acceptance is only *\"document the canonical home for `cn` in `docs/`\"* \u2014 no action to actually move or consolidate anything. The validation (`rg -l 'cn' src/`) is also mis-targeted: `cn` is a function name, not a literal string, so `rg` will return far more than 3 call sites."
+  ],
+  "reviewed_at": "2026-09-11T05:46:34.911029+07:00"
+}

@@ -150,3 +150,16 @@ derived from the structural signals above — they name concrete extractions
   its next tick.
 - implementer: `cron_surgical_impl.py` will pick this plan up once the reviewer
   marks it `READY` or `READY-WITH-WARNINGS`.
+
+
+## REVIEW 2026-09-11T05:46:34.910361+07:00
+
+**Verdict:** `NEEDS-REVISION`
+
+**Structural check:** objectives=12 file_header=✓ imports=✓ why=✓ dod=✓ security=✓
+
+**Gaps:**
+1. **OBJ-004–OBJ-012 are identical filler.** Nine "hardening passes" with verbatim-identical text, no line anchors, no symbol anchors, no distinct targets. This directly contradicts the plan's own claim of being "file-aware … NOT a generic N-slice filler." A real hardening pass would name a specific loose type or prop-drilling site (e.g., `SelectPrimitive.ItemProps`, `SVG_NAMESPACE` usage, `SupportedLanguage` union). These nine objectives contribute zero actionable work.
+2. **DoD section is truncated.** The plan cuts off mid-sentence: *"preserving behav"* — no completion, no checklist for the split/shrink criteria, no rollback conditions. The DoD is not a DoD.
+3. **Structural checker reports `objectives=0`** despite the plan listing 12 numbered objectives. The checker also reports `has_header=None`, `has_imports=None`, `has_why=None`, `has_dod=None`, `has_security=None`. Either the plan format doesn't match what the checker expects, or the objectives aren't parseable. Either way, the plan fails its own structural gate.
+4. **OBJ-001 is under-scoped.** It asks to "verify whether other dashboard pages also import `cn`" but the acceptance is only *"document the canonical home for `cn` in `docs/`"* — no action to actually move or consolidate anything. The validation (`rg -l 'cn' src/`) is also mis-targeted: `cn` is a function name, not a literal string, so `rg` will return far more than 3 call sites.
