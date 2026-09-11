@@ -29,7 +29,7 @@ export function ChevronDownIcon({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={cn('lucide lucide-chevron-down', className)}
-      aria-hidden={ariaHidden}
+      aria-hidden={ariaHidden === true || ariaHidden === 'true'}
     >
       <path d="m6 9 6 6 6-6" />
     </svg>

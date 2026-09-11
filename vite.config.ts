@@ -47,29 +47,14 @@ export default defineConfig({
       "tailwind-merge",
     ],
     force: false,
-    esbuildOptions: {
-      target: "chrome87", // Chrome Android compatibility
-      keepNames: false, // Better minification
-      treeShaking: true,
-      // Enable modern JS optimizations
-      legalComments: "none",
-      minify: true,
-      platform: "browser",
-      format: "esm",
-    },
     exclude: [],
   },
   build: {
     sourcemap: false,
-    // Prioritize Chrome Android for classroom tablets
-    target: [
-      "chrome87",
-      "chrome90",
-      "es2020",
-      "edge88",
-      "firefox78",
-      "safari14",
-    ],
+    // NOTE: no explicit build.target — vite-plugin-pwa copies build.target into
+    //  its injectManifest SW build, where it collides with Workbox's own target
+    //  default and Rolldown throws "'chrome90' is already specified." Letting
+    //  Vite/Rolldown use its default browser target avoids the collision.
     rollupOptions: {
       external: [],
       output: {

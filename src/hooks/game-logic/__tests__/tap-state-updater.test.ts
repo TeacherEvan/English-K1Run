@@ -46,6 +46,7 @@ describe("updateStateOnTap", () => {
     setGameState: (updater: GameState | ((prev: GameState) => GameState)) => {
       state = typeof updater === "function" ? updater(state) : updater;
     },
+    sequenceIndicesRef: { current: [] },
     setScreenShake: vi.fn(),
   });
 
