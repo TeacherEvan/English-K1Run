@@ -2,6 +2,11 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { eventTracker } from "../../lib/event-tracker";
 import type { GameState, GameCategory } from "../../types/game";
 import { handleProgressWin } from "./tap-handlers-object-win";
+import {
+  DEFAULT_MODE_PROGRESS_INCREMENT,
+  DEFAULT_MODE_PROGRESS_PENALTY,
+  PROGRESS_MAX,
+} from "../../lib/constants/game-config";
 
 export interface TapStateUpdateDependencies {
   gameState: GameState;
