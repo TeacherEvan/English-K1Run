@@ -88,7 +88,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^5.0.0",
     "@vitest/ui": "4.1.11",
-    "allure-playwright": "^3.10.2",
+    "allure-playwright": "^3.12.1",
     "concurrently": "^10.0.5",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
