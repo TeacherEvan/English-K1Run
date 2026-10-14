@@ -34,6 +34,7 @@
     right: 1rem !important;
     width: auto !important;
     max-width: none !important;
+    translate: none !important;
     max-height: calc(100dvh - 2rem);
     transform: none !important;
   }

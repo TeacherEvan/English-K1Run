@@ -47,6 +47,17 @@ describe("GameMenuSettingsDialog resilience", () => {
   let container: HTMLDivElement;
   let root: Root;
 
+  const dispatchTabPress = (element: HTMLButtonElement) => {
+    const event = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ctrlKey: false,
+    });
+
+    element.dispatchEvent(event);
+  };
+
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -104,5 +115,56 @@ describe("GameMenuSettingsDialog resilience", () => {
       expect(tab.className).toContain("whitespace-normal");
       expect(tab.className).toContain("min-w-0");
     }
+  });
+
+  it("switches the active settings section when a tab trigger is pressed", async () => {
+    await act(async () => {
+      root.render(
+        <GameMenuSettingsDialog
+          resolutionScale="auto"
+          setResolutionScale={vi.fn()}
+          continuousMode={false}
+          languageDiscoveryActive={false}
+          onLanguageDiscoverySeen={vi.fn()}
+        />,
+      );
+    });
+
+    const trigger = document.querySelector(
+      '[data-testid="settings-button"]',
+    ) as HTMLButtonElement;
+
+    await act(async () => {
+      trigger.click();
+      await import("../GameMenuSettingsDialogPanel");
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const tabs = Array.from(
+      document.querySelectorAll('[data-slot="tabs-trigger"]'),
+    ) as HTMLButtonElement[];
+    const controlsTab = tabs.find((tab) =>
+      tab.textContent?.includes("Controls, language, and classroom behavior"),
+    );
+    const visualTab = tabs.find((tab) =>
+      tab.textContent?.includes("Visual presentation and scaling options"),
+    );
+
+    expect(controlsTab?.getAttribute("aria-selected")).toBe("true");
+    expect(visualTab?.getAttribute("aria-selected")).toBe("false");
+
+    await act(async () => {
+      dispatchTabPress(visualTab as HTMLButtonElement);
+      await Promise.resolve();
+    });
+
+    const activePanel = document.querySelector(
+      '[data-slot="tabs-content"][data-state="active"]',
+    );
+
+    expect(controlsTab?.getAttribute("aria-selected")).toBe("false");
+    expect(visualTab?.getAttribute("aria-selected")).toBe("true");
+    expect(activePanel?.textContent).toContain("VisualSettings");
   });
 });

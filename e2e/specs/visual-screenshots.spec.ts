@@ -111,31 +111,12 @@ test.describe("Visual Screenshots", () => {
         .replace(/[^a-z0-9]/gi, "_")
         .toLowerCase()}`;
 
-      let gameplayStarted = false;
-
-      for (let attempt = 1; attempt <= 2; attempt += 1) {
-        await gamePage.menu.selectLevel(i);
-        await gamePage.menu.startGame();
-
-        const targetDisplayVisible = await gamePage.gameplay.targetDisplay
-          .waitFor({ state: "visible", timeout: 45000 })
-          .then(() => true)
-          .catch(() => false);
-
-        if (targetDisplayVisible) {
-          gameplayStarted = true;
-          break;
-        }
-
-        if (attempt === 2) {
-          throw new Error(`Gameplay did not start for level ${i + 1}`);
-        }
-
-        await navigateWithRetry(page, "/?e2e=1");
-        await gamePage.waitForReady();
-      }
-
-      expect(gameplayStarted).toBe(true);
+      await gamePage.menu.selectLevel(i);
+      await gamePage.menu.startGame({ strict: true });
+      await gamePage.gameplay.targetDisplay.waitFor({
+        state: "visible",
+        timeout: 45000,
+      });
       await gamePage.gameplay.backButton.waitFor({
         state: "visible",
         timeout: 45000,

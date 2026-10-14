@@ -266,7 +266,8 @@ export class GameMenuPage {
     return -1;
   }
 
-  async startGame() {
+  async startGame(options?: { strict?: boolean }) {
+    const strict = options?.strict ?? false;
     const getGameplayOrTransitionActive = () =>
       Promise.any([
         this.page
@@ -289,7 +290,9 @@ export class GameMenuPage {
       return;
     }
 
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const maxAttempts = strict ? 1 : 2;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       await this.openLevelSelect();
       await this.startGameButton.waitFor({ state: "visible", timeout: 10_000 });
       await this.startGameButton.click({ timeout: 30_000 });
@@ -300,7 +303,13 @@ export class GameMenuPage {
         return;
       }
 
-      if (attempt === 2) {
+      if (attempt === maxAttempts) {
+        if (strict) {
+          throw new Error(
+            "Gameplay did not become visible after Start Game.",
+          );
+        }
+
         return;
       }
 
