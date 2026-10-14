@@ -2,24 +2,40 @@
 node_modules/
 .pnpm-store/
 
-# Testing
+# Testing — allure-results alone is 529MB of Playwright screenshots
+allure-results/
 coverage/
 .nyc_output/
 e2e/test-results/
 e2e/.cache/
 playwright-report/
 test-results/
+reports/
 
-# Build artifacts
+# Build artifacts (Vercel builds on server, no need to upload local builds)
 dist/
 dist-ssr/
 *-dist/
 build/
 .cache/
+.vercel/output/
+
+# Audio source directory — only used by generation scripts, NOT served at runtime.
+# Runtime audio lives in public/sounds/ which Vite copies to dist/ during build.
+sounds/
+
+# Dashboard sub-project (separate app, not part of Vercel deployment)
+dashboard-ui/
+test-server/
 
 # Development
 .vscode/
 .idea/
+.kilocode/
+.kilocodemodes/
+.roo/
+.copilotignore
+.githubcopilotignore
 *.log
 *.tsbuildinfo
 
@@ -44,10 +60,15 @@ DOCS/
 **/*.spec.ts
 **/*.spec.tsx
 
+# Scripts not needed on the build server
 deploy.sh
 deploy.ps1
 verify-quality.sh
 test-android-compat.sh
+fix-vscode-permissions.ps1
+code_review.ps1
+improved-testServer.js
+scripts/
 
 # Docker
 Dockerfile
@@ -59,3 +80,10 @@ nginx.conf
 .snapshots/
 .clinerules/
 .cline/
+mcp-config.json
+cspell.json
+REQUIREMENTS.txt
+CONSOLE_EXAMPLES.md
+loc-audit.allowlist.json
+theme.json
+components.json

@@ -10,6 +10,9 @@ import {
 } from "@/lib/audio/welcome-audio-sequencer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+const WELCOME_SEQUENCE_COMPLETED_KEY = 'welcomeSequenceCompleted';
+const WELCOME_SEQUENCE_TIMEOUT_MS = 30000;
+
 interface UseWelcomeAudioSequenceOptions {
   audioConfig?: Partial<WelcomeAudioConfig>;
   isE2E: boolean;
@@ -29,8 +32,6 @@ export const useWelcomeAudioSequence = ({
   audioConfig,
   isE2E,
 }: UseWelcomeAudioSequenceOptions): WelcomeAudioSequenceState => {
-  const WELCOME_SEQUENCE_TIMEOUT_MS = 30000;
-
   const [readyToContinue, setReadyToContinue] = useState(false);
   const [isSequencePlaying, setIsSequencePlaying] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
@@ -64,6 +65,16 @@ export const useWelcomeAudioSequence = ({
   const markReadyToContinue = useCallback(() => {
     readyRef.current = true;
     setReadyToContinue(true);
+  }, []);
+
+  const markWelcomeSequenceCompleted = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        window.sessionStorage.setItem(WELCOME_SEQUENCE_COMPLETED_KEY, 'true');
+      } catch {
+        // Ignore storage failures
+      }
+    }
   }, []);
 
   const requestStart = useCallback(() => {
@@ -124,6 +135,7 @@ export const useWelcomeAudioSequence = ({
         if (!cancelled) {
           sequenceFinishedRef.current = true;
           setIsSequencePlaying(false);
+          markWelcomeSequenceCompleted();
           if (!readyRef.current) {
             logDev("Sequence finished normally");
             readyRef.current = true;
@@ -145,6 +157,7 @@ export const useWelcomeAudioSequence = ({
           setReadyToContinue(true);
           sequenceFinishedRef.current = true;
           setIsSequencePlaying(false);
+          markWelcomeSequenceCompleted();
         }
       } finally {
         if (safetyEndTimer) {

@@ -34,6 +34,15 @@ const hasSessionPlayedHomeMenuAudio = () => {
 	}
 };
 
+const hasWelcomeSequenceCompleted = () => {
+	if (typeof window === "undefined") return false;
+	try {
+		return window.sessionStorage.getItem('welcomeSequenceCompleted') === "true";
+	} catch {
+		return false;
+	}
+};
+
 const markSessionHomeMenuAudioPlayed = () => {
 	if (typeof window === "undefined") return;
 	try {
@@ -65,7 +74,9 @@ export const useHomeMenuAudio = () => {
 		if (!soundEnabled || audioScheduledRef.current || isE2EMode()) return;
 
 		const alreadyPlayed =
-			hasPlayedHomeMenuAssociation || hasSessionPlayedHomeMenuAudio();
+			hasPlayedHomeMenuAssociation ||
+			hasSessionPlayedHomeMenuAudio() ||
+			hasWelcomeSequenceCompleted();
 		if (alreadyPlayed) {
 			audioScheduledRef.current = true;
 			return;
