@@ -1,0 +1,104 @@
+@media (prefers-reduced-motion: no-preference) {
+  .menu-storybook-sun {
+    animation: menu-sun-glow 16s linear infinite;
+  }
+
+  .menu-storybook-cloud {
+    animation: menu-cloud-drift 14s ease-in-out infinite;
+  }
+
+  .menu-storybook-cloud--two {
+    animation-delay: -4s;
+  }
+
+  .menu-home-mascot {
+    animation: menu-mascot-bob 4.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  }
+
+  .menu-storybook-stage,
+  .menu-home-copy,
+  .menu-best-time-card,
+  .menu-primary-action,
+  .menu-secondary-action,
+  .menu-tertiary-action,
+  .menu-support-action,
+  .menu-support-link {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: menu-story-enter 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .menu-home-copy {
+    animation-delay: 0.12s;
+  }
+  .menu-best-time-card {
+    animation-delay: 0.2s;
+  }
+  .menu-primary-action {
+    animation-delay: 0.3s;
+  }
+  .menu-secondary-action {
+    animation-delay: 0.38s;
+  }
+  .menu-tertiary-action {
+    animation-delay: 0.46s;
+  }
+  .menu-support-action {
+    animation-delay: 0.54s;
+  }
+
+  .menu-support-link {
+    display: inline-flex;
+    animation-delay: 0.6s;
+  }
+
+  .menu-best-time-card::after {
+    content: "";
+    position: absolute;
+    inset: -20% auto -20% -35%;
+    width: 22%;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(255, 255, 255, 0.55),
+      transparent
+    );
+    transform: rotate(16deg);
+    animation: menu-card-sheen 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.95s 1 both;
+  }
+}
+
+@keyframes menu-story-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes menu-sun-glow {
+  50% {
+    transform: scale(1.06) rotate(180deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+@keyframes menu-cloud-drift {
+  50% {
+    transform: translateX(0.8rem);
+  }
+}
+
+@keyframes menu-mascot-bob {
+  50% {
+    transform: translateY(-0.35rem) rotate(-2deg);
+  }
+}
+
+@keyframes menu-card-sheen {
+  to {
+    transform: translateX(560%) rotate(16deg);
+  }
+}

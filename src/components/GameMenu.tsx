@@ -5,7 +5,11 @@ import { formatBestTime } from "../lib/utils";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LEVEL_ICON_FALLBACKS } from "./game-menu/constants";
 import "./game-menu/game-menu-adaptive.css";
-import "./game-menu/game-menu-storybook.css";
+import "./game-menu/game-menu-compact.css";
+import "./game-menu/game-menu-storybook-motion.css";
+import "./game-menu/game-menu-storybook-scene.css";
+import "./game-menu/game-menu-storybook-surfaces.css";
+import "./game-menu/game-menu-ultrawide.css";
 import { GameMenuHome } from "./game-menu/GameMenuHome";
 import { GameMenuLevelSelect } from "./game-menu/GameMenuLevelSelect";
 

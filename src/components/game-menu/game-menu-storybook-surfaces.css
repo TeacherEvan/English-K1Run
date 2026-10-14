@@ -1,0 +1,93 @@
+.menu-best-time-card,
+.menu-action-card,
+.menu-support-action,
+.menu-support-link,
+.menu-home-copy,
+.menu-storybook-stage {
+  position: relative;
+  z-index: 1;
+}
+
+.menu-best-time-card {
+  overflow: hidden;
+}
+
+.menu-best-time-card::before,
+.menu-action-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.menu-best-time-card::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18),
+    transparent 42%,
+    rgba(251, 191, 36, 0.15) 100%
+  );
+}
+
+.menu-action-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.menu-action-card::before {
+  opacity: 0.92;
+}
+
+.menu-action-card--start::before {
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(255, 255, 255, 0.22),
+      transparent 32%
+    ),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%);
+}
+
+.menu-action-card--challenge::before {
+  background:
+    radial-gradient(
+      circle at 86% 18%,
+      rgba(253, 224, 71, 0.28),
+      transparent 30%
+    ),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 58%);
+}
+
+.menu-action-card--map::before {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.52), transparent 35%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 1.75rem,
+      rgba(14, 165, 233, 0.06) 1.75rem 1.84rem
+    );
+}
+
+.menu-action-card > *,
+.menu-best-time-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.menu-action-icon-shell {
+  display: grid;
+  place-items: center;
+  padding: 0.6rem;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.menu-action-icon-shell--start,
+.menu-action-icon-shell--challenge {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.menu-action-icon-shell--map {
+  background: rgba(15, 23, 42, 0.06);
+}
