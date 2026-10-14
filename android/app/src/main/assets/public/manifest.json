@@ -1,0 +1,34 @@
+{
+  "name": "Kindergarten Race - Educational Game",
+  "short_name": "K-Race",
+  "description": "An engaging educational racing game where students compete by identifying falling objects. Perfect for kindergarten students to learn pattern recognition while having fun!",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "categories": ["education", "games", "kids"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Game",
+      "short_name": "Play",
+      "description": "Jump straight into the game",
+      "url": "/?action=play",
+      "icons": []
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7"
+}

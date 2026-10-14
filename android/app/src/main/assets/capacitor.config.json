@@ -1,0 +1,8 @@
+{
+	"appId": "com.teacherevan.kindergartenrace",
+	"appName": "Kindergarten Race",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}
