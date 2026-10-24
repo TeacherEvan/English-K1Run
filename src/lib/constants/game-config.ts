@@ -110,8 +110,13 @@ export const ROTATION_THRESHOLD = 10000; // 10 seconds
 /** Duration of fairy transformation animation when worms are tapped */
 export const FAIRY_TRANSFORM_DURATION = 10000; // 10 seconds
 
-/** Interval between object spawn cycles in milliseconds */
-export const SPAWN_INTERVAL_MS = 1500;
+/**
+ * Spawn timing is owned by the difficulty curve
+ * (`engagement-difficulty.ts` -> `calculateSpawnInterval`), which starts at
+ * `DEFAULT_DIFFICULTY.baseSpawnInterval` and accelerates to
+ * `minSpawnInterval` at 100% progress. A second constant here drifted from
+ * that source of truth, so it was removed.
+ */
 
 /**
  * Force target spawn threshold

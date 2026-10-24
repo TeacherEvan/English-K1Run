@@ -142,7 +142,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setGameState,
   });
 
-  useSpawnInterval(gameState.gameStarted, gameState.winner, spawnObject);
+  useSpawnInterval(
+    gameState.gameStarted,
+    gameState.winner,
+    spawnObject,
+    gameState.progress,
+  );
   useAnimationLoop(
     gameState.gameStarted,
     gameState.winner,
