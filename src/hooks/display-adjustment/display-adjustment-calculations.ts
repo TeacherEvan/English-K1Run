@@ -42,11 +42,12 @@ export const calculateScaleValues = (
   const baseScale = Math.min(widthScale, heightScale);
   const scale = roundToHundredth(baseScale * getScaleOverride(resolutionScale));
 
-  let fontSize = scale;
-  let objectSize = scale;
-  let turtleSize = scale;
-  let spacing = scale;
-  let fallSpeed = 1;
+  // Both branches below assign every one of these, so the initialisers were dead.
+  let fontSize: number;
+  let objectSize: number;
+  let turtleSize: number;
+  let spacing: number;
+  let fallSpeed: number;
 
   if (viewport.width < 768) {
     fontSize = Math.max(scale * 1.0, 0.7);

@@ -48,7 +48,9 @@ export class GamePage {
       const errorFallback = this.page.locator('[data-testid="error-fallback"]');
       if (await errorFallback.isVisible()) {
         const errorText = await errorFallback.innerText();
-        throw new Error(`Game crashed with error: ${errorText}`);
+        throw new Error(`Game crashed with error: ${errorText}`, {
+          cause: error,
+        });
       }
       throw error;
     }

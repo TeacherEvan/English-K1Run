@@ -54,6 +54,7 @@ export class AssetDatabase extends Dexie {
       console.error("[AssetDatabase] Failed to open database:", error);
       throw new Error(
         `Database initialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        { cause: error },
       );
     }
   }

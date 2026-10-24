@@ -7,11 +7,6 @@ import {
   PROGRESS_MAX,
 } from "../../lib/constants/game-config";
 import { handleProgressWin } from "./tap-handlers-object-win";
-import {
-  DEFAULT_MODE_PROGRESS_INCREMENT,
-  DEFAULT_MODE_PROGRESS_PENALTY,
-  PROGRESS_MAX,
-} from "../../lib/constants/game-config";
 
 export interface TapStateUpdateDependencies {
   gameState: GameState;
