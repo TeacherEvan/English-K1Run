@@ -6,7 +6,17 @@
   transition-duration: calc(var(--animation-speed, 1) * 0.2s) !important;
 }
 
-/* High contrast mode */
+/*
+ * High contrast mode.
+ *
+ * These classes are applied to two different roots in the app: the in-app
+ * settings toggle writes to <html> (settings-context), while the OS-preference
+ * sync writes to <body> (accessibility-manager). Selectors therefore match
+ * BOTH, so the toggle and the system preference both take effect. The extra
+ * element in the selector also keeps these custom properties ahead of the
+ * `:root` theme defaults.
+ */
+html.high-contrast,
 body.high-contrast {
   --primary: #000000;
   --primary-foreground: #ffffff;
@@ -17,7 +27,10 @@ body.high-contrast {
   filter: contrast(1.5);
 }
 
-/* Reduced motion */
+/* Reduced motion (see note above: matches <html> and <body>) */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after,
 body.reduced-motion *,
 body.reduced-motion *::before,
 body.reduced-motion *::after {
@@ -28,11 +41,14 @@ body.reduced-motion *::after {
 }
 
 /* Simplified mode - reduce visual complexity */
+html.simplified-mode .complex-animation,
+html.simplified-mode .advanced-effects,
 body.simplified-mode .complex-animation,
 body.simplified-mode .advanced-effects {
   display: none !important;
 }
 
+html.simplified-mode .simplified-alternative,
 body.simplified-mode .simplified-alternative {
   display: block !important;
 }
