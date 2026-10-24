@@ -45,7 +45,14 @@ DOCS/
 **/*.spec.tsx
 
 # Scripts
-scripts/
+#
+# Do NOT blanket-ignore scripts/. `npm run build` starts with
+# `node scripts/validate-audio-files.cjs` (the audio:validate gate), so
+# excluding the whole folder made every Vercel production build fail with
+# MODULE_NOT_FOUND while `npm run build` passed locally, where .vercelignore
+# does not apply. Only re-include what the build command actually executes.
+scripts/*
+!scripts/validate-audio-files.cjs
 deploy.sh
 deploy.ps1
 verify-quality.sh
