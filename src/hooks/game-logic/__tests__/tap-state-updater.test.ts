@@ -80,4 +80,29 @@ describe("updateStateOnTap", () => {
     expect(state.progress).toBe(0);
     expect(state.streak).toBe(0);
   });
+
+  it("escalates the combo multiplier as the streak builds", () => {
+    const deps = makeDeps();
+
+    for (let i = 0; i < 5; i += 1) {
+      updateStateOnTap(true, deps);
+    }
+
+    expect(state.streak).toBe(5);
+    expect(state.multiplier).toBe(1.5);
+  });
+
+  it("resets the combo multiplier when a wrong tap breaks the streak", () => {
+    const deps = makeDeps();
+
+    for (let i = 0; i < 10; i += 1) {
+      updateStateOnTap(true, deps);
+    }
+    expect(state.multiplier).toBe(2);
+
+    updateStateOnTap(false, deps);
+
+    expect(state.streak).toBe(0);
+    expect(state.multiplier).toBe(1);
+  });
 });

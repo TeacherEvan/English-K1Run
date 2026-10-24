@@ -51,8 +51,9 @@ export const createHandleObjectTap = (
 
       const { tappedObject, isCorrect, tapLatency } = validation;
 
-      // Play audio feedback
-      playTapAudioFeedback(isCorrect);
+      // Play audio feedback. `gameState.streak` is the streak banked before
+      // this tap, so the pitch climbs one step per consecutive success.
+      playTapAudioFeedback(isCorrect, gameState.streak);
 
       // Track tap event
       eventTracker.trackObjectTap(

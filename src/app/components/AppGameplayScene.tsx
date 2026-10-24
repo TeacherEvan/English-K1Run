@@ -129,6 +129,7 @@ export const AppGameplayScene = ({
                             timeRemaining={
                                 currentCategory.requiresSequence ? undefined : timeRemaining
                             }
+                            multiplier={gameState.multiplier}
                             continuousMode={continuousMode}
                         />
                     </div>

@@ -73,4 +73,24 @@ describe('TargetDisplay', () => {
         expect(text).not.toContain('Find: ねこ')
         expect(text).not.toContain('Animals & Nature')
     })
+
+    it('shows the combo multiplier badge only while the multiplier is above 1x', () => {
+        const renderWith = (multiplier?: number) => {
+            act(() => {
+                root.render(
+                    <TargetDisplay
+                        currentTarget="cat"
+                        targetEmoji="🐱"
+                        category={{ name: 'Animals & Nature', items: [], requiresSequence: true }}
+                        multiplier={multiplier}
+                    />,
+                )
+            })
+            return document.body.textContent ?? ''
+        }
+
+        expect(renderWith(2)).toContain('2x')
+        expect(renderWith(1)).not.toContain('1x')
+        expect(renderWith(undefined)).not.toContain('x')
+    })
 })
