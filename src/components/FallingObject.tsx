@@ -83,8 +83,8 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     >
       <div
         className={isNumericText
-          ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
-          : 'drop-shadow-2xl'
+          ? 'game-object font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
+          : 'game-object drop-shadow-2xl'
         }
         style={{
           filter: isNumericText
