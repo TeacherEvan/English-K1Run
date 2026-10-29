@@ -260,3 +260,20 @@ if (this.preferences.animationSpeed !== 1) {
 - **`twMerge` does not merge across variants.** `dark:bg-destructive/60` survives alongside a new `bg-red-50/80`; a light-surface override must repeat itself under `dark:` or the host's OS preference will win.
 - **`import.meta.url` is not a `file:` URL under the Vitest jsdom transform.** Read fixtures with `resolve(process.cwd(), …)` instead of `new URL(…, import.meta.url)`.
 - **The visual linter's `LAYOUT_THRASHING_ANIMATION` keys on the animation *name*.** `.slide-in-from-top` flagged HIGH while its keyframes animate `translateY` only. Read `theme-inline.css` before "fixing" it.
+
+## 8. Delivery Verification & Standing CI Gap
+
+**Dependency advisories.** GitHub reported 35 on the default branch (2 critical, 12 high). Every critical/high advisory was resolvable **in-range with no semver-major bump**; `npm audit fix` moved 28 transitive packages. Result: **19 → 4 advisories, all LOW**, all from `deepmerge` via `workbox-build`, whose only fix is downgrading `vite-plugin-pwa` to `0.2.1` — a breaking change not worth taking for a prototype-pollution vector in a build-time-only tool.
+
+**Deployed artefact verified, not assumed.** A `200` from `https://english-k1-run.vercel.app` proves nothing on its own, so the check was ordered as the skill requires:
+
+| Gate | Result |
+| :--- | :--- |
+| Automation actually runs | **NO — `gh api repos/…/actions/permissions` → `enabled: false`.** `ci.yml` is decorative and has never gated a merge. |
+| Platform says it is live | Vercel Production deployment `7426696361` for `2a9b688`, status **`success`**. |
+| Hash equality | **Mismatch** — local `app-CesLVvq5.js` vs served `app-Bb7q9gp-.js`. Environmental (Vercel resolves its own tree), not a stale deploy. |
+| Symbol grep of the served bundle | **All present.** `game-area:after`, `.app-bg-animated::before`, `inset:-4%`, `.app-bg-animated{animation:none}`, `data-animation-speed` in `index-BjMLoHkS.css`; `.menu-action-card.menu-action-card:active` in `app-DojOsofW.css`. |
+| Re-measured on production | `scrollWidth === innerWidth === 1440`; start-button `transitionDuration: 0.14s` (was 0.2s forced); zero universal `!important` rules; `.app` `animationName: none`; credits 53×44; exit 56px on a red-50 surface. |
+
+**Standing gap: GitHub Actions is disabled for this repository.** Hash inequality between local and Vercel builds cannot currently be attributed to a specific commit by CI, because no CI ever runs. Nothing in this audit — including `npm run lint`, `npm run build` and 136 passing tests — has ever been enforced by the remote. Enabling Actions is a repository-settings change with billing implications and is deliberately left to the owner.
+
