@@ -226,6 +226,61 @@
   isolation: isolate;
 }
 
+/*
+ * Six-state tactile treatment for the menu action cards.
+ *
+ * The cards previously only lifted on hover; nothing moved downward on press,
+ * so a tap read as "nothing happened" for the ~90 ms before the menu
+ * transition began. These rules own the transform channel with doubled class
+ * specificity so the Tailwind utilities that set `hover:-translate-y-0.5` and
+ * `active:scale-95` cannot split one state machine across two shorthand
+ * declarations.
+ */
+.menu-action-card.menu-action-card {
+  transition:
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+/* Specular top hairline: the light source that makes a surface read as solid. */
+.menu-action-card.menu-action-card::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.58) 22%,
+    rgba(255, 255, 255, 0.58) 78%,
+    transparent
+  );
+  opacity: 0.75;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menu-action-card.menu-action-card:hover:not(:disabled) {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.menu-action-card.menu-action-card:active:not(:disabled) {
+  transform: translate3d(0, 1px, 0) scale(0.988);
+  transition-duration: 25ms;
+}
+
+.menu-action-card.menu-action-card:focus-visible {
+  outline: 2px solid rgba(251, 191, 36, 0.9);
+  outline-offset: 3px;
+}
+
+.menu-action-card.menu-action-card:disabled {
+  filter: grayscale(40%);
+}
+
 .menu-action-card::before {
   opacity: 0.92;
 }
