@@ -1,7 +1,25 @@
 /* Accessibility preferences styles */
 
-/* Animation speed adjustments */
-* {
+/*
+ * Animation speed adjustment.
+ *
+ * This used to be a universal `*` rule. Because it assigned a literal duration
+ * (`calc(var(--animation-speed, 1) * 1s)`) with `!important`, EVERY element
+ * computed 1s animations and 0.2s transitions at the default setting — the
+ * motion system collapsed into a single flat speed, defeating the per-component
+ * durations that carry the tactile feel (25ms press, 90ms tap acknowledge,
+ * 140ms hover, 300ms dialog, 720ms staggered entry). Measured before the fix:
+ * `.duration-300` computed `transitionDuration: 0.2s` and the start button
+ * computed `animationDuration: 1s`.
+ *
+ * CSS cannot multiply an arbitrary declared duration, so the multiplier is only
+ * applied when the user actually asks for a non-default speed.
+ * accessibility-manager writes `data-animation-speed` for that case and removes
+ * it at 1.
+ */
+html[data-animation-speed] *,
+html[data-animation-speed] *::before,
+html[data-animation-speed] *::after {
   animation-duration: calc(var(--animation-speed, 1) * 1s) !important;
   transition-duration: calc(var(--animation-speed, 1) * 0.2s) !important;
 }
