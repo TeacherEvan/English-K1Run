@@ -3,8 +3,31 @@
  * Scene roots such as `AppGameplayScene` rely on `absolute inset-0`.
  */
 
-.app-bg-animated {
+.app-bg-animated::before {
+  content: "";
+  position: absolute;
+  /* Pre-expanded so the 1.0 end of the zoom cycle still covers the shell. */
+  inset: -4%;
+  z-index: -1;
+  pointer-events: none;
+  background: inherit;
+  background-size: cover;
+  background-position: center;
+  transform-origin: center;
   animation: gentle-zoom 20s ease-in-out infinite alternate;
+}
+
+/*
+ * The zoom lives on a background-only pseudo-element, never on `.app` itself.
+ *
+ * Scaling `.app` also scaled every descendant — menu copy, buttons, the best
+ * time readout — so type re-rasterised for the whole 20 s cycle and the layout
+ * box grew ~5% past the viewport (measured: html scrollWidth 1455 against a
+ * 1440 innerWidth, with no child element reporting the overflow). Moving the
+ * transform here keeps the parallax and leaves the text and hit boxes still.
+ */
+.app-bg-animated {
+  animation: none;
 }
 
 @keyframes gentle-zoom {
