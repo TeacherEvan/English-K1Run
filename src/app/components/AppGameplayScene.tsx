@@ -108,7 +108,7 @@ export const AppGameplayScene = ({
                         <button
                             data-testid="back-button"
                             onClick={onResetGame}
-                            className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 backdrop-blur-sm border-2 border-primary-foreground/20"
+                            className="bg-primary/90 hover:bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg transition-all hover:scale-105 active:scale-95 min-h-11 inline-flex items-center backdrop-blur-sm border-2 border-primary-foreground/20"
                             style={{
                                 fontSize: `calc(0.875rem * var(--font-scale, 1))`,
                                 padding: `calc(0.5rem * var(--spacing-scale, 1)) calc(1rem * var(--spacing-scale, 1))`,

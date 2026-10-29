@@ -13,13 +13,18 @@ import { InfoIcon } from "./icons";
 export const GameMenuCreditsDialog = memo(() => {
     const { t } = useTranslation();
 
+    /*
+     * The trigger used `h-auto p-0`, a 45x20px hit area — below the 44px touch
+     * minimum in a game small children play on tablets. Padding restores the
+     * target and the negative margin keeps the text on its optical margin.
+     */
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <Button
                     variant="link"
                     size="sm"
-                    className="menu-support-link mt-1 h-auto self-start p-0 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                    className="menu-support-link mt-0 -ml-1 h-auto min-h-11 self-start px-1 text-sm font-semibold text-slate-600 hover:text-slate-900"
                     data-testid="credits-button"
                 >
                     {t("menu.credits.title")}
