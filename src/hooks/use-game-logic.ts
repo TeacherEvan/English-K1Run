@@ -156,7 +156,6 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setGameObjects,
     viewportRef,
     wormSpeedMultiplier,
-    gameObjectsRef,
     wormsRef,
   );
   useFairyCleanup(gameState.gameStarted, gameState.winner, setFairyTransforms);
