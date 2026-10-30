@@ -6,8 +6,8 @@
 | **Audited Scope** | `src/` — 381 implementation files, 36 test files, **25,059 effective LOC** (+1,232 CSS LOC, 186 `index.html`) |
 | **Tech Stack & Runtime** | TypeScript 5.9 / React 19 / Vite 8 / Tailwind 4 / Radix UI / Dexie / i18next / Capacitor 8 (Android + iOS) / vite-plugin-pwa. Target: touch-first tablets in classrooms, desktop projection. |
 | **Pre/Post Audit SHA-256** | `7224bb1d57ae3132` / `7224bb1d57ae3132` (**VERIFIED ZERO MUTATION** through Pass 1–4) |
-| **Deterministic Health Score** | **`84 / 100`** before remediation → **`88 / 100`** after (`D_raw = 38 → 19`, `P_test = 8.25`, `M_kill = 45%`) |
-| **Vibe-Debt Risk Level** | **`MODERATE`** before → **`LOW`** after |
+| **Deterministic Health Score** | **`84 / 100`** at audit → **`91 / 100`** after remediation (`D_raw = 38 → 10`, `P_test = 6.75`, `M_kill = 45% → 55%`) |
+| **Vibe-Debt Risk Level** | **`MODERATE`** at audit → **`LOW`** after |
 
 > **Zero-mutation statement.** `HEAD` was `972d5a4e61a50b975b3df7002cc2fa7d7ba5525b` with a clean tree for the whole read-only pass. The scanner digest above was computed against `src/` with a scoped prune set (copied to scratch, `node_modules`/`dist`/`android`/`ios`/`playwright-report`/`test-results` excluded) and is unchanged across Pass 1–4. Every mutation below belongs to the separately authorised Pass 4.5 remediation.
 
@@ -21,7 +21,7 @@ The failure mode is therefore **not** correctness debt — it is **presentation-
 | :--- | :--- | :--- | :--- |
 | **P0 — Critical (Crash / Data Loss / Security / Leak)** | `0` | `-18 pts ea` | None found. No client-authoritative money/permission path, no injection sink, no unguarded parse, no leaked listener on the scoring path. |
 | **P1 — High (Frame-Budget / Race / Logic Bug)** | `2` | `-8 pts ea` | `lib/accessibility/accessibility-styles.css:4-7` (universal `!important` duration flattening); `styles/backgrounds/real-utilities.css:6-7` (root-box zoom → overflow + text re-rasterisation). |
-| **P2 — Medium (God File / Split-Brain State / Debt)** | `6` | `-3 pts ea` | `lib/game/collision-detection-worm.ts:12` (duplicate `applyWormObjectCollision`, opposite semantics, zero callers, in-place mutation); `hooks/use-synced-ref.ts:9-11` (effect-synced ref read one commit stale inside the rAF loop); `hooks/game-logic/game-effects/animation-loop.ts:35-53` (3 state writes/frame, React state as the game transport); theme system vs `dark:` media variant competing; `INEFFECTIVE_DYNAMIC_IMPORT` on speech-synthesizer; no test covers the animation loop. |
+| **P2 — Medium (God File / Split-Brain State / Debt)** | `6 → 3` | `-3 pts ea` | `lib/game/collision-detection-worm.ts:12` (duplicate `applyWormObjectCollision`, opposite semantics, zero callers, in-place mutation — **removed**); `hooks/use-synced-ref.ts:9-11` (effect-synced ref read one commit stale inside the rAF loop — **fixed**); `hooks/game-logic/game-effects/animation-loop.ts:35-53` (per-frame dispatch churn — **reduced**); theme system vs `dark:` media variant competing; `INEFFECTIVE_DYNAMIC_IMPORT` on speech-synthesizer; no test covered the animation loop (**now covered**). |
 | **P3 — Low (Magic Constants / DX / Portability)** | `4` | `-1 pt ea` | Sub-44px touch targets (`credits-button` 45×20, `back-button` 118×34); HUD timer 4.68:1 at 0.65rem with proportional digits; `animate-pulse` on live stopwatch readouts; 67 `NUMERIC_JITTER` linter hits (mostly JS-source false positives). |
 
 ### High-Risk File Telemetry Hotspots
@@ -276,4 +276,33 @@ if (this.preferences.animationSpeed !== 1) {
 | Re-measured on production | `scrollWidth === innerWidth === 1440`; start-button `transitionDuration: 0.14s` (was 0.2s forced); zero universal `!important` rules; `.app` `animationName: none`; credits 53×44; exit 56px on a red-50 surface. |
 
 **Standing gap: GitHub Actions is disabled for this repository.** Hash inequality between local and Vercel builds cannot currently be attributed to a specific commit by CI, because no CI ever runs. Nothing in this audit — including `npm run lint`, `npm run build` and 136 passing tests — has ever been enforced by the remote. Enabling Actions is a repository-settings change with billing implications and is deliberately left to the owner.
+
+## 9. Remediation Round 2 — the E2E gate and the code defects
+
+The first delivery pass ran unit tests only and called the change verified. That was the wrong gate: 18 Playwright specs exercise the exact surfaces being restyled (menu viewport fit, touch, contrast, keyboard navigation, reduced motion). They were run in round 2, and **the browser binary Playwright 1.63 wanted (revision 1243) was not in the cache**, so the first attempt failed 14/14 on `browserType.launch`, not on behaviour. After `npx playwright install chromium`:
+
+| Gate | Result |
+| :--- | :--- |
+| `npx playwright test --project=chromium` | **62 passed, 4 skipped, 0 failed** (3.5 min) — run twice: once for the visual pass, once after the game-loop change |
+| `npx vitest run` | **140 passed** (136 + 4 new loop tests) |
+| `npx tsc -b --noEmit` · `npm run lint` · `npm run build` | exit 0 · clean · clean |
+
+**Correction to §2, Lens 1.** The duplicate-collision finding was under-reported. `src/lib/game/` was not one bad file among many — it was a **near-entirely dead parallel implementation** of `hooks/game-logic/`:
+
+| File | Status |
+| :--- | :--- |
+| `worm-manager.ts` | **Dead duplicate** of `worm-logic.ts` — same `createWorms`, `updateWormPosition(s)`, `killWorm`, `removeDeadWorms`, copied wholesale. 5 of 6 exports had zero references. |
+| `collision-detection-worm.ts` | Dead; `applyWormObjectCollision` with *opposite* semantics to the live one, mutating React state in place. |
+| `index.ts` | Barrel imported by **nobody**, advertising the dead tree as "the game module". |
+| `collision-detection.ts` | Barrel; one live re-export. |
+| `collision-detection-lanes.ts` | **Alive** — `processLaneCollisions` is used by `object-update.ts`. `partitionByLane` had zero references. |
+
+Four files deleted (~150 LOC), the one live import repointed at `collision-detection-lanes`, and the dead `partitionByLane` export dropped.
+
+**P2-4 fixed and proven.** `animation-loop.ts` now owns an authoritative worm array seeded once from the ref, and collision resolves against the positions that frame just computed. `updateWormPositions` returns the same reference for an empty board, so the dispatch is skipped when nothing moves; the collision context object is hoisted out of the frame callback.
+
+The regression test is decisive rather than decorative: an object is placed so it does **not** overlap the worm at t0 but **does** after one frame of travel. Reverting the loop to the stale read makes it fail — `expected [ { id: 'object-1', … } ] to have a length of +0 but got 1` — and restoring the fix makes it pass. Verified by temporarily reverting the source and re-running.
+
+**Still outstanding (deliberately):** React state remains the game transport (every frame still reconciles the emoji list); the theme-vs-`dark:` authority conflict is systemic and only patched locally on the Exit button; `INEFFECTIVE_DYNAMIC_IMPORT` on the speech synthesizer. These are Phase 2/3 and none is a correctness bug.
+
 
