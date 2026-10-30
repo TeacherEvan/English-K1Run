@@ -8,7 +8,7 @@ import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { calculateDynamicSpeed } from "../../lib/constants/engagement-system";
 import { EMOJI_SIZE } from "../../lib/constants/game-config";
 import { eventTracker } from "../../lib/event-tracker";
-import { processLaneCollisions } from "../../lib/game/collision-detection";
+import { processLaneCollisions } from "../../lib/game/collision-detection-lanes";
 import type { GameObject, GameState } from "../../types/game";
 
 export interface ObjectUpdateDependencies {

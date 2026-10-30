@@ -1,7 +1,11 @@
 /**
- * Lane-based collision detection helpers.
+ * Lane-based collision detection.
  *
- * Keeps falling objects separated inside each lane and partitions objects by lane.
+ * Keeps falling objects separated inside each lane. This is the only module
+ * under `lib/game/`: the sibling `worm-manager.ts`, `collision-detection-worm.ts`
+ * and their barrels were a dead parallel implementation of `hooks/game-logic/`
+ * that advertised a differently-behaved `applyWormObjectCollision`, and have
+ * been removed.
  */
 
 import type { GameObject, PlayerSide } from "../../types/game";
@@ -75,29 +79,4 @@ export function processLaneCollisions(
       );
     }
   }
-}
-
-/**
- * Partition objects by lane for efficient processing.
- */
-export function partitionByLane(objects: GameObject[]): {
-  left: GameObject[];
-  right: GameObject[];
-} {
-  if (!objects) {
-    return { left: [], right: [] };
-  }
-
-  const left: GameObject[] = [];
-  const right: GameObject[] = [];
-
-  for (const obj of objects) {
-    if (obj.lane === "left") {
-      left.push(obj);
-    } else {
-      right.push(obj);
-    }
-  }
-
-  return { left, right };
 }
