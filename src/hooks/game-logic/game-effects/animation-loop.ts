@@ -1,5 +1,7 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useEffect } from "react";
+import { writeObjectFrames } from "../../../lib/game/object-frame-writer";
+import type { ObjectPositions } from "../../../lib/game/object-motion";
 import type { GameObject, WormObject } from "../../../types/game";
 import { applyWormObjectCollision, updateWormPositions } from "../worm-logic";
 
@@ -14,7 +16,9 @@ export const useAnimationLoop = (
   setGameObjects: Dispatch<SetStateAction<GameObject[]>>,
   viewportRef: MutableRefObject<{ width: number; height: number }>,
   wormSpeedMultiplier: MutableRefObject<number>,
+  gameObjectsRef: MutableRefObject<GameObject[]>,
   wormsRef: MutableRefObject<WormObject[]>,
+  positionsRef: MutableRefObject<ObjectPositions>,
 ) => {
   useEffect(() => {
     if (!gameStarted || winner) {
@@ -58,17 +62,26 @@ export const useAnimationLoop = (
         setWorms(nextWorms);
       }
 
-      if (nextWorms.length > 0) {
-        // `prev` is the committed object list; the worm positions are the ones
-        // this frame just computed, not the ones from the previous commit.
-        setGameObjects((prev) =>
-          applyWormObjectCollision(nextWorms, prev, collisionContext),
+      if (nextWorms.length > 0 && gameObjectsRef.current.length > 0) {
+        // Collision reads live positions. Compute first, dispatch only when
+        // something was actually hit — otherwise this would be a state update
+        // 60 times a second that always returns the same array.
+        const survivors = applyWormObjectCollision(
+          nextWorms,
+          gameObjectsRef.current,
+          positionsRef.current,
+          collisionContext,
         );
+        if (survivors !== gameObjectsRef.current) {
+          setGameObjects(survivors);
+        }
       }
 
       const elapsed = currentTime - lastObjectUpdateTime;
       if (elapsed >= frameInterval) {
         updateObjects();
+        // Positions are written straight to the DOM; React never sees them.
+        writeObjectFrames(gameObjectsRef.current, positionsRef.current);
         lastObjectUpdateTime = currentTime - (elapsed % frameInterval);
       }
 
@@ -85,6 +98,8 @@ export const useAnimationLoop = (
     setGameObjects,
     viewportRef,
     wormSpeedMultiplier,
+    gameObjectsRef,
     wormsRef,
+    positionsRef,
   ]);
 };

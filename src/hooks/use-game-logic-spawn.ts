@@ -9,6 +9,8 @@ interface SpawnDeps {
   fallSpeedMultiplier: number;
   viewportRef: MutableRefObject<{ width: number; height: number }>;
   gameStateRef: MutableRefObject<GameState>;
+  gameObjectsRef: MutableRefObject<GameObject[]>;
+  positionsRef: MutableRefObject<Map<string, { x: number; y: number }>>;
   lastEmojiAppearance: MutableRefObject<Map<string, number>>;
   lastTargetSpawnTime: MutableRefObject<number>;
   staleEmojisCache: MutableRefObject<{
@@ -25,6 +27,8 @@ export const useGameLogicSpawn = ({
   fallSpeedMultiplier,
   viewportRef,
   gameStateRef,
+  gameObjectsRef,
+  positionsRef,
   lastEmojiAppearance,
   lastTargetSpawnTime,
   staleEmojisCache,
@@ -55,8 +59,10 @@ export const useGameLogicSpawn = ({
         setGameObjects,
         viewportRef,
         gameStateRef,
+        gameObjectsRef,
+        positionsRef,
       }),
-    [setGameObjects, viewportRef, gameStateRef],
+    [setGameObjects, viewportRef, gameStateRef, gameObjectsRef, positionsRef],
   );
 
   return { spawnImmediateTargets, spawnObject, updateObjects };

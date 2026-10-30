@@ -35,6 +35,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const {
     gameObjects,
     setGameObjects,
+    positionsRef,
     worms,
     setWorms,
     fairyTransforms,
@@ -93,6 +94,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       fallSpeedMultiplier,
       viewportRef,
       gameStateRef,
+      gameObjectsRef,
+      positionsRef,
       lastEmojiAppearance,
       lastTargetSpawnTime,
       staleEmojisCache,
@@ -156,7 +159,9 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setGameObjects,
     viewportRef,
     wormSpeedMultiplier,
+    gameObjectsRef,
     wormsRef,
+    positionsRef,
   );
   useFairyCleanup(gameState.gameStarted, gameState.winner, setFairyTransforms);
 

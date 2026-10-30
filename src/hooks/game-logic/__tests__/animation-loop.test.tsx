@@ -66,7 +66,7 @@ interface Harness {
   updateObjects: ReturnType<typeof vi.fn>;
 }
 
-const mount = (worms: WormObject[]): Harness => {
+const mount = (worms: WormObject[], objects: GameObject[] = []): Harness => {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -77,6 +77,10 @@ const mount = (worms: WormObject[]): Harness => {
   const viewportRef = { current: { width: 1000, height: 1000 } };
   const wormSpeedMultiplier = { current: 1 };
   const wormsRef = { current: worms };
+  const gameObjectsRef = { current: objects };
+  const positionsRef = {
+    current: new Map(objects.map((o) => [o.id, { x: o.x, y: o.y }])),
+  };
 
   function Probe() {
     useAnimationLoop(
@@ -87,7 +91,9 @@ const mount = (worms: WormObject[]): Harness => {
       setGameObjects as never,
       viewportRef,
       wormSpeedMultiplier,
+      gameObjectsRef,
       wormsRef,
+      positionsRef,
     );
     return null;
   }
@@ -132,20 +138,17 @@ describe("useAnimationLoop", () => {
 
   it("resolves collision against the worm positions it just computed", () => {
     const object = makeObject();
-    const h = mount([makeWorm()]);
+    const h = mount([makeWorm()], [object]);
 
     runFrame(FRAME_MS);
 
     expect(h.setGameObjects).toHaveBeenCalledTimes(1);
-    const updater = h.setGameObjects.mock.calls[0][0] as (
-      prev: GameObject[],
-    ) => GameObject[];
-    const remaining = updater([object]);
+    const survivors = h.setGameObjects.mock.calls[0][0] as GameObject[];
 
     // Worm travels 500 → 540. The object sits at 580 with a 60px collision
     // radius, so it collides only if the loop used the NEW position. Reading
     // the stale commit (500) leaves an 80px gap and the object survives.
-    expect(remaining).toHaveLength(0);
+    expect(survivors).toHaveLength(0);
 
     act(() => h.root.unmount());
   });

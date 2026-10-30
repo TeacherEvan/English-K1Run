@@ -19,6 +19,7 @@ export interface WormCollisionContext {
 export const applyWormObjectCollision = (
   worms: WormObject[],
   objects: GameObject[],
+  positions: ReadonlyMap<string, { x: number; y: number }>,
   context: WormCollisionContext,
 ) => {
   if (worms.length === 0 || objects.length === 0) return objects;
@@ -36,8 +37,12 @@ export const applyWormObjectCollision = (
     const wormYPx = worm.y;
 
     for (const obj of objects) {
-      const objXPx = (obj.x / 100) * viewportWidth;
-      const objYPx = obj.y;
+      // Live position, not the roster's immutable spawn coordinates.
+      const position = positions.get(obj.id);
+      if (!position) continue;
+
+      const objXPx = (position.x / 100) * viewportWidth;
+      const objYPx = position.y;
 
       const dx = objXPx - wormXPx;
       const dy = objYPx - wormYPx;
