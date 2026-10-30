@@ -6,7 +6,7 @@
 | **Audited Scope** | `src/` — 381 implementation files, 36 test files, **25,059 effective LOC** (+1,232 CSS LOC, 186 `index.html`) |
 | **Tech Stack & Runtime** | TypeScript 5.9 / React 19 / Vite 8 / Tailwind 4 / Radix UI / Dexie / i18next / Capacitor 8 (Android + iOS) / vite-plugin-pwa. Target: touch-first tablets in classrooms, desktop projection. |
 | **Pre/Post Audit SHA-256** | `7224bb1d57ae3132` / `7224bb1d57ae3132` (**VERIFIED ZERO MUTATION** through Pass 1–4) |
-| **Deterministic Health Score** | **`84 / 100`** at audit → **`91 / 100`** after remediation (`D_raw = 38 → 10`, `P_test = 6.75`, `M_kill = 45% → 55%`) |
+| **Deterministic Health Score** | **`84 / 100`** at audit → **`93 / 100`** after remediation (`D_raw = 38 → 7`, `P_test = 6.0`, `M_kill = 45% → 60%`) |
 | **Vibe-Debt Risk Level** | **`MODERATE`** at audit → **`LOW`** after |
 
 > **Zero-mutation statement.** `HEAD` was `972d5a4e61a50b975b3df7002cc2fa7d7ba5525b` with a clean tree for the whole read-only pass. The scanner digest above was computed against `src/` with a scoped prune set (copied to scratch, `node_modules`/`dist`/`android`/`ios`/`playwright-report`/`test-results` excluded) and is unchanged across Pass 1–4. Every mutation below belongs to the separately authorised Pass 4.5 remediation.
@@ -304,5 +304,26 @@ Four files deleted (~150 LOC), the one live import repointed at `collision-detec
 The regression test is decisive rather than decorative: an object is placed so it does **not** overlap the worm at t0 but **does** after one frame of travel. Reverting the loop to the stale read makes it fail — `expected [ { id: 'object-1', … } ] to have a length of +0 but got 1` — and restoring the fix makes it pass. Verified by temporarily reverting the source and re-running.
 
 **Still outstanding (deliberately):** React state remains the game transport (every frame still reconciles the emoji list); the theme-vs-`dark:` authority conflict is systemic and only patched locally on the Exit button; `INEFFECTIVE_DYNAMIC_IMPORT` on the speech synthesizer. These are Phase 2/3 and none is a correctness bug.
+
+## 10. Remediation Round 3 — the frame budget, and a benchmark that failed
+
+Object positions were transported through React state: the rAF loop rebuilt the `gameObjects` array every frame, so all 31 emoji nodes were reconciled and their `style` attribute rewritten 60×/sec. Positions now live in a mutable map (`lib/game/object-motion.ts`) and reach the DOM through a frame writer (`lib/game/object-frame-writer.ts`); React only sees **membership** changes.
+
+**What is proven — deterministic, asserted by tests:**
+
+| Contract | Test |
+| :--- | :--- |
+| A movement-only frame dispatches **zero** state updates (was one per frame) | `object-update-roster.test.ts › dispatches nothing at all when objects only move` |
+| Worm collision computes first and dispatches only on an actual hit | `animation-loop.test.tsx` |
+| `left` — a LAYOUT property — is written only when x changes; only the compositor-only transform is written in steady state | `object-frame-writer.test.ts › stops rewriting left once x is stable` |
+| Collision reads live positions, not the roster's immutable spawn coordinates | `worm-collision.test.ts › uses the live position, not the roster's spawn coordinates` |
+
+**What is NOT proven — and must not be claimed.** The wall-clock frame-rate benefit. Repeated A/B runs against a pristine `git archive` baseline served on a second port spread from **30 to 59 fps for the same build**, because the host was saturated (load average 12–18, unrelated Firefox processes at 74–77 % CPU). Two intermediate results even said the refactor was *worse* (−3.6 fps) before the `left`-write elimination; those numbers are equally untrustworthy. The measurement environment, not the code, dominated. **No frame-rate improvement is claimed.**
+
+One genuine bug surfaced while doing this: collision had been reading object coordinates from the roster, which after the move hold spawn values forever. The refactor exposed it and the fix is unit-tested.
+
+**Gate results:** `vitest` **157 passed / 40 files** · `tsc -b --noEmit` exit 0 · `eslint` clean · `playwright --project=chromium` **61 passed, 4 skipped, 1 flake** — the flake (`visual-screenshots.spec.ts`, a hardcoded 2000 ms `waitForFunction` in `e2e/utils/worm-loading.ts`) **passes in isolation**, and the full suite took 5.9 min against a normal 3.5 min on a load-18 host.
+
+**Lesson for the next agent:** an A/B needs an idle host. `uptime` before benchmarking belongs in the recipe, not after the numbers are in the report.
 
 
