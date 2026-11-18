@@ -40,16 +40,23 @@ export const GameMenuExitDialog = memo(
 
         return (
             <>
+                {/*
+                    Exit carried the same mass and saturation as the primary
+                    "Start Game" action (76px tall, full-strength red), so the
+                    loudest control on a kindergarten menu was the one that
+                    ends the session. It keeps its destructive identity and its
+                    confirmation dialog, but now reads as a quiet tertiary row.
+                */}
                 <Button
                     variant="destructive"
                     size="lg"
-                    className="menu-support-action mt-1 h-[4.75rem] justify-start gap-4 rounded-[1.5rem] border border-red-900/10 bg-red-600 px-6 text-lg font-semibold shadow-[0_16px_24px_rgba(220,38,38,0.18)] hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_20px_28px_rgba(220,38,38,0.22)]"
+                    className="menu-support-action mt-1 h-14 justify-start gap-4 rounded-3xl border border-red-200 bg-red-50/80 px-5 text-base font-semibold text-red-800 shadow-none hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-none active:shadow-none dark:border-red-200 dark:bg-red-50/80 dark:text-red-800"
                     onClick={handleExit}
                     data-testid="exit-button"
                 >
                     <MenuActionButtonContent
                         icon={<LogOutIcon className="w-5 h-5" />}
-                        subtitleClassName="mt-1 text-sm font-medium text-white/78"
+                        subtitleClassName="mt-1 text-sm font-medium text-red-700/80"
                         textClassName="menu-action-copy flex flex-col items-start leading-tight"
                         title={exitLabel.title}
                         subtitle={exitLabel.subtitle}
