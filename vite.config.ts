@@ -141,8 +141,11 @@ export default defineConfig({
     },
     // Adjust chunk size warning limit for React 19 (React DOM core is legitimately large)
     chunkSizeWarningLimit: 1400, // Increased to accommodate React 19 DOM core, while encouraging chunking for other modules
-    // Enable tree shaking optimizations
-    minify: "esbuild",
+    // Enable tree shaking optimizations.
+    // Vite 8 (Rolldown) no longer bundles esbuild — it is an optional peer, and
+    // the legacy `transformWithEsbuild` path hard-fails when it is absent.
+    // "oxc" is Rolldown's native minifier and needs no extra dependency.
+    minify: "oxc",
     // Additional build optimizations
     cssCodeSplit: true,
     cssMinify: true,

@@ -35,6 +35,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
   const {
     gameObjects,
     setGameObjects,
+    positionsRef,
     worms,
     setWorms,
     fairyTransforms,
@@ -93,6 +94,8 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
       fallSpeedMultiplier,
       viewportRef,
       gameStateRef,
+      gameObjectsRef,
+      positionsRef,
       lastEmojiAppearance,
       lastTargetSpawnTime,
       staleEmojisCache,
@@ -142,7 +145,12 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     setGameState,
   });
 
-  useSpawnInterval(gameState.gameStarted, gameState.winner, spawnObject);
+  useSpawnInterval(
+    gameState.gameStarted,
+    gameState.winner,
+    spawnObject,
+    gameState.progress,
+  );
   useAnimationLoop(
     gameState.gameStarted,
     gameState.winner,
@@ -153,6 +161,7 @@ export const useGameLogic = (options: UseGameLogicOptions = {}) => {
     wormSpeedMultiplier,
     gameObjectsRef,
     wormsRef,
+    positionsRef,
   );
   useFairyCleanup(gameState.gameStarted, gameState.winner, setFairyTransforms);
 

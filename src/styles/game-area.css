@@ -37,6 +37,33 @@
   z-index: 0;
 }
 
+/*
+ * Legibility scrim over the photographic background.
+ *
+ * The play surface sits on a randomly-rotated photo background (aurora, nebula,
+ * waterfall). Flat emoji glyphs on that much high-frequency detail compete with
+ * the falling objects for a five-year-old's attention. A soft vignette pushes
+ * the busy edges back and a top band separates the HUD from the play field,
+ * without tinting the centre where the objects are read.
+ *
+ * z-index 0 keeps it under `.game-area > *` (2) and under the objects' own
+ * GAMEPLAY_OBJECTS layer (20).
+ */
+.game-area::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      125% 85% at 50% 46%,
+      transparent 40%,
+      rgba(15, 23, 42, 0.2) 100%
+    ),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.18) 0%, transparent 20%);
+}
+
 .bg-background {
   background:
     linear-gradient(

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { MutableRefObject } from "react";
 import { GAME_CATEGORIES } from "../../../lib/constants/game-categories";
 import type { GameState } from "../../../types/game";
 import { updateStateOnTap } from "../tap-state-updater";
@@ -37,7 +38,8 @@ describe("updateStateOnTap", () => {
     generateRandomTarget: () => ({ name: "apple", emoji: "🍎" }),
     spawnImmediateTargets: vi.fn(),
     continuousMode: false,
-    continuousModeTargetCount: { current: 0 },
+    continuousModeTargetCount: { current: 0 } as MutableRefObject<number>,
+    sequenceIndicesRef: { current: [0] } as MutableRefObject<number[]>,
     continuousModeHighScore: null,
     continuousModeStartTime: null,
     setContinuousModeHighScore: vi.fn(),
@@ -46,7 +48,6 @@ describe("updateStateOnTap", () => {
     setGameState: (updater: GameState | ((prev: GameState) => GameState)) => {
       state = typeof updater === "function" ? updater(state) : updater;
     },
-    sequenceIndicesRef: { current: [] },
     setScreenShake: vi.fn(),
   });
 
@@ -78,5 +79,30 @@ describe("updateStateOnTap", () => {
 
     expect(state.progress).toBe(0);
     expect(state.streak).toBe(0);
+  });
+
+  it("escalates the combo multiplier as the streak builds", () => {
+    const deps = makeDeps();
+
+    for (let i = 0; i < 5; i += 1) {
+      updateStateOnTap(true, deps);
+    }
+
+    expect(state.streak).toBe(5);
+    expect(state.multiplier).toBe(1.5);
+  });
+
+  it("resets the combo multiplier when a wrong tap breaks the streak", () => {
+    const deps = makeDeps();
+
+    for (let i = 0; i < 10; i += 1) {
+      updateStateOnTap(true, deps);
+    }
+    expect(state.multiplier).toBe(2);
+
+    updateStateOnTap(false, deps);
+
+    expect(state.streak).toBe(0);
+    expect(state.multiplier).toBe(1);
   });
 });
