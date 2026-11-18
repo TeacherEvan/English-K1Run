@@ -12,6 +12,11 @@ import type {
  */
 export const useGameLogicState = () => {
   const [gameObjects, setGameObjects] = useState<GameObject[]>([]);
+  /*
+   * Live falling-object positions. Deliberately a ref: they change 60 times a
+   * second and must never reach the reconciler. See lib/game/object-motion.ts.
+   */
+  const positionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const [worms, setWorms] = useState<WormObject[]>([]);
   const [fairyTransforms, setFairyTransforms] = useState<
     FairyTransformObject[]
@@ -54,6 +59,7 @@ export const useGameLogicState = () => {
   return {
     gameObjects,
     setGameObjects,
+    positionsRef,
     worms,
     setWorms,
     fairyTransforms,

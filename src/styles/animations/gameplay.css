@@ -133,3 +133,24 @@
 .coin-sparkle {
   animation: coin-sparkle 0.5s ease-out forwards;
 }
+
+/*
+ * Tap acknowledgement for gameplay entities.
+ *
+ * A correct tap removes the entity from state in the same commit, so the only
+ * thing that can acknowledge the press is the :active state itself. Without
+ * this, a child playing with sound off (a real classroom setting) sees no
+ * difference between a hit and a miss.
+ *
+ * This is a static state change, not an animation, so it still reads under
+ * reduced motion — that rule only shortens transitions, it does not remove a
+ * transform. `!important` is deliberately absent so the entity's own
+ * positioning transform on the parent is never affected.
+ */
+.game-object {
+  transition: transform 90ms ease-out;
+}
+
+.game-object:active {
+  transform: scale(0.88);
+}

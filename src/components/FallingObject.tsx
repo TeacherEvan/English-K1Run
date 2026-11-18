@@ -1,5 +1,6 @@
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { UI_LAYER_MATRIX } from '../lib/constants/ui-layer-matrix'
+import { registerObjectNode } from '../lib/game/object-frame-writer'
 import { multiTouchHandler } from '../lib/touch-handler'
 import type { GameObject } from '../types/game'
 
@@ -51,6 +52,15 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     }
   }
 
+  // Hand the node to the frame writer. Positions are written straight to the
+  // DOM each frame; this keeps the emoji out of the reconciler entirely.
+  const setNode = useCallback(
+    (element: HTMLDivElement | null) => {
+      registerObjectNode(object.id, element)
+    },
+    [object.id],
+  )
+
   // Memoize style calculations to prevent recalculation on every render
   // Performance optimization: Use translate3d for GPU acceleration and isolate scale to font-size
   // to prevent composition layer recalculation from CSS variable changes
@@ -69,6 +79,7 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
 
   return (
     <div
+      ref={setNode}
       data-testid="falling-object"
       data-emoji={object.emoji}
       data-object-id={object.id}
@@ -83,8 +94,8 @@ export const FallingObject = memo(({ object, onTap, playerSide }: FallingObjectP
     >
       <div
         className={isNumericText
-          ? 'font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
-          : 'drop-shadow-2xl'
+          ? 'game-object font-bold text-blue-600 bg-white/90 rounded-lg px-2 py-1 shadow-lg'
+          : 'game-object drop-shadow-2xl'
         }
         style={{
           filter: isNumericText

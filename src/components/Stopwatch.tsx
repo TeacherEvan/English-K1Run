@@ -82,7 +82,7 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
                             {t('game.bestTime', { lng: gameplayLanguage })}
                         </span>
                         <span
-                            className="text-xl font-mono font-bold text-yellow-400 animate-pulse"
+                            className="text-xl font-mono font-bold text-yellow-400 tabular-nums"
                             style={{ textShadow: '0 0 10px rgba(234, 179, 8, 0.5)' }}
                         >
                             {formatTime(bestTime)}
@@ -96,7 +96,7 @@ export const Stopwatch = memo(({ isRunning, bestTime, onRunComplete }: Stopwatch
                             {t('game.currentTime', { lng: gameplayLanguage })}
                         </span>
                         <span
-                            className={`text-xl font-mono font-bold text-red-500 ${isRunning ? 'animate-pulse' : ''}`}
+                            className={`text-xl font-mono font-bold text-red-500 tabular-nums ${isRunning ? '' : 'opacity-70'}`}
                             style={{ textShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}
                         >
                             {formatTime(currentTime)}
