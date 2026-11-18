@@ -122,11 +122,16 @@ export const TargetDisplay = memo(({ currentTarget, targetEmoji, category, timeR
 
         {timeRemaining !== undefined && timeRemaining > 0 && !category.requiresSequence && (
           <div style={{ marginTop: `calc(0.4rem * var(--spacing-scale, 1))` }}>
-            <div className="font-medium"
+            <div className="font-medium tabular-nums"
               style={{
-                fontSize: `calc(0.65rem * var(--font-scale, 1))`,
-                color: 'rgb(120, 113, 108)',
-                fontWeight: '500'
+                fontSize: `calc(0.75rem * var(--font-scale, 1))`,
+                /* Was rgb(120,113,108) at 0.65rem — ~4.4:1 on the translucent
+                   card, under AA for small text, and proportional digits made
+                   the readout jump a few px when 9s became 10s. */
+                color: 'rgb(68, 64, 60)',
+                fontWeight: '600',
+                fontVariantNumeric: 'tabular-nums',
+                minWidth: '2.25em'
               }}>
               {Math.ceil(timeRemaining / 1000)}s
             </div>

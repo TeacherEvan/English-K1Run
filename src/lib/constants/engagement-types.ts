@@ -35,11 +35,9 @@ export interface PowerUp {
 }
 
 export interface DifficultyConfig {
-  /** Base fall speed multiplier. */
+  /** Fall speed multiplier at 0% progress. */
   baseFallSpeed: number;
-  /** Speed increase per 10% progress. */
-  speedIncreasePerProgress: number;
-  /** Maximum speed multiplier cap. */
+  /** Fall speed multiplier at 100% progress. */
   maxSpeedMultiplier: number;
   /** Spawn interval at start (ms). */
   baseSpawnInterval: number;

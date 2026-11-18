@@ -1,12 +1,13 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { eventTracker } from "../../lib/event-tracker";
 import type { GameState, GameCategory } from "../../types/game";
-import { handleProgressWin } from "./tap-handlers-object-win";
 import {
   DEFAULT_MODE_PROGRESS_INCREMENT,
   DEFAULT_MODE_PROGRESS_PENALTY,
   PROGRESS_MAX,
 } from "../../lib/constants/game-config";
+import { getStreakMultiplier } from "../../lib/constants/combo-levels";
+import { handleProgressWin } from "./tap-handlers-object-win";
 
 export interface TapStateUpdateDependencies {
   gameState: GameState;
@@ -57,7 +58,10 @@ export const updateStateOnTap = (
     const newState = { ...prev };
 
     if (isCorrect) {
-      newState.streak += 1;
+      newState.streak = prev.streak + 1;
+      // Streak drives the visible combo multiplier (1.0 -> 3.0). Progress is
+      // deliberately NOT multiplied: the level length stays a fixed 20 taps.
+      newState.multiplier = getStreakMultiplier(newState.streak);
 
       newState.progress = Math.min(
         prev.progress + DEFAULT_MODE_PROGRESS_INCREMENT,
@@ -112,6 +116,7 @@ export const updateStateOnTap = (
       }
     } else {
       newState.streak = 0;
+      newState.multiplier = 1;
       newState.progress = Math.max(
         prev.progress - DEFAULT_MODE_PROGRESS_PENALTY,
         0,
