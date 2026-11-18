@@ -125,6 +125,17 @@ export class AccessibilityManager {
       "--animation-speed",
       this.preferences.animationSpeed.toString(),
     );
+
+    /*
+     * The duration override is opt-in (see accessibility-styles.css): at the
+     * default speed of 1 nothing is forced, so per-component timings survive.
+     * Only a deliberate slow/fast request marks the root.
+     */
+    if (this.preferences.animationSpeed !== 1) {
+      root.dataset.animationSpeed = this.preferences.animationSpeed.toString();
+    } else {
+      delete root.dataset.animationSpeed;
+    }
     root.style.setProperty(
       "--focus-indicator-size",
       this.preferences.focusIndicatorSize === "small"
